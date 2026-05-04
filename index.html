@@ -3,8 +3,6 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<link rel="manifest" href="manifest.json">
-<meta name="theme-color" content="#111111">
 <title>Control de Gastos</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;outline:none}
@@ -548,17 +546,43 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
     <div class="modal-title">Editar tarjeta</div>
     <div class="field-wrap">
       <div class="field-label">Banco</div>
-      <button onclick="abrirPopupBancoEdit()" class="banco-selector-btn" id="banco-edit-tarjeta-btn">
-        <span id="banco-edit-tarjeta-txt">Seleccionar banco...</span>
-        <span style="color:#aaa;font-size:12px">▾</span>
-      </button>
+        <div onclick="toggleScrollBancoEdit(this)" class="banco-selector-btn" id="banco-edit-tarjeta-btn" style="cursor:pointer">
+          <span id="banco-edit-tarjeta-txt">Seleccionar banco...</span>
+          <span style="color:#aaa;font-size:12px">▾</span>
+        </div>
+        <input type="hidden" id="inp-banco-edit-tarjeta"/>
+        <div id="banco-edit-tarjeta-wrap" style="display:none;margin-top:6px;background:#f0f0f0;border-radius:14px;overflow:hidden;position:relative">
+          <div style="font-size:10px;font-weight:700;color:#aaa;text-align:center;text-transform:uppercase;letter-spacing:0.08em;padding:8px 0 4px">Desliza para seleccionar</div>
+          <div style="position:relative;height:132px;margin:0 8px">
+            <div style="position:absolute;left:0;right:0;top:50%;transform:translateY(-50%);height:44px;border-radius:10px;background:linear-gradient(180deg,#111,#444);pointer-events:none;z-index:1"></div>
+            <div id="scroll-banco-edit-tarjeta" style="position:absolute;inset:0;overflow-y:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch;z-index:2">
+              <div style="height:44px"></div>
+              <div id="scroll-banco-edit-tarjeta-items" style="width:100%"></div>
+              <div style="height:44px"></div>
+            </div>
+          </div>
+          <div style="height:8px"></div>
+        </div>
     </div>
     <div class="field-wrap">
       <div class="field-label">Fecha de corte</div>
-      <button onclick="abrirPopupCorteEdit()" class="banco-selector-btn" id="corte-edit-tarjeta-btn">
-        <span id="corte-edit-tarjeta-txt">Seleccionar día...</span>
-        <span style="color:#aaa;font-size:12px">▾</span>
-      </button>
+        <div onclick="toggleScrollCorteEdit(this)" class="banco-selector-btn" id="corte-edit-tarjeta-btn" style="cursor:pointer">
+          <span id="corte-edit-tarjeta-txt">Seleccionar día...</span>
+          <span style="color:#aaa;font-size:12px">▾</span>
+        </div>
+        <input type="hidden" id="inp-corte-edit-tarjeta"/>
+        <div id="corte-edit-tarjeta-wrap" style="display:none;margin-top:6px;background:#f0f0f0;border-radius:14px;overflow:hidden;position:relative">
+          <div style="font-size:10px;font-weight:700;color:#aaa;text-align:center;text-transform:uppercase;letter-spacing:0.08em;padding:8px 0 4px">Desliza para seleccionar</div>
+          <div style="position:relative;height:132px;margin:0 8px">
+            <div style="position:absolute;left:0;right:0;top:50%;transform:translateY(-50%);height:44px;border-radius:10px;background:linear-gradient(180deg,#111,#444);pointer-events:none;z-index:1"></div>
+            <div id="scroll-corte-edit-tarjeta" style="position:absolute;inset:0;overflow-y:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch;z-index:2">
+              <div style="height:44px"></div>
+              <div id="scroll-corte-edit-tarjeta-items" style="width:100%"></div>
+              <div style="height:44px"></div>
+            </div>
+          </div>
+          <div style="height:8px"></div>
+        </div>
     </div>
     <div class="field-wrap">
       <div class="field-label">Tarjeta <span style="font-weight:400;color:#aaa">(opcional)</span></div>
@@ -1564,14 +1588,40 @@ window.renderPerfiles = function(){
         <div style="font-size:13px;font-weight:700;color:#555;margin-bottom:12px">Nueva tarjeta</div>
 
         <div style="font-size:11px;font-weight:700;color:#888;text-transform:uppercase;margin-bottom:6px">Banco</div>
-        <button onclick="abrirPopupBancoEdit()" class="banco-selector-btn" id="banco-edit-btn" style="margin-bottom:12px">
+        <div onclick="toggleScrollBancoEdit(this)" class="banco-selector-btn" id="banco-edit-btn" style="cursor:pointer;margin-bottom:6px">
           <span id="banco-edit-txt">Seleccionar banco...</span><span style="color:#aaa;font-size:12px">▾</span>
-        </button>
+        </div>
+        <input type="hidden" id="inp-banco-edit-nuevo"/>
+        <div id="banco-edit-nuevo-wrap" style="display:none;margin-bottom:12px;background:#f0f0f0;border-radius:14px;overflow:hidden;position:relative">
+          <div style="font-size:10px;font-weight:700;color:#aaa;text-align:center;text-transform:uppercase;letter-spacing:0.08em;padding:8px 0 4px">Desliza para seleccionar</div>
+          <div style="position:relative;height:132px;margin:0 8px">
+            <div style="position:absolute;left:0;right:0;top:50%;transform:translateY(-50%);height:44px;border-radius:10px;background:linear-gradient(180deg,#111,#444);pointer-events:none;z-index:1"></div>
+            <div id="scroll-banco-edit-nuevo" style="position:absolute;inset:0;overflow-y:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch;z-index:2">
+              <div style="height:44px"></div>
+              <div id="scroll-banco-edit-nuevo-items" style="width:100%"></div>
+              <div style="height:44px"></div>
+            </div>
+          </div>
+          <div style="height:8px"></div>
+        </div>
 
         <div style="font-size:11px;font-weight:700;color:#888;text-transform:uppercase;margin-bottom:6px">Corte</div>
-        <button onclick="abrirPopupCorteEdit()" class="banco-selector-btn" id="corte-edit-btn" style="margin-bottom:12px">
+        <div onclick="toggleScrollCorteEdit(this)" class="banco-selector-btn" id="corte-edit-btn" style="cursor:pointer;margin-bottom:6px">
           <span id="corte-edit-txt">Seleccionar día de corte...</span><span style="color:#aaa;font-size:12px">▾</span>
-        </button>
+        </div>
+        <input type="hidden" id="inp-corte-edit-nuevo"/>
+        <div id="corte-edit-nuevo-wrap" style="display:none;margin-bottom:12px;background:#f0f0f0;border-radius:14px;overflow:hidden;position:relative">
+          <div style="font-size:10px;font-weight:700;color:#aaa;text-align:center;text-transform:uppercase;letter-spacing:0.08em;padding:8px 0 4px">Desliza para seleccionar</div>
+          <div style="position:relative;height:132px;margin:0 8px">
+            <div style="position:absolute;left:0;right:0;top:50%;transform:translateY(-50%);height:44px;border-radius:10px;background:linear-gradient(180deg,#111,#444);pointer-events:none;z-index:1"></div>
+            <div id="scroll-corte-edit-nuevo" style="position:absolute;inset:0;overflow-y:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch;z-index:2">
+              <div style="height:44px"></div>
+              <div id="scroll-corte-edit-nuevo-items" style="width:100%"></div>
+              <div style="height:44px"></div>
+            </div>
+          </div>
+          <div style="height:8px"></div>
+        </div>
 
         <div style="font-size:11px;font-weight:700;color:#888;text-transform:uppercase;margin-bottom:6px">Tarjeta <span style="font-weight:400;color:#aaa">(opcional)</span></div>
         <input id="apodo-nueva-edit" placeholder="Ej. Nómina, Personal, Débito..." maxlength="30"
@@ -1603,17 +1653,16 @@ window.abrirEditarTarjeta = function(id){
   const t = perfil.tarjetas.find(x=>x.id===id);
   if(!t) return;
   editandoTarjetaId = id;
-  // Prellenar datos actuales
   selectedBancoEdit = t.nombre;
   selectedCorteEdit = t.corte;
-  const bancoBtn = document.getElementById('banco-edit-tarjeta-btn');
-  const corteBtn = document.getElementById('corte-edit-tarjeta-btn');
-  if(bancoBtn){ bancoBtn.classList.add('selected'); document.getElementById('banco-edit-tarjeta-txt').textContent = t.nombre; }
-  if(corteBtn){ corteBtn.classList.add('selected'); document.getElementById('corte-edit-tarjeta-txt').textContent = t.corte; }
-  document.getElementById('limite-edit-tarjeta').value = t.limite;
+  document.getElementById('inp-banco-edit-tarjeta').value = t.nombre;
+  document.getElementById('banco-edit-tarjeta-txt').textContent = t.nombre;
+  document.getElementById('inp-corte-edit-tarjeta').value = t.corte;
+  document.getElementById('corte-edit-tarjeta-txt').textContent = 'D\u00eda ' + t.corte;
+  document.getElementById('banco-edit-tarjeta-wrap').style.display = 'none';
+  document.getElementById('corte-edit-tarjeta-wrap').style.display = 'none';
   document.getElementById('apodo-edit-tarjeta').value = t.apodo || '';
-  // Indicar que los popups van a este modal
-  window._editMode = 'tarjeta';
+  document.getElementById('limite-edit-tarjeta').value = t.limite || '';
   document.getElementById('edit-tarjeta-overlay').classList.add('open');
 }
 
@@ -3067,6 +3116,81 @@ window.aceptarConfirmHist = function(){
 }
 
 
+// ── SCROLLS BANCO/CORTE EN PERFILES ─────────────────────────────
+function buildScrollBancoPerfiles(scrollId, itemsId, wrapId, txtId, inpId, currentVal){
+  const wrap = document.getElementById(wrapId);
+  // Cerrar otros scrolls de perfiles
+  ['banco-edit-tarjeta-wrap','corte-edit-tarjeta-wrap','banco-edit-nuevo-wrap','corte-edit-nuevo-wrap'].forEach(w=>{
+    if(w!==wrapId){ const el=document.getElementById(w); if(el) el.style.display='none'; }
+  });
+  const isOpen = wrap.style.display === 'block';
+  wrap.style.display = isOpen ? 'none' : 'block';
+  if(!isOpen){
+    const currentIdx = (window.BANCOS_OB||['BBVA','Banorte','Citibanamex','Santander','HSBC','Scotiabank','Invex','Banamex']).indexOf(currentVal);
+    const BANCOS = window.BANCOS_OB||['BBVA','Banorte','Citibanamex','Santander','HSBC','Scotiabank','Invex','Banamex'];
+    const cont = document.getElementById(itemsId);
+    const scrollEl = document.getElementById(scrollId);
+    cont.innerHTML = BANCOS.map(function(b,i){
+      return '<div class="scroll-item'+(i===currentIdx?' sel':'')+'" style="'+(i===currentIdx?'color:#fff;':'')+'">' + b + '</div>';
+    }).join('');
+    setTimeout(()=>{
+      const idx = currentIdx >= 0 ? currentIdx : 0;
+      scrollEl.scrollTop = idx*44;
+      cont.querySelectorAll('.scroll-item').forEach((el,i)=>{ el.classList.toggle('sel',i===idx); el.style.color=i===idx?'#fff':''; });
+    },50);
+    snapScroll(scrollEl, 44, function(idx){
+      const b = BANCOS[Math.min(idx,BANCOS.length-1)];
+      cont.querySelectorAll('.scroll-item').forEach((el,i)=>{ el.classList.toggle('sel',i===idx); el.style.color=i===idx?'#fff':''; });
+      document.getElementById(inpId).value = b;
+      document.getElementById(txtId).textContent = b;
+    });
+  }
+}
+
+function buildScrollCortePerfiles(scrollId, itemsId, wrapId, txtId, inpId, currentVal){
+  const wrap = document.getElementById(wrapId);
+  ['banco-edit-tarjeta-wrap','corte-edit-tarjeta-wrap','banco-edit-nuevo-wrap','corte-edit-nuevo-wrap'].forEach(w=>{
+    if(w!==wrapId){ const el=document.getElementById(w); if(el) el.style.display='none'; }
+  });
+  const isOpen = wrap.style.display === 'block';
+  wrap.style.display = isOpen ? 'none' : 'block';
+  if(!isOpen){
+    const currentIdx = (parseInt(currentVal)||1) - 1;
+    const cont = document.getElementById(itemsId);
+    const scrollEl = document.getElementById(scrollId);
+    cont.innerHTML = Array.from({length:31},(_,i)=>i+1).map(function(n){
+      return '<div class="scroll-item'+(n-1===currentIdx?' sel':'')+'" style="'+(n-1===currentIdx?'color:#fff;':'')+'">'+n+'</div>';
+    }).join('');
+    setTimeout(()=>{
+      scrollEl.scrollTop = currentIdx*44;
+      cont.querySelectorAll('.scroll-item').forEach((el,i)=>{ el.classList.toggle('sel',i===currentIdx); el.style.color=i===currentIdx?'#fff':''; });
+    },50);
+    snapScroll(scrollEl, 44, function(idx){
+      const dia = idx+1;
+      cont.querySelectorAll('.scroll-item').forEach((el,i)=>{ el.classList.toggle('sel',i===idx); el.style.color=i===idx?'#fff':''; });
+      document.getElementById(inpId).value = dia;
+      document.getElementById(txtId).textContent = 'Día ' + dia;
+    });
+  }
+}
+
+window.toggleScrollBancoEdit = function(btn){
+  // Detectar si es el modal editar (banco-edit-tarjeta-btn) o el formulario nuevo (banco-edit-btn)
+  if(btn.id === 'banco-edit-tarjeta-btn'){
+    buildScrollBancoPerfiles('scroll-banco-edit-tarjeta','scroll-banco-edit-tarjeta-items','banco-edit-tarjeta-wrap','banco-edit-tarjeta-txt','inp-banco-edit-tarjeta', document.getElementById('inp-banco-edit-tarjeta').value);
+  } else {
+    buildScrollBancoPerfiles('scroll-banco-edit-nuevo','scroll-banco-edit-nuevo-items','banco-edit-nuevo-wrap','banco-edit-txt','inp-banco-edit-nuevo', document.getElementById('inp-banco-edit-nuevo').value);
+  }
+}
+
+window.toggleScrollCorteEdit = function(btn){
+  if(btn.id === 'corte-edit-tarjeta-btn'){
+    buildScrollCortePerfiles('scroll-corte-edit-tarjeta','scroll-corte-edit-tarjeta-items','corte-edit-tarjeta-wrap','corte-edit-tarjeta-txt','inp-corte-edit-tarjeta', document.getElementById('inp-corte-edit-tarjeta').value);
+  } else {
+    buildScrollCortePerfiles('scroll-corte-edit-nuevo','scroll-corte-edit-nuevo-items','corte-edit-nuevo-wrap','corte-edit-txt','inp-corte-edit-nuevo', document.getElementById('inp-corte-edit-nuevo').value);
+  }
+}
+
 window.setNavActive = function(id){
   document.querySelectorAll('.nav-item').forEach(b=>b.classList.remove('active'));
   const el = document.getElementById(id);
@@ -3989,10 +4113,5 @@ window.confirmarEliminarPerfil = async function(){
   </div>
 </div>
 
-<script>
-  if ("serviceWorker" in navigator) {
-    navigator.serviceWorker.register("./service-worker.js");
-  }
-</script>
 </body>
 </html>
