@@ -230,7 +230,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
   background:#fff;
   border-radius:32px;
   box-shadow:0 4px 20px rgba(0,0,0,0.12);
-  display:flex;
+  display:none;
   justify-content:space-around;
   align-items:center;
   z-index:500;
@@ -1713,6 +1713,7 @@ async function entrarApp(){
   document.getElementById('auth-user').value = '';
   document.getElementById('auth-pass').value = '';
   document.getElementById('auth-pass2') && (document.getElementById('auth-pass2').value = '');
+  document.getElementById('bottom-nav').style.display = 'flex';
   // Cargar perfil de Firebase
   try{
     const snap = await getDoc(doc(db,'usuarios', currentUser.uid, 'perfil','datos'));
@@ -1735,27 +1736,34 @@ window.cerrarSesion = function(){
   const mainApp = document.getElementById('main-app');
   mainApp.classList.remove('visible');
   mainApp.style.display = 'none';
+  document.getElementById('bottom-nav').style.display = 'none';
+  // Restaurar pantalla novedades a su estado original por si venía de verCambios
+  const btnNov = document.getElementById('screen-novedades') && document.getElementById('screen-novedades').querySelector('.primary-btn');
+  if(btnNov){ btnNov.setAttribute('onclick','cerrarNovedades()'); btnNov.textContent = '¡Entendido!'; }
   iniciarFlujoAuth();
 }
 
 
 
 window.verCambios = function(){
-  // Reusar pantalla de novedades como historial completo
-  document.querySelectorAll('#main-app .screen').forEach(s=>{ s.classList.add('hidden'); s.style.display='none'; });
+  // Ocultar todo (main-app y otras pantallas sueltas)
+  document.getElementById('main-app').style.display = 'none';
+  document.getElementById('bottom-nav').style.display = 'none';
+  // Mostrar pantalla novedades en modo historial
   const scr = document.getElementById('screen-novedades');
-  // Cambiar el botón para que regrese a config en lugar de cerrar novedades
   scr.querySelector('.primary-btn').setAttribute('onclick', 'regresarAConfig()');
   scr.querySelector('.primary-btn').textContent = '← Volver';
+  document.querySelectorAll('.screen').forEach(s=>{ s.classList.add('hidden'); s.style.display='none'; });
   scr.classList.remove('hidden');
   scr.style.display = 'flex';
 }
 
 window.regresarAConfig = function(){
-  // Restaurar botón original
   const btn = document.getElementById('screen-novedades').querySelector('.primary-btn');
   btn.setAttribute('onclick', 'cerrarNovedades()');
   btn.textContent = '¡Entendido!';
+  document.getElementById('main-app').style.display = 'flex';
+  document.getElementById('bottom-nav').style.display = 'flex';
   irConfiguracion();
 }
 window.irConfiguracion = function(){
