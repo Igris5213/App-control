@@ -1,0 +1,25 @@
+{
+  "name": "Control de Gastos",
+  "short_name": "Gastos",
+  "description": "Controla tus gastos y tarjetas de crédito",
+  "start_url": "https://igris5213.github.io/App-control/index.html",
+  "scope": "https://igris5213.github.io/App-control/",
+  "display": "standalone",
+  "background_color": "#f5f5f5",
+  "theme_color": "#111111",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "https://igris5213.github.io/App-control/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "https://igris5213.github.io/App-control/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
