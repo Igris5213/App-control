@@ -2,7 +2,7 @@
   "name": "Control de Gastos",
   "short_name": "Gastos",
   "description": "Controla tus gastos y tarjetas de crédito",
-  "start_url": "/App-control/control_gastos_1.html",
+  "start_url": "/App-control/index.html",
   "scope": "/App-control/",
   "display": "standalone",
   "background_color": "#f5f5f5",

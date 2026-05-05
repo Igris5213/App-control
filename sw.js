@@ -1,9 +1,9 @@
-const CACHE_NAME = 'control-gastos-v1';
+const CACHE_NAME = 'control-gastos-v2';
 const FILES_TO_CACHE = [
-  './control_gastos_1.html',
-  './manifest.json',
-  './icon-192.png',
-  './icon-512.png'
+  '/App-control/index.html',
+  '/App-control/manifest.json',
+  '/App-control/icon-192.png',
+  '/App-control/icon-512.png'
 ];
 
 // Instalación: pre-cachear archivos
@@ -32,7 +32,7 @@ self.addEventListener('activate', event => {
 self.addEventListener('fetch', event => {
   event.respondWith(
     caches.match(event.request).then(cached => {
-      return cached || fetch(event.request).catch(() => caches.match('./control_gastos_1.html'));
+      return cached || fetch(event.request).catch(() => caches.match('/App-control/index.html'));
     })
   );
 });
