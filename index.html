@@ -2609,8 +2609,8 @@ window.guardarEdicionUsuario = function(){
   let detalle = '';
 
   if(nombreCambio && passCambio){
-    titulo = `¿Cambiar usuario de ${nombreAnterior} a ${nuevoNombre}?`;
-    detalle = 'Contraseña actualizada';
+    titulo = `¿Cambiar de ${nombreAnterior} a ${nuevoNombre} y actualizar contraseña?`;
+    detalle = '';
   } else if(nombreCambio){
     titulo = `¿Cambiar usuario de ${nombreAnterior} a ${nuevoNombre}?`;
     detalle = '';
@@ -2648,7 +2648,7 @@ window.confirmarEdicion = function(){
   document.getElementById('modal-admin-editar').classList.remove('open');
 
   if(nombreCambio && passCambio){
-    showSuccess('Usuario actualizado', 'Contraseña actualizada');
+    showSuccess('Usuario actualizado', '');
   } else if(nombreCambio){
     showSuccess('Usuario actualizado', '');
   } else {
