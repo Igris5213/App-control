@@ -1314,7 +1314,6 @@ function cerrarTodosLosPopups(){
   ['banco-promo-scroll-wrap','tarjeta-promo-scroll-wrap','meses-scroll-wrap']
     .forEach(id=>{ const el=document.getElementById(id); if(el) el.style.display='none'; });
 }
-
 window.abrirPopupBanco = function(){
   cerrarTodosLosPopups();
   document.getElementById('banco-popup-overlay').classList.add('open');
@@ -2977,10 +2976,6 @@ window.renderPerfiles = function(){
         </div>
       </div>` : ''}
 
-      <!-- Botón eliminar perfil -->
-      <button onclick="abrirSettings()" style="margin-top:14px;width:100%;padding:10px;border-radius:10px;border:1.5px solid #111;background:none;color:#111;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit">
-        🗑 Eliminar perfil
-      </button>
     </div>`;
 }
 
@@ -3776,13 +3771,16 @@ window.selTarjetaPromo = function(id){
   document.getElementById('tarjeta-promo-popup').classList.remove('open');
 }
 
+window.cerrarScrollsPromo = function(){
+  ['banco-promo-scroll-wrap','tarjeta-promo-scroll-wrap','meses-scroll-wrap']
+    .forEach(id=>{ const el=document.getElementById(id); if(el) el.style.display='none'; });
+}
+
 window.abrirScrollTarjetaPromo = function(){
   const wrap = document.getElementById('tarjeta-promo-scroll-wrap');
-  // Siempre cerrar banco y meses primero
-  document.getElementById('banco-promo-scroll-wrap').style.display = 'none';
-  document.getElementById('meses-scroll-wrap').style.display = 'none';
   const isOpen = wrap.style.display === 'block';
-  if(isOpen){ wrap.style.display = 'none'; return; }
+  cerrarScrollsPromo();
+  if(isOpen){ return; }
 
   const tarjetas = (perfil?.tarjetas||[]).filter(t=>t.nombre===promoBancoSel);
   if(!tarjetas.length){ showToast('No hay tarjetas para este banco'); return; }
@@ -3819,11 +3817,9 @@ window.abrirScrollTarjetaPromo = function(){
 
 window.abrirScrollBancoPromo = function(){
   const wrap = document.getElementById('banco-promo-scroll-wrap');
-  // Siempre cerrar tarjeta y meses primero
-  document.getElementById('tarjeta-promo-scroll-wrap').style.display = 'none';
-  document.getElementById('meses-scroll-wrap').style.display = 'none';
   const isOpen = wrap.style.display === 'block';
-  if(isOpen){ wrap.style.display = 'none'; return; }
+  cerrarScrollsPromo();
+  if(isOpen){ return; }
 
   const bancos = [...new Set((perfil?.tarjetas||[]).map(t=>t.nombre))];
   if(!bancos.length){ showToast('No tienes tarjetas configuradas'); return; }
@@ -3867,11 +3863,9 @@ window.abrirScrollBancoPromo = function(){
 
 window.abrirScrollMeses = function(){
   const wrap = document.getElementById('meses-scroll-wrap');
-  // Siempre cerrar banco y tarjeta primero
-  document.getElementById('banco-promo-scroll-wrap').style.display = 'none';
-  document.getElementById('tarjeta-promo-scroll-wrap').style.display = 'none';
   const isOpen = wrap.style.display === 'block';
-  if(isOpen){ wrap.style.display='none'; return; }
+  cerrarScrollsPromo();
+  if(isOpen){ return; }
   // Construir items 1-24
   const cont = document.getElementById('scroll-meses-items');
   const current = parseInt(document.getElementById('promo-meses').value) || 3;
@@ -4778,7 +4772,7 @@ window.confirmarEliminarPerfil = async function(){
 
 <!-- ══ MODAL NUEVA PROMOCIÓN ══ -->
 <div class="modal-overlay" id="modal-promo-overlay" onclick="cerrarModalPromo(event)">
-  <div class="modal">
+  <div class="modal" style="max-height:90vh;overflow-y:auto;-webkit-overflow-scrolling:touch">
     <div class="modal-handle"></div>
     <div class="modal-title">Nueva promoción MSI</div>
 
@@ -4831,13 +4825,13 @@ window.confirmarEliminarPerfil = async function(){
     <!-- Comercio -->
     <div class="field-wrap">
       <div class="field-label">Comercio</div>
-      <input class="inp" id="promo-comercio" placeholder="Ej. Liverpool, Costco, Walmart..." maxlength="50" onfocus="cerrarTodosLosPopups()"/>
+      <input class="inp" id="promo-comercio" placeholder="Ej. Liverpool, Costco, Walmart..." maxlength="50" onfocus="cerrarScrollsPromo()"/>
     </div>
 
     <!-- Compra -->
     <div class="field-wrap">
       <div class="field-label">Compra</div>
-      <input class="inp" id="promo-nombre" placeholder="Ej. iPhone, Televisión, Refrigerador..." maxlength="50" onfocus="cerrarTodosLosPopups()"/>
+      <input class="inp" id="promo-nombre" placeholder="Ej. iPhone, Televisión, Refrigerador..." maxlength="50" onfocus="cerrarScrollsPromo()"/>
     </div>
 
     <!-- Importe -->
@@ -4845,7 +4839,7 @@ window.confirmarEliminarPerfil = async function(){
       <div class="field-label">Importe total</div>
       <div class="amount-wrap">
         <span class="amount-prefix">$</span>
-        <input class="amount-inp" id="promo-importe" type="number" placeholder="0.00" min="0" step="1" inputmode="decimal" onfocus="cerrarTodosLosPopups()"/>
+        <input class="amount-inp" id="promo-importe" type="number" placeholder="0.00" min="0" step="1" inputmode="decimal" onfocus="cerrarScrollsPromo()"/>
       </div>
     </div>
 
@@ -4903,7 +4897,7 @@ window.confirmarEliminarPerfil = async function(){
 
 <!-- ══ MODAL EXTEMPORANEO ══ -->
 <div class="modal-overlay" id="modal-ext-overlay" onclick="closeModalExtOut(event)">
-  <div class="modal" onclick="event.stopPropagation()">
+  <div class="modal" onclick="event.stopPropagation()" style="max-height:90vh;overflow-y:auto;-webkit-overflow-scrolling:touch">
     <div class="modal-handle"></div>
     <div class="field-wrap">
       <div class="field-label">Comercio</div>
