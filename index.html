@@ -4763,20 +4763,20 @@ window.confirmarEliminarPerfil = async function(){
 
 <!-- ══ MODAL NUEVA PROMOCIÓN ══ -->
 <div class="modal-overlay" id="modal-promo-overlay" onclick="cerrarModalPromo(event)">
-  <div class="modal" onclick="cerrarTodosLosPopups()">
+  <div class="modal">
     <div class="modal-handle"></div>
     <div class="modal-title">Nueva promoción MSI</div>
 
     <!-- Banco -->
     <div class="field-wrap">
       <div class="field-label">Banco</div>
-      <div onclick="event.stopPropagation();abrirScrollBancoPromo()" id="promo-banco-btn"
+      <div onclick="abrirScrollBancoPromo()" id="promo-banco-btn"
         style="padding:12px 14px;border-radius:12px;border:1.5px solid #e0e0e0;font-size:15px;cursor:pointer;color:#999;display:flex;justify-content:space-between;align-items:center;background:#fff">
         <span id="promo-banco-txt">Seleccionar banco...</span>
         <span style="color:#aaa;font-size:12px">▾</span>
       </div>
       <!-- Scroll inline banco promo -->
-      <div id="banco-promo-scroll-wrap" style="display:none;margin-top:6px;border-radius:14px;overflow:hidden;position:relative;background:#f5f5f5" onclick="event.stopPropagation()">
+      <div id="banco-promo-scroll-wrap" style="display:none;margin-top:6px;border-radius:14px;overflow:hidden;position:relative;background:#f5f5f5">
         <div style="font-size:10px;font-weight:700;color:#aaa;text-align:center;text-transform:uppercase;letter-spacing:0.08em;padding:8px 0 4px">Desliza para seleccionar</div>
         <div style="position:relative;height:132px;margin:0 8px">
           <div style="position:absolute;left:0;right:0;top:50%;transform:translateY(-50%);height:44px;border-radius:10px;background:linear-gradient(180deg,#111,#444);pointer-events:none;z-index:1"></div>
@@ -4793,13 +4793,13 @@ window.confirmarEliminarPerfil = async function(){
     <!-- Tarjeta -->
     <div class="field-wrap" id="promo-tarjeta-wrap" style="display:none">
       <div class="field-label">Tarjeta</div>
-      <div onclick="event.stopPropagation();abrirScrollTarjetaPromo()" id="promo-tarjeta-btn"
+      <div onclick="abrirScrollTarjetaPromo()" id="promo-tarjeta-btn"
         style="padding:12px 14px;border-radius:12px;border:1.5px solid #e0e0e0;font-size:15px;cursor:pointer;color:#999;display:flex;justify-content:space-between;align-items:center;background:#fff">
         <span id="promo-tarjeta-txt">Seleccionar tarjeta...</span>
         <span style="color:#aaa;font-size:12px">▾</span>
       </div>
       <!-- Scroll inline tarjeta promo -->
-      <div id="tarjeta-promo-scroll-wrap" style="display:none;margin-top:6px;border-radius:14px;overflow:hidden;position:relative;background:#f5f5f5" onclick="event.stopPropagation()">
+      <div id="tarjeta-promo-scroll-wrap" style="display:none;margin-top:6px;border-radius:14px;overflow:hidden;position:relative;background:#f5f5f5">
         <div style="font-size:10px;font-weight:700;color:#aaa;text-align:center;text-transform:uppercase;letter-spacing:0.08em;padding:8px 0 4px">Desliza para seleccionar</div>
         <div style="position:relative;height:132px;margin:0 8px">
           <div style="position:absolute;left:0;right:0;top:50%;transform:translateY(-50%);height:44px;border-radius:10px;background:linear-gradient(180deg,#111,#444);pointer-events:none;z-index:1"></div>
@@ -4837,7 +4837,7 @@ window.confirmarEliminarPerfil = async function(){
     <!-- Meses -->
     <div class="field-wrap">
       <div class="field-label">Meses sin intereses</div>
-      <div onclick="event.stopPropagation();abrirScrollMeses()" id="promo-meses-display"
+      <div onclick="abrirScrollMeses()" id="promo-meses-display"
         style="padding:12px 14px;border-radius:12px;border:1.5px solid #e0e0e0;font-size:15px;cursor:pointer;color:#999;display:flex;justify-content:space-between;align-items:center;background:#fff">
         <span id="promo-meses-txt">Seleccionar meses...</span>
         <span style="color:#aaa;font-size:12px">▾</span>
@@ -4846,7 +4846,7 @@ window.confirmarEliminarPerfil = async function(){
     </div>
 
     <!-- Scroll selector de meses -->
-    <div id="meses-scroll-wrap" style="display:none;margin-top:-8px;margin-bottom:8px;border-radius:14px;overflow:hidden;position:relative;background:#f5f5f5" onclick="event.stopPropagation()">
+    <div id="meses-scroll-wrap" style="display:none;margin-top:-8px;margin-bottom:8px;border-radius:14px;overflow:hidden;position:relative;background:#f5f5f5">
       <div style="font-size:10px;font-weight:700;color:#aaa;text-align:center;text-transform:uppercase;letter-spacing:0.08em;padding:8px 0 4px">Desliza para seleccionar</div>
       <div style="position:relative;height:132px">
         <!-- Recuadro negro centrado -->
@@ -4999,21 +4999,13 @@ function actualizarDias(){
   const maxDias = diasEnMes(dpMes, dpAnio);
   const dias = Array.from({length:maxDias},(_,i)=>String(i+1).padStart(2,'0'));
   const selDia = Math.min(dpDia-1, maxDias-1);
-  buildScrollDias(dias, selDia);
-}
-
-function buildScrollDias(dias, selIdx){
-  const cont = document.getElementById('scroll-dia');
-  const itemsEl = document.getElementById('scroll-dia-items');
-  itemsEl.innerHTML = dias.map((d,i)=>`
-    <div class="scroll-item${i===selIdx?' sel':''}" data-idx="${i}">${d}</div>`
+  const elD = document.getElementById('scroll-dia');
+  document.getElementById('scroll-dia-items').innerHTML = dias.map((d,i)=>`
+    <div class="scroll-item${i===selDia?' sel':''}" data-idx="${i}">${d}</div>`
   ).join('');
-  cont.scrollTop = selIdx * 60;
-  cont.onscroll = ()=>{
-    const idx = Math.round(cont.scrollTop / 60);
-    cont.querySelectorAll('.scroll-item').forEach((el,i)=>el.classList.toggle('sel', i===idx));
-    dpDia = idx+1;
-  };
+  elD.scrollTop = selDia * 44;
+  dpDia = selDia + 1;
+  snapScroll(elD, 44, idx=>{ dpDia=idx+1; document.getElementById('scroll-dia-items').querySelectorAll('.scroll-item').forEach((el,i)=>el.classList.toggle('sel',i===idx)); });
 }
 
 function snapScroll(el, itemH, onSnap){
@@ -5086,7 +5078,7 @@ window.abrirDatePicker = function(){
       const ds=Array.from({length:md},(_,i)=>String(i+1).padStart(2,'0'));
       const sd=Math.min(dpDia-1,md-1);
       renderItems('scroll-dia-items',ds,sd);
-      elD.scrollTop=sd*60;
+      elD.scrollTop=sd*44;
       dpDia=sd+1;
     });
 
@@ -5097,7 +5089,7 @@ window.abrirDatePicker = function(){
       const ds=Array.from({length:md},(_,i)=>String(i+1).padStart(2,'0'));
       const sd=Math.min(dpDia-1,md-1);
       renderItems('scroll-dia-items',ds,sd);
-      elD.scrollTop=sd*60;
+      elD.scrollTop=sd*44;
       dpDia=sd+1;
     });
 
