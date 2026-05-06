@@ -454,7 +454,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
   <div style="width:100%;max-width:390px">
     <!-- Badge versión -->
     <div style="display:flex;align-items:center;justify-content:center;margin-bottom:28px">
-      <div style="background:#111;color:#fff;font-size:12px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;padding:6px 16px;border-radius:20px">Versión 1.2</div>
+      <div style="background:#111;color:#fff;font-size:12px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;padding:6px 16px;border-radius:20px">Versión 1.4</div>
     </div>
 
     <!-- Título -->
@@ -464,9 +464,49 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
     <!-- Lista de cambios -->
     <div style="display:flex;flex-direction:column;gap:12px;margin-bottom:36px">
 
-      <!-- v1.2 -->
+      <!-- v1.4 -->
       <div style="background:#f5f5f5;border-radius:10px;padding:8px 12px;margin-bottom:4px">
-        <span style="font-size:11px;font-weight:700;color:#aaa;text-transform:uppercase;letter-spacing:0.1em">v1.2 — Actual</span>
+        <span style="font-size:11px;font-weight:700;color:#aaa;text-transform:uppercase;letter-spacing:0.1em">v1.4 — Actual</span>
+      </div>
+
+      <div style="background:#fff;border-radius:18px;padding:18px 20px;display:flex;align-items:flex-start;gap:14px;box-shadow:0 2px 12px rgba(0,0,0,0.07)">
+        <div style="width:40px;height:40px;border-radius:12px;background:linear-gradient(180deg,#111,#444);display:flex;align-items:center;justify-content:center;flex-shrink:0">
+          <svg width="20" height="20" fill="none" stroke="#fff" stroke-width="2" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/></svg>
+        </div>
+        <div>
+          <div style="font-size:15px;font-weight:700;color:#111;margin-bottom:3px">Regreso automático al registro</div>
+          <div style="font-size:13px;color:#888;line-height:1.5">Al eliminar el último usuario, la app regresa automáticamente al login y abre el formulario de registro para crear uno nuevo.</div>
+        </div>
+      </div>
+
+      <div style="background:#fff;border-radius:18px;padding:18px 20px;display:flex;align-items:flex-start;gap:14px;box-shadow:0 2px 12px rgba(0,0,0,0.07)">
+        <div style="width:40px;height:40px;border-radius:12px;background:linear-gradient(180deg,#111,#444);display:flex;align-items:center;justify-content:center;flex-shrink:0">
+          <svg width="20" height="20" fill="none" stroke="#fff" stroke-width="2" viewBox="0 0 24 24"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+        </div>
+        <div>
+          <div style="font-size:15px;font-weight:700;color:#111;margin-bottom:3px">Confirmaciones con mensaje</div>
+          <div style="font-size:13px;color:#888;line-height:1.5">Guardar movimiento, agregar tarjeta y crear usuario ahora muestran un mensaje de confirmación con el detalle de lo guardado.</div>
+        </div>
+      </div>
+
+      <!-- v1.3 -->
+      <div style="background:#f5f5f5;border-radius:10px;padding:8px 12px;margin-bottom:4px;margin-top:8px">
+        <span style="font-size:11px;font-weight:700;color:#aaa;text-transform:uppercase;letter-spacing:0.1em">v1.3</span>
+      </div>
+
+      <div style="background:#fff;border-radius:18px;padding:18px 20px;display:flex;align-items:flex-start;gap:14px;box-shadow:0 2px 12px rgba(0,0,0,0.07)">
+        <div style="width:40px;height:40px;border-radius:12px;background:linear-gradient(180deg,#111,#444);display:flex;align-items:center;justify-content:center;flex-shrink:0">
+          <svg width="20" height="20" fill="none" stroke="#fff" stroke-width="2" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        </div>
+        <div>
+          <div style="font-size:15px;font-weight:700;color:#111;margin-bottom:3px">Usuarios independientes</div>
+          <div style="font-size:13px;color:#888;line-height:1.5">Cada usuario tiene sus propios datos aislados. Al cambiar de cuenta los movimientos, tarjetas y promociones son completamente independientes.</div>
+        </div>
+      </div>
+
+      <!-- v1.2 -->
+      <div style="background:#f5f5f5;border-radius:10px;padding:8px 12px;margin-bottom:4px;margin-top:8px">
+        <span style="font-size:11px;font-weight:700;color:#aaa;text-transform:uppercase;letter-spacing:0.1em">v1.2</span>
       </div>
 
       <div style="background:#fff;border-radius:18px;padding:18px 20px;display:flex;align-items:flex-start;gap:14px;box-shadow:0 2px 12px rgba(0,0,0,0.07)">
@@ -2197,7 +2237,25 @@ window.confirmarEliminarUsuario = async function(){
   guardarUsuarios(lista);
   document.getElementById('modal-admin-confirm').classList.remove('show');
   showSuccess('Usuario eliminado', '"' + nombre + '" y todos sus datos fueron eliminados');
-  setTimeout(()=>renderAdminUsers(), 150);
+
+  // Si ya no quedan usuarios, ir al login y abrir el modal de crear usuario
+  if(lista.length === 0){
+    setTimeout(()=>{
+      // Ocultar todo
+      document.querySelectorAll('.screen').forEach(s=>{ s.classList.add('hidden'); s.style.display='none'; });
+      document.getElementById('main-app').style.display = 'none';
+      document.getElementById('bottom-nav').style.display = 'none';
+      // Mostrar pantalla login
+      renderizarUsuarios();
+      const scr = document.getElementById('screen-login');
+      scr.classList.remove('hidden');
+      scr.style.display = 'flex';
+      // Abrir modal de nuevo usuario automáticamente
+      mostrarFormNuevoUsuario();
+    }, 1900);
+  } else {
+    setTimeout(()=>renderAdminUsers(), 150);
+  }
 }
 
 window.cancelarEliminarUsuario = function(){
@@ -2215,7 +2273,7 @@ window.salirAdmin = function(){
 }
 
 // ── Control de versión ────────────────────────────
-const APP_VERSION = '1.2';
+const APP_VERSION = '1.4';
 
 window.cerrarNovedades = function(){
   localStorage.setItem('app_version_vista', APP_VERSION);
