@@ -2159,13 +2159,32 @@ window.eliminarUsuario = function(idx){
   document.getElementById('modal-admin-confirm').classList.add('show');
 }
 
-window.confirmarEliminarUsuario = function(){
+window.confirmarEliminarUsuario = async function(){
   const lista = getUsuarios();
   const nombre = lista[adminDeleteIndex].user;
+  const uid = nombre; // el uid es el nombre del usuario
+
+  // Borrar todos los datos de Firebase del usuario
+  try {
+    // Borrar perfil
+    await deleteDoc(doc(db, 'usuarios', uid, 'perfil', 'datos')).catch(()=>{});
+
+    // Borrar movimientos
+    const movSnap = await getDocs(collection(db, 'usuarios', uid, 'movimientos')).catch(()=>({ docs:[] }));
+    for(const d of movSnap.docs) await deleteDoc(d.ref).catch(()=>{});
+
+    // Borrar promociones
+    const promoSnap = await getDocs(collection(db, 'usuarios', uid, 'promociones')).catch(()=>({ docs:[] }));
+    for(const d of promoSnap.docs) await deleteDoc(d.ref).catch(()=>{});
+  } catch(e){
+    console.warn('Error borrando datos Firebase:', e);
+  }
+
+  // Quitar de la lista local
   lista.splice(adminDeleteIndex, 1);
   guardarUsuarios(lista);
   document.getElementById('modal-admin-confirm').classList.remove('show');
-  showSuccess('Usuario eliminado', '"' + nombre + '" fue eliminado correctamente');
+  showSuccess('Usuario eliminado', '"' + nombre + '" y todos sus datos fueron eliminados');
   setTimeout(()=>renderAdminUsers(), 150);
 }
 
