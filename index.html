@@ -4907,26 +4907,54 @@ window.confirmarEliminarPerfil = async function(){
     <div class="modal-handle"></div>
     <div class="field-wrap">
       <div class="field-label">Comercio</div>
-      <input class="inp" id="inp-comercio-ext" placeholder="Ej. Walmart, OXXO..." maxlength="50"/>
+      <input class="inp" id="inp-comercio-ext" placeholder="Ej. Walmart, OXXO..." maxlength="50" onfocus="document.getElementById('fecha-ext-scroll-wrap').style.display='none'"/>
     </div>
     <div class="field-wrap">
       <div class="field-label">Concepto</div>
-      <input class="inp" id="inp-concepto-ext" placeholder="Ej. Despensa, gasolina..." maxlength="80"/>
+      <input class="inp" id="inp-concepto-ext" placeholder="Ej. Despensa, gasolina..." maxlength="80" onfocus="document.getElementById('fecha-ext-scroll-wrap').style.display='none'"/>
     </div>
     <div class="field-wrap">
       <div class="field-label">Monto</div>
       <div class="amount-wrap">
         <span class="amount-prefix">$</span>
-        <input class="amount-inp" id="inp-monto-ext" type="number" placeholder="0.00" min="0" step="0.01" />
+        <input class="amount-inp" id="inp-monto-ext" type="number" placeholder="0.00" min="0" step="0.01" onfocus="document.getElementById('fecha-ext-scroll-wrap').style.display='none'"/>
       </div>
     </div>
     <div class="field-wrap">
       <div class="field-label">Fecha</div>
-      <!-- Selector fecha por scroll -->
-      <div onclick="abrirDatePicker()" id="fecha-ext-display"
-        style="padding:12px 14px;border-radius:10px;border:1.5px solid #e5e7eb;font-size:15px;cursor:pointer;color:#111;display:flex;justify-content:space-between;align-items:center;background:#fff">
+      <div onclick="event.stopPropagation();toggleScrollFechaExt()" id="fecha-ext-display"
+        style="padding:12px 14px;border-radius:10px;border:1.5px solid #e5e7eb;font-size:15px;cursor:pointer;color:#999;display:flex;justify-content:space-between;align-items:center;background:#fff">
         <span id="fecha-ext-txt">Seleccionar fecha</span>
         <span style="color:#aaa;font-size:12px">▾</span>
+      </div>
+      <!-- Scroll inline de fecha -->
+      <div id="fecha-ext-scroll-wrap" style="display:none;margin-top:6px;background:#f5f5f5;border-radius:14px;overflow:hidden" onclick="event.stopPropagation()">
+        <div style="display:flex;gap:4px;padding:8px 8px 0">
+          <div style="flex:1;font-size:10px;font-weight:700;color:#aaa;text-transform:uppercase;letter-spacing:0.06em;text-align:center">Año</div>
+          <div style="flex:1;font-size:10px;font-weight:700;color:#aaa;text-transform:uppercase;letter-spacing:0.06em;text-align:center">Mes</div>
+          <div style="flex:1;font-size:10px;font-weight:700;color:#aaa;text-transform:uppercase;letter-spacing:0.06em;text-align:center">Día</div>
+        </div>
+        <div style="position:relative;height:132px;margin:4px 8px 0">
+          <div style="position:absolute;left:0;right:0;top:50%;transform:translateY(-50%);height:44px;border-radius:10px;background:linear-gradient(180deg,#111,#444);pointer-events:none;z-index:1"></div>
+          <div style="position:absolute;inset:0;display:flex;z-index:2">
+            <div id="scroll-ext-anio" style="flex:1;overflow-y:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch">
+              <div style="height:44px"></div>
+              <div id="scroll-ext-anio-items"></div>
+              <div style="height:44px"></div>
+            </div>
+            <div id="scroll-ext-mes" style="flex:1;overflow-y:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch">
+              <div style="height:44px"></div>
+              <div id="scroll-ext-mes-items"></div>
+              <div style="height:44px"></div>
+            </div>
+            <div id="scroll-ext-dia" style="flex:1;overflow-y:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch">
+              <div style="height:44px"></div>
+              <div id="scroll-ext-dia-items"></div>
+              <div style="height:44px"></div>
+            </div>
+          </div>
+        </div>
+        <div style="height:8px"></div>
       </div>
       <input type="hidden" id="inp-fecha-ext" />
     </div>
@@ -5022,7 +5050,77 @@ function snapScrollConInicio(el, itemH, initialIdx, onSnap){
   setTimeout(()=>onSnap(initialIdx), 80);
 }
 
-window.abrirDatePicker = function(){
+window.toggleScrollFechaExt = function(){
+  const wrap = document.getElementById('fecha-ext-scroll-wrap');
+  const isOpen = wrap.style.display === 'block';
+  if(isOpen){ wrap.style.display = 'none'; return; }
+
+  const hoy = new Date();
+  dpAnio = hoy.getFullYear();
+  dpMes  = hoy.getMonth() + 1;
+  dpDia  = hoy.getDate();
+
+  const anios = [dpAnio - 1, dpAnio];
+  const mesesCortos = MESES.map(m=>m.substring(0,3));
+  const maxD = diasEnMes(dpMes, dpAnio);
+  const dias = Array.from({length:maxD},(_,i)=>String(i+1).padStart(2,'0'));
+
+  function buildExtCol(scrollId, itemsId, items, selIdx, onSelect){
+    const scrollEl = document.getElementById(scrollId);
+    const itemsEl  = document.getElementById(itemsId);
+    itemsEl.innerHTML = items.map((v,i)=>
+      `<div class="dp-item${i===selIdx?' sel':''}">${v}</div>`
+    ).join('');
+    scrollEl.scrollTop = selIdx * 44;
+    let snapTimer;
+    scrollEl.onscroll = ()=>{
+      const idx = Math.min(Math.max(Math.round(scrollEl.scrollTop / 44), 0), items.length-1);
+      itemsEl.querySelectorAll('.dp-item').forEach((el,i)=>el.classList.toggle('sel',i===idx));
+      onSelect(idx);
+      clearTimeout(snapTimer);
+      snapTimer = setTimeout(()=>scrollEl.scrollTo({top:idx*44,behavior:'smooth'}), 80);
+    };
+    onSelect(selIdx);
+  }
+
+  wrap.style.display = 'block';
+
+  setTimeout(()=>{
+    buildExtCol('scroll-ext-anio','scroll-ext-anio-items', anios.map(String), 1, idx=>{
+      dpAnio = anios[Math.min(idx, anios.length-1)];
+      _rebuildExtDias();
+    });
+    buildExtCol('scroll-ext-mes','scroll-ext-mes-items', mesesCortos, dpMes-1, idx=>{
+      dpMes = idx+1;
+      _rebuildExtDias();
+    });
+    buildExtCol('scroll-ext-dia','scroll-ext-dia-items', dias, dpDia-1, idx=>{
+      dpDia = idx+1;
+      _actualizarFechaExt();
+    });
+    _actualizarFechaExt();
+  }, 50);
+}
+
+function _rebuildExtDias(){
+  const md = diasEnMes(dpMes, dpAnio);
+  const ds = Array.from({length:md},(_,i)=>String(i+1).padStart(2,'0'));
+  const sd = Math.min(dpDia-1, md-1);
+  const scrollEl = document.getElementById('scroll-ext-dia');
+  document.getElementById('scroll-ext-dia-items').innerHTML = ds.map((v,i)=>
+    `<div class="dp-item${i===sd?' sel':''}">${v}</div>`).join('');
+  scrollEl.scrollTop = sd*44;
+  dpDia = sd+1;
+  _actualizarFechaExt();
+}
+
+function _actualizarFechaExt(){
+  const mes = String(dpMes).padStart(2,'0');
+  const dia = String(dpDia).padStart(2,'0');
+  document.getElementById('inp-fecha-ext').value = `${dpAnio}-${mes}-${dia}`;
+  document.getElementById('fecha-ext-txt').textContent = `${dia} de ${MESES[dpMes-1]} ${dpAnio}`;
+  document.getElementById('fecha-ext-txt').style.color = '#111';
+}
   const hoy = new Date();
   dpAnio = hoy.getFullYear();
   dpMes  = hoy.getMonth() + 1;
@@ -5120,6 +5218,7 @@ window.openModalExt = function(){
   document.getElementById('inp-fecha-ext').value = '';
   document.getElementById('fecha-ext-txt').textContent = 'Seleccionar fecha';
   document.getElementById('fecha-ext-txt').style.color = '#999';
+  document.getElementById('fecha-ext-scroll-wrap').style.display = 'none';
   const el = document.getElementById('modal-ext-overlay');
   if(el) el.classList.add('open');
 }
