@@ -1810,9 +1810,8 @@ function getCredenciales(){
 }
 
 async function entrarApp(){
-  document.getElementById('auth-user').value = '';
-  document.getElementById('auth-pass').value = '';
-  document.getElementById('auth-pass2') && (document.getElementById('auth-pass2').value = '');
+  // Actualizar uid con el usuario seleccionado
+  currentUser = { uid: loginUsuarioActivo };
   document.getElementById('bottom-nav').style.display = 'flex';
   // Cargar perfil de Firebase
   try{
