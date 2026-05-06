@@ -2607,13 +2607,13 @@ window.guardarEdicionUsuario = function(){
   let detalle = '';
 
   if(nombreCambio && passCambio){
-    titulo = `${nombreAnterior} → ${nuevoNombre}`;
+    titulo = '¿Modificar usuario?';
     detalle = 'Contraseña actualizada';
   } else if(nombreCambio){
-    titulo = `${nombreAnterior} → ${nuevoNombre}`;
+    titulo = '¿Modificar usuario?';
     detalle = '';
   } else if(passCambio){
-    titulo = 'Contraseña actualizada';
+    titulo = '¿Cambiar contraseña?';
     detalle = '';
   }
 
@@ -2645,13 +2645,14 @@ window.confirmarEdicion = function(){
   document.getElementById('modal-admin-confirm-edit').classList.remove('show');
   document.getElementById('modal-admin-editar').classList.remove('open');
 
-  let msg = '✅ Usuario actualizado';
-  if(nombreCambio && !passCambio) msg = '✅ Nombre cambiado · Contraseña temporal: igual al nombre';
-  else if(nombreCambio && passCambio) msg = '✅ Nombre y contraseña actualizados';
-  else if(!nombreCambio && passCambio) msg = '✅ Contraseña actualizada';
+  if(nombreCambio && passCambio){
+    showSuccess('Usuario actualizado', 'Contraseña actualizada');
+  } else if(nombreCambio){
+    showSuccess('Usuario actualizado', '');
+  } else {
+    showSuccess('Contraseña actualizada', '');
+  }
 
-  const subMsg = msg.replace('✅ ', '');
-  showSuccess('Usuario actualizado', subMsg);
   setTimeout(()=>renderAdminUsers(), 150);
 }
 
