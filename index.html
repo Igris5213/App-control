@@ -450,23 +450,50 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 </div>
 
 <!-- ══ PANTALLA NOVEDADES ══ -->
-<div class="screen hidden" id="screen-novedades">
-  <div style="width:100%;max-width:390px">
-    <!-- Badge versión -->
-    <div style="display:flex;align-items:center;justify-content:center;margin-bottom:28px">
-      <div style="background:#111;color:#fff;font-size:12px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;padding:6px 16px;border-radius:20px">Versión 1.4</div>
+<div class="screen hidden" id="screen-novedades" style="padding:0;justify-content:flex-start;overflow:hidden">
+
+  <!-- Header fijo -->
+  <div style="width:100%;max-width:430px;padding:32px 24px 20px;flex-shrink:0;background:#f5f5f5">
+    <div style="display:flex;align-items:center;justify-content:center;margin-bottom:20px">
+      <div style="background:#111;color:#fff;font-size:12px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;padding:6px 16px;border-radius:20px">Versión 1.5</div>
     </div>
+    <div style="font-size:28px;font-weight:800;color:#111;text-align:center;margin-bottom:6px">¿Qué hay de nuevo?</div>
+    <div style="font-size:15px;color:#888;text-align:center">Aquí están los cambios de esta actualización</div>
+  </div>
 
-    <!-- Título -->
-    <div style="font-size:28px;font-weight:800;color:#111;text-align:center;margin-bottom:8px">¿Qué hay de nuevo?</div>
-    <div style="font-size:15px;color:#888;text-align:center;margin-bottom:32px">Aquí están los cambios de esta actualización</div>
+  <!-- Zona scrollable -->
+  <div style="flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;width:100%;max-width:430px;padding:0 24px 16px">
 
-    <!-- Lista de cambios -->
-    <div style="display:flex;flex-direction:column;gap:12px;margin-bottom:36px">
+    <div style="display:flex;flex-direction:column;gap:12px;padding-bottom:8px">
+
+      <!-- v1.5 -->
+      <div style="background:#f5f5f5;border-radius:10px;padding:8px 12px;margin-bottom:4px">
+        <span style="font-size:11px;font-weight:700;color:#aaa;text-transform:uppercase;letter-spacing:0.1em">v1.5 — Actual</span>
+      </div>
+
+      <div style="background:#fff;border-radius:18px;padding:18px 20px;display:flex;align-items:flex-start;gap:14px;box-shadow:0 2px 12px rgba(0,0,0,0.07)">
+        <div style="width:40px;height:40px;border-radius:12px;background:linear-gradient(180deg,#111,#444);display:flex;align-items:center;justify-content:center;flex-shrink:0">
+          <svg width="20" height="20" fill="none" stroke="#fff" stroke-width="2" viewBox="0 0 24 24"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+        </div>
+        <div>
+          <div style="font-size:15px;font-weight:700;color:#111;margin-bottom:3px">Novedades con scroll</div>
+          <div style="font-size:13px;color:#888;line-height:1.5">El botón "¡Entendido!" ahora queda fijo abajo mientras el historial de cambios es deslizable.</div>
+        </div>
+      </div>
+
+      <div style="background:#fff;border-radius:18px;padding:18px 20px;display:flex;align-items:flex-start;gap:14px;box-shadow:0 2px 12px rgba(0,0,0,0.07)">
+        <div style="width:40px;height:40px;border-radius:12px;background:linear-gradient(180deg,#111,#444);display:flex;align-items:center;justify-content:center;flex-shrink:0">
+          <svg width="20" height="20" fill="none" stroke="#fff" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18"/><path d="M9 21V9"/></svg>
+        </div>
+        <div>
+          <div style="font-size:15px;font-weight:700;color:#111;margin-bottom:3px">Novedades antes del login</div>
+          <div style="font-size:13px;color:#888;line-height:1.5">Al actualizar la app, las novedades se muestran primero. Al cerrarlas continúas normalmente al login.</div>
+        </div>
+      </div>
 
       <!-- v1.4 -->
-      <div style="background:#f5f5f5;border-radius:10px;padding:8px 12px;margin-bottom:4px">
-        <span style="font-size:11px;font-weight:700;color:#aaa;text-transform:uppercase;letter-spacing:0.1em">v1.4 — Actual</span>
+      <div style="background:#f5f5f5;border-radius:10px;padding:8px 12px;margin-bottom:4px;margin-top:8px">
+        <span style="font-size:11px;font-weight:700;color:#aaa;text-transform:uppercase;letter-spacing:0.1em">v1.4</span>
       </div>
 
       <div style="background:#fff;border-radius:18px;padding:18px 20px;display:flex;align-items:flex-start;gap:14px;box-shadow:0 2px 12px rgba(0,0,0,0.07)">
@@ -475,7 +502,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
         </div>
         <div>
           <div style="font-size:15px;font-weight:700;color:#111;margin-bottom:3px">Regreso automático al registro</div>
-          <div style="font-size:13px;color:#888;line-height:1.5">Al eliminar el último usuario, la app regresa automáticamente al login y abre el formulario de registro para crear uno nuevo.</div>
+          <div style="font-size:13px;color:#888;line-height:1.5">Al eliminar el último usuario, la app regresa automáticamente al login y abre el formulario de registro.</div>
         </div>
       </div>
 
@@ -485,7 +512,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
         </div>
         <div>
           <div style="font-size:15px;font-weight:700;color:#111;margin-bottom:3px">Confirmaciones con mensaje</div>
-          <div style="font-size:13px;color:#888;line-height:1.5">Guardar movimiento, agregar tarjeta y crear usuario ahora muestran un mensaje de confirmación con el detalle de lo guardado.</div>
+          <div style="font-size:13px;color:#888;line-height:1.5">Guardar movimiento, agregar tarjeta y crear usuario ahora muestran un mensaje de confirmación con detalle.</div>
         </div>
       </div>
 
@@ -500,7 +527,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
         </div>
         <div>
           <div style="font-size:15px;font-weight:700;color:#111;margin-bottom:3px">Usuarios independientes</div>
-          <div style="font-size:13px;color:#888;line-height:1.5">Cada usuario tiene sus propios datos aislados. Al cambiar de cuenta los movimientos, tarjetas y promociones son completamente independientes.</div>
+          <div style="font-size:13px;color:#888;line-height:1.5">Cada usuario tiene sus propios datos aislados. Movimientos, tarjetas y promociones son completamente independientes.</div>
         </div>
       </div>
 
@@ -515,7 +542,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
         </div>
         <div>
           <div style="font-size:15px;font-weight:700;color:#111;margin-bottom:3px">Confirmación al editar usuarios</div>
-          <div style="font-size:13px;color:#888;line-height:1.5">El administrador ahora ve un resumen de los cambios antes de guardarlos, con detalle del nombre y contraseña modificados.</div>
+          <div style="font-size:13px;color:#888;line-height:1.5">El administrador ve un resumen de los cambios antes de guardarlos, con detalle del nombre y contraseña modificados.</div>
         </div>
       </div>
 
@@ -530,7 +557,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
         </div>
         <div>
           <div style="font-size:15px;font-weight:700;color:#111;margin-bottom:3px">Login con usuario y contraseña</div>
-          <div style="font-size:13px;color:#888;line-height:1.5">La app ahora pide tus credenciales al abrir. La primera vez creas tu usuario y contraseña.</div>
+          <div style="font-size:13px;color:#888;line-height:1.5">La app ahora pide credenciales al abrir. La primera vez creas tu usuario y contraseña.</div>
         </div>
       </div>
 
@@ -555,7 +582,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
         </div>
         <div>
           <div style="font-size:15px;font-weight:700;color:#111;margin-bottom:3px">App instalable</div>
-          <div style="font-size:13px;color:#888;line-height:1.5">Ahora puedes instalar Control de Gastos en tu celular como una app nativa desde Chrome.</div>
+          <div style="font-size:13px;color:#888;line-height:1.5">Puedes instalar Control de Gastos en tu celular como una app nativa desde Chrome.</div>
         </div>
       </div>
 
@@ -575,15 +602,18 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
         </div>
         <div>
           <div style="font-size:15px;font-weight:700;color:#111;margin-bottom:3px">Corrección al eliminar perfil</div>
-          <div style="font-size:13px;color:#888;line-height:1.5">Al borrar el perfil activo ahora regresa correctamente a la pantalla de inicio sin necesidad de recargar.</div>
+          <div style="font-size:13px;color:#888;line-height:1.5">Al borrar el perfil activo regresa correctamente a la pantalla de inicio sin necesidad de recargar.</div>
         </div>
       </div>
 
     </div>
-
-    <!-- Botón continuar -->
-    <button class="primary-btn" onclick="cerrarNovedades()">¡Entendido!</button>
   </div>
+
+  <!-- Botón fijo abajo -->
+  <div style="width:100%;max-width:430px;padding:16px 24px 36px;flex-shrink:0;background:#f5f5f5;box-shadow:0 -8px 24px rgba(0,0,0,0.06)">
+    <button id="btn-novedades-accion" class="primary-btn" onclick="cerrarNovedades()" style="margin-bottom:0">¡Entendido!</button>
+  </div>
+
 </div>
 
 <!-- ══ PANTALLA 2: CREAR PERFIL ══ -->
@@ -1947,10 +1977,8 @@ async function entrarApp(){
     const snap = await getDoc(doc(db,'usuarios', currentUser.uid, 'perfil','datos'));
     if(snap.exists()){
       perfil = snap.data();
-      if(checkVersion()) return;
       iniciarApp();
     } else {
-      if(checkVersion()) return;
       showScreen('screen-welcome');
     }
   } catch(e){
@@ -1966,29 +1994,26 @@ window.cerrarSesion = function(){
   mainApp.classList.remove('visible');
   mainApp.style.display = 'none';
   document.getElementById('bottom-nav').style.display = 'none';
-  // Restaurar pantalla novedades a su estado original por si venía de verCambios
-  const btnNov = document.getElementById('screen-novedades') && document.getElementById('screen-novedades').querySelector('.primary-btn');
+  // Restaurar botón novedades por si venía de verCambios
+  const btnNov = document.getElementById('btn-novedades-accion');
   if(btnNov){ btnNov.setAttribute('onclick','cerrarNovedades()'); btnNov.textContent = '¡Entendido!'; }
   iniciarFlujoAuth();
 }
 
-
-
 window.verCambios = function(){
-  // Ocultar todo (main-app y otras pantallas sueltas)
   document.getElementById('main-app').style.display = 'none';
   document.getElementById('bottom-nav').style.display = 'none';
-  // Mostrar pantalla novedades en modo historial
-  const scr = document.getElementById('screen-novedades');
-  scr.querySelector('.primary-btn').setAttribute('onclick', 'regresarAConfig()');
-  scr.querySelector('.primary-btn').textContent = '← Volver';
+  const btn = document.getElementById('btn-novedades-accion');
+  btn.setAttribute('onclick', 'regresarAConfig()');
+  btn.textContent = '← Volver';
   document.querySelectorAll('.screen').forEach(s=>{ s.classList.add('hidden'); s.style.display='none'; });
+  const scr = document.getElementById('screen-novedades');
   scr.classList.remove('hidden');
   scr.style.display = 'flex';
 }
 
 window.regresarAConfig = function(){
-  const btn = document.getElementById('screen-novedades').querySelector('.primary-btn');
+  const btn = document.getElementById('btn-novedades-accion');
   btn.setAttribute('onclick', 'cerrarNovedades()');
   btn.textContent = '¡Entendido!';
   document.getElementById('main-app').style.display = 'flex';
@@ -2273,17 +2298,19 @@ window.salirAdmin = function(){
 }
 
 // ── Control de versión ────────────────────────────
-const APP_VERSION = '1.4';
+const APP_VERSION = '1.5';
 
 window.cerrarNovedades = function(){
   localStorage.setItem('app_version_vista', APP_VERSION);
-  // Si hay perfil, ir a la app; si no, ir a bienvenida
+  // Si ya había sesión activa (usuario entró y luego vio novedades desde config), volver a la app
   if(perfil){
     document.getElementById('screen-novedades').classList.add('hidden');
     document.getElementById('screen-novedades').style.display = 'none';
-    document.getElementById('main-app').classList.add('visible');
+    document.getElementById('main-app').style.display = 'flex';
+    document.getElementById('bottom-nav').style.display = 'flex';
   } else {
-    showScreen('screen-welcome');
+    // Aún no hay sesión — continuar al login normal
+    iniciarFlujoAuth();
   }
 }
 
@@ -2291,13 +2318,15 @@ function checkVersion(){
   const versionVista = localStorage.getItem('app_version_vista');
   if(versionVista !== APP_VERSION){
     showScreen('screen-novedades');
-    return true; // mostró novedades
+    return true;
   }
   return false;
 }
 
 // ── Arranque ─────────────────────────────────────
 async function init(){
+  // Primero: mostrar novedades si hay versión nueva, luego continuar al login
+  if(checkVersion()) return;
   iniciarFlujoAuth();
 }
 
