@@ -2464,17 +2464,57 @@ async function entrarApp(){
 }
 
 window.cerrarSesion = function(){
+  const nombre = currentUser?.uid || '';
+  // Ocultar app inmediatamente
   perfil = null; movimientos = []; tarjetasOb = []; pendingUser = null;
   if(_unsubMovimientos){ _unsubMovimientos(); _unsubMovimientos = null; }
   document.querySelectorAll('.modal-overlay').forEach(m=>m.classList.remove('open'));
-  const mainApp = document.getElementById('main-app');
-  mainApp.classList.remove('visible');
-  mainApp.style.display = 'none';
+  document.getElementById('main-app').classList.remove('visible');
+  document.getElementById('main-app').style.display = 'none';
   document.getElementById('bottom-nav').style.display = 'none';
-  // Restaurar botón novedades por si venía de verCambios
   const btnNov = document.getElementById('btn-novedades-accion');
   if(btnNov){ btnNov.setAttribute('onclick','cerrarNovedades()'); btnNov.textContent = '¡Entendido!'; }
-  iniciarFlujoAuth();
+  // Mostrar animación de despedida
+  showGoodbye(nombre, ()=>iniciarFlujoAuth());
+}
+
+function showGoodbye(nombre, callback){
+  const overlay  = document.getElementById('goodbye-overlay');
+  const labelEl  = document.getElementById('goodbye-label');
+  const nombreEl = document.getElementById('goodbye-nombre');
+  const lineEl   = document.getElementById('goodbye-line');
+
+  nombreEl.textContent = nombre;
+  overlay.style.opacity = '1';
+  overlay.style.pointerEvents = 'none';
+
+  // Animar texto
+  setTimeout(()=>{
+    labelEl.style.opacity   = '1';
+    labelEl.style.transform = 'translateY(0)';
+    nombreEl.style.opacity  = '1';
+    nombreEl.style.transform= 'translateY(0)';
+  }, 80);
+
+  // Animar línea que se llena
+  setTimeout(()=>{ lineEl.style.width = '100%'; }, 200);
+
+  // Cerrar tras 2.5s
+  setTimeout(()=>{
+    overlay.style.opacity = '0';
+    setTimeout(()=>{
+      overlay.style.pointerEvents = 'none';
+      // Reset
+      labelEl.style.opacity   = '0';
+      labelEl.style.transform = 'translateY(8px)';
+      nombreEl.style.opacity  = '0';
+      nombreEl.style.transform= 'translateY(14px)';
+      lineEl.style.width      = '0%';
+      lineEl.style.transition = 'none';
+      setTimeout(()=>{ lineEl.style.transition = 'width 2s ease'; }, 50);
+      if(callback) callback();
+    }, 500);
+  }, 2500);
 }
 
 window.verCambios = function(){
@@ -5536,6 +5576,18 @@ window.confirmarEliminarPerfil = async function(){
     <div id="welcome-nombre" style="font-size:44px;font-weight:800;color:#fff;letter-spacing:-1.5px;opacity:0;transform:translateY(14px);transition:opacity 0.5s ease 0.1s,transform 0.5s ease 0.1s"></div>
     <div id="welcome-line" style="width:28px;height:1.5px;background:rgba(255,255,255,0.2);border-radius:2px;margin:26px auto;opacity:0;transition:opacity 0.5s ease 0.2s"></div>
     <div id="welcome-hint" style="font-size:11px;color:rgba(255,255,255,0.55);letter-spacing:0.1em;opacity:0;transition:opacity 0.5s ease 0.4s">Toca para continuar</div>
+  </div>
+</div>
+
+<!-- Overlay despedida -->
+<div id="goodbye-overlay" style="position:fixed;inset:0;z-index:9000;display:flex;flex-direction:column;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity 0.5s;background:#fff">
+  <div style="text-align:center;padding:0 40px;user-select:none">
+    <div id="goodbye-label" style="font-size:11px;font-weight:700;color:rgba(0,0,0,0.3);letter-spacing:0.2em;text-transform:uppercase;margin-bottom:18px;opacity:0;transform:translateY(8px);transition:opacity 0.5s ease,transform 0.5s ease">Hasta luego</div>
+    <div id="goodbye-nombre" style="font-size:44px;font-weight:800;color:#111;letter-spacing:-1.5px;opacity:0;transform:translateY(14px);transition:opacity 0.5s ease 0.1s,transform 0.5s ease 0.1s"></div>
+    <!-- Línea animada -->
+    <div style="width:100%;max-width:180px;height:1.5px;background:#f0f0f0;border-radius:2px;margin:28px auto;overflow:hidden">
+      <div id="goodbye-line" style="height:100%;width:0%;background:#111;border-radius:2px;transition:width 2s ease"></div>
+    </div>
   </div>
 </div>
 
