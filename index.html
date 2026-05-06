@@ -456,7 +456,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
   <!-- Header fijo -->
   <div style="width:100%;max-width:430px;padding:32px 24px 20px;flex-shrink:0;background:#f5f5f5">
     <div style="display:flex;align-items:center;justify-content:center;margin-bottom:20px">
-      <div style="background:#111;color:#fff;font-size:12px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;padding:6px 16px;border-radius:20px">Versión 2.8</div>
+      <div style="background:#111;color:#fff;font-size:12px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;padding:6px 16px;border-radius:20px">Versión 2.9</div>
     </div>
     <div style="font-size:28px;font-weight:800;color:#111;text-align:center;margin-bottom:6px">¿Qué hay de nuevo?</div>
     <div style="font-size:15px;color:#888;text-align:center">Aquí están los cambios de esta actualización</div>
@@ -467,9 +467,24 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 
     <div style="display:flex;flex-direction:column;gap:12px;padding-bottom:8px">
 
-      <!-- v2.8 -->
+      <!-- v2.9 -->
       <div style="background:#f5f5f5;border-radius:10px;padding:8px 12px;margin-bottom:4px">
-        <span style="font-size:11px;font-weight:700;color:#aaa;text-transform:uppercase;letter-spacing:0.1em">v2.8 — Actual</span>
+        <span style="font-size:11px;font-weight:700;color:#aaa;text-transform:uppercase;letter-spacing:0.1em">v2.9 — Actual</span>
+      </div>
+
+      <div style="background:#fff;border-radius:18px;padding:18px 20px;display:flex;align-items:flex-start;gap:14px;box-shadow:0 2px 12px rgba(0,0,0,0.07)">
+        <div style="width:40px;height:40px;border-radius:12px;background:linear-gradient(180deg,#111,#444);display:flex;align-items:center;justify-content:center;flex-shrink:0">
+          <svg width="20" height="20" fill="none" stroke="#fff" stroke-width="2" viewBox="0 0 24 24"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+        </div>
+        <div>
+          <div style="font-size:15px;font-weight:700;color:#111;margin-bottom:3px">Selección automática en scrolls</div>
+          <div style="font-size:13px;color:#888;line-height:1.5">Al abrir cualquier scroll de selección, la primera opción queda seleccionada automáticamente sin necesidad de deslizar. Si solo hay una opción, también se registra al instante.</div>
+        </div>
+      </div>
+
+      <!-- v2.8 -->
+      <div style="background:#f5f5f5;border-radius:10px;padding:8px 12px;margin-bottom:4px;margin-top:8px">
+        <span style="font-size:11px;font-weight:700;color:#aaa;text-transform:uppercase;letter-spacing:0.1em">v2.8</span>
       </div>
 
       <div style="background:#fff;border-radius:18px;padding:18px 20px;display:flex;align-items:flex-start;gap:14px;box-shadow:0 2px 12px rgba(0,0,0,0.07)">
@@ -1347,7 +1362,7 @@ window.toggleScrollBancoOb = function(){
         el.style.color = sel ? '#fff' : '';
       });
     }, 50);
-    snapScroll(scrollEl, 44, idx=>{
+    snapScrollConInicio(scrollEl, 44, currentIdx >= 0 ? currentIdx : 0, idx=>{
       const banco = BANCOS_OB[Math.min(idx, BANCOS_OB.length-1)];
       cont.querySelectorAll('.scroll-item').forEach((el,i)=>{
         const sel = i===idx;
@@ -1383,7 +1398,7 @@ window.toggleScrollCorteOb = function(){
         el.style.color = sel ? '#fff' : '';
       });
     }, 50);
-    snapScroll(scrollEl, 44, idx=>{
+    snapScrollConInicio(scrollEl, 44, currentCorte-1, idx=>{
       const dia = Math.min(31, Math.max(1, idx+1));
       cont.querySelectorAll('.scroll-item').forEach((el,i)=>{
         const sel = i===idx;
@@ -2747,7 +2762,7 @@ window.salirAdmin = function(){
 }
 
 // ── Control de versión ────────────────────────────
-const APP_VERSION = '2.8';
+const APP_VERSION = '2.9';
 
 window.cerrarNovedades = function(){
   localStorage.setItem('app_version_vista', APP_VERSION);
@@ -3775,7 +3790,7 @@ window.abrirScrollTarjetaPromo = function(){
     });
   }, 50);
 
-  snapScroll(scrollCont, 44, idx=>{
+  snapScrollConInicio(scrollCont, 44, currentIdx, idx=>{
     const t = tarjetas[Math.min(idx, tarjetas.length-1)];
     cont.querySelectorAll('.scroll-item').forEach((el,i)=>{
       el.classList.toggle('sel', i===idx);
@@ -3816,7 +3831,7 @@ window.abrirScrollBancoPromo = function(){
     });
   }, 50);
 
-  snapScroll(scrollCont, 44, idx=>{
+  snapScrollConInicio(scrollCont, 44, currentIdx, idx=>{
     const banco = bancos[Math.min(idx, bancos.length-1)];
     cont.querySelectorAll('.scroll-item').forEach((el,i)=>{
       el.classList.toggle('sel', i===idx);
@@ -3861,7 +3876,7 @@ window.abrirScrollMeses = function(){
     });
   }, 50);
   // Listener
-  snapScroll(scrollCont, 44, idx=>{
+  snapScrollConInicio(scrollCont, 44, current-1, idx=>{
     const meses = Math.min(24, Math.max(1, idx+1));
     cont.querySelectorAll('.scroll-item').forEach((el,i)=>{
       const sel = i===idx;
@@ -4542,7 +4557,7 @@ function buildScrollBancoPerfiles(scrollId, itemsId, wrapId, txtId, inpId, curre
       scrollEl.scrollTop = idx*44;
       cont.querySelectorAll('.scroll-item').forEach((el,i)=>{ el.classList.toggle('sel',i===idx); el.style.color=i===idx?'#fff':''; });
     },50);
-    snapScroll(scrollEl, 44, function(idx){
+    snapScrollConInicio(scrollEl, 44, currentIdx >= 0 ? currentIdx : 0, function(idx){
       const b = BANCOS[Math.min(idx,BANCOS.length-1)];
       cont.querySelectorAll('.scroll-item').forEach((el,i)=>{ el.classList.toggle('sel',i===idx); el.style.color=i===idx?'#fff':''; });
       document.getElementById(inpId).value = b;
@@ -4569,7 +4584,7 @@ function buildScrollCortePerfiles(scrollId, itemsId, wrapId, txtId, inpId, curre
       scrollEl.scrollTop = currentIdx*44;
       cont.querySelectorAll('.scroll-item').forEach((el,i)=>{ el.classList.toggle('sel',i===currentIdx); el.style.color=i===currentIdx?'#fff':''; });
     },50);
-    snapScroll(scrollEl, 44, function(idx){
+    snapScrollConInicio(scrollEl, 44, currentIdx, function(idx){
       const dia = idx+1;
       cont.querySelectorAll('.scroll-item').forEach((el,i)=>{ el.classList.toggle('sel',i===idx); el.style.color=i===idx?'#fff':''; });
       document.getElementById(inpId).value = dia;
@@ -5014,6 +5029,13 @@ function snapScroll(el, itemH, onSnap){
   el.removeEventListener('scroll', el._snapHandler);
   el._snapHandler = handler;
   el.addEventListener('scroll', handler, {passive:true});
+}
+
+// Como snapScroll pero dispara onSnap inmediatamente con el índice inicial
+// para registrar la selección aunque el usuario no mueva el scroll
+function snapScrollConInicio(el, itemH, initialIdx, onSnap){
+  snapScroll(el, itemH, onSnap);
+  setTimeout(()=>onSnap(initialIdx), 80);
 }
 
 window.abrirDatePicker = function(){
