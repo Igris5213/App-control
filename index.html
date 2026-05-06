@@ -2405,10 +2405,12 @@ window.abrirLoginPass = function(user){
   loginUsuarioActivo = user;
   document.getElementById('modal-login-title').textContent = user;
   document.getElementById('modal-login-sub').textContent = 'Ingresa tu contraseña para continuar';
-  document.getElementById('modal-auth-pass').value = '';
+  const passEl = document.getElementById('modal-auth-pass');
+  passEl.value = '';
+  passEl.type = 'password';
   document.getElementById('modal-login-error').textContent = '';
   document.getElementById('modal-login-pass').classList.add('open');
-  setTimeout(()=>document.getElementById('modal-auth-pass').focus(), 300);
+  setTimeout(()=>passEl.focus(), 300);
 }
 
 window.cerrarModalLoginPass = function(e){
