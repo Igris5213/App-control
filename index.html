@@ -456,7 +456,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
   <!-- Header fijo -->
   <div style="width:100%;max-width:430px;padding:32px 24px 20px;flex-shrink:0;background:#f5f5f5">
     <div style="display:flex;align-items:center;justify-content:center;margin-bottom:20px">
-      <div style="background:#111;color:#fff;font-size:12px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;padding:6px 16px;border-radius:20px">Versión 2.9</div>
+      <div style="background:#111;color:#fff;font-size:12px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;padding:6px 16px;border-radius:20px">Versión 3.0</div>
     </div>
     <div style="font-size:28px;font-weight:800;color:#111;text-align:center;margin-bottom:6px">¿Qué hay de nuevo?</div>
     <div style="font-size:15px;color:#888;text-align:center">Aquí están los cambios de esta actualización</div>
@@ -467,9 +467,24 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 
     <div style="display:flex;flex-direction:column;gap:12px;padding-bottom:8px">
 
-      <!-- v2.9 -->
+      <!-- v3.0 -->
       <div style="background:#f5f5f5;border-radius:10px;padding:8px 12px;margin-bottom:4px">
-        <span style="font-size:11px;font-weight:700;color:#aaa;text-transform:uppercase;letter-spacing:0.1em">v2.9 — Actual</span>
+        <span style="font-size:11px;font-weight:700;color:#aaa;text-transform:uppercase;letter-spacing:0.1em">v3.0 — Actual</span>
+      </div>
+
+      <div style="background:#fff;border-radius:18px;padding:18px 20px;display:flex;align-items:flex-start;gap:14px;box-shadow:0 2px 12px rgba(0,0,0,0.07)">
+        <div style="width:40px;height:40px;border-radius:12px;background:linear-gradient(180deg,#111,#444);display:flex;align-items:center;justify-content:center;flex-shrink:0">
+          <svg width="20" height="20" fill="none" stroke="#fff" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+        </div>
+        <div>
+          <div style="font-size:15px;font-weight:700;color:#111;margin-bottom:3px">Scrolls de selección corregidos</div>
+          <div style="font-size:13px;color:#888;line-height:1.5">Se corrigió el scroll de fecha en extemporáneo, y banco/tarjeta/meses en promociones ahora se cierran correctamente al seleccionar otro recuadro.</div>
+        </div>
+      </div>
+
+      <!-- v2.9 -->
+      <div style="background:#f5f5f5;border-radius:10px;padding:8px 12px;margin-bottom:4px;margin-top:8px">
+        <span style="font-size:11px;font-weight:700;color:#aaa;text-transform:uppercase;letter-spacing:0.1em">v2.9</span>
       </div>
 
       <div style="background:#fff;border-radius:18px;padding:18px 20px;display:flex;align-items:flex-start;gap:14px;box-shadow:0 2px 12px rgba(0,0,0,0.07)">
@@ -2762,7 +2777,7 @@ window.salirAdmin = function(){
 }
 
 // ── Control de versión ────────────────────────────
-const APP_VERSION = '2.9';
+const APP_VERSION = '3.0';
 
 window.cerrarNovedades = function(){
   localStorage.setItem('app_version_vista', APP_VERSION);
@@ -3763,10 +3778,10 @@ window.selTarjetaPromo = function(id){
 
 window.abrirScrollTarjetaPromo = function(){
   const wrap = document.getElementById('tarjeta-promo-scroll-wrap');
-  const isOpen = wrap.style.display === 'block';
-  // Cerrar banco y meses si están abiertos
+  // Siempre cerrar banco y meses primero
   document.getElementById('banco-promo-scroll-wrap').style.display = 'none';
   document.getElementById('meses-scroll-wrap').style.display = 'none';
+  const isOpen = wrap.style.display === 'block';
   if(isOpen){ wrap.style.display = 'none'; return; }
 
   const tarjetas = (perfil?.tarjetas||[]).filter(t=>t.nombre===promoBancoSel);
@@ -3804,10 +3819,10 @@ window.abrirScrollTarjetaPromo = function(){
 
 window.abrirScrollBancoPromo = function(){
   const wrap = document.getElementById('banco-promo-scroll-wrap');
-  const isOpen = wrap.style.display === 'block';
-  // Cerrar tarjeta y meses si están abiertos
+  // Siempre cerrar tarjeta y meses primero
   document.getElementById('tarjeta-promo-scroll-wrap').style.display = 'none';
   document.getElementById('meses-scroll-wrap').style.display = 'none';
+  const isOpen = wrap.style.display === 'block';
   if(isOpen){ wrap.style.display = 'none'; return; }
 
   const bancos = [...new Set((perfil?.tarjetas||[]).map(t=>t.nombre))];
@@ -3852,10 +3867,10 @@ window.abrirScrollBancoPromo = function(){
 
 window.abrirScrollMeses = function(){
   const wrap = document.getElementById('meses-scroll-wrap');
-  const isOpen = wrap.style.display === 'block';
-  // Cerrar banco y tarjeta si están abiertos
+  // Siempre cerrar banco y tarjeta primero
   document.getElementById('banco-promo-scroll-wrap').style.display = 'none';
   document.getElementById('tarjeta-promo-scroll-wrap').style.display = 'none';
+  const isOpen = wrap.style.display === 'block';
   if(isOpen){ wrap.style.display='none'; return; }
   // Construir items 1-24
   const cont = document.getElementById('scroll-meses-items');
@@ -4971,29 +4986,6 @@ const MESES = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto'
 let dpAnio, dpMes, dpDia;
 
 function diasEnMes(mes, anio){ return new Date(anio, mes, 0).getDate(); }
-
-function buildScrollList(containerId, items, selectedIdx){
-  const cont = document.getElementById(containerId);
-  cont.innerHTML = items.map((item,i)=>`
-    <div class="scroll-item${i===selectedIdx?' sel':''}" data-idx="${i}">${item}</div>`
-  ).join('');
-  // Scroll al seleccionado
-  setTimeout(()=>{
-    const itemH = 60;
-    cont.scrollTop = selectedIdx * itemH;
-  }, 50);
-  // Actualizar selected en scroll
-  cont.addEventListener('scroll', ()=>{
-    const idx = Math.round(cont.scrollTop / 60);
-    cont.querySelectorAll('.scroll-item').forEach((el,i)=>{
-      el.classList.toggle('sel', i===idx);
-    });
-    // Actualizar días si cambia mes o año
-    if(containerId==='scroll-anio') { dpAnio=idx; actualizarDias(); }
-    if(containerId==='scroll-mes')  { dpMes=idx+1; actualizarDias(); }
-    if(containerId==='scroll-dia')  { dpDia=idx+1; }
-  }, {passive:true});
-}
 
 function actualizarDias(){
   const maxDias = diasEnMes(dpMes, dpAnio);
