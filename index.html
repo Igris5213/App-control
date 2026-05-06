@@ -378,21 +378,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 </div>
 
 <!-- ══ MODAL CONFIRMAR ELIMINAR USUARIO (ADMIN) ══ -->
-<div class="success-overlay" id="modal-admin-confirm" onclick="cancelarEliminarUsuario()" style="z-index:1000">
-  <div class="success-box" style="max-width:300px;width:90%" onclick="event.stopPropagation()">
-    <div class="success-icon" style="background:linear-gradient(180deg,#111,#444)">
-      <svg width="28" height="28" fill="none" stroke="#fff" stroke-width="2.5" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/></svg>
-    </div>
-    <div class="success-title">Eliminar usuario</div>
-    <div class="success-sub">¿Eliminar a <strong id="admin-confirm-nombre"></strong>?<br>Esta acción no se puede deshacer.</div>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:20px">
-      <button onclick="cancelarEliminarUsuario()" style="padding:12px;border-radius:12px;border:1.5px solid #e0e0e0;background:#fff;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;color:#111">Cancelar</button>
-      <button onclick="confirmarEliminarUsuario()" style="padding:12px;border-radius:12px;background:linear-gradient(180deg,#111,#444);color:#fff;border:none;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit">Eliminar</button>
-    </div>
-  </div>
-</div>
-
-
 <!-- ══ MODAL EDITAR USUARIO (ADMIN) ══ -->
 <div class="modal-overlay" id="modal-admin-editar" onclick="cerrarModalEditarUsuario(event)">
   <div class="modal">
@@ -414,22 +399,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
   </div>
 </div>
 
-
-<!-- ══ MODAL CONFIRMAR EDICIÓN ADMIN ══ -->
-<div class="success-overlay" id="modal-admin-confirm-edit" onclick="cancelarConfirmEdicion()" style="z-index:1000">
-  <div class="success-box" style="max-width:300px;width:90%" onclick="event.stopPropagation()">
-    <div class="success-icon" style="background:linear-gradient(180deg,#111,#444)">
-      <svg width="28" height="28" fill="none" stroke="#fff" stroke-width="2.5" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
-    </div>
-    <div class="success-title">Confirmar cambios</div>
-    <div class="success-sub" style="margin-bottom:14px">Usuario: <strong id="admin-edit-confirm-nombre"></strong></div>
-    <div id="admin-edit-confirm-detalle" style="background:#f5f5f5;border-radius:12px;padding:12px 14px;font-size:13px;color:#555;line-height:1.8;text-align:left"></div>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:18px">
-      <button onclick="cancelarConfirmEdicion()" style="padding:12px;border-radius:12px;border:1.5px solid #e0e0e0;background:#fff;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;color:#111">Cancelar</button>
-      <button onclick="confirmarEdicion()" style="padding:12px;border-radius:12px;background:linear-gradient(180deg,#111,#444);color:#fff;border:none;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit">Confirmar</button>
-    </div>
-  </div>
-</div>
 
 <!-- ══ MODAL CONTRASEÑA LOGIN ══ -->
 <div class="modal-overlay" id="modal-login-pass" onclick="cerrarModalLoginPass(event)">
@@ -2176,7 +2145,8 @@ window.confirmarEdicion = function(){
   else if(nombreCambio && passCambio) msg = '✅ Nombre y contraseña actualizados';
   else if(!nombreCambio && passCambio) msg = '✅ Contraseña actualizada';
 
-  showToast(msg);
+  const subMsg = msg.replace('✅ ', '');
+  showSuccess('Usuario actualizado', subMsg);
   setTimeout(()=>renderAdminUsers(), 150);
 }
 
@@ -2195,7 +2165,7 @@ window.confirmarEliminarUsuario = function(){
   lista.splice(adminDeleteIndex, 1);
   guardarUsuarios(lista);
   document.getElementById('modal-admin-confirm').classList.remove('show');
-  showToast('🗑️ "' + nombre + '" eliminado correctamente');
+  showSuccess('Usuario eliminado', '"' + nombre + '" fue eliminado correctamente');
   setTimeout(()=>renderAdminUsers(), 150);
 }
 
@@ -4989,6 +4959,38 @@ window.confirmarEliminarPerfil = async function(){
     });
   }
 </script>
+
+
+<!-- ══ MODALES ADMIN CONFIRMACIÓN (al final para z-index correcto) ══ -->
+<div class="success-overlay" id="modal-admin-confirm" onclick="cancelarEliminarUsuario()" style="z-index:1000">
+  <div class="success-box" style="max-width:300px;width:90%" onclick="event.stopPropagation()">
+    <div class="success-icon" style="background:linear-gradient(180deg,#111,#444)">
+      <svg width="28" height="28" fill="none" stroke="#fff" stroke-width="2.5" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/></svg>
+    </div>
+    <div class="success-title">Eliminar usuario</div>
+    <div class="success-sub">¿Eliminar a <strong id="admin-confirm-nombre"></strong>?<br>Esta acción no se puede deshacer.</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:20px">
+      <button onclick="cancelarEliminarUsuario()" style="padding:12px;border-radius:12px;border:1.5px solid #e0e0e0;background:#fff;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;color:#111">Cancelar</button>
+      <button onclick="confirmarEliminarUsuario()" style="padding:12px;border-radius:12px;background:linear-gradient(180deg,#111,#444);color:#fff;border:none;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit">Eliminar</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ MODAL CONFIRMAR EDICIÓN ADMIN ══ -->
+<div class="success-overlay" id="modal-admin-confirm-edit" onclick="cancelarConfirmEdicion()" style="z-index:1000">
+  <div class="success-box" style="max-width:300px;width:90%" onclick="event.stopPropagation()">
+    <div class="success-icon" style="background:linear-gradient(180deg,#111,#444)">
+      <svg width="28" height="28" fill="none" stroke="#fff" stroke-width="2.5" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+    </div>
+    <div class="success-title">Confirmar cambios</div>
+    <div class="success-sub" style="margin-bottom:14px">Usuario: <strong id="admin-edit-confirm-nombre"></strong></div>
+    <div id="admin-edit-confirm-detalle" style="background:#f5f5f5;border-radius:12px;padding:12px 14px;font-size:13px;color:#555;line-height:1.8;text-align:left"></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:18px">
+      <button onclick="cancelarConfirmEdicion()" style="padding:12px;border-radius:12px;border:1.5px solid #e0e0e0;background:#fff;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;color:#111">Cancelar</button>
+      <button onclick="confirmarEdicion()" style="padding:12px;border-radius:12px;background:linear-gradient(180deg,#111,#444);color:#fff;border:none;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit">Confirmar</button>
+    </div>
+  </div>
+</div>
 
 </body>
 </html>
