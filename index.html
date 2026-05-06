@@ -1309,7 +1309,7 @@ let selectedBancoNombre = '';
 let selectedCorte = null;
 
 function cerrarTodosLosPopups(){
-  ['banco-popup-overlay','corte-popup-overlay','tarjeta-promo-popup','datepicker-overlay','modal-overlay']
+  ['banco-popup-overlay','corte-popup-overlay','tarjeta-promo-popup','modal-overlay']
     .forEach(id=>{ const el=document.getElementById(id); if(el) el.classList.remove('open'); });
   ['banco-promo-scroll-wrap','tarjeta-promo-scroll-wrap','meses-scroll-wrap']
     .forEach(id=>{ const el=document.getElementById(id); if(el) el.style.display='none'; });
