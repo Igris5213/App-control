@@ -1468,6 +1468,9 @@ window.finalizarOnboarding = async function(){
       pendingUser = null;
     }
     await setDoc(doc(db,'usuarios', currentUser.uid, 'perfil','datos'), perfil);
+    // Ocultar pantallas ANTES de mostrar la animación para que no se vean al cerrarla
+    document.querySelectorAll('.screen').forEach(s=>{ s.classList.add('hidden'); s.style.display='none'; });
+    document.getElementById('main-app').style.display = 'none';
     // Mostrar animación de bienvenida y luego iniciar app
     showWelcome(currentUser.uid, ()=>iniciarApp());
   } catch(e){ showToast('❌ Error al guardar perfil'); }
@@ -1546,19 +1549,32 @@ window.cerrarWelcome = function(){
   const hintEl   = document.getElementById('welcome-hint');
 
   if(overlay._stopAnimation) overlay._stopAnimation();
-
-  overlay.style.opacity       = '0';
   overlay.style.pointerEvents = 'none';
 
-  setTimeout(()=>{
-    labelEl.style.opacity    = '0';
-    labelEl.style.transform  = 'translateY(8px)';
-    nombreEl.style.opacity   = '0';
-    nombreEl.style.transform = 'translateY(14px)';
-    lineEl.style.opacity     = '0';
-    hintEl.style.opacity     = '0';
-    if(_welcomeCallback){ _welcomeCallback(); _welcomeCallback = null; }
-  }, 600);
+  // 1. Ejecutar callback (iniciarApp) — construye la app detrás del overlay negro
+  const cb = _welcomeCallback;
+  _welcomeCallback = null;
+  const result = cb ? cb() : Promise.resolve();
+
+  // 2. Esperar a que iniciarApp resuelva + 2 frames de paint para que
+  //    el DOM quede limpio, luego hacer el fade out del overlay
+  Promise.resolve(result).then(()=>{
+    // Doble rAF garantiza que el browser pintó el nuevo estado
+    requestAnimationFrame(()=>requestAnimationFrame(()=>{
+      // Pequeño delay extra por seguridad antes del fade
+      setTimeout(()=>{
+        overlay.style.opacity = '0';
+        setTimeout(()=>{
+          labelEl.style.opacity    = '0';
+          labelEl.style.transform  = 'translateY(8px)';
+          nombreEl.style.opacity   = '0';
+          nombreEl.style.transform = 'translateY(14px)';
+          lineEl.style.opacity     = '0';
+          hintEl.style.opacity     = '0';
+        }, 650);
+      }, 80);
+    }));
+  });
 }
 
 // ── Iniciar App ──────────────────────────────────
