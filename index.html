@@ -455,7 +455,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
   <!-- Header fijo -->
   <div style="width:100%;max-width:430px;padding:32px 24px 20px;flex-shrink:0;background:#f5f5f5">
     <div style="display:flex;align-items:center;justify-content:center;margin-bottom:20px">
-      <div style="background:#111;color:#fff;font-size:12px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;padding:6px 16px;border-radius:20px">Versión 1.6</div>
+      <div style="background:#111;color:#fff;font-size:12px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;padding:6px 16px;border-radius:20px">Versión 1.7</div>
     </div>
     <div style="font-size:28px;font-weight:800;color:#111;text-align:center;margin-bottom:6px">¿Qué hay de nuevo?</div>
     <div style="font-size:15px;color:#888;text-align:center">Aquí están los cambios de esta actualización</div>
@@ -466,9 +466,24 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 
     <div style="display:flex;flex-direction:column;gap:12px;padding-bottom:8px">
 
-      <!-- v1.6 -->
+      <!-- v1.7 -->
       <div style="background:#f5f5f5;border-radius:10px;padding:8px 12px;margin-bottom:4px">
-        <span style="font-size:11px;font-weight:700;color:#aaa;text-transform:uppercase;letter-spacing:0.1em">v1.6 — Actual</span>
+        <span style="font-size:11px;font-weight:700;color:#aaa;text-transform:uppercase;letter-spacing:0.1em">v1.7 — Actual</span>
+      </div>
+
+      <div style="background:#fff;border-radius:18px;padding:18px 20px;display:flex;align-items:flex-start;gap:14px;box-shadow:0 2px 12px rgba(0,0,0,0.07)">
+        <div style="width:40px;height:40px;border-radius:12px;background:linear-gradient(180deg,#111,#444);display:flex;align-items:center;justify-content:center;flex-shrink:0">
+          <svg width="20" height="20" fill="none" stroke="#fff" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18"/><path d="M9 21V9"/></svg>
+        </div>
+        <div>
+          <div style="font-size:15px;font-weight:700;color:#111;margin-bottom:3px">Menú oculto durante registro</div>
+          <div style="font-size:13px;color:#888;line-height:1.5">El menú flotante y los botones de navegación ya no aparecen mientras configuras tu perfil y tarjetas por primera vez.</div>
+        </div>
+      </div>
+
+      <!-- v1.6 -->
+      <div style="background:#f5f5f5;border-radius:10px;padding:8px 12px;margin-bottom:4px;margin-top:8px">
+        <span style="font-size:11px;font-weight:700;color:#aaa;text-transform:uppercase;letter-spacing:0.1em">v1.6</span>
       </div>
 
       <div style="background:#fff;border-radius:18px;padding:18px 20px;display:flex;align-items:flex-start;gap:14px;box-shadow:0 2px 12px rgba(0,0,0,0.07)">
@@ -1294,10 +1309,11 @@ async function iniciarApp(){
     s.classList.add('hidden');
     s.style.display='none';
   });
-  // Mostrar app
+  // Mostrar app y navbar — solo aquí, cuando ya hay perfil confirmado
   const mainApp = document.getElementById('main-app');
   mainApp.style.display = 'flex';
   mainApp.classList.add('visible');
+  document.getElementById('bottom-nav').style.display = 'flex';
   // Asegurar que Detalle esté activo en el navbar
   setNavActive('nav-detalle');
 
@@ -1986,7 +2002,6 @@ async function entrarApp(){
 
   // Actualizar uid con el usuario seleccionado
   currentUser = { uid: loginUsuarioActivo };
-  document.getElementById('bottom-nav').style.display = 'flex';
   // Cargar perfil de Firebase
   try{
     const snap = await getDoc(doc(db,'usuarios', currentUser.uid, 'perfil','datos'));
@@ -1994,9 +2009,11 @@ async function entrarApp(){
       perfil = snap.data();
       iniciarApp();
     } else {
+      document.getElementById('bottom-nav').style.display = 'none';
       showScreen('screen-welcome');
     }
   } catch(e){
+    document.getElementById('bottom-nav').style.display = 'none';
     showScreen('screen-welcome');
   }
 }
@@ -2306,7 +2323,7 @@ window.salirAdmin = function(){
 }
 
 // ── Control de versión ────────────────────────────
-const APP_VERSION = '1.6';
+const APP_VERSION = '1.7';
 
 window.cerrarNovedades = function(){
   localStorage.setItem('app_version_vista', APP_VERSION);
