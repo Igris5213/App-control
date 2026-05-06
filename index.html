@@ -456,7 +456,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
   <!-- Header fijo -->
   <div style="width:100%;max-width:430px;padding:32px 24px 20px;flex-shrink:0;background:#f5f5f5">
     <div style="display:flex;align-items:center;justify-content:center;margin-bottom:20px">
-      <div style="background:#111;color:#fff;font-size:12px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;padding:6px 16px;border-radius:20px">Versión 2.7</div>
+      <div style="background:#111;color:#fff;font-size:12px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;padding:6px 16px;border-radius:20px">Versión 2.8</div>
     </div>
     <div style="font-size:28px;font-weight:800;color:#111;text-align:center;margin-bottom:6px">¿Qué hay de nuevo?</div>
     <div style="font-size:15px;color:#888;text-align:center">Aquí están los cambios de esta actualización</div>
@@ -467,9 +467,24 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 
     <div style="display:flex;flex-direction:column;gap:12px;padding-bottom:8px">
 
-      <!-- v2.7 -->
+      <!-- v2.8 -->
       <div style="background:#f5f5f5;border-radius:10px;padding:8px 12px;margin-bottom:4px">
-        <span style="font-size:11px;font-weight:700;color:#aaa;text-transform:uppercase;letter-spacing:0.1em">v2.7 — Actual</span>
+        <span style="font-size:11px;font-weight:700;color:#aaa;text-transform:uppercase;letter-spacing:0.1em">v2.8 — Actual</span>
+      </div>
+
+      <div style="background:#fff;border-radius:18px;padding:18px 20px;display:flex;align-items:flex-start;gap:14px;box-shadow:0 2px 12px rgba(0,0,0,0.07)">
+        <div style="width:40px;height:40px;border-radius:12px;background:linear-gradient(180deg,#111,#444);display:flex;align-items:center;justify-content:center;flex-shrink:0">
+          <svg width="20" height="20" fill="none" stroke="#fff" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="5" r="1" fill="#fff"/><circle cx="5" cy="12" r="1" fill="#fff"/><circle cx="19" cy="12" r="1" fill="#fff"/><circle cx="12" cy="19" r="1" fill="#fff"/><circle cx="7" cy="7" r="1" fill="#fff"/><circle cx="17" cy="17" r="1" fill="#fff"/></svg>
+        </div>
+        <div>
+          <div style="font-size:15px;font-weight:700;color:#111;margin-bottom:3px">Animaciones diferenciadas y fix de scroll</div>
+          <div style="font-size:13px;color:#888;line-height:1.5">El saludo de login ahora tiene partículas que ascienden, distinta a los anillos del registro. También se corrigió que la pantalla principal apareciera desplazada hacia abajo al entrar.</div>
+        </div>
+      </div>
+
+      <!-- v2.7 -->
+      <div style="background:#f5f5f5;border-radius:10px;padding:8px 12px;margin-bottom:4px;margin-top:8px">
+        <span style="font-size:11px;font-weight:700;color:#aaa;text-transform:uppercase;letter-spacing:0.1em">v2.7</span>
       </div>
 
       <div style="background:#fff;border-radius:18px;padding:18px 20px;display:flex;align-items:flex-start;gap:14px;box-shadow:0 2px 12px rgba(0,0,0,0.07)">
@@ -1502,27 +1517,61 @@ function getSaludo(){
 }
 
 function showLoginWelcome(nombre, callback){
-  // Rellenar contenido de saludo
   const labelEl  = document.getElementById('welcome-label');
   const nombreEl = document.getElementById('welcome-nombre');
-  const lineEl   = document.getElementById('welcome-line');
   const hintEl   = document.getElementById('welcome-hint');
+  const lineEl   = document.getElementById('welcome-line');
 
   labelEl.textContent  = getSaludo();
   nombreEl.textContent = nombre;
   hintEl.textContent   = 'Bienvenido';
 
   const overlay = document.getElementById('welcome-overlay');
-  // Quitar el onclick para que el tap no lo cierre (se cierra solo)
   overlay.onclick = null;
   overlay.style.cursor = 'default';
 
-  _showWelcomeOverlay();
+  // Partículas ascendentes — más visibles y variadas
+  const canvas = document.getElementById('welcome-canvas');
+  canvas.width  = canvas.offsetWidth  || window.innerWidth;
+  canvas.height = canvas.offsetHeight || window.innerHeight;
+  const ctx = canvas.getContext('2d');
+  const W = canvas.width, H = canvas.height;
 
-  // Auto-cerrar después de 3s llamando al callback directo
+  const dots = Array.from({length: 60}, ()=>({
+    x:     Math.random() * W,
+    y:     H + Math.random() * H * 0.4,
+    r:     Math.random() * 3 + 1,
+    vy:    Math.random() * 1.0 + 0.4,
+    vx:    (Math.random() - 0.5) * 0.4,
+    alpha: Math.random() * 0.5 + 0.15,
+  }));
+
+  let frame;
+  function draw(){
+    ctx.clearRect(0, 0, W, H);
+    dots.forEach(d=>{
+      d.y -= d.vy;
+      d.x += d.vx;
+      if(d.y < -6){ d.y = H + 6; d.x = Math.random() * W; }
+      ctx.beginPath();
+      ctx.arc(d.x, d.y, d.r, 0, Math.PI * 2);
+      ctx.fillStyle = `rgba(255,255,255,${d.alpha})`;
+      ctx.fill();
+    });
+    frame = requestAnimationFrame(draw);
+  }
+  draw();
+  overlay._stopAnimation = ()=>{ cancelAnimationFrame(frame); ctx.clearRect(0, 0, W, H); };
+
+  overlay.style.opacity       = '1';
+  overlay.style.pointerEvents = 'all';
   setTimeout(()=>{
-    _cerrarWelcomeConCallback(callback);
-  }, 3000);
+    labelEl.style.opacity    = '1'; labelEl.style.transform  = 'translateY(0)';
+    nombreEl.style.opacity   = '1'; nombreEl.style.transform = 'translateY(0)';
+    lineEl.style.opacity     = '1'; hintEl.style.opacity     = '1';
+  }, 80);
+
+  setTimeout(()=>{ _cerrarWelcomeConCallback(callback); }, 3000);
 }
 
 function showWelcome(nombre, callback){
@@ -1600,6 +1649,13 @@ function _cerrarWelcomeConCallback(cb){
 
   const result = cb ? cb() : Promise.resolve();
   Promise.resolve(result).then(()=>{
+    // Resetear scroll antes del fade para que no se vea desplazada
+    window.scrollTo(0, 0);
+    document.body.scrollTop = 0;
+    document.documentElement.scrollTop = 0;
+    const mainApp = document.getElementById('main-app');
+    if(mainApp) mainApp.scrollTop = 0;
+
     requestAnimationFrame(()=>requestAnimationFrame(()=>{
       setTimeout(()=>{
         overlay.style.opacity = '0';
@@ -1629,6 +1685,7 @@ async function iniciarApp(){
   const mainApp = document.getElementById('main-app');
   mainApp.style.display = 'flex';
   mainApp.classList.add('visible');
+  mainApp.scrollTop = 0; // resetear scroll para que no aparezca desplazada
   document.getElementById('bottom-nav').style.display = 'flex';
   // Asegurar que Detalle esté activo en el navbar
   setNavActive('nav-detalle');
@@ -2655,7 +2712,7 @@ window.salirAdmin = function(){
 }
 
 // ── Control de versión ────────────────────────────
-const APP_VERSION = '2.7';
+const APP_VERSION = '2.8';
 
 window.cerrarNovedades = function(){
   localStorage.setItem('app_version_vista', APP_VERSION);
