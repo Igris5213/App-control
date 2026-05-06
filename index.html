@@ -206,7 +206,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .modal-save{width:100%;padding:14px;border-radius:12px;background:linear-gradient(180deg,#111,#444);color:#fff;border:none;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit;margin-top:4px}
 .modal-save:disabled{opacity:0.6}
 
-.toast{position:fixed;top:20px;left:50%;transform:translateX(-50%);background:#111;color:#fff;padding:10px 22px;border-radius:20px;font-size:13px;opacity:0;transition:opacity 0.3s;pointer-events:none;z-index:200;white-space:nowrap}
+.toast{position:fixed;top:20px;left:50%;transform:translateX(-50%);background:#111;color:#fff;padding:10px 22px;border-radius:20px;font-size:13px;opacity:0;transition:opacity 0.3s;pointer-events:none;z-index:9999;white-space:nowrap}
 .toast.show{opacity:1}
 
 /* Modal de éxito */
@@ -376,6 +376,22 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 
   </div>
 </div>
+
+<!-- ══ MODAL CONFIRMAR ELIMINAR USUARIO (ADMIN) ══ -->
+<div class="modal-overlay" id="modal-admin-confirm">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title">Eliminar usuario</div>
+    <div style="font-size:15px;color:#555;text-align:center;margin-bottom:20px;line-height:1.5">
+      ¿Seguro que quieres eliminar a <strong id="admin-confirm-nombre"></strong>? Esta acción no se puede deshacer.
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+      <button onclick="cancelarEliminarUsuario()" style="padding:13px;border-radius:12px;border:1.5px solid #e0e0e0;background:#fff;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit;color:#111">Cancelar</button>
+      <button onclick="confirmarEliminarUsuario()" style="padding:13px;border-radius:12px;background:linear-gradient(180deg,#e53935,#c62828);color:#fff;border:none;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit">Eliminar</button>
+    </div>
+  </div>
+</div>
+
 
 <!-- ══ MODAL EDITAR USUARIO (ADMIN) ══ -->
 <div class="modal-overlay" id="modal-admin-editar" onclick="cerrarModalEditarUsuario(event)">
@@ -2071,41 +2087,59 @@ window.guardarEdicionUsuario = function(){
   errEl.textContent = '';
 
   if(!nuevoNombre){ errEl.textContent = 'El nombre no puede estar vacío'; return; }
+  if(nuevaPass.length > 0 && nuevaPass.length < 4){ errEl.textContent = 'La contraseña debe tener al menos 4 caracteres'; return; }
 
   const lista = getUsuarios();
-  // Verificar que el nombre no lo use otro usuario
+  const nombreAnterior = lista[adminEditIndex].user;
   const duplicado = lista.find((u,i)=>u.user.toLowerCase()===nuevoNombre.toLowerCase() && i!==adminEditIndex);
   if(duplicado){ errEl.textContent = 'Ese nombre ya está en uso'; return; }
 
+  const nombreCambio = nuevoNombre !== nombreAnterior;
+  const passCambio = nuevaPass.length >= 4;
+
   lista[adminEditIndex].user = nuevoNombre;
-  if(nuevaPass.length >= 4){
+
+  if(passCambio){
     lista[adminEditIndex].hash = hashSimple(nuevoNombre + nuevaPass);
-  } else if(nuevaPass.length > 0){
-    errEl.textContent = 'La contraseña debe tener al menos 4 caracteres'; return;
-  } else {
-    // Sin cambio de contraseña — re-hashear con nuevo nombre si cambió
-    // (el hash incluye el nombre, así que hay que recalcular)
-    // No podemos recuperar la pass original, así que reseteamos a nombre+nombre como temporal
-    // Solo si cambió el nombre
-    if(lista[adminEditIndex].user !== nuevoNombre){
-      lista[adminEditIndex].hash = hashSimple(nuevoNombre + nuevoNombre);
-      showToast('⚠️ Nombre cambiado. Contraseña temporal: igual al nombre');
-    }
+  } else if(nombreCambio){
+    // El hash incluye el nombre — si cambia el nombre sin nueva contraseña,
+    // la contraseña queda bloqueada. Se resetea como temporal = nombre
+    lista[adminEditIndex].hash = hashSimple(nuevoNombre + nuevoNombre);
   }
 
   guardarUsuarios(lista);
   document.getElementById('modal-admin-editar').classList.remove('open');
-  renderAdminUsers();
-  showToast('✅ Usuario actualizado');
+
+  let msg = '✅ Usuario actualizado';
+  if(nombreCambio && !passCambio) msg = '✅ Nombre cambiado · Contraseña temporal: igual al nombre';
+  else if(nombreCambio && passCambio) msg = '✅ Nombre y contraseña actualizados';
+  else if(!nombreCambio && passCambio) msg = '✅ Contraseña actualizada';
+
+  showToast(msg);
+  setTimeout(()=>renderAdminUsers(), 100);
 }
 
+let adminDeleteIndex = -1;
+
 window.eliminarUsuario = function(idx){
+  adminDeleteIndex = idx;
   const lista = getUsuarios();
-  const nombre = lista[idx].user;
-  lista.splice(idx, 1);
+  document.getElementById('admin-confirm-nombre').textContent = lista[idx].user;
+  document.getElementById('modal-admin-confirm').classList.add('open');
+}
+
+window.confirmarEliminarUsuario = function(){
+  const lista = getUsuarios();
+  const nombre = lista[adminDeleteIndex].user;
+  lista.splice(adminDeleteIndex, 1);
   guardarUsuarios(lista);
-  renderAdminUsers();
-  showToast('🗑️ Usuario "' + nombre + '" eliminado');
+  document.getElementById('modal-admin-confirm').classList.remove('open');
+  showToast('🗑️ "' + nombre + '" eliminado correctamente');
+  setTimeout(()=>renderAdminUsers(), 150);
+}
+
+window.cancelarEliminarUsuario = function(){
+  document.getElementById('modal-admin-confirm').classList.remove('open');
 }
 
 window.salirAdmin = function(){
