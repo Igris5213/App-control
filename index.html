@@ -323,50 +323,66 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
       <svg width="44" height="44" fill="none" stroke="#fff" stroke-width="2" viewBox="0 0 24 24"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
     </div>
     <div class="welcome-title" style="margin-bottom:6px">Control de Gastos</div>
-    <div class="welcome-sub" id="login-sub" style="margin-bottom:32px">Ingresa tus credenciales</div>
+    <div class="welcome-sub" id="login-sub" style="margin-bottom:24px">¿Quién eres?</div>
 
-    <div style="width:100%;background:#fff;border-radius:24px;padding:24px;box-shadow:0 4px 24px rgba(0,0,0,0.08)">
+    <!-- Lista de usuarios -->
+    <div id="login-users-list" style="width:100%;display:flex;flex-direction:column;gap:10px;margin-bottom:14px"></div>
 
-      <!-- Usuario -->
-      <div style="margin-bottom:14px">
-        <div style="font-size:13px;font-weight:600;color:#555;margin-bottom:6px">Usuario</div>
-        <input id="auth-user" type="text" placeholder="Tu nombre de usuario" autocomplete="username"
-          style="width:100%;padding:13px 14px;border-radius:12px;border:1.5px solid #e0e0e0;font-size:15px;font-family:inherit;color:#111;background:#fff;outline:none;box-sizing:border-box"
-          onfocus="this.style.borderColor='#111'" onblur="this.style.borderColor='#e0e0e0'"/>
-      </div>
+    <!-- Botón agregar usuario -->
+    <button onclick="mostrarFormNuevoUsuario()" id="btn-agregar-usuario"
+      style="width:100%;padding:14px;border-radius:16px;border:1.5px dashed #ccc;background:transparent;font-size:15px;font-weight:600;color:#888;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:8px">
+      <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      Agregar usuario
+    </button>
 
-      <!-- Contraseña -->
-      <div style="margin-bottom:6px">
-        <div style="font-size:13px;font-weight:600;color:#555;margin-bottom:6px" id="pass-label">Contraseña</div>
-        <div style="position:relative">
-          <input id="auth-pass" type="password" placeholder="Tu contraseña" autocomplete="current-password"
-            style="width:100%;padding:13px 44px 13px 14px;border-radius:12px;border:1.5px solid #e0e0e0;font-size:15px;font-family:inherit;color:#111;background:#fff;outline:none;box-sizing:border-box"
-            onfocus="this.style.borderColor='#111'" onblur="this.style.borderColor='#e0e0e0'"
-            onkeydown="if(event.key==='Enter') ejecutarAuth()"/>
-          <button onclick="togglePassVis()" style="position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:#aaa;padding:4px">
-            <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
-          </button>
-        </div>
-      </div>
+  </div>
+</div>
 
-      <!-- Confirmar contraseña (solo en registro) -->
-      <div id="pass-confirm-wrap" style="margin-bottom:6px;display:none">
-        <div style="font-size:13px;font-weight:600;color:#555;margin-bottom:6px">Confirmar contraseña</div>
-        <input id="auth-pass2" type="password" placeholder="Repite tu contraseña"
-          style="width:100%;padding:13px 14px;border-radius:12px;border:1.5px solid #e0e0e0;font-size:15px;font-family:inherit;color:#111;background:#fff;outline:none;box-sizing:border-box"
-          onfocus="this.style.borderColor='#111'" onblur="this.style.borderColor='#e0e0e0'"
-          onkeydown="if(event.key==='Enter') ejecutarAuth()"/>
-      </div>
-
-      <!-- Error -->
-      <div id="auth-error" style="font-size:13px;color:#e53935;margin:10px 0 4px;min-height:18px;text-align:center"></div>
-
-      <!-- Botón -->
-      <button id="auth-submit-btn" onclick="ejecutarAuth()"
-        style="width:100%;padding:15px;border-radius:12px;background:linear-gradient(180deg,#111,#444);color:#fff;border:none;font-size:16px;font-weight:700;cursor:pointer;font-family:inherit;margin-top:8px">
-        Entrar
+<!-- ══ MODAL CONTRASEÑA LOGIN ══ -->
+<div class="modal-overlay" id="modal-login-pass" onclick="cerrarModalLoginPass(event)">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title" id="modal-login-title">Iniciar sesión</div>
+    <div style="font-size:14px;color:#888;margin-bottom:18px;text-align:center" id="modal-login-sub">Ingresa tu contraseña</div>
+    <div style="position:relative;margin-bottom:6px">
+      <input id="modal-auth-pass" type="password" placeholder="Contraseña" autocomplete="current-password"
+        style="width:100%;padding:13px 44px 13px 14px;border-radius:12px;border:1.5px solid #e0e0e0;font-size:15px;font-family:inherit;color:#111;background:#fff;outline:none;box-sizing:border-box"
+        onfocus="this.style.borderColor='#111'" onblur="this.style.borderColor='#e0e0e0'"
+        onkeydown="if(event.key==='Enter') confirmarLoginPass()"/>
+      <button onclick="togglePassVisModal()" style="position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:#aaa;padding:4px">
+        <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
       </button>
+    </div>
+    <div id="modal-login-error" style="font-size:13px;color:#e53935;min-height:18px;margin-bottom:10px;text-align:center"></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:4px">
+      <button onclick="cerrarModalLoginPass()" style="padding:13px;border-radius:12px;border:1.5px solid #e0e0e0;background:#fff;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit;color:#111">Cancelar</button>
+      <button onclick="confirmarLoginPass()" style="padding:13px;border-radius:12px;background:linear-gradient(180deg,#111,#444);color:#fff;border:none;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit">Entrar</button>
+    </div>
+  </div>
+</div>
 
+<!-- ══ MODAL NUEVO USUARIO ══ -->
+<div class="modal-overlay" id="modal-nuevo-usuario" onclick="cerrarModalNuevoUsuario(event)">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title">Nuevo usuario</div>
+    <div class="field-wrap" style="margin-bottom:14px">
+      <div class="field-label">Nombre de usuario</div>
+      <input id="nuevo-user-name" type="text" placeholder="Ej. Juan" class="inp" autocomplete="off"/>
+    </div>
+    <div class="field-wrap" style="margin-bottom:14px">
+      <div class="field-label">Contraseña</div>
+      <input id="nuevo-user-pass" type="password" placeholder="Mínimo 4 caracteres" class="inp"/>
+    </div>
+    <div class="field-wrap" style="margin-bottom:6px">
+      <div class="field-label">Confirmar contraseña</div>
+      <input id="nuevo-user-pass2" type="password" placeholder="Repite la contraseña" class="inp"
+        onkeydown="if(event.key==='Enter') guardarNuevoUsuario()"/>
+    </div>
+    <div id="nuevo-user-error" style="font-size:13px;color:#e53935;min-height:18px;margin-bottom:10px;text-align:center"></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:4px">
+      <button onclick="cerrarModalNuevoUsuario()" style="padding:13px;border-radius:12px;border:1.5px solid #e0e0e0;background:#fff;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit;color:#111">Cancelar</button>
+      <button onclick="guardarNuevoUsuario()" style="padding:13px;border-radius:12px;background:linear-gradient(180deg,#111,#444);color:#fff;border:none;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit">Crear</button>
     </div>
   </div>
 </div>
@@ -1645,68 +1661,152 @@ function showToast(msg){
 
 
 
-// ── Auth local (usuario/contraseña guardados en localStorage) ──
-const AUTH_KEY = 'cg_auth_creds';
+// ── Auth local multi-usuario ──
+const AUTH_KEY = 'cg_auth_users';
+let loginUsuarioActivo = null;
 
 function hashSimple(str){
-  // Hash básico para no guardar contraseña en texto plano
   let h = 0;
   for(let i=0;i<str.length;i++) h = (Math.imul(31,h)+str.charCodeAt(i))|0;
   return h.toString(36);
 }
 
-function getCredenciales(){
-  try{ return JSON.parse(localStorage.getItem(AUTH_KEY)); } catch{ return null; }
+function getUsuarios(){
+  try{ return JSON.parse(localStorage.getItem(AUTH_KEY)) || []; } catch{ return []; }
 }
 
-// Detecta si ya hay credenciales guardadas y muestra login o registro
-function iniciarFlujoAuth(){
-  const creds = getCredenciales();
-  if(creds){
-    // Ya tiene cuenta — mostrar login normal
-    document.getElementById('login-sub').textContent = 'Ingresa tus credenciales para continuar';
-    document.getElementById('pass-confirm-wrap').style.display = 'none';
-    document.getElementById('auth-submit-btn').textContent = 'Entrar';
-  } else {
-    // Primera vez — modo crear cuenta
-    document.getElementById('login-sub').textContent = 'Crea tu usuario y contraseña para comenzar';
-    document.getElementById('pass-confirm-wrap').style.display = 'block';
-    document.getElementById('auth-submit-btn').textContent = 'Crear cuenta';
+function guardarUsuarios(lista){
+  localStorage.setItem(AUTH_KEY, JSON.stringify(lista));
+}
+
+// Compatibilidad con formato antiguo (un solo usuario)
+function migrarFormatoAntiguo(){
+  const viejo = localStorage.getItem('cg_auth_creds');
+  if(viejo){
+    try{
+      const v = JSON.parse(viejo);
+      const lista = getUsuarios();
+      if(!lista.find(u=>u.user===v.user)){
+        lista.push(v);
+        guardarUsuarios(lista);
+      }
+      localStorage.removeItem('cg_auth_creds');
+    } catch{}
   }
+}
+
+function renderizarUsuarios(){
+  migrarFormatoAntiguo();
+  const lista = getUsuarios();
+  const container = document.getElementById('login-users-list');
+  container.innerHTML = '';
+  if(lista.length === 0){
+    document.getElementById('login-sub').textContent = 'Crea tu primer usuario para comenzar';
+  } else {
+    document.getElementById('login-sub').textContent = '¿Quién eres?';
+    lista.forEach(u => {
+      const btn = document.createElement('button');
+      btn.onclick = () => abrirLoginPass(u.user);
+      btn.style.cssText = 'width:100%;padding:14px 18px;border-radius:16px;border:1.5px solid #e0e0e0;background:#fff;font-size:15px;font-weight:600;color:#111;cursor:pointer;font-family:inherit;display:flex;align-items:center;gap:14px;box-shadow:0 2px 8px rgba(0,0,0,0.05);text-align:left';
+      btn.innerHTML = `
+        <div style="width:40px;height:40px;border-radius:50%;background:linear-gradient(180deg,#111,#444);display:flex;align-items:center;justify-content:center;flex-shrink:0">
+          <svg width="20" height="20" fill="none" stroke="#fff" stroke-width="2" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        </div>
+        <span>${u.user}</span>
+        <svg style="margin-left:auto" width="16" height="16" fill="none" stroke="#ccc" stroke-width="2" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>`;
+      container.appendChild(btn);
+    });
+  }
+}
+
+function iniciarFlujoAuth(){
+  renderizarUsuarios();
   showScreen('screen-login');
 }
 
-window.togglePassVis = function(){
-  const inp = document.getElementById('auth-pass');
+// Modal contraseña al seleccionar usuario
+window.abrirLoginPass = function(user){
+  loginUsuarioActivo = user;
+  document.getElementById('modal-login-title').textContent = user;
+  document.getElementById('modal-login-sub').textContent = 'Ingresa tu contraseña para continuar';
+  document.getElementById('modal-auth-pass').value = '';
+  document.getElementById('modal-login-error').textContent = '';
+  document.getElementById('modal-login-pass').classList.add('open');
+  setTimeout(()=>document.getElementById('modal-auth-pass').focus(), 300);
+}
+
+window.cerrarModalLoginPass = function(e){
+  if(!e || e.target===document.getElementById('modal-login-pass'))
+    document.getElementById('modal-login-pass').classList.remove('open');
+}
+
+window.confirmarLoginPass = function(){
+  const pass = document.getElementById('modal-auth-pass').value;
+  const errEl = document.getElementById('modal-login-error');
+  errEl.textContent = '';
+  const lista = getUsuarios();
+  const u = lista.find(x=>x.user===loginUsuarioActivo);
+  if(!u || u.hash !== hashSimple(u.user+pass)){
+    errEl.textContent = 'Contraseña incorrecta';
+    return;
+  }
+  document.getElementById('modal-login-pass').classList.remove('open');
+  entrarApp();
+}
+
+window.togglePassVisModal = function(){
+  const inp = document.getElementById('modal-auth-pass');
   inp.type = inp.type === 'password' ? 'text' : 'password';
 }
 
-window.ejecutarAuth = function(){
-  const user = document.getElementById('auth-user').value.trim();
-  const pass = document.getElementById('auth-pass').value;
-  const errEl = document.getElementById('auth-error');
+// Modal nuevo usuario
+window.mostrarFormNuevoUsuario = function(){
+  document.getElementById('nuevo-user-name').value = '';
+  document.getElementById('nuevo-user-pass').value = '';
+  document.getElementById('nuevo-user-pass2').value = '';
+  document.getElementById('nuevo-user-error').textContent = '';
+  document.getElementById('modal-nuevo-usuario').classList.add('open');
+  setTimeout(()=>document.getElementById('nuevo-user-name').focus(), 300);
+}
+
+window.cerrarModalNuevoUsuario = function(e){
+  if(!e || e.target===document.getElementById('modal-nuevo-usuario'))
+    document.getElementById('modal-nuevo-usuario').classList.remove('open');
+}
+
+window.guardarNuevoUsuario = function(){
+  const user = document.getElementById('nuevo-user-name').value.trim();
+  const pass = document.getElementById('nuevo-user-pass').value;
+  const pass2 = document.getElementById('nuevo-user-pass2').value;
+  const errEl = document.getElementById('nuevo-user-error');
   errEl.textContent = '';
 
   if(!user || !pass){ errEl.textContent = 'Completa todos los campos'; return; }
   if(pass.length < 4){ errEl.textContent = 'La contraseña debe tener al menos 4 caracteres'; return; }
+  if(pass !== pass2){ errEl.textContent = 'Las contraseñas no coinciden'; return; }
 
-  const creds = getCredenciales();
+  const lista = getUsuarios();
+  if(lista.find(u=>u.user.toLowerCase()===user.toLowerCase())){ errEl.textContent = 'Ese usuario ya existe'; return; }
 
-  if(!creds){
-    // Registro: primera vez
-    const pass2 = document.getElementById('auth-pass2').value;
-    if(pass !== pass2){ errEl.textContent = 'Las contraseñas no coinciden'; return; }
-    localStorage.setItem(AUTH_KEY, JSON.stringify({ user, hash: hashSimple(user+pass) }));
-    showToast('✅ Cuenta creada');
-    entrarApp();
-  } else {
-    // Login: verificar credenciales
-    if(creds.user !== user || creds.hash !== hashSimple(user+pass)){
-      errEl.textContent = 'Usuario o contraseña incorrectos';
-      return;
-    }
-    entrarApp();
-  }
+  lista.push({ user, hash: hashSimple(user+pass) });
+  guardarUsuarios(lista);
+  loginUsuarioActivo = user;
+  document.getElementById('modal-nuevo-usuario').classList.remove('open');
+  showToast('✅ Usuario creado');
+  renderizarUsuarios();
+  entrarApp();
+}
+
+// Compatibilidad — togglePassVis ya no existe en login pero se usa en cambiar pass
+window.togglePassVis = function(){
+  const inp = document.getElementById('auth-pass');
+  if(inp) inp.type = inp.type === 'password' ? 'text' : 'password';
+}
+
+function getCredenciales(){
+  // Para compatibilidad con cambiarPass — retorna el usuario activo
+  const lista = getUsuarios();
+  return lista.find(u=>u.user===loginUsuarioActivo) || null;
 }
 
 async function entrarApp(){
@@ -1769,7 +1869,7 @@ window.regresarAConfig = function(){
 window.irConfiguracion = function(){
   // Mostrar nombre de usuario
   const creds = getCredenciales();
-  if(creds) document.getElementById('config-username-display').textContent = creds.user;
+  const _u = getUsuarios().find(u=>u.user===loginUsuarioActivo); if(_u) document.getElementById('config-username-display').textContent = _u.user;
   // Ocultar main-app y mostrar pantalla config dentro de ella
   document.querySelectorAll('#main-app .screen').forEach(s=>{ s.classList.add('hidden'); s.style.display='none'; });
   const scr = document.getElementById('screen-config');
@@ -1798,13 +1898,15 @@ window.guardarNuevaPass = function(){
   const errEl = document.getElementById('pass-change-error');
   errEl.textContent = '';
 
-  const creds = getCredenciales();
-  if(!creds){ errEl.textContent = 'Error al obtener credenciales'; return; }
-  if(creds.hash !== hashSimple(creds.user + actual)){ errEl.textContent = 'La contraseña actual es incorrecta'; return; }
+  const lista = getUsuarios();
+  const idx = lista.findIndex(u=>u.user===loginUsuarioActivo);
+  if(idx<0){ errEl.textContent = 'Error al obtener credenciales'; return; }
+  if(lista[idx].hash !== hashSimple(lista[idx].user + actual)){ errEl.textContent = 'La contraseña actual es incorrecta'; return; }
   if(nueva.length < 4){ errEl.textContent = 'La nueva contraseña debe tener al menos 4 caracteres'; return; }
   if(nueva !== nueva2){ errEl.textContent = 'Las contraseñas no coinciden'; return; }
 
-  localStorage.setItem(AUTH_KEY, JSON.stringify({ user: creds.user, hash: hashSimple(creds.user + nueva) }));
+  lista[idx].hash = hashSimple(lista[idx].user + nueva);
+  guardarUsuarios(lista);
   document.getElementById('modal-cambiar-pass').classList.remove('open');
   showToast('✅ Contraseña actualizada');
 }
