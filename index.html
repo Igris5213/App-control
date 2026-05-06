@@ -2191,10 +2191,12 @@ async function eliminarPerfil(){
 // ── Toast ────────────────────────────────────────
 function showSuccess(titulo='Movimiento guardado', subtitulo='Tu gasto fue registrado correctamente'){
   const overlay = document.getElementById('success-overlay');
+  const subEl = overlay.querySelector('.success-sub');
   overlay.querySelector('.success-title').textContent = titulo;
-  overlay.querySelector('.success-sub').textContent = subtitulo;
+  subEl.textContent = subtitulo;
+  subEl.style.display = subtitulo ? '' : 'none';
   overlay.classList.add('show');
-  setTimeout(()=>overlay.classList.remove('show'), 1800);
+  setTimeout(()=>{ overlay.classList.remove('show'); subEl.style.display = ''; }, 1800);
 }
 
 window.showSobregiro = function(tarjeta, exceso){
@@ -2607,10 +2609,10 @@ window.guardarEdicionUsuario = function(){
   let detalle = '';
 
   if(nombreCambio && passCambio){
-    titulo = '¿Modificar usuario?';
+    titulo = `¿Cambiar usuario de ${nombreAnterior} a ${nuevoNombre}?`;
     detalle = 'Contraseña actualizada';
   } else if(nombreCambio){
-    titulo = '¿Modificar usuario?';
+    titulo = `¿Cambiar usuario de ${nombreAnterior} a ${nuevoNombre}?`;
     detalle = '';
   } else if(passCambio){
     titulo = '¿Cambiar contraseña?';
