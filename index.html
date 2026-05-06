@@ -4903,7 +4903,7 @@ window.confirmarEliminarPerfil = async function(){
 
 <!-- ══ MODAL EXTEMPORANEO ══ -->
 <div class="modal-overlay" id="modal-ext-overlay" onclick="closeModalExtOut(event)">
-  <div class="modal">
+  <div class="modal" onclick="event.stopPropagation()">
     <div class="modal-handle"></div>
     <div class="field-wrap">
       <div class="field-label">Comercio</div>
