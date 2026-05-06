@@ -312,7 +312,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
   <div class="welcome-title">Control de Gastos</div>
   <div class="welcome-sub">Administra tus tarjetas y gastos de forma simple y organizada.</div>
   <button class="primary-btn" onclick="irACrearPerfil()">Comenzar</button>
-  <button id="btn-cancelar-welcome" style="display:none;width:100%;padding:14px;border-radius:14px;border:1.5px solid #e0e0e0;background:#fff;font-size:15px;font-weight:600;color:#aaa;cursor:pointer;font-family:inherit;margin-top:8px" onclick="iniciarFlujoAuth()">← Ir al login</button>
+  <button id="btn-cancelar-welcome" style="display:none;width:100%;padding:14px;border-radius:14px;border:1.5px solid #e0e0e0;background:#fff;font-size:15px;font-weight:600;color:#aaa;cursor:pointer;font-family:inherit;margin-top:8px" onclick="cancelarRegistro()">Cancelar</button>
 </div>
 
 
@@ -456,7 +456,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
   <!-- Header fijo -->
   <div style="width:100%;max-width:430px;padding:32px 24px 20px;flex-shrink:0;background:#f5f5f5">
     <div style="display:flex;align-items:center;justify-content:center;margin-bottom:20px">
-      <div style="background:#111;color:#fff;font-size:12px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;padding:6px 16px;border-radius:20px">Versión 2.2</div>
+      <div style="background:#111;color:#fff;font-size:12px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;padding:6px 16px;border-radius:20px">Versión 2.3</div>
     </div>
     <div style="font-size:28px;font-weight:800;color:#111;text-align:center;margin-bottom:6px">¿Qué hay de nuevo?</div>
     <div style="font-size:15px;color:#888;text-align:center">Aquí están los cambios de esta actualización</div>
@@ -467,9 +467,24 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 
     <div style="display:flex;flex-direction:column;gap:12px;padding-bottom:8px">
 
-      <!-- v2.2 -->
+      <!-- v2.3 -->
       <div style="background:#f5f5f5;border-radius:10px;padding:8px 12px;margin-bottom:4px">
-        <span style="font-size:11px;font-weight:700;color:#aaa;text-transform:uppercase;letter-spacing:0.1em">v2.2 — Actual</span>
+        <span style="font-size:11px;font-weight:700;color:#aaa;text-transform:uppercase;letter-spacing:0.1em">v2.3 — Actual</span>
+      </div>
+
+      <div style="background:#fff;border-radius:18px;padding:18px 20px;display:flex;align-items:flex-start;gap:14px;box-shadow:0 2px 12px rgba(0,0,0,0.07)">
+        <div style="width:40px;height:40px;border-radius:12px;background:linear-gradient(180deg,#111,#444);display:flex;align-items:center;justify-content:center;flex-shrink:0">
+          <svg width="20" height="20" fill="none" stroke="#fff" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
+        </div>
+        <div>
+          <div style="font-size:15px;font-weight:700;color:#111;margin-bottom:3px">Cancelar sin crear usuario</div>
+          <div style="font-size:13px;color:#888;line-height:1.5">Al cancelar el registro en la pantalla de inicio, el usuario y contraseña no se guardan. Solo se confirman al terminar de configurar las tarjetas.</div>
+        </div>
+      </div>
+
+      <!-- v2.2 -->
+      <div style="background:#f5f5f5;border-radius:10px;padding:8px 12px;margin-bottom:4px;margin-top:8px">
+        <span style="font-size:11px;font-weight:700;color:#aaa;text-transform:uppercase;letter-spacing:0.1em">v2.2</span>
       </div>
 
       <div style="background:#fff;border-radius:18px;padding:18px 20px;display:flex;align-items:flex-start;gap:14px;box-shadow:0 2px 12px rgba(0,0,0,0.07)">
@@ -734,7 +749,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
     </div>
     <button class="primary-btn" onclick="guardarPerfil()">Continuar</button>
     <button style="width:100%;padding:14px;border-radius:14px;border:1.5px solid #e0e0e0;background:#fff;font-size:15px;font-weight:600;color:#444;cursor:pointer;font-family:inherit;margin-top:8px" onclick="actualizarBotonesCancelar();showScreen('screen-welcome')">← Volver</button>
-    <button id="btn-cancelar-perfil" style="display:none;width:100%;padding:14px;border-radius:14px;border:1.5px solid #e0e0e0;background:#fff;font-size:15px;font-weight:600;color:#aaa;cursor:pointer;font-family:inherit;margin-top:8px" onclick="iniciarFlujoAuth()">← Ir al login</button>
   </div>
 </div>
 
@@ -1119,6 +1133,7 @@ let onAfterEdit = null; // callback tras editar/eliminar en ventana movimientos
 let movVisible = true;
 let tarjetasOb = [];       // tarjetas durante onboarding
 let _unsubMovimientos = null; // referencia al listener activo de movimientos
+let pendingUser = null;       // usuario pendiente de confirmar (hasta finalizar onboarding)
 const today = new Date();
 const COLORS = ['card-color-0','card-color-1','card-color-2','card-color-3','card-color-4','card-color-5'];
 
@@ -1134,11 +1149,16 @@ window.showScreen = function(id){
 }
 
 window.actualizarBotonesCancelar = function actualizarBotonesCancelar(){
-  const hayUsuarios = getUsuarios().length > 0;
+  const hayUsuarios = getUsuarios().length > 0 || pendingUser !== null;
   const bc1 = document.getElementById('btn-cancelar-welcome');
-  const bc2 = document.getElementById('btn-cancelar-perfil');
   if(bc1) bc1.style.display = hayUsuarios ? 'block' : 'none';
-  if(bc2) bc2.style.display = hayUsuarios ? 'block' : 'none';
+}
+
+window.cancelarRegistro = function(){
+  pendingUser = null;
+  loginUsuarioActivo = null;
+  currentUser = { uid: 'usuario' };
+  iniciarFlujoAuth();
 }
 
 window.irACrearPerfil = function(){
@@ -1396,6 +1416,14 @@ window.finalizarOnboarding = async function(){
   if(!tarjetasOb.length){ showToast('Agrega al menos una tarjeta'); return; }
   perfil.tarjetas = tarjetasOb;
   try{
+    // Si hay usuario pendiente, guardarlo ahora en localStorage
+    if(pendingUser){
+      const lista = getUsuarios();
+      lista.push(pendingUser);
+      guardarUsuarios(lista);
+      pendingUser = null;
+      showSuccess('Usuario creado', `Bienvenido, ${currentUser.uid}. Todo listo.`);
+    }
     await setDoc(doc(db,'usuarios', currentUser.uid, 'perfil','datos'), perfil);
     iniciarApp();
   } catch(e){ showToast('❌ Error al guardar perfil'); }
@@ -2069,13 +2097,23 @@ window.guardarNuevoUsuario = function(){
   const lista = getUsuarios();
   if(lista.find(u=>u.user.toLowerCase()===user.toLowerCase())){ errEl.textContent = 'Ese usuario ya existe'; return; }
 
-  lista.push({ user, hash: hashSimple(user+pass) });
-  guardarUsuarios(lista);
+  // Guardar temporalmente — NO guardar en localStorage todavía
+  pendingUser = { user, hash: hashSimple(user+pass) };
   loginUsuarioActivo = user;
+  currentUser = { uid: user };
+
   document.getElementById('modal-nuevo-usuario').classList.remove('open');
-  showSuccess('Usuario creado', `Bienvenido, ${user}. Ahora configura tus tarjetas.`);
-  renderizarUsuarios();
-  entrarApp();
+  actualizarBotonesCancelar();
+
+  // Limpiar onboarding y mostrar bienvenida
+  perfil = null; tarjetasOb = []; promocionesCache = [];
+  document.getElementById('inp-nombre').value = '';
+  document.getElementById('added-cards-list').innerHTML = '';
+  document.getElementById('ob-title-tarjetas').textContent = 'Agrega tu primera tarjeta';
+  document.getElementById('btn-finalizar').style.display = 'none';
+  resetFormTarjeta();
+  document.getElementById('bottom-nav').style.display = 'none';
+  showScreen('screen-welcome');
 }
 
 // Compatibilidad — togglePassVis ya no existe en login pero se usa en cambiar pass
@@ -2121,7 +2159,7 @@ async function entrarApp(){
 }
 
 window.cerrarSesion = function(){
-  perfil = null; movimientos = []; tarjetasOb = [];
+  perfil = null; movimientos = []; tarjetasOb = []; pendingUser = null;
   if(_unsubMovimientos){ _unsubMovimientos(); _unsubMovimientos = null; }
   document.querySelectorAll('.modal-overlay').forEach(m=>m.classList.remove('open'));
   const mainApp = document.getElementById('main-app');
@@ -2425,7 +2463,7 @@ window.salirAdmin = function(){
 }
 
 // ── Control de versión ────────────────────────────
-const APP_VERSION = '2.2';
+const APP_VERSION = '2.3';
 
 window.cerrarNovedades = function(){
   localStorage.setItem('app_version_vista', APP_VERSION);
