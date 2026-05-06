@@ -455,7 +455,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
   <!-- Header fijo -->
   <div style="width:100%;max-width:430px;padding:32px 24px 20px;flex-shrink:0;background:#f5f5f5">
     <div style="display:flex;align-items:center;justify-content:center;margin-bottom:20px">
-      <div style="background:#111;color:#fff;font-size:12px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;padding:6px 16px;border-radius:20px">Versión 1.7</div>
+      <div style="background:#111;color:#fff;font-size:12px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;padding:6px 16px;border-radius:20px">Versión 1.8</div>
     </div>
     <div style="font-size:28px;font-weight:800;color:#111;text-align:center;margin-bottom:6px">¿Qué hay de nuevo?</div>
     <div style="font-size:15px;color:#888;text-align:center">Aquí están los cambios de esta actualización</div>
@@ -466,9 +466,24 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 
     <div style="display:flex;flex-direction:column;gap:12px;padding-bottom:8px">
 
-      <!-- v1.7 -->
+      <!-- v1.8 -->
       <div style="background:#f5f5f5;border-radius:10px;padding:8px 12px;margin-bottom:4px">
-        <span style="font-size:11px;font-weight:700;color:#aaa;text-transform:uppercase;letter-spacing:0.1em">v1.7 — Actual</span>
+        <span style="font-size:11px;font-weight:700;color:#aaa;text-transform:uppercase;letter-spacing:0.1em">v1.8 — Actual</span>
+      </div>
+
+      <div style="background:#fff;border-radius:18px;padding:18px 20px;display:flex;align-items:flex-start;gap:14px;box-shadow:0 2px 12px rgba(0,0,0,0.07)">
+        <div style="width:40px;height:40px;border-radius:12px;background:linear-gradient(180deg,#111,#444);display:flex;align-items:center;justify-content:center;flex-shrink:0">
+          <svg width="20" height="20" fill="none" stroke="#fff" stroke-width="2" viewBox="0 0 24 24"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
+        </div>
+        <div>
+          <div style="font-size:15px;font-weight:700;color:#111;margin-bottom:3px">Onboarding limpio entre usuarios</div>
+          <div style="font-size:13px;color:#888;line-height:1.5">Al crear un nuevo usuario después de cerrar sesión, el formulario de tarjetas aparece vacío, sin datos del usuario anterior.</div>
+        </div>
+      </div>
+
+      <!-- v1.7 -->
+      <div style="background:#f5f5f5;border-radius:10px;padding:8px 12px;margin-bottom:4px;margin-top:8px">
+        <span style="font-size:11px;font-weight:700;color:#aaa;text-transform:uppercase;letter-spacing:0.1em">v1.7</span>
       </div>
 
       <div style="background:#fff;border-radius:18px;padding:18px 20px;display:flex;align-items:flex-start;gap:14px;box-shadow:0 2px 12px rgba(0,0,0,0.07)">
@@ -1060,7 +1075,17 @@ window.guardarPerfil = function(){
   const nombre = document.getElementById('inp-nombre').value.trim();
   if(!nombre){ document.getElementById('inp-nombre').focus(); return; }
   perfil = { nombre, tarjetas: [] };
-  promocionesCache = []; // limpiar promociones del perfil anterior
+  promocionesCache = [];
+
+  // Limpiar estado del onboarding anterior
+  tarjetasOb = [];
+  selectedBancoNombre = '';
+  selectedCorte = null;
+  document.getElementById('added-cards-list').innerHTML = '';
+  document.getElementById('ob-title-tarjetas').textContent = 'Agrega tu primera tarjeta';
+  document.getElementById('btn-finalizar').style.display = 'none';
+  resetFormTarjeta();
+
   showScreen('screen-tarjetas');
 }
 
@@ -2323,7 +2348,7 @@ window.salirAdmin = function(){
 }
 
 // ── Control de versión ────────────────────────────
-const APP_VERSION = '1.7';
+const APP_VERSION = '1.8';
 
 window.cerrarNovedades = function(){
   localStorage.setItem('app_version_vista', APP_VERSION);
