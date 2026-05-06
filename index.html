@@ -326,15 +326,15 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
     <div class="welcome-title" style="margin-bottom:6px">Control de Gastos</div>
     <div class="welcome-sub" id="login-sub" style="margin-bottom:24px">¿Quién eres?</div>
 
-    <!-- Lista de usuarios -->
-    <div id="login-users-list" style="width:100%;display:flex;flex-direction:column;gap:10px;margin-bottom:14px"></div>
-
-    <!-- Botón agregar usuario -->
-    <button onclick="mostrarFormNuevoUsuario()" id="btn-agregar-usuario"
-      style="width:100%;padding:14px;border-radius:16px;border:1.5px dashed #ccc;background:transparent;font-size:15px;font-weight:600;color:#888;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:8px">
-      <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-      Agregar usuario
-    </button>
+    <!-- Lista de usuarios + agregar en recuadro -->
+    <div style="width:100%;background:#fff;border-radius:20px;border:1.5px solid #e0e0e0;overflow:hidden;margin-bottom:8px">
+      <div id="login-users-list" style="width:100%;display:flex;flex-direction:column"></div>
+      <button onclick="mostrarFormNuevoUsuario()" id="btn-agregar-usuario"
+        style="width:100%;padding:15px 20px;border:none;border-top:1.5px solid #f0f0f0;background:transparent;font-size:15px;font-weight:600;color:#888;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:8px">
+        <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        Agregar usuario
+      </button>
+    </div>
 
   </div>
 </div>
@@ -390,7 +390,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
     </div>
     <div class="field-wrap" style="margin-bottom:14px">
       <div class="field-label">Nueva contraseña <span style="color:#aaa;font-weight:400">(dejar vacío para no cambiar)</span></div>
-      <input id="admin-edit-pass" type="password" placeholder="Nueva contraseña" class="inp"/>
+      <div style="position:relative"><input id="admin-edit-pass" type="password" placeholder="Nueva contraseña" class="inp" style="padding-right:44px"/><button type="button" onclick="togglePassVis('admin-edit-pass')" style="position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:#aaa;padding:4px"><svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button></div>
     </div>
     <div id="admin-edit-error" style="font-size:13px;color:#e53935;min-height:18px;margin-bottom:10px;text-align:center"></div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:4px">
@@ -435,12 +435,12 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
     </div>
     <div class="field-wrap" style="margin-bottom:14px">
       <div class="field-label">Contraseña</div>
-      <input id="nuevo-user-pass" type="password" placeholder="Mínimo 4 caracteres" class="inp"/>
+      <div style="position:relative"><input id="nuevo-user-pass" type="password" placeholder="Mínimo 4 caracteres" class="inp" style="padding-right:42px"/><button type="button" onclick="togglePassVis('nuevo-user-pass')" style="position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:#aaa;padding:4px"><svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button></div>
     </div>
     <div class="field-wrap" style="margin-bottom:6px">
       <div class="field-label">Confirmar contraseña</div>
-      <input id="nuevo-user-pass2" type="password" placeholder="Repite la contraseña" class="inp"
-        onkeydown="if(event.key==='Enter') guardarNuevoUsuario()"/>
+      <div style="position:relative"><input id="nuevo-user-pass2" type="password" placeholder="Repite la contraseña" class="inp" style="padding-right:42px"
+        onkeydown="if(event.key==='Enter') guardarNuevoUsuario()"/><button type="button" onclick="togglePassVis('nuevo-user-pass2')" style="position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:#aaa;padding:4px"><svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button></div>
     </div>
     <div id="nuevo-user-error" style="font-size:13px;color:#e53935;min-height:18px;margin-bottom:10px;text-align:center"></div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:4px">
@@ -456,7 +456,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
   <!-- Header fijo -->
   <div style="width:100%;max-width:430px;padding:32px 24px 20px;flex-shrink:0;background:#f5f5f5">
     <div style="display:flex;align-items:center;justify-content:center;margin-bottom:20px">
-      <div style="background:#111;color:#fff;font-size:12px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;padding:6px 16px;border-radius:20px">Versión 3.2</div>
+      <div style="background:#111;color:#fff;font-size:12px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;padding:6px 16px;border-radius:20px">Versión 3.3</div>
     </div>
     <div style="font-size:28px;font-weight:800;color:#111;text-align:center;margin-bottom:6px">¿Qué hay de nuevo?</div>
     <div style="font-size:15px;color:#888;text-align:center">Aquí están los cambios de esta actualización</div>
@@ -467,9 +467,34 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 
     <div style="display:flex;flex-direction:column;gap:12px;padding-bottom:8px">
 
-      <!-- v3.2 -->
+      <!-- v3.3 -->
       <div style="background:#f5f5f5;border-radius:10px;padding:8px 12px;margin-bottom:4px">
-        <span style="font-size:11px;font-weight:700;color:#aaa;text-transform:uppercase;letter-spacing:0.1em">v3.2 — Actual</span>
+        <span style="font-size:11px;font-weight:700;color:#aaa;text-transform:uppercase;letter-spacing:0.1em">v3.3 — Actual</span>
+      </div>
+
+      <div style="background:#fff;border-radius:18px;padding:18px 20px;display:flex;align-items:flex-start;gap:14px;box-shadow:0 2px 12px rgba(0,0,0,0.07)">
+        <div style="width:40px;height:40px;border-radius:12px;background:linear-gradient(180deg,#111,#444);display:flex;align-items:center;justify-content:center;flex-shrink:0">
+          <svg width="20" height="20" fill="none" stroke="#fff" stroke-width="2" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        </div>
+        <div>
+          <div style="font-size:15px;font-weight:700;color:#111;margin-bottom:3px">Login con recuadro</div>
+          <div style="font-size:13px;color:#888;line-height:1.5">Los usuarios y el botón de agregar usuario están agrupados en un mismo recuadro en la pantalla de inicio de sesión.</div>
+        </div>
+      </div>
+
+      <div style="background:#fff;border-radius:18px;padding:18px 20px;display:flex;align-items:flex-start;gap:14px;box-shadow:0 2px 12px rgba(0,0,0,0.07)">
+        <div style="width:40px;height:40px;border-radius:12px;background:linear-gradient(180deg,#111,#444);display:flex;align-items:center;justify-content:center;flex-shrink:0">
+          <svg width="20" height="20" fill="none" stroke="#fff" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+        </div>
+        <div>
+          <div style="font-size:15px;font-weight:700;color:#111;margin-bottom:3px">Mostrar/ocultar contraseña</div>
+          <div style="font-size:13px;color:#888;line-height:1.5">Todos los campos de contraseña ahora tienen el botón de ojo para mostrar u ocultar el texto ingresado.</div>
+        </div>
+      </div>
+
+      <!-- v3.2 -->
+      <div style="background:#f5f5f5;border-radius:10px;padding:8px 12px;margin-bottom:4px;margin-top:8px">
+        <span style="font-size:11px;font-weight:700;color:#aaa;text-transform:uppercase;letter-spacing:0.1em">v3.2</span>
       </div>
 
       <div style="background:#fff;border-radius:18px;padding:18px 20px;display:flex;align-items:flex-start;gap:14px;box-shadow:0 2px 12px rgba(0,0,0,0.07)">
@@ -2357,7 +2382,7 @@ function renderizarUsuarios(){
     lista.forEach(u => {
       const btn = document.createElement('button');
       btn.onclick = () => abrirLoginPass(u.user);
-      btn.style.cssText = 'width:100%;padding:14px 18px;border-radius:16px;border:1.5px solid #e0e0e0;background:#fff;font-size:15px;font-weight:600;color:#111;cursor:pointer;font-family:inherit;display:flex;align-items:center;gap:14px;box-shadow:0 2px 8px rgba(0,0,0,0.05);text-align:left';
+      btn.style.cssText = 'width:100%;padding:14px 20px;border:none;border-bottom:1.5px solid #f0f0f0;background:#fff;font-size:15px;font-weight:600;color:#111;cursor:pointer;font-family:inherit;display:flex;align-items:center;gap:14px;text-align:left';
       btn.innerHTML = `
         <div style="width:40px;height:40px;border-radius:50%;background:linear-gradient(180deg,#111,#444);display:flex;align-items:center;justify-content:center;flex-shrink:0">
           <svg width="20" height="20" fill="none" stroke="#fff" stroke-width="2" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
@@ -2458,9 +2483,8 @@ window.guardarNuevoUsuario = function(){
   showScreen('screen-welcome');
 }
 
-// Compatibilidad — togglePassVis ya no existe en login pero se usa en cambiar pass
-window.togglePassVis = function(){
-  const inp = document.getElementById('auth-pass');
+window.togglePassVis = function(id){
+  const inp = document.getElementById(id);
   if(inp) inp.type = inp.type === 'password' ? 'text' : 'password';
 }
 
@@ -2855,7 +2879,7 @@ window.salirAdmin = function(){
 }
 
 // ── Control de versión ────────────────────────────
-const APP_VERSION = '3.2';
+const APP_VERSION = '3.3';
 
 window.cerrarNovedades = function(){
   localStorage.setItem('app_version_vista', APP_VERSION);
@@ -5578,15 +5602,15 @@ window.confirmarEliminarPerfil = async function(){
 
     <div class="field-wrap">
       <div class="field-label">Contraseña actual</div>
-      <input id="pass-actual" type="password" placeholder="Tu contraseña actual" class="inp"/>
+      <div style="position:relative"><input id="pass-actual" type="password" placeholder="Tu contraseña actual" class="inp" style="padding-right:42px"/><button type="button" onclick="togglePassVis('pass-actual')" style="position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:#aaa;padding:4px"><svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button></div>
     </div>
     <div class="field-wrap">
       <div class="field-label">Nueva contraseña</div>
-      <input id="pass-nueva" type="password" placeholder="Mínimo 4 caracteres" class="inp"/>
+      <div style="position:relative"><input id="pass-nueva" type="password" placeholder="Mínimo 4 caracteres" class="inp" style="padding-right:42px"/><button type="button" onclick="togglePassVis('pass-nueva')" style="position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:#aaa;padding:4px"><svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button></div>
     </div>
     <div class="field-wrap">
       <div class="field-label">Confirmar nueva contraseña</div>
-      <input id="pass-nueva2" type="password" placeholder="Repite la nueva contraseña" class="inp"/>
+      <div style="position:relative"><input id="pass-nueva2" type="password" placeholder="Repite la nueva contraseña" class="inp" style="padding-right:42px"/><button type="button" onclick="togglePassVis('pass-nueva2')" style="position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:#aaa;padding:4px"><svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button></div>
     </div>
     <div id="pass-change-error" style="font-size:13px;color:#e53935;margin-bottom:10px;min-height:16px;text-align:center"></div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:4px">
