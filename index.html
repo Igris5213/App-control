@@ -312,7 +312,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
   <div class="welcome-title">Control de Gastos</div>
   <div class="welcome-sub">Administra tus tarjetas y gastos de forma simple y organizada.</div>
   <button class="primary-btn" onclick="irACrearPerfil()">Comenzar</button>
-  <button class="ob-back" id="btn-cancelar-welcome" style="display:none" onclick="iniciarFlujoAuth()">← Cancelar</button>
+  <button class="ob-back" id="btn-cancelar-welcome" style="display:none" onclick="cerrarSesion()">← Cancelar</button>
 </div>
 
 
@@ -704,7 +704,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
     </div>
     <button class="primary-btn" onclick="guardarPerfil()">Continuar</button>
     <button class="ob-back" onclick="showScreen('screen-welcome')">← Volver</button>
-    <button class="ob-back" id="btn-cancelar-perfil" style="display:none;margin-top:0;color:#bbb" onclick="iniciarFlujoAuth()">Cancelar</button>
+    <button class="ob-back" id="btn-cancelar-perfil" style="display:none;margin-top:0;color:#bbb" onclick="cerrarSesion()">Cancelar</button>
   </div>
 </div>
 
@@ -1878,6 +1878,7 @@ async function eliminarPerfil(){
     document.getElementById('corte-selector-txt').textContent = 'Seleccionar día...';
 
     // Mostrar pantalla de bienvenida
+    actualizarBotonesCancelar();
     showScreen('screen-welcome');
     showToast('Perfil eliminado');
   } catch(e){ showToast('❌ Error al eliminar perfil'); }
