@@ -2692,7 +2692,7 @@ window.confirmarEliminarUsuario = async function(){
   lista.splice(adminDeleteIndex, 1);
   guardarUsuarios(lista);
   document.getElementById('modal-admin-confirm').classList.remove('show');
-  showSuccess('Usuario eliminado', '"' + nombre + '" y todos sus datos fueron eliminados');
+  showSuccess('Usuario eliminado', '');
 
   // Si ya no quedan usuarios, ir al login limpio con el botón "Agregar usuario"
   if(lista.length === 0){
