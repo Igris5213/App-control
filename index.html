@@ -319,7 +319,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 <div class="screen hidden" id="screen-login">
   <div style="width:100%;max-width:390px;display:flex;flex-direction:column;align-items:center">
 
-    <div class="welcome-icon" style="margin-top:20px">
+    <div class="welcome-icon" id="login-logo" style="margin-top:20px;user-select:none;-webkit-user-select:none">
       <svg width="44" height="44" fill="none" stroke="#fff" stroke-width="2" viewBox="0 0 24 24"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
     </div>
     <div class="welcome-title" style="margin-bottom:6px">Control de Gastos</div>
@@ -337,6 +337,67 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 
   </div>
 </div>
+
+<!-- ══ MODAL ADMIN (OCULTO) ══ -->
+<div class="modal-overlay" id="modal-admin-pass" onclick="cerrarModalAdmin(event)">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title">Acceso</div>
+    <div style="position:relative;margin-bottom:6px">
+      <input id="admin-pass-inp" type="password" placeholder="Contraseña"
+        style="width:100%;padding:13px 14px;border-radius:12px;border:1.5px solid #e0e0e0;font-size:15px;font-family:inherit;color:#111;background:#fff;outline:none;box-sizing:border-box"
+        onfocus="this.style.borderColor='#111'" onblur="this.style.borderColor='#e0e0e0'"
+        onkeydown="if(event.key==='Enter') confirmarAdmin()"/>
+    </div>
+    <div id="admin-pass-error" style="font-size:13px;color:#e53935;min-height:18px;margin-bottom:10px;text-align:center"></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:4px">
+      <button onclick="cerrarModalAdmin()" style="padding:13px;border-radius:12px;border:1.5px solid #e0e0e0;background:#fff;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit;color:#111">Cancelar</button>
+      <button onclick="confirmarAdmin()" style="padding:13px;border-radius:12px;background:linear-gradient(180deg,#111,#444);color:#fff;border:none;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit">Entrar</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ PANTALLA ADMIN ══ -->
+<div class="screen hidden" id="screen-admin">
+  <div style="width:100%;max-width:390px">
+
+    <div style="display:flex;align-items:center;gap:12px;margin-bottom:24px">
+      <button onclick="salirAdmin()" style="width:36px;height:36px;border-radius:50%;border:1.5px solid #e0e0e0;background:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0">
+        <svg width="16" height="16" fill="none" stroke="#111" stroke-width="2.5" viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
+      </button>
+      <div>
+        <div style="font-size:20px;font-weight:800;color:#111">Administrador</div>
+        <div style="font-size:13px;color:#aaa">Gestión de usuarios</div>
+      </div>
+    </div>
+
+    <div style="font-size:11px;font-weight:700;color:#aaa;text-transform:uppercase;letter-spacing:0.1em;margin-bottom:10px">Usuarios registrados</div>
+    <div id="admin-users-list" style="display:flex;flex-direction:column;gap:10px;margin-bottom:20px"></div>
+
+  </div>
+</div>
+
+<!-- ══ MODAL EDITAR USUARIO (ADMIN) ══ -->
+<div class="modal-overlay" id="modal-admin-editar" onclick="cerrarModalEditarUsuario(event)">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title">Editar usuario</div>
+    <div class="field-wrap" style="margin-bottom:14px">
+      <div class="field-label">Nombre de usuario</div>
+      <input id="admin-edit-name" type="text" class="inp" autocomplete="off"/>
+    </div>
+    <div class="field-wrap" style="margin-bottom:14px">
+      <div class="field-label">Nueva contraseña <span style="color:#aaa;font-weight:400">(dejar vacío para no cambiar)</span></div>
+      <input id="admin-edit-pass" type="password" placeholder="Nueva contraseña" class="inp"/>
+    </div>
+    <div id="admin-edit-error" style="font-size:13px;color:#e53935;min-height:18px;margin-bottom:10px;text-align:center"></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:4px">
+      <button onclick="cerrarModalEditarUsuario()" style="padding:13px;border-radius:12px;border:1.5px solid #e0e0e0;background:#fff;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit;color:#111">Cancelar</button>
+      <button onclick="guardarEdicionUsuario()" style="padding:13px;border-radius:12px;background:linear-gradient(180deg,#111,#444);color:#fff;border:none;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit">Guardar</button>
+    </div>
+  </div>
+</div>
+
 
 <!-- ══ MODAL CONTRASEÑA LOGIN ══ -->
 <div class="modal-overlay" id="modal-login-pass" onclick="cerrarModalLoginPass(event)">
@@ -1722,6 +1783,7 @@ function renderizarUsuarios(){
 function iniciarFlujoAuth(){
   renderizarUsuarios();
   showScreen('screen-login');
+  setTimeout(initLogoLongPress, 100);
 }
 
 // Modal contraseña al seleccionar usuario
@@ -1909,6 +1971,153 @@ window.guardarNuevaPass = function(){
   document.getElementById('modal-cambiar-pass').classList.remove('open');
   showToast('✅ Contraseña actualizada');
 }
+
+// ── Admin ─────────────────────────────────────────
+const ADMIN_HASH = hashSimple('administrador5213'); // usuario: administrador, pass: 5213
+let adminEditIndex = -1;
+let longPressTimer = null;
+
+function initLogoLongPress(){
+  const logo = document.getElementById('login-logo');
+  if(!logo) return;
+
+  const start = () => { longPressTimer = setTimeout(() => abrirModalAdmin(), 800); };
+  const cancel = () => { clearTimeout(longPressTimer); };
+
+  logo.addEventListener('mousedown', start);
+  logo.addEventListener('touchstart', start, { passive: true });
+  logo.addEventListener('mouseup', cancel);
+  logo.addEventListener('mouseleave', cancel);
+  logo.addEventListener('touchend', cancel);
+  logo.addEventListener('touchcancel', cancel);
+}
+
+function abrirModalAdmin(){
+  document.getElementById('admin-pass-inp').value = '';
+  document.getElementById('admin-pass-error').textContent = '';
+  document.getElementById('modal-admin-pass').classList.add('open');
+  setTimeout(()=>document.getElementById('admin-pass-inp').focus(), 300);
+}
+
+window.cerrarModalAdmin = function(e){
+  if(!e || e.target===document.getElementById('modal-admin-pass'))
+    document.getElementById('modal-admin-pass').classList.remove('open');
+}
+
+window.confirmarAdmin = function(){
+  const pass = document.getElementById('admin-pass-inp').value;
+  if(hashSimple('administrador'+pass) !== ADMIN_HASH){
+    document.getElementById('admin-pass-error').textContent = 'Contraseña incorrecta';
+    return;
+  }
+  document.getElementById('modal-admin-pass').classList.remove('open');
+  mostrarPantallaAdmin();
+}
+
+function mostrarPantallaAdmin(){
+  document.querySelectorAll('.screen').forEach(s=>{ s.classList.add('hidden'); s.style.display='none'; });
+  renderAdminUsers();
+  const scr = document.getElementById('screen-admin');
+  scr.classList.remove('hidden');
+  scr.style.display = 'flex';
+}
+
+function renderAdminUsers(){
+  const lista = getUsuarios();
+  const container = document.getElementById('admin-users-list');
+  container.innerHTML = '';
+
+  if(lista.length === 0){
+    container.innerHTML = '<div style="text-align:center;color:#aaa;font-size:14px;padding:20px">No hay usuarios registrados</div>';
+    return;
+  }
+
+  lista.forEach((u, idx) => {
+    const card = document.createElement('div');
+    card.style.cssText = 'background:#fff;border-radius:18px;padding:16px 18px;display:flex;align-items:center;gap:14px;box-shadow:0 2px 12px rgba(0,0,0,0.06)';
+    card.innerHTML = `
+      <div style="width:40px;height:40px;border-radius:50%;background:linear-gradient(180deg,#111,#444);display:flex;align-items:center;justify-content:center;flex-shrink:0">
+        <svg width="20" height="20" fill="none" stroke="#fff" stroke-width="2" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+      </div>
+      <div style="flex:1;font-size:15px;font-weight:600;color:#111">${u.user}</div>
+      <button onclick="abrirEditarUsuario(${idx})" style="width:34px;height:34px;border-radius:10px;border:1.5px solid #e0e0e0;background:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer;margin-right:6px">
+        <svg width="15" height="15" fill="none" stroke="#111" stroke-width="2" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+      </button>
+      <button onclick="eliminarUsuario(${idx})" style="width:34px;height:34px;border-radius:10px;border:1.5px solid #ffe0e0;background:#fff0f0;display:flex;align-items:center;justify-content:center;cursor:pointer">
+        <svg width="15" height="15" fill="none" stroke="#e53935" stroke-width="2" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
+      </button>`;
+    container.appendChild(card);
+  });
+}
+
+window.abrirEditarUsuario = function(idx){
+  adminEditIndex = idx;
+  const lista = getUsuarios();
+  document.getElementById('admin-edit-name').value = lista[idx].user;
+  document.getElementById('admin-edit-pass').value = '';
+  document.getElementById('admin-edit-error').textContent = '';
+  document.getElementById('modal-admin-editar').classList.add('open');
+}
+
+window.cerrarModalEditarUsuario = function(e){
+  if(!e || e.target===document.getElementById('modal-admin-editar'))
+    document.getElementById('modal-admin-editar').classList.remove('open');
+}
+
+window.guardarEdicionUsuario = function(){
+  const nuevoNombre = document.getElementById('admin-edit-name').value.trim();
+  const nuevaPass = document.getElementById('admin-edit-pass').value;
+  const errEl = document.getElementById('admin-edit-error');
+  errEl.textContent = '';
+
+  if(!nuevoNombre){ errEl.textContent = 'El nombre no puede estar vacío'; return; }
+
+  const lista = getUsuarios();
+  // Verificar que el nombre no lo use otro usuario
+  const duplicado = lista.find((u,i)=>u.user.toLowerCase()===nuevoNombre.toLowerCase() && i!==adminEditIndex);
+  if(duplicado){ errEl.textContent = 'Ese nombre ya está en uso'; return; }
+
+  lista[adminEditIndex].user = nuevoNombre;
+  if(nuevaPass.length >= 4){
+    lista[adminEditIndex].hash = hashSimple(nuevoNombre + nuevaPass);
+  } else if(nuevaPass.length > 0){
+    errEl.textContent = 'La contraseña debe tener al menos 4 caracteres'; return;
+  } else {
+    // Sin cambio de contraseña — re-hashear con nuevo nombre si cambió
+    // (el hash incluye el nombre, así que hay que recalcular)
+    // No podemos recuperar la pass original, así que reseteamos a nombre+nombre como temporal
+    // Solo si cambió el nombre
+    if(lista[adminEditIndex].user !== nuevoNombre){
+      lista[adminEditIndex].hash = hashSimple(nuevoNombre + nuevoNombre);
+      showToast('⚠️ Nombre cambiado. Contraseña temporal: igual al nombre');
+    }
+  }
+
+  guardarUsuarios(lista);
+  document.getElementById('modal-admin-editar').classList.remove('open');
+  renderAdminUsers();
+  showToast('✅ Usuario actualizado');
+}
+
+window.eliminarUsuario = function(idx){
+  const lista = getUsuarios();
+  const nombre = lista[idx].user;
+  lista.splice(idx, 1);
+  guardarUsuarios(lista);
+  renderAdminUsers();
+  showToast('🗑️ Usuario "' + nombre + '" eliminado');
+}
+
+window.salirAdmin = function(){
+  mostrarPantallaLogin: {
+    document.querySelectorAll('.screen').forEach(s=>{ s.classList.add('hidden'); s.style.display='none'; });
+    renderizarUsuarios();
+    const scr = document.getElementById('screen-login');
+    scr.classList.remove('hidden');
+    scr.style.display = 'flex';
+  }
+}
+
 // ── Control de versión ────────────────────────────
 const APP_VERSION = '1.1';
 
