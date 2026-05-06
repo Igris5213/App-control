@@ -1093,13 +1093,13 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
     </div>
     <div class="field-wrap">
       <div class="field-label">Tarjeta <span style="font-weight:400;color:#aaa">(opcional)</span></div>
-      <input class="inp" id="apodo-edit-tarjeta" placeholder="Ej. Tarjeta personal, Nómina..." maxlength="30"/>
+      <input class="inp" id="apodo-edit-tarjeta" placeholder="Ej. Tarjeta personal, Nómina..." maxlength="30" onfocus="cerrarScrollsPerfiles()"/>
     </div>
     <div class="field-wrap">
       <div class="field-label">Límite de gasto</div>
       <div class="amount-wrap">
         <span class="amount-prefix">$</span>
-        <input class="amount-inp" id="limite-edit-tarjeta" type="number" placeholder="0.00" min="0" step="100"/>
+        <input class="amount-inp" id="limite-edit-tarjeta" type="number" placeholder="0.00" min="0" step="100" onfocus="cerrarScrollsPerfiles()"/>
       </div>
     </div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px">
@@ -2764,6 +2764,31 @@ document.addEventListener('click', function(e){
       el.classList.remove('open');
     }
   });
+
+  // Cerrar scrolls inline de perfiles si se toca fuera de ellos
+  const inlineWraps = [
+    'banco-edit-tarjeta-wrap','corte-edit-tarjeta-wrap',
+    'banco-edit-nuevo-wrap','corte-edit-nuevo-wrap',
+    'banco-ob-scroll-wrap','corte-ob-scroll-wrap',
+  ];
+  inlineWraps.forEach(id=>{
+    const wrap = document.getElementById(id);
+    if(wrap && wrap.style.display === 'block' && !wrap.contains(e.target)){
+      // Solo cerrar si el click no fue en el botón que lo abre
+      const triggers = {
+        'banco-edit-tarjeta-wrap': 'banco-edit-tarjeta-btn',
+        'corte-edit-tarjeta-wrap': 'corte-edit-tarjeta-btn',
+        'banco-edit-nuevo-wrap':   'banco-edit-btn',
+        'corte-edit-nuevo-wrap':   'corte-edit-btn',
+        'banco-ob-scroll-wrap':    'banco-ob-display',
+        'corte-ob-scroll-wrap':    'corte-ob-display',
+      };
+      const triggerEl = document.getElementById(triggers[id]);
+      if(!triggerEl || !triggerEl.contains(e.target)){
+        wrap.style.display = 'none';
+      }
+    }
+  });
 }, true);
 
 // ── Arranque ─────────────────────────────────────
@@ -2889,13 +2914,13 @@ window.renderPerfiles = function(){
         </div>
 
         <div style="font-size:11px;font-weight:700;color:#888;text-transform:uppercase;margin-bottom:6px">Tarjeta <span style="font-weight:400;color:#aaa">(opcional)</span></div>
-        <input id="apodo-nueva-edit" placeholder="Ej. Nómina, Personal, Débito..." maxlength="30"
+        <input id="apodo-nueva-edit" placeholder="Ej. Nómina, Personal, Débito..." maxlength="30" onfocus="cerrarScrollsPerfiles()"
           style="width:100%;padding:12px 14px;border-radius:10px;border:1.5px solid #e5e7eb;font-size:14px;font-family:inherit;outline:none;background:#fff;margin-bottom:12px"/>
 
         <div style="font-size:11px;font-weight:700;color:#888;text-transform:uppercase;margin-bottom:6px">Límite de gasto</div>
         <div style="position:relative;margin-bottom:14px">
           <span style="position:absolute;left:14px;top:50%;transform:translateY(-50%);color:#666;font-size:15px">$</span>
-          <input id="limite-edit" type="number" placeholder="0.00" min="0" step="100"
+          <input id="limite-edit" type="number" placeholder="0.00" min="0" step="100" onfocus="cerrarScrollsPerfiles()"
             style="width:100%;padding:12px 14px 12px 28px;border-radius:10px;border:1.5px solid #e5e7eb;font-size:15px;font-family:inherit;outline:none;background:#fff"/>
         </div>
 
@@ -4442,19 +4467,31 @@ function buildScrollCortePerfiles(scrollId, itemsId, wrapId, txtId, inpId, curre
   }
 }
 
+window.cerrarScrollsPerfiles = function(){
+  ['banco-edit-tarjeta-wrap','corte-edit-tarjeta-wrap','banco-edit-nuevo-wrap','corte-edit-nuevo-wrap']
+    .forEach(id=>{ const el=document.getElementById(id); if(el) el.style.display='none'; });
+}
+
 window.toggleScrollBancoEdit = function(btn){
-  // Detectar si es el modal editar (banco-edit-tarjeta-btn) o el formulario nuevo (banco-edit-btn)
   if(btn.id === 'banco-edit-tarjeta-btn'){
+    // Cerrar corte si está abierto en el mismo modal
+    document.getElementById('corte-edit-tarjeta-wrap').style.display = 'none';
     buildScrollBancoPerfiles('scroll-banco-edit-tarjeta','scroll-banco-edit-tarjeta-items','banco-edit-tarjeta-wrap','banco-edit-tarjeta-txt','inp-banco-edit-tarjeta', document.getElementById('inp-banco-edit-tarjeta').value);
   } else {
+    // Cerrar corte si está abierto en el formulario nuevo
+    document.getElementById('corte-edit-nuevo-wrap').style.display = 'none';
     buildScrollBancoPerfiles('scroll-banco-edit-nuevo','scroll-banco-edit-nuevo-items','banco-edit-nuevo-wrap','banco-edit-txt','inp-banco-edit-nuevo', document.getElementById('inp-banco-edit-nuevo').value);
   }
 }
 
 window.toggleScrollCorteEdit = function(btn){
   if(btn.id === 'corte-edit-tarjeta-btn'){
+    // Cerrar banco si está abierto en el mismo modal
+    document.getElementById('banco-edit-tarjeta-wrap').style.display = 'none';
     buildScrollCortePerfiles('scroll-corte-edit-tarjeta','scroll-corte-edit-tarjeta-items','corte-edit-tarjeta-wrap','corte-edit-tarjeta-txt','inp-corte-edit-tarjeta', document.getElementById('inp-corte-edit-tarjeta').value);
   } else {
+    // Cerrar banco si está abierto en el formulario nuevo
+    document.getElementById('banco-edit-nuevo-wrap').style.display = 'none';
     buildScrollCortePerfiles('scroll-corte-edit-nuevo','scroll-corte-edit-nuevo-items','corte-edit-nuevo-wrap','corte-edit-txt','inp-corte-edit-nuevo', document.getElementById('inp-corte-edit-nuevo').value);
   }
 }
