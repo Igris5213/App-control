@@ -1263,7 +1263,13 @@ window.guardarPerfil = function(){
 let selectedBancoNombre = '';
 let selectedCorte = null;
 
+function cerrarTodosLosPopups(){
+  ['banco-popup-overlay','corte-popup-overlay','banco-promo-popup']
+  .forEach(id=>{ const el=document.getElementById(id); if(el) el.classList.remove('open'); });
+}
+
 window.abrirPopupBanco = function(){
+  cerrarTodosLosPopups();
   document.getElementById('banco-popup-overlay').classList.add('open');
 }
 
@@ -1297,6 +1303,7 @@ window.elegirBanco = function(nombre){
 }
 
 window.abrirPopupCorte = function(){
+  cerrarTodosLosPopups();
   document.getElementById('corte-popup-overlay').classList.add('open');
 }
 
@@ -2047,6 +2054,7 @@ function renderMovimientos(){
 
 // ── Modal gasto ──────────────────────────────────
 window.openModal = function(){
+  cerrarTodosLosPopups();
   editingId=null;
   document.getElementById('modal-title').textContent='';
   document.getElementById('modal-save-btn').textContent='Guardar';
@@ -2747,6 +2755,17 @@ function checkVersion(){
   return false;
 }
 
+// Cerrar popups al tocar fuera de ellos
+document.addEventListener('click', function(e){
+  const popupIds = ['banco-popup-overlay','corte-popup-overlay','banco-promo-popup'];
+  popupIds.forEach(id=>{
+    const el = document.getElementById(id);
+    if(el && el.classList.contains('open') && e.target === el){
+      el.classList.remove('open');
+    }
+  });
+}, true);
+
 // ── Arranque ─────────────────────────────────────
 async function init(){
   // Primero: mostrar novedades si hay versión nueva, luego continuar al login
@@ -3022,12 +3041,13 @@ window.guardarNuevaTarjeta = async function(){
 }
 
 window.abrirPopupBancoEdit = function(){
-  // Reusar el popup de banco del onboarding pero con callback diferente
+  cerrarTodosLosPopups();
   window._bancoEditMode = true;
   document.getElementById('banco-popup-overlay').classList.add('open');
 }
 
 window.abrirPopupCorteEdit = function(){
+  cerrarTodosLosPopups();
   window._corteEditMode = true;
   document.getElementById('corte-popup-overlay').classList.add('open');
 }
@@ -3631,6 +3651,7 @@ window.cerrarModalPromo = function(e){
 }
 
 window.abrirPopupBancoPromo = function(){
+  cerrarTodosLosPopups();
   const lista = document.getElementById('banco-promo-lista');
   const bancos = [...new Set((perfil?.tarjetas||[]).map(t=>t.nombre))];
   lista.innerHTML = bancos.map(b=>`
@@ -3657,6 +3678,7 @@ window.selBancoPromo = function(nombre){
 }
 
 window.abrirPopupTarjetaPromo = function(){
+  cerrarTodosLosPopups();
   const tarjetas = (perfil?.tarjetas||[]).filter(t=>t.nombre===promoBancoSel);
   const lista = document.getElementById('tarjeta-promo-lista');
   lista.innerHTML = tarjetas.map(t=>`
@@ -4887,6 +4909,7 @@ window.abrirDatePicker = function(){
     });
   }, 80);
 
+  cerrarTodosLosPopups();
   document.getElementById('datepicker-overlay').classList.add('open');
 }
 
