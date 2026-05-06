@@ -4938,7 +4938,7 @@ window.confirmarEliminarPerfil = async function(){
 </div>
 
 <!-- Date Picker Modal -->
-<div class="modal-overlay" id="datepicker-overlay" onclick="cerrarDatePicker(event)">
+<div class="modal-overlay" id="datepicker-overlay" onclick="cerrarDatePicker(event)" style="z-index:400">
   <div class="modal" style="padding:0;overflow:hidden">
     <div class="modal-handle" style="margin-top:12px"></div>
     <div style="padding:16px 20px 8px;font-size:16px;font-weight:700;color:#111;text-align:center">Seleccionar fecha</div>
@@ -5024,74 +5024,75 @@ function snapScrollConInicio(el, itemH, initialIdx, onSnap){
 
 window.abrirDatePicker = function(){
   const hoy = new Date();
-  const anioActual = hoy.getFullYear();
-  const mesActual = hoy.getMonth()+1;
-  const diaActual = hoy.getDate();
+  dpAnio = hoy.getFullYear();
+  dpMes  = hoy.getMonth() + 1;
+  dpDia  = hoy.getDate();
 
-  dpAnio = anioActual;
-  dpMes = mesActual;
-  dpDia = diaActual;
+  const anios = [dpAnio - 1, dpAnio];
 
-  const anios = [anioActual-1, anioActual];
-  const selAnio = 1;
-  const meses = MESES.map(m=>m.substring(0,3));
-  const selMes = mesActual-1;
-  const maxD = diasEnMes(mesActual, anioActual);
-  const dias = Array.from({length:maxD},(_,i)=>String(i+1).padStart(2,'0'));
-  const selDia = diaActual-1;
+  function buildCol(scrollId, itemsId, items, selIdx, onSelect){
+    const scrollEl = document.getElementById(scrollId);
+    const itemsEl  = document.getElementById(itemsId);
 
-  function renderItems(containerId, items, selIdx, cls='dp-item'){
-    document.getElementById(containerId).innerHTML = items.map((v,i)=>
-      `<div class="${cls}${i===selIdx?' sel':''}">${v}</div>`
+    itemsEl.innerHTML = items.map((v,i)=>
+      `<div class="dp-item${i===selIdx?' sel':''}">${v}</div>`
     ).join('');
+
+    // Scroll al item seleccionado
+    scrollEl.scrollTop = selIdx * 44;
+
+    // Highlight al vuelo mientras se desliza
+    scrollEl.onscroll = ()=>{
+      const idx = Math.min(Math.max(Math.round(scrollEl.scrollTop / 44), 0), items.length-1);
+      itemsEl.querySelectorAll('.dp-item').forEach((el,i)=>el.classList.toggle('sel',i===idx));
+      onSelect(idx);
+    };
+
+    // Snap suave al soltar
+    let snapTimer;
+    scrollEl.addEventListener('scroll', ()=>{
+      clearTimeout(snapTimer);
+      snapTimer = setTimeout(()=>{
+        const idx = Math.min(Math.max(Math.round(scrollEl.scrollTop / 44), 0), items.length-1);
+        scrollEl.scrollTo({top: idx * 44, behavior:'smooth'});
+      }, 80);
+    }, {passive:true});
+
+    // Registrar selección inicial
+    onSelect(selIdx);
   }
 
-  renderItems('scroll-anio-items', anios, selAnio);
-  renderItems('scroll-mes-items', meses, selMes);
-  renderItems('scroll-dia-items', dias, selDia);
-
-  function highlight(containerId, idx){
-    document.getElementById(containerId).querySelectorAll('.dp-item').forEach((el,i)=>el.classList.toggle('sel',i===idx));
-  }
+  const mesesCortos = MESES.map(m=>m.substring(0,3));
+  const maxD = diasEnMes(dpMes, dpAnio);
+  const dias  = Array.from({length:maxD},(_,i)=>String(i+1).padStart(2,'0'));
 
   setTimeout(()=>{
-    const elA = document.getElementById('scroll-anio');
-    const elM = document.getElementById('scroll-mes');
-    const elD = document.getElementById('scroll-dia');
-    elA.scrollTop = selAnio*44;
-    elM.scrollTop = selMes*44;
-    elD.scrollTop = selDia*44;
-
-    snapScroll(elA, 44, idx=>{
-      dpAnio = anios[Math.min(idx, anios.length-1)] || anioActual;
-      highlight('scroll-anio-items', idx);
-      // Recalcular días
-      const md=diasEnMes(dpMes,dpAnio);
-      const ds=Array.from({length:md},(_,i)=>String(i+1).padStart(2,'0'));
-      const sd=Math.min(dpDia-1,md-1);
-      renderItems('scroll-dia-items',ds,sd);
-      elD.scrollTop=sd*44;
-      dpDia=sd+1;
+    buildCol('scroll-anio','scroll-anio-items', anios.map(String), 1, idx=>{
+      dpAnio = anios[Math.min(idx, anios.length-1)];
+      // Recalcular días si cambia año
+      const md = diasEnMes(dpMes, dpAnio);
+      const ds = Array.from({length:md},(_,i)=>String(i+1).padStart(2,'0'));
+      const sd = Math.min(dpDia-1, md-1);
+      const dEl = document.getElementById('scroll-dia');
+      document.getElementById('scroll-dia-items').innerHTML = ds.map((v,i)=>
+        `<div class="dp-item${i===sd?' sel':''}">${v}</div>`).join('');
+      dEl.scrollTop = sd*44; dpDia = sd+1;
     });
 
-    snapScroll(elM, 44, idx=>{
+    buildCol('scroll-mes','scroll-mes-items', mesesCortos, dpMes-1, idx=>{
       dpMes = idx+1;
-      highlight('scroll-mes-items', idx);
-      const md=diasEnMes(dpMes,dpAnio);
-      const ds=Array.from({length:md},(_,i)=>String(i+1).padStart(2,'0'));
-      const sd=Math.min(dpDia-1,md-1);
-      renderItems('scroll-dia-items',ds,sd);
-      elD.scrollTop=sd*44;
-      dpDia=sd+1;
+      const md = diasEnMes(dpMes, dpAnio);
+      const ds = Array.from({length:md},(_,i)=>String(i+1).padStart(2,'0'));
+      const sd = Math.min(dpDia-1, md-1);
+      const dEl = document.getElementById('scroll-dia');
+      document.getElementById('scroll-dia-items').innerHTML = ds.map((v,i)=>
+        `<div class="dp-item${i===sd?' sel':''}">${v}</div>`).join('');
+      dEl.scrollTop = sd*44; dpDia = sd+1;
     });
 
-    snapScroll(elD, 44, idx=>{
-      dpDia=idx+1;
-      highlight('scroll-dia-items', idx);
-    });
+    buildCol('scroll-dia','scroll-dia-items', dias, dpDia-1, idx=>{ dpDia = idx+1; });
   }, 80);
 
-  cerrarTodosLosPopups();
   document.getElementById('datepicker-overlay').classList.add('open');
 }
 
