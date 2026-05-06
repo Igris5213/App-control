@@ -456,7 +456,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
   <!-- Header fijo -->
   <div style="width:100%;max-width:430px;padding:32px 24px 20px;flex-shrink:0;background:#f5f5f5">
     <div style="display:flex;align-items:center;justify-content:center;margin-bottom:20px">
-      <div style="background:#111;color:#fff;font-size:12px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;padding:6px 16px;border-radius:20px">Versión 2.6</div>
+      <div style="background:#111;color:#fff;font-size:12px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;padding:6px 16px;border-radius:20px">Versión 2.7</div>
     </div>
     <div style="font-size:28px;font-weight:800;color:#111;text-align:center;margin-bottom:6px">¿Qué hay de nuevo?</div>
     <div style="font-size:15px;color:#888;text-align:center">Aquí están los cambios de esta actualización</div>
@@ -467,9 +467,24 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 
     <div style="display:flex;flex-direction:column;gap:12px;padding-bottom:8px">
 
-      <!-- v2.6 -->
+      <!-- v2.7 -->
       <div style="background:#f5f5f5;border-radius:10px;padding:8px 12px;margin-bottom:4px">
-        <span style="font-size:11px;font-weight:700;color:#aaa;text-transform:uppercase;letter-spacing:0.1em">v2.6 — Actual</span>
+        <span style="font-size:11px;font-weight:700;color:#aaa;text-transform:uppercase;letter-spacing:0.1em">v2.7 — Actual</span>
+      </div>
+
+      <div style="background:#fff;border-radius:18px;padding:18px 20px;display:flex;align-items:flex-start;gap:14px;box-shadow:0 2px 12px rgba(0,0,0,0.07)">
+        <div style="width:40px;height:40px;border-radius:12px;background:linear-gradient(180deg,#111,#444);display:flex;align-items:center;justify-content:center;flex-shrink:0">
+          <svg width="20" height="20" fill="none" stroke="#fff" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+        </div>
+        <div>
+          <div style="font-size:15px;font-weight:700;color:#111;margin-bottom:3px">Saludo al iniciar sesión</div>
+          <div style="font-size:13px;color:#888;line-height:1.5">Al entrar con un usuario existente aparece una animación con saludo según la hora: Buenos días, Buenas tardes o Buenas noches, seguido del nombre. Dura 3 segundos.</div>
+        </div>
+      </div>
+
+      <!-- v2.6 -->
+      <div style="background:#f5f5f5;border-radius:10px;padding:8px 12px;margin-bottom:4px;margin-top:8px">
+        <span style="font-size:11px;font-weight:700;color:#aaa;text-transform:uppercase;letter-spacing:0.1em">v2.6</span>
       </div>
 
       <div style="background:#fff;border-radius:18px;padding:18px 20px;display:flex;align-items:flex-start;gap:14px;box-shadow:0 2px 12px rgba(0,0,0,0.07)">
@@ -1479,8 +1494,55 @@ window.finalizarOnboarding = async function(){
 let _welcomeCallback = null;
 let _welcomeFrame = null;
 
+function getSaludo(){
+  const h = new Date().getHours();
+  if(h >= 5  && h < 12) return 'Buenos días';
+  if(h >= 12 && h < 19) return 'Buenas tardes';
+  return 'Buenas noches';
+}
+
+function showLoginWelcome(nombre, callback){
+  // Rellenar contenido de saludo
+  const labelEl  = document.getElementById('welcome-label');
+  const nombreEl = document.getElementById('welcome-nombre');
+  const lineEl   = document.getElementById('welcome-line');
+  const hintEl   = document.getElementById('welcome-hint');
+
+  labelEl.textContent  = getSaludo();
+  nombreEl.textContent = nombre;
+  hintEl.textContent   = 'Bienvenido';
+
+  const overlay = document.getElementById('welcome-overlay');
+  // Quitar el onclick para que el tap no lo cierre (se cierra solo)
+  overlay.onclick = null;
+  overlay.style.cursor = 'default';
+
+  _showWelcomeOverlay();
+
+  // Auto-cerrar después de 3s llamando al callback directo
+  setTimeout(()=>{
+    _cerrarWelcomeConCallback(callback);
+  }, 3000);
+}
+
 function showWelcome(nombre, callback){
+  const labelEl  = document.getElementById('welcome-label');
+  const nombreEl = document.getElementById('welcome-nombre');
+  const hintEl   = document.getElementById('welcome-hint');
+
+  labelEl.textContent  = 'Bienvenido';
+  nombreEl.textContent = nombre;
+  hintEl.textContent   = 'Toca para continuar';
+
+  const overlay = document.getElementById('welcome-overlay');
+  overlay.onclick = ()=>cerrarWelcome();
+  overlay.style.cursor = 'pointer';
+
   _welcomeCallback = callback;
+  _showWelcomeOverlay();
+}
+
+function _showWelcomeOverlay(){
   const overlay  = document.getElementById('welcome-overlay');
   const canvas   = document.getElementById('welcome-canvas');
   const nombreEl = document.getElementById('welcome-nombre');
@@ -1488,11 +1550,9 @@ function showWelcome(nombre, callback){
   const lineEl   = document.getElementById('welcome-line');
   const hintEl   = document.getElementById('welcome-hint');
 
-  nombreEl.textContent = nombre;
   overlay.style.opacity       = '1';
   overlay.style.pointerEvents = 'all';
 
-  // Animar texto
   setTimeout(()=>{
     labelEl.style.opacity    = '1';
     labelEl.style.transform  = 'translateY(0)';
@@ -1502,46 +1562,33 @@ function showWelcome(nombre, callback){
     hintEl.style.opacity     = '1';
   }, 80);
 
-  // Animación de anillos en canvas
+  // Anillos
   canvas.width  = canvas.offsetWidth  || window.innerWidth;
   canvas.height = canvas.offsetHeight || window.innerHeight;
   const ctx = canvas.getContext('2d');
   const cx  = canvas.width  / 2;
   const cy  = canvas.height / 2;
-
   const rings = [];
-  function spawnRing(){
-    rings.push({ r: 0, maxR: Math.max(canvas.width, canvas.height) * 0.72, alpha: 0.22, speed: 1.6 });
-  }
+  function spawnRing(){ rings.push({ r:0, maxR: Math.max(canvas.width, canvas.height)*0.72, alpha:0.22, speed:1.6 }); }
   spawnRing();
   const spawnInterval = setInterval(spawnRing, 900);
-
   let frame;
   function draw(){
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    for(let i = rings.length - 1; i >= 0; i--){
-      const ring = rings[i];
-      ring.r     += ring.speed;
-      ring.alpha  = 0.22 * (1 - ring.r / ring.maxR);
-      if(ring.alpha <= 0){ rings.splice(i, 1); continue; }
-      ctx.beginPath();
-      ctx.arc(cx, cy, ring.r, 0, Math.PI * 2);
-      ctx.strokeStyle = `rgba(255,255,255,${ring.alpha})`;
-      ctx.lineWidth   = 1.5;
-      ctx.stroke();
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+    for(let i=rings.length-1;i>=0;i--){
+      const ring=rings[i]; ring.r+=ring.speed;
+      ring.alpha=0.22*(1-ring.r/ring.maxR);
+      if(ring.alpha<=0){rings.splice(i,1);continue;}
+      ctx.beginPath(); ctx.arc(cx,cy,ring.r,0,Math.PI*2);
+      ctx.strokeStyle=`rgba(255,255,255,${ring.alpha})`; ctx.lineWidth=1.5; ctx.stroke();
     }
-    frame = requestAnimationFrame(draw);
+    frame=requestAnimationFrame(draw);
   }
   draw();
-
-  overlay._stopAnimation = ()=>{
-    clearInterval(spawnInterval);
-    cancelAnimationFrame(frame);
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-  };
+  overlay._stopAnimation = ()=>{ clearInterval(spawnInterval); cancelAnimationFrame(frame); ctx.clearRect(0,0,canvas.width,canvas.height); };
 }
 
-window.cerrarWelcome = function(){
+function _cerrarWelcomeConCallback(cb){
   const overlay  = document.getElementById('welcome-overlay');
   const nombreEl = document.getElementById('welcome-nombre');
   const labelEl  = document.getElementById('welcome-label');
@@ -1551,30 +1598,24 @@ window.cerrarWelcome = function(){
   if(overlay._stopAnimation) overlay._stopAnimation();
   overlay.style.pointerEvents = 'none';
 
-  // 1. Ejecutar callback (iniciarApp) — construye la app detrás del overlay negro
-  const cb = _welcomeCallback;
-  _welcomeCallback = null;
   const result = cb ? cb() : Promise.resolve();
-
-  // 2. Esperar a que iniciarApp resuelva + 2 frames de paint para que
-  //    el DOM quede limpio, luego hacer el fade out del overlay
   Promise.resolve(result).then(()=>{
-    // Doble rAF garantiza que el browser pintó el nuevo estado
     requestAnimationFrame(()=>requestAnimationFrame(()=>{
-      // Pequeño delay extra por seguridad antes del fade
       setTimeout(()=>{
         overlay.style.opacity = '0';
         setTimeout(()=>{
-          labelEl.style.opacity    = '0';
-          labelEl.style.transform  = 'translateY(8px)';
-          nombreEl.style.opacity   = '0';
-          nombreEl.style.transform = 'translateY(14px)';
-          lineEl.style.opacity     = '0';
-          hintEl.style.opacity     = '0';
+          labelEl.style.opacity='0'; labelEl.style.transform='translateY(8px)';
+          nombreEl.style.opacity='0'; nombreEl.style.transform='translateY(14px)';
+          lineEl.style.opacity='0'; hintEl.style.opacity='0';
         }, 650);
       }, 80);
     }));
   });
+}
+
+window.cerrarWelcome = function(){
+  _cerrarWelcomeConCallback(_welcomeCallback);
+  _welcomeCallback = null;
 }
 
 // ── Iniciar App ──────────────────────────────────
@@ -2293,7 +2334,10 @@ async function entrarApp(){
     const snap = await getDoc(doc(db,'usuarios', currentUser.uid, 'perfil','datos'));
     if(snap.exists()){
       perfil = snap.data();
-      iniciarApp();
+      // Ocultar pantallas antes de la animación
+      document.querySelectorAll('.screen').forEach(s=>{ s.classList.add('hidden'); s.style.display='none'; });
+      document.getElementById('main-app').style.display = 'none';
+      showLoginWelcome(currentUser.uid, ()=>iniciarApp());
     } else {
       document.getElementById('bottom-nav').style.display = 'none';
       actualizarBotonesCancelar();
@@ -2611,7 +2655,7 @@ window.salirAdmin = function(){
 }
 
 // ── Control de versión ────────────────────────────
-const APP_VERSION = '2.6';
+const APP_VERSION = '2.7';
 
 window.cerrarNovedades = function(){
   localStorage.setItem('app_version_vista', APP_VERSION);
