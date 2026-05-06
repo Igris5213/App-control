@@ -2135,14 +2135,21 @@ window.guardarEdicionUsuario = function(){
   // Guardar temp y mostrar confirmación
   adminEditTemp = { nuevoNombre, nuevaPass, nombreAnterior, nombreCambio, passCambio };
 
+  const iconUser = '<svg style="vertical-align:middle;margin-right:6px" width="14" height="14" fill="none" stroke="#555" stroke-width="2" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>';
+  const iconLock = '<svg style="vertical-align:middle;margin-right:6px" width="14" height="14" fill="none" stroke="#555" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>';
+  const iconWarn = '<svg style="vertical-align:middle;margin-right:6px" width="14" height="14" fill="none" stroke="#888" stroke-width="2" viewBox="0 0 24 24"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>';
+
   let detalle = '';
-  if(nombreCambio) detalle += '👤 Nombre: <strong>' + nombreAnterior + '</strong> → <strong>' + nuevoNombre + '</strong><br>';
-  if(passCambio)   detalle += '🔒 Contraseña: actualizada<br>';
-  if(nombreCambio && !passCambio) detalle += '⚠️ Contraseña temporal igual al nuevo nombre';
+  if(nombreCambio) detalle += '<div style="display:flex;align-items:center;padding:4px 0">' + iconUser + '<span><strong>' + nombreAnterior + '</strong> → <strong>' + nuevoNombre + '</strong></span></div>';
+  if(passCambio)   detalle += '<div style="display:flex;align-items:center;padding:4px 0">' + iconLock + '<span>Contraseña actualizada</span></div>';
+  if(nombreCambio && !passCambio) detalle += '<div style="display:flex;align-items:center;padding:4px 0;color:#888">' + iconWarn + '<span>Contraseña temporal: igual al nombre</span></div>';
 
   document.getElementById('admin-edit-confirm-nombre').textContent = nombreAnterior;
   document.getElementById('admin-edit-confirm-detalle').innerHTML = detalle;
-  document.getElementById('modal-admin-confirm-edit').classList.add('show');
+
+  // Cerrar modal de edición primero, luego abrir confirmación
+  document.getElementById('modal-admin-editar').classList.remove('open');
+  setTimeout(()=>{ document.getElementById('modal-admin-confirm-edit').classList.add('show'); }, 200);
 }
 
 window.cancelarConfirmEdicion = function(){
