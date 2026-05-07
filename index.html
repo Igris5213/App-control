@@ -468,7 +468,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
   <!-- Header fijo -->
   <div style="width:100%;max-width:430px;padding:32px 24px 20px;flex-shrink:0;background:#f5f5f5">
     <div style="display:flex;align-items:center;justify-content:center;margin-bottom:20px">
-      <div style="background:#111;color:#fff;font-size:12px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;padding:6px 16px;border-radius:20px">Versión 4.1</div>
+      <div style="background:#111;color:#fff;font-size:12px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;padding:6px 16px;border-radius:20px">Versión 4.2</div>
     </div>
     <div style="font-size:28px;font-weight:800;color:#111;text-align:center;margin-bottom:6px">¿Qué hay de nuevo?</div>
     <div style="font-size:15px;color:#888;text-align:center">Aquí están los cambios de esta actualización</div>
@@ -479,9 +479,24 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 
     <div style="display:flex;flex-direction:column;gap:12px;padding-bottom:8px">
 
-      <!-- v4.1 -->
+      <!-- v4.2 -->
       <div style="background:#f5f5f5;border-radius:10px;padding:8px 12px;margin-bottom:4px">
-        <span style="font-size:11px;font-weight:700;color:#aaa;text-transform:uppercase;letter-spacing:0.1em">v4.1 — Actual</span>
+        <span style="font-size:11px;font-weight:700;color:#aaa;text-transform:uppercase;letter-spacing:0.1em">v4.2 — Actual</span>
+      </div>
+
+      <div style="background:#fff;border-radius:18px;padding:18px 20px;display:flex;align-items:flex-start;gap:14px;box-shadow:0 2px 12px rgba(0,0,0,0.07)">
+        <div style="width:40px;height:40px;border-radius:12px;background:linear-gradient(180deg,#111,#444);display:flex;align-items:center;justify-content:center;flex-shrink:0">
+          <svg width="20" height="20" fill="none" stroke="#fff" stroke-width="2" viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+        </div>
+        <div>
+          <div style="font-size:15px;font-weight:700;color:#111;margin-bottom:3px">Usuarios guardados en Firebase</div>
+          <div style="font-size:13px;color:#888;line-height:1.5">Los usuarios y contraseñas ahora se sincronizan con Firebase. Al actualizar la app o cambiar de dispositivo, tus usuarios se recuperan automáticamente.</div>
+        </div>
+      </div>
+
+      <!-- v4.1 -->
+      <div style="background:#f5f5f5;border-radius:10px;padding:8px 12px;margin-bottom:4px;margin-top:8px">
+        <span style="font-size:11px;font-weight:700;color:#aaa;text-transform:uppercase;letter-spacing:0.1em">v4.1</span>
       </div>
 
       <div style="background:#fff;border-radius:18px;padding:18px 20px;display:flex;align-items:flex-start;gap:14px;box-shadow:0 2px 12px rgba(0,0,0,0.07)">
@@ -1549,7 +1564,7 @@ window.showScreen = function(id){
 }
 
 window.actualizarBotonesCancelar = function actualizarBotonesCancelar(){
-  const hayUsuarios = getUsuarios().length > 0 || pendingUser !== null;
+  const hayUsuarios = (_usuariosCache||getUsuarios()).length > 0 || pendingUser !== null;
   const bc1 = document.getElementById('btn-cancelar-welcome');
   if(bc1) bc1.style.display = hayUsuarios ? 'block' : 'none';
 }
@@ -1659,6 +1674,9 @@ window.irACrearPerfil = function(){
   showScreen('screen-perfil');
 }
 
+let selectedBancoNombre = '';
+let selectedCorte = null;
+
 window.guardarPerfil = function(){
   const nombre = document.getElementById('inp-nombre').value.trim();
   if(!nombre){ document.getElementById('inp-nombre').focus(); return; }
@@ -1680,9 +1698,6 @@ window.guardarPerfil = function(){
 
   showScreen('screen-tipo-producto');
 }
-
-let selectedBancoNombre = '';
-let selectedCorte = null;
 
 function cerrarTodosLosPopups(){
   ['banco-popup-overlay','corte-popup-overlay','tarjeta-promo-popup','modal-overlay']
@@ -2742,12 +2757,60 @@ function hashSimple(str){
   return h.toString(36);
 }
 
+const AUTH_KEY = 'cg_auth_users';
+const USUARIOS_DOC = 'config/usuarios'; // doc en Firebase para lista de usuarios
+
+// Cache local en memoria (sincronizado con Firebase)
+let _usuariosCache = null;
+
 function getUsuarios(){
+  if(_usuariosCache !== null) return _usuariosCache;
   try{ return JSON.parse(localStorage.getItem(AUTH_KEY)) || []; } catch{ return []; }
 }
 
 function guardarUsuarios(lista){
+  _usuariosCache = lista;
   localStorage.setItem(AUTH_KEY, JSON.stringify(lista));
+  // Persistir en Firebase de forma asíncrona
+  _sincronizarUsuariosFirebase(lista);
+}
+
+async function _sincronizarUsuariosFirebase(lista){
+  try{
+    await setDoc(doc(db, 'config', 'usuarios'), { lista, ts: Date.now() });
+  } catch(e){ console.warn('No se pudo sincronizar usuarios con Firebase:', e); }
+}
+
+async function cargarUsuariosDesdeFirebase(){
+  try{
+    const snap = await getDoc(doc(db, 'config', 'usuarios'));
+    if(snap.exists()){
+      const data = snap.data();
+      const lista = data.lista || [];
+      // Fusionar con localStorage por si hay usuarios locales más nuevos
+      const local = [];
+      try{ const l = localStorage.getItem(AUTH_KEY); if(l) local.push(...(JSON.parse(l)||[])); } catch{}
+      // Unificar — Firebase tiene prioridad pero agregamos locales que no estén en Firebase
+      const fusionado = [...lista];
+      local.forEach(u=>{ if(!fusionado.find(x=>x.user===u.user)) fusionado.push(u); });
+      _usuariosCache = fusionado;
+      localStorage.setItem(AUTH_KEY, JSON.stringify(fusionado));
+      if(fusionado.length !== lista.length){
+        // Si hubo locales nuevos, sincronizar de vuelta a Firebase
+        await _sincronizarUsuariosFirebase(fusionado);
+      }
+      return fusionado;
+    } else {
+      // No hay datos en Firebase — usar localStorage
+      const local = getUsuarios();
+      if(local.length) await _sincronizarUsuariosFirebase(local);
+      _usuariosCache = local;
+      return local;
+    }
+  } catch(e){
+    console.warn('No se pudo cargar usuarios desde Firebase:', e);
+    return getUsuarios();
+  }
 }
 
 // Compatibilidad con formato antiguo (un solo usuario)
@@ -3282,7 +3345,7 @@ window.salirAdmin = function(){
 }
 
 // ── Control de versión ────────────────────────────
-const APP_VERSION = '4.1';
+const APP_VERSION = '4.2';
 
 window.cerrarNovedades = function(){
   localStorage.setItem('app_version_vista', APP_VERSION);
@@ -3345,7 +3408,9 @@ document.addEventListener('click', function(e){
 
 // ── Arranque ─────────────────────────────────────
 async function init(){
-  // Primero: mostrar novedades si hay versión nueva, luego continuar al login
+  // Cargar usuarios desde Firebase primero (sincroniza localStorage)
+  try{ await cargarUsuariosDesdeFirebase(); } catch{}
+  // Mostrar novedades si hay versión nueva, luego continuar al login
   if(checkVersion()) return;
   iniciarFlujoAuth();
 }
