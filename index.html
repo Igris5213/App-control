@@ -222,20 +222,23 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 /* ── NAVBAR INFERIOR ── */
 .bottom-nav{
   position:fixed;
-  bottom:12px;
+  bottom:20px;
   left:50%;
   transform:translateX(-50%);
-  width:calc(100% - 16px);
-  max-width:460px;
-  height:68px;
-  background:#111;
-  border-radius:34px;
-  box-shadow:0 4px 20px rgba(0,0,0,0.25);
+  width:calc(100% - 32px);
+  max-width:420px;
+  height:62px;
+  background:rgba(238,238,238,0.96);
+  backdrop-filter:blur(20px);
+  -webkit-backdrop-filter:blur(20px);
+  border-radius:100px;
+  box-shadow:0 4px 28px rgba(0,0,0,0.13), 0 1px 0 rgba(255,255,255,0.95) inset;
   display:none;
   justify-content:space-around;
   align-items:center;
   z-index:500;
-  padding:0 12px;
+  padding:0 8px;
+  overflow:visible;
 }
 
 .nav-item{
@@ -244,43 +247,41 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
   display:flex;
   flex-direction:column;
   align-items:center;
-  font-size:12px;
-  color:rgba(255,255,255,0.5);
+  justify-content:center;
   cursor:pointer;
   font-family:inherit;
-  padding:6px 7px;
-  border-radius:16px;
+  padding:10px 12px;
+  border-radius:50px;
   gap:0;
-  transition:all 0.3s cubic-bezier(0.34,1.56,0.64,1);
+  transition:all 0.32s cubic-bezier(0.34,1.5,0.64,1);
   outline:none;
   -webkit-tap-highlight-color:transparent;
   user-select:none;
+  color:rgba(0,0,0,0.32);
+  position:relative;
+  z-index:1;
 }
 
 .nav-item.active{
-  color:#111;
-  font-weight:700;
+  background:#0a0a0a;
+  color:#fff;
+  padding:18px 22px;
+  border-radius:30px;
+  box-shadow:0 8px 28px rgba(0,0,0,0.45), 0 2px 8px rgba(0,0,0,0.2);
+  transform:translateY(-14px);
 }
 
 .nav-item.active svg{
-  width:24px;
-  height:24px;
+  width:26px;
+  height:26px;
 }
 
-/* Estela del navbar */
-.nav-trail{
-  position:absolute;
-  height:46px;
-  background:#fff;
-  border-radius:20px;
-  transition:left 0.4s cubic-bezier(0.4,0,0.2,1), width 0.4s cubic-bezier(0.4,0,0.2,1);
-  pointer-events:none;
-  z-index:0;
-}
-.nav-item{position:relative;z-index:1;}
+.nav-trail{ display:none; }
 
 .nav-item svg{
-  transition:all 0.3s cubic-bezier(0.34,1.56,0.64,1);
+  width:22px;
+  height:22px;
+  transition:all 0.32s cubic-bezier(0.34,1.5,0.64,1);
 }
 
 .main-app{
