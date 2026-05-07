@@ -979,6 +979,110 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
   </div>
 </div>
 
+<!-- ══ PANTALLA 2b: SELECCIÓN DE PRODUCTO ══ -->
+<div class="screen hidden" id="screen-productos">
+  <div class="ob-card">
+    <div class="ob-step">Paso 2 de 3</div>
+    <div class="ob-title">¿Qué producto tienes?</div>
+    <div class="ob-sub">Selecciona el tipo de tarjeta que deseas registrar primero.</div>
+    <div style="display:flex;flex-direction:column;gap:12px;margin-top:8px">
+      <button onclick="elegirProductoOb('credito')" style="width:100%;padding:18px 20px;border-radius:16px;border:1.5px solid #e0e0e0;background:#fff;font-size:16px;font-weight:700;color:#111;cursor:pointer;font-family:inherit;display:flex;align-items:center;gap:16px;text-align:left;transition:border-color 0.2s,box-shadow 0.2s">
+        <div style="width:44px;height:44px;border-radius:12px;background:linear-gradient(180deg,#111,#444);display:flex;align-items:center;justify-content:center;flex-shrink:0">
+          <svg width="22" height="22" fill="none" stroke="#fff" stroke-width="2" viewBox="0 0 24 24"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
+        </div>
+        <div>
+          <div style="font-size:16px;font-weight:700;color:#111">Tarjeta de crédito</div>
+          <div style="font-size:13px;color:#888;margin-top:2px">Límite, corte y gastos del período</div>
+        </div>
+      </button>
+      <button onclick="elegirProductoOb('debito')" style="width:100%;padding:18px 20px;border-radius:16px;border:1.5px solid #e0e0e0;background:#fff;font-size:16px;font-weight:700;color:#111;cursor:pointer;font-family:inherit;display:flex;align-items:center;gap:16px;text-align:left;transition:border-color 0.2s,box-shadow 0.2s">
+        <div style="width:44px;height:44px;border-radius:12px;background:linear-gradient(180deg,#111,#444);display:flex;align-items:center;justify-content:center;flex-shrink:0">
+          <svg width="22" height="22" fill="none" stroke="#fff" stroke-width="2" viewBox="0 0 24 24"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/><circle cx="7" cy="15" r="1.5" fill="#fff" stroke="none"/></svg>
+        </div>
+        <div>
+          <div style="font-size:16px;font-weight:700;color:#111">Tarjeta de débito</div>
+          <div style="font-size:13px;color:#888;margin-top:2px">Banco y saldo diario disponible</div>
+        </div>
+      </button>
+    </div>
+    <button style="width:100%;padding:14px;border-radius:14px;border:1.5px solid #e0e0e0;background:#fff;font-size:15px;font-weight:600;color:#666;cursor:pointer;font-family:inherit;margin-top:16px" onclick="showScreen('screen-perfil')">← Volver</button>
+  </div>
+</div>
+
+<!-- ══ PANTALLA 3b: AGREGAR TARJETA DE DÉBITO ══ -->
+<div class="screen hidden" id="screen-debito">
+  <div class="ob-card">
+    <div class="ob-step">Paso 3 de 3</div>
+    <div class="ob-title" id="ob-title-debito">Agrega tu tarjeta de débito</div>
+    <div class="ob-sub">Registra el banco y tu saldo diario disponible.</div>
+
+    <div class="added-cards" id="added-deb-list"></div>
+
+    <div id="form-debito">
+      <!-- 1. Banco -->
+      <div class="ob-field">
+        <div class="ob-label">Banco</div>
+        <div onclick="toggleScrollBancoDeb()" id="banco-deb-display"
+          style="padding:12px 14px;border-radius:12px;border:1.5px solid #e0e0e0;font-size:15px;cursor:pointer;color:#999;display:flex;justify-content:space-between;align-items:center;background:#fff">
+          <span id="banco-deb-txt">Seleccionar banco...</span>
+          <span style="color:#aaa;font-size:12px">▾</span>
+        </div>
+        <input type="hidden" id="inp-banco-deb" />
+        <div id="banco-deb-scroll-wrap" style="display:none;margin-top:6px;background:#f5f5f5;border-radius:14px;overflow:hidden;position:relative">
+          <div style="font-size:10px;font-weight:700;color:#aaa;text-align:center;text-transform:uppercase;letter-spacing:0.08em;padding:8px 0 4px">Desliza para seleccionar</div>
+          <div style="position:relative;height:132px;margin:0 8px">
+            <div style="position:absolute;left:0;right:0;top:50%;transform:translateY(-50%);height:44px;border-radius:10px;background:linear-gradient(180deg,#111,#444);pointer-events:none;z-index:1"></div>
+            <div id="scroll-banco-deb" style="position:absolute;inset:0;overflow-y:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch;z-index:2">
+              <div style="height:44px"></div>
+              <div id="scroll-banco-deb-items" style="width:100%"></div>
+              <div style="height:44px"></div>
+            </div>
+          </div>
+          <div style="height:8px"></div>
+        </div>
+      </div>
+      <!-- 2. Apodo -->
+      <div class="ob-field">
+        <div class="ob-label">Tarjeta <span style="font-weight:400;color:#aaa">(opcional)</span></div>
+        <input class="ob-input" id="inp-apodo-deb" placeholder="Ej. Nómina, Ahorro..." maxlength="30"
+          onfocus="document.getElementById('banco-deb-scroll-wrap').style.display='none';" />
+      </div>
+      <!-- 3. Saldo diario -->
+      <div class="ob-field">
+        <div class="ob-label">Saldo diario</div>
+        <div class="ob-prefix-wrap">
+          <span class="ob-prefix">$</span>
+          <input class="ob-input ob-input-prefix" id="inp-saldo-deb" type="number" placeholder="0.00" min="0" step="100"
+            onfocus="document.getElementById('banco-deb-scroll-wrap').style.display='none';" />
+        </div>
+      </div>
+      <div class="ob-action-btns">
+        <button class="ob-btn-agregar" onclick="agregarTarjetaDebOb()">+ Agregar tarjeta</button>
+        <button class="ob-btn-terminar" id="btn-finalizar-deb" style="display:none" onclick="finalizarOnboardingDebito()">Terminar</button>
+        <button class="ob-btn-volver" onclick="volverDesdeDebito()">← Volver</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ MODAL OFERTA PRODUCTO COMPLEMENTARIO ══ -->
+<div class="modal-overlay" id="modal-oferta-producto" onclick="cerrarOfertaProducto(event)">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div style="text-align:center;padding:8px 0 16px">
+      <div style="width:56px;height:56px;border-radius:50%;background:linear-gradient(180deg,#111,#444);display:flex;align-items:center;justify-content:center;margin:0 auto 16px">
+        <svg width="26" height="26" fill="none" stroke="#fff" stroke-width="2" viewBox="0 0 24 24"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
+      </div>
+      <div style="font-size:18px;font-weight:700;color:#111;margin-bottom:8px">¿Deseas agregar una tarjeta de <span id="oferta-tipo">débito</span>?</div>
+      <div style="font-size:14px;color:#888">Puedes agregarla ahora o hacerlo más tarde desde configuración.</div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:8px">
+      <button onclick="aceptarOfertaProducto()" style="padding:14px;border-radius:12px;background:linear-gradient(180deg,#111,#444);color:#fff;border:none;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit">Sí, agregar</button>
+      <button onclick="rechazarOfertaProducto()" style="padding:14px;border-radius:12px;border:1.5px solid #e0e0e0;background:#fff;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit;color:#111">Ahora no</button>
+    </div>
+  </div>
+</div>
+
 <!-- ══ PANTALLA 3: AGREGAR TARJETAS ══ -->
 <div class="screen hidden" id="screen-tarjetas">
   <div class="ob-card">
@@ -1346,7 +1450,8 @@ let deletingId = null;
 let promocionesCache = []; // cache de promociones para updateCards
 let onAfterEdit = null; // callback tras editar/eliminar en ventana movimientos
 let movVisible = true;
-let tarjetasOb = [];       // tarjetas durante onboarding
+let tarjetasOb = [];       // tarjetas de crédito durante onboarding
+let tarjetasDebOb = [];    // tarjetas de débito durante onboarding
 let _unsubMovimientos = null; // referencia al listener activo de movimientos
 let pendingUser = null;       // usuario pendiente de confirmar (hasta finalizar onboarding)
 const today = new Date();
@@ -1390,14 +1495,17 @@ window.guardarPerfil = function(){
 
   // Limpiar estado del onboarding anterior
   tarjetasOb = [];
+  tarjetasDebOb = [];
   selectedBancoNombre = '';
   selectedCorte = null;
   document.getElementById('added-cards-list').innerHTML = '';
+  document.getElementById('added-deb-list').innerHTML = '';
   document.getElementById('ob-title-tarjetas').textContent = 'Agrega tu primera tarjeta';
   document.getElementById('btn-finalizar').style.display = 'none';
   resetFormTarjeta();
+  resetFormDebito();
 
-  showScreen('screen-tarjetas');
+  showScreen('screen-productos');
 }
 
 let selectedBancoNombre = '';
@@ -1449,6 +1557,123 @@ window.abrirPopupCorte = function(){
 }
 
 const BANCOS_OB = ['BBVA', 'Banorte', 'Citibanamex', 'Santander', 'HSBC', 'Scotiabank', 'Invex', 'Banamex'];
+
+// ── Pantalla Productos ────────────────────────────
+window._obFlujo = '';   // 'credito' | 'debito' | 'credito-extra' | 'debito-extra'
+
+window.elegirProductoOb = function(tipo){
+  window._obFlujo = tipo;
+  if(tipo === 'credito'){
+    document.getElementById('ob-title-tarjetas').textContent = 'Agrega tu primera tarjeta';
+    document.getElementById('btn-finalizar').style.display = 'none';
+    document.getElementById('added-cards-list').innerHTML = '';
+    resetFormTarjeta();
+    showScreen('screen-tarjetas');
+  } else {
+    document.getElementById('ob-title-debito').textContent = 'Agrega tu tarjeta de débito';
+    document.getElementById('btn-finalizar-deb').style.display = 'none';
+    document.getElementById('added-deb-list').innerHTML = '';
+    resetFormDebito();
+    showScreen('screen-debito');
+  }
+}
+
+// ── Scroll banco débito ───────────────────────────
+window._selectedBancoDeb = '';
+
+window.toggleScrollBancoDeb = function(){
+  const wrap = document.getElementById('banco-deb-scroll-wrap');
+  const isOpen = wrap.style.display === 'block';
+  wrap.style.display = isOpen ? 'none' : 'block';
+  if(!isOpen){
+    const currentBanco = document.getElementById('inp-banco-deb').value || '';
+    const currentIdx = BANCOS_OB.indexOf(currentBanco);
+    const cont = document.getElementById('scroll-banco-deb-items');
+    const scrollEl = document.getElementById('scroll-banco-deb');
+    cont.innerHTML = BANCOS_OB.map(function(b,i){
+      return '<div class="scroll-item'+(i===currentIdx?' sel':'')+'" data-n="'+i+'" style="'+(i===currentIdx?'color:#fff;':'')+'">'+b+'</div>';
+    }).join('');
+    setTimeout(()=>{
+      const idx = currentIdx >= 0 ? currentIdx : 0;
+      scrollEl.scrollTop = idx*44;
+      cont.querySelectorAll('.scroll-item').forEach((el,i)=>{
+        const sel = i===idx;
+        el.classList.toggle('sel', sel);
+        el.style.color = sel ? '#fff' : '';
+      });
+    }, 50);
+    snapScrollConInicio(scrollEl, 44, currentIdx >= 0 ? currentIdx : 0, idx=>{
+      const banco = BANCOS_OB[Math.min(idx, BANCOS_OB.length-1)];
+      cont.querySelectorAll('.scroll-item').forEach((el,i)=>{
+        const sel = i===idx;
+        el.classList.toggle('sel', sel);
+        el.style.color = sel ? '#fff' : '';
+      });
+      document.getElementById('inp-banco-deb').value = banco;
+      document.getElementById('banco-deb-txt').textContent = banco;
+      document.getElementById('banco-deb-txt').style.color = '#111';
+      window._selectedBancoDeb = banco;
+    });
+  }
+}
+
+// ── Agregar tarjeta de débito ─────────────────────
+window.agregarTarjetaDebOb = function(){
+  const nombre = document.getElementById('inp-banco-deb').value.trim() || window._selectedBancoDeb;
+  if(!nombre){ showToast('Selecciona un banco'); return; }
+  const saldo = parseFloat(document.getElementById('inp-saldo-deb').value);
+  if(!saldo||saldo<=0){ document.getElementById('inp-saldo-deb').focus(); return; }
+  const apodo = document.getElementById('inp-apodo-deb').value.trim();
+  const colorMapaOb = {'Invex':'card-color-invex','BBVA':'card-color-bbva','Santander':'card-color-santander'};
+  const colorOb = colorMapaOb[nombre] || COLORS[tarjetasDebOb.length % COLORS.length];
+  tarjetasDebOb.push({
+    id: Date.now()+'_'+Math.random().toString(36).substr(2,9),
+    nombre, apodo, saldoDiario: saldo, color: colorOb, tipo: 'debito'
+  });
+  renderTarjetasDebOb();
+  resetFormDebito();
+  document.getElementById('btn-finalizar-deb').style.display = 'block';
+  document.getElementById('ob-title-debito').textContent = tarjetasDebOb.length === 1 ? 'Agrega más o termina' : 'Tarjetas agregadas';
+  showSuccess('Tarjeta agregada', '');
+}
+
+function renderTarjetasDebOb(){
+  const el = document.getElementById('added-deb-list');
+  el.innerHTML = tarjetasDebOb.map(t=>`
+    <div class="added-card-item">
+      <div>
+        <div class="added-card-name">${t.nombre}${t.apodo ? ' · '+t.apodo : ''}</div>
+        <div class="added-card-info">Saldo diario $${t.saldoDiario.toLocaleString('es-MX')}</div>
+      </div>
+      <button class="added-card-del" onclick="quitarTarjetaDebOb('${t.id}')">×</button>
+    </div>`).join('');
+}
+
+window.quitarTarjetaDebOb = function(id){
+  tarjetasDebOb = tarjetasDebOb.filter(t=>t.id!==id);
+  renderTarjetasDebOb();
+  if(!tarjetasDebOb.length){
+    document.getElementById('btn-finalizar-deb').style.display = 'none';
+    document.getElementById('ob-title-debito').textContent = 'Agrega tu tarjeta de débito';
+  }
+}
+
+window.volverDesdeDebito = function(){
+  if(window._obFlujo === 'debito-extra'){
+    // Vino del flujo crédito → oferta débito → volver al flujo crédito
+    document.getElementById('modal-oferta-producto').classList.remove('open');
+    showScreen('screen-tarjetas');
+  } else {
+    // Vino directo desde productos
+    showScreen('screen-productos');
+  }
+}
+
+window.cerrarOfertaProducto = function(e){
+  if(e && e.target === document.getElementById('modal-oferta-producto')){
+    // No cerrar al tocar fuera — forzar elección
+  }
+}
 
 window.toggleScrollBancoOb = function(){
   const wrap = document.getElementById('banco-ob-scroll-wrap');
@@ -1607,7 +1832,7 @@ window.quitarTarjetaOb = function(id){
 
 window.volverOnboarding = function(){
   if(tarjetasOb.length === 0){
-    irACrearPerfil();
+    showScreen('screen-productos');
   } else {
     resetFormTarjeta();
   }
@@ -1629,6 +1854,20 @@ function resetFormTarjeta(){
   selectedCorte = null;
 }
 
+function resetFormDebito(){
+  const bancoDeb = document.getElementById('inp-banco-deb');
+  const bancoDebTxt = document.getElementById('banco-deb-txt');
+  const bancoDebWrap = document.getElementById('banco-deb-scroll-wrap');
+  if(bancoDeb) bancoDeb.value = '';
+  if(bancoDebTxt){ bancoDebTxt.textContent = 'Seleccionar banco...'; bancoDebTxt.style.color = '#999'; }
+  if(bancoDebWrap) bancoDebWrap.style.display = 'none';
+  const apodoDeb = document.getElementById('inp-apodo-deb');
+  if(apodoDeb) apodoDeb.value = '';
+  const saldoDeb = document.getElementById('inp-saldo-deb');
+  if(saldoDeb) saldoDeb.value = '';
+  window._selectedBancoDeb = '';
+}
+
 window.mostrarFormTarjeta = function(){
   document.getElementById('form-tarjeta').style.display = 'block';
   document.getElementById('btn-otra').style.display = 'none';
@@ -1637,7 +1876,29 @@ window.mostrarFormTarjeta = function(){
 
 window.finalizarOnboarding = async function(){
   if(!tarjetasOb.length){ showToast('Agrega al menos una tarjeta'); return; }
-  perfil.tarjetas = tarjetasOb;
+  // Si vino del flujo de crédito (no como extra), ofrecer agregar débito
+  if(window._obFlujo === 'credito'){
+    mostrarOfertaDebito();
+    return;
+  }
+  // Si es crédito-extra (ya eligió débito primero), guardar todo directo
+  await guardarYEntrarApp();
+}
+
+window.finalizarOnboardingDebito = async function(){
+  if(!tarjetasDebOb.length){ showToast('Agrega al menos una tarjeta de débito'); return; }
+  // Si vino del flujo de débito (no como extra), ofrecer agregar crédito
+  if(window._obFlujo === 'debito'){
+    mostrarOfertaCredito();
+    return;
+  }
+  // Si es debito-extra (ya eligió crédito primero), guardar todo directo
+  await guardarYEntrarApp();
+}
+
+async function guardarYEntrarApp(){
+  // Combinar tarjetas de crédito y débito en el perfil
+  perfil.tarjetas = [...tarjetasOb, ...tarjetasDebOb];
   try{
     if(pendingUser){
       const lista = getUsuarios();
@@ -1646,12 +1907,50 @@ window.finalizarOnboarding = async function(){
       pendingUser = null;
     }
     await setDoc(doc(db,'usuarios', currentUser.uid, 'perfil','datos'), perfil);
-    // Ocultar pantallas ANTES de mostrar la animación para que no se vean al cerrarla
     document.querySelectorAll('.screen').forEach(s=>{ s.classList.add('hidden'); s.style.display='none'; });
     document.getElementById('main-app').style.display = 'none';
-    // Mostrar animación de bienvenida y luego iniciar app
     showWelcome(currentUser.uid, ()=>iniciarApp());
   } catch(e){ showToast('❌ Error al guardar perfil'); }
+}
+
+function mostrarOfertaDebito(){
+  document.getElementById('oferta-tipo').textContent = 'débito';
+  document.getElementById('modal-oferta-producto').classList.add('open');
+  window._ofertaPendiente = 'debito';
+}
+
+function mostrarOfertaCredito(){
+  document.getElementById('oferta-tipo').textContent = 'crédito';
+  document.getElementById('modal-oferta-producto').classList.add('open');
+  window._ofertaPendiente = 'credito';
+}
+
+window.aceptarOfertaProducto = function(){
+  document.getElementById('modal-oferta-producto').classList.remove('open');
+  if(window._ofertaPendiente === 'debito'){
+    window._obFlujo = 'debito-extra';
+    tarjetasDebOb = [];
+    document.getElementById('added-deb-list').innerHTML = '';
+    resetFormDebito();
+    document.getElementById('btn-finalizar-deb').style.display = 'none';
+    document.getElementById('ob-title-debito').textContent = 'Agrega tu tarjeta de débito';
+    showScreen('screen-debito');
+  } else {
+    window._obFlujo = 'credito-extra';
+    tarjetasOb = [];
+    document.getElementById('added-cards-list').innerHTML = '';
+    resetFormTarjeta();
+    document.getElementById('btn-finalizar').style.display = 'none';
+    document.getElementById('ob-title-tarjetas').textContent = 'Agrega tu primera tarjeta';
+    showScreen('screen-tarjetas');
+  }
+  window._ofertaPendiente = null;
+}
+
+window.rechazarOfertaProducto = async function(){
+  document.getElementById('modal-oferta-producto').classList.remove('open');
+  window._ofertaPendiente = null;
+  await guardarYEntrarApp();
 }
 
 let _welcomeCallback = null;
@@ -2927,7 +3226,7 @@ window.cerrarNovedades = function(){
     document.getElementById('main-app').style.display = 'flex';
     document.getElementById('bottom-nav').style.display = 'flex';
   } else {
-    // Aún no hay sesión — continuar al login normal
+    // Sin sesión activa — continuar al flujo de auth (login si hay usuarios, onboarding si no)
     iniciarFlujoAuth();
   }
 }
@@ -2979,9 +3278,8 @@ document.addEventListener('click', function(e){
 
 // ── Arranque ─────────────────────────────────────
 async function init(){
-  // Primero: mostrar novedades si hay versión nueva, luego continuar al login
-  if(checkVersion()) return;
-  iniciarFlujoAuth();
+  // Siempre mostrar novedades primero, luego continuar al flujo de auth
+  showScreen('screen-novedades');
 }
 
 init();
