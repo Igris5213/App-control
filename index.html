@@ -1526,6 +1526,8 @@ window.showScreen = function(id){
     s.classList.add('hidden');
     s.style.display = 'none';
   });
+  document.getElementById('main-app').style.display = 'none';
+  document.getElementById('bottom-nav').style.display = 'none';
   const el = document.getElementById(id);
   el.classList.remove('hidden');
   el.style.display = 'flex';
@@ -1948,8 +1950,11 @@ window.irAgregarDebito = function(){
 }
 
 window.finalizarSinDebito = async function(){
-  document.getElementById('modal-agregar-debito').classList.remove('show');
+  const modal = document.getElementById('modal-agregar-debito');
+  modal.classList.remove('show');
+  modal.style.display = 'none';
   await _guardarOnboarding();
+  setTimeout(()=>{ modal.style.display = ''; }, 500);
 }
 
 window.irAgregarCredito = function(){
