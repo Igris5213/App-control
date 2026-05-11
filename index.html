@@ -1394,15 +1394,15 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 <!-- ══ APP PRINCIPAL ══ -->
 <div class="main-app" id="main-app">
   <div class="top-section">
-    <!-- Tarjeta banco -->
     <div style="height:16px"></div>
-    <div class="cards-outer" id="cards-outer"></div>
-    <div class="dots" id="dots"></div>
-
-    <!-- Movimientos -->
-    <div class="section-card" style="margin-bottom:32px;margin-top:22px">
-      <div class="section-card-title">Últimos movimientos</div>
-      <div id="mov-list" style="max-height:504px;overflow-y:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none"></div>
+    <!-- Recuadro unificado: carrusel + movimientos -->
+    <div style="margin:0 50px 32px;background:#fff;border-radius:24px;padding:20px 16px;box-shadow:0 4px 24px rgba(0,0,0,0.08)">
+      <div class="cards-outer" id="cards-outer" style="margin:0;border-radius:16px"></div>
+      <div class="dots" id="dots"></div>
+      <div style="margin-top:18px">
+        <div class="section-card-title">Últimos movimientos</div>
+        <div id="mov-list" style="max-height:504px;overflow-y:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none"></div>
+      </div>
     </div>
   </div>
 </div>
@@ -5891,7 +5891,7 @@ window.confirmarEliminarPerfil = async function(){
 
 <!-- ══ PANTALLA CUENTAS ══ -->
 <div class="screen hidden" id="screen-cuentas">
-  <div style="width:100%;max-width:390px;padding:0 4px">
+  <div style="width:100%;max-width:390px">
 
     <!-- Sin cuentas -->
     <div id="cuentas-empty" style="display:none;text-align:center;padding:60px 24px">
@@ -5905,13 +5905,14 @@ window.confirmarEliminarPerfil = async function(){
     <!-- Carrusel débito -->
     <div id="cuentas-carrusel-wrap">
       <div style="height:16px"></div>
-      <div class="cards-outer" id="deb-cards-outer"></div>
-      <div class="dots" id="deb-dots"></div>
-
-      <!-- Últimos movimientos débito -->
-      <div class="section-card" style="margin-bottom:32px;margin-top:22px">
-        <div class="section-card-title">Últimos movimientos</div>
-        <div id="deb-mov-list" style="max-height:504px;overflow-y:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none"></div>
+      <!-- Recuadro unificado: carrusel + movimientos -->
+      <div style="background:#fff;border-radius:24px;padding:20px 16px;box-shadow:0 4px 24px rgba(0,0,0,0.08);margin-bottom:32px">
+        <div class="cards-outer" id="deb-cards-outer" style="margin:0;border-radius:16px"></div>
+        <div class="dots" id="deb-dots"></div>
+        <div style="margin-top:18px">
+          <div class="section-card-title">Últimos movimientos</div>
+          <div id="deb-mov-list" style="max-height:504px;overflow-y:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none"></div>
+        </div>
       </div>
     </div>
 
