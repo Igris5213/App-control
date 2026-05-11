@@ -3254,7 +3254,43 @@ window.mostrarPantallaPerfiles = function(){
   renderPerfiles();
 }
 
-let modoEdicion = false;
+let modoEdicion = false;        // legacy — kept for compat
+let modoEdicionCredito = false;
+let modoEdicionDebito  = false;
+
+window.toggleEdicionCredito = function(){
+  modoEdicionCredito = !modoEdicionCredito;
+  modoEdicion = modoEdicionCredito;
+  selectedBancoEdit = '';
+  selectedCorteEdit = null;
+  if(!modoEdicionCredito) buildCarrusel();
+  else {
+    setTimeout(()=>{
+      const f = document.getElementById('form-edit-tarjeta');
+      const b = document.getElementById('btn-mostrar-form-tarjeta');
+      if(f) f.style.display='none';
+      if(b) b.style.display='block';
+    }, 50);
+  }
+  renderPerfiles();
+}
+
+window.toggleEdicionDebito = function(){
+  modoEdicionDebito = !modoEdicionDebito;
+  if(!modoEdicionDebito) buildCarruselDebito();
+  else {
+    setTimeout(()=>{
+      const f = document.getElementById('form-edit-debito');
+      const b = document.getElementById('btn-mostrar-form-debito');
+      if(f) f.style.display='none';
+      if(b) b.style.display='block';
+    }, 50);
+  }
+  renderPerfiles();
+}
+
+// Keep old toggleEdicion pointing to credit toggle for any legacy call
+window.toggleEdicion = window.toggleEdicionCredito;
 
 window.renderPerfiles = function(){
   const lista = document.getElementById('perfiles-lista');
@@ -3265,50 +3301,65 @@ window.renderPerfiles = function(){
   const colores = ['#111','#555','#111','#555','#111','#555'];
 
   lista.innerHTML = `
+
+    <!-- ── Header de perfil ── -->
+    <div style="background:#fff;border-radius:16px;padding:16px 18px;box-shadow:0 1px 6px rgba(0,0,0,0.08);margin-bottom:12px;display:flex;align-items:center;gap:14px">
+      <div style="width:48px;height:48px;border-radius:14px;background:linear-gradient(180deg,#111,#444);display:flex;align-items:center;justify-content:center;color:#fff;font-size:20px;font-weight:700;flex-shrink:0">
+        ${perfil.nombre.charAt(0).toUpperCase()}
+      </div>
+      <div style="flex:1">
+        <div style="font-size:16px;font-weight:700;color:#111">${perfil.nombre}</div>
+        <div style="font-size:12px;color:#aaa;margin-top:2px">${(perfil.tarjetas||[]).length} tarjeta${(perfil.tarjetas||[]).length!==1?'s':''} · ${(perfil.cuentasDebito||[]).length} débito${(perfil.cuentasDebito||[]).length!==1?'s':''}</div>
+      </div>
+      <div style="background:#111;color:#fff;font-size:11px;font-weight:600;padding:4px 10px;border-radius:20px">Activo</div>
+    </div>
+
+    <!-- ── RECUADRO: Tarjetas de Crédito ── -->
     <div style="background:#fff;border-radius:16px;padding:18px;box-shadow:0 1px 6px rgba(0,0,0,0.08);margin-bottom:12px">
 
-      <!-- Header perfil -->
-      <div style="display:flex;align-items:center;gap:14px;margin-bottom:16px">
-        <div style="width:48px;height:48px;border-radius:14px;background:linear-gradient(180deg,#111,#444);display:flex;align-items:center;justify-content:center;color:#fff;font-size:20px;font-weight:700;flex-shrink:0">
-          ${perfil.nombre.charAt(0).toUpperCase()}
+      <!-- Header crédito -->
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px">
+        <div style="width:34px;height:34px;border-radius:10px;background:linear-gradient(180deg,#111,#444);display:flex;align-items:center;justify-content:center;flex-shrink:0">
+          <svg width="17" height="17" fill="none" stroke="#fff" stroke-width="2" viewBox="0 0 24 24"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
         </div>
         <div style="flex:1">
-          <div style="font-size:16px;font-weight:700;color:#111">${perfil.nombre}</div>
+          <div style="font-size:14px;font-weight:700;color:#111">Tarjetas de crédito</div>
+          <div style="font-size:11px;color:#aaa">${(perfil.tarjetas||[]).length} registrada${(perfil.tarjetas||[]).length!==1?'s':''}</div>
         </div>
-        <div style="background:#111;color:#fff;font-size:11px;font-weight:600;padding:4px 10px;border-radius:20px">Activo</div>
-        <button onclick="toggleEdicion()" style="background:${modoEdicion?'#111':'#f0f0f0'};color:${modoEdicion?'#fff':'#111'};border:none;border-radius:10px;padding:6px 12px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit">
-          ${modoEdicion ? '✓ Listo' : 'Editar'}
+        <button onclick="toggleEdicionCredito()" style="background:${modoEdicionCredito?'#111':'#f0f0f0'};color:${modoEdicionCredito?'#fff':'#111'};border:none;border-radius:10px;padding:6px 12px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit">
+          ${modoEdicionCredito ? '✓ Listo' : 'Editar'}
         </button>
       </div>
 
-      <!-- Lista de tarjetas -->
-      <div style="display:flex;flex-direction:column;gap:8px" id="lista-tarjetas-edit">
-        ${perfil.tarjetas.map((t,i)=>`
+      <!-- Lista tarjetas crédito -->
+      <div style="display:flex;flex-direction:column;gap:8px">
+        ${(perfil.tarjetas||[]).map((t,i)=>`
           <div style="background:#f5f5f5;border-radius:10px;padding:10px 14px;display:flex;align-items:center;gap:10px">
             <div style="width:10px;height:10px;border-radius:50%;background:${colores[i%colores.length]};flex-shrink:0"></div>
-            <div style="flex:1">
-              <div style="font-size:14px;font-weight:600;color:#111">${t.nombre}${t.apodo ? ` <span style="font-weight:400;color:#888">· ${t.apodo}</span>` : ''}</div>
+            <div style="flex:1;min-width:0">
+              <div style="font-size:14px;font-weight:600;color:#111;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${t.nombre}${t.apodo?` <span style="font-weight:400;color:#888">· ${t.apodo}</span>`:''}</div>
               <div style="font-size:11px;color:#888">Corte día ${t.corte} · Límite $${t.limite.toLocaleString('es-MX')}</div>
             </div>
-            ${modoEdicion ? `
-              <button onclick="abrirEditarTarjeta('${t.id}')" style="background:#f0f0f0;border:none;border-radius:8px;padding:6px 10px;color:#111;font-size:13px;cursor:pointer;margin-right:4px"><svg width='13' height='13' fill='none' stroke='currentColor' stroke-width='2' viewBox='0 0 24 24'><path d='M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7'/><path d='M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z'/></svg></button>
-              <button onclick="eliminarTarjetaPerfil('${t.id}')" style="background:#f0f0f0;border:none;border-radius:8px;padding:6px 10px;color:#111;font-size:13px;cursor:pointer">✕</button>
+            ${modoEdicionCredito ? `
+              <button onclick="abrirEditarTarjeta('${t.id}')" style="background:#e8e8e8;border:none;border-radius:8px;padding:7px 10px;color:#111;cursor:pointer;flex-shrink:0">
+                <svg width='13' height='13' fill='none' stroke='currentColor' stroke-width='2' viewBox='0 0 24 24'><path d='M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7'/><path d='M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z'/></svg>
+              </button>
+              <button onclick="eliminarTarjetaPerfil('${t.id}')" style="background:#e8e8e8;border:none;border-radius:8px;padding:7px 10px;color:#111;cursor:pointer;flex-shrink:0">
+                <svg width='13' height='13' fill='none' stroke='currentColor' stroke-width='2' viewBox='0 0 24 24'><polyline points='3 6 5 6 21 6'/><path d='M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6'/><path d='M10 11v6'/><path d='M14 11v6'/></svg>
+              </button>
             ` : ''}
           </div>`).join('')}
+        ${!(perfil.tarjetas||[]).length ? `<div style="text-align:center;color:#ccc;font-size:13px;padding:10px 0">Sin tarjetas de crédito</div>` : ''}
       </div>
 
-      <!-- Formulario agregar tarjeta (solo en modo edición) -->
-      ${modoEdicion ? `
-      <!-- Botón para mostrar formulario -->
+      <!-- Agregar tarjeta crédito (modo edición) -->
+      ${modoEdicionCredito ? `
       <button id="btn-mostrar-form-tarjeta" onclick="mostrarFormAgregarTarjeta()"
-        style="margin-top:14px;width:100%;padding:12px;border-radius:10px;border:none;background:#f0f0f0;color:#111;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit">
-        + Agregar tarjeta
+        style="margin-top:12px;width:100%;padding:12px;border-radius:10px;border:1.5px dashed #ccc;background:#fafafa;color:#555;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit">
+        + Agregar tarjeta de crédito
       </button>
-
-      <!-- Formulario oculto inicialmente -->
       <div id="form-edit-tarjeta" style="display:none;margin-top:12px;background:#f5f5f5;border-radius:12px;padding:14px">
-        <div style="font-size:13px;font-weight:700;color:#555;margin-bottom:12px">Nueva tarjeta</div>
-
+        <div style="font-size:13px;font-weight:700;color:#555;margin-bottom:12px">Nueva tarjeta de crédito</div>
         <div style="font-size:11px;font-weight:700;color:#888;text-transform:uppercase;margin-bottom:6px">Banco</div>
         <div onclick="toggleScrollBancoEdit(this)" class="banco-selector-btn" id="banco-edit-btn" style="cursor:pointer;margin-bottom:6px">
           <span id="banco-edit-txt">Seleccionar banco...</span><span style="color:#aaa;font-size:12px">▾</span>
@@ -3326,7 +3377,6 @@ window.renderPerfiles = function(){
           </div>
           <div style="height:8px"></div>
         </div>
-
         <div style="font-size:11px;font-weight:700;color:#888;text-transform:uppercase;margin-bottom:6px">Corte</div>
         <div onclick="toggleScrollCorteEdit(this)" class="banco-selector-btn" id="corte-edit-btn" style="cursor:pointer;margin-bottom:6px">
           <span id="corte-edit-txt">Seleccionar día de corte...</span><span style="color:#aaa;font-size:12px">▾</span>
@@ -3344,21 +3394,84 @@ window.renderPerfiles = function(){
           </div>
           <div style="height:8px"></div>
         </div>
-
-        <div style="font-size:11px;font-weight:700;color:#888;text-transform:uppercase;margin-bottom:6px">Tarjeta <span style="font-weight:400;color:#aaa">(opcional)</span></div>
-        <input id="apodo-nueva-edit" placeholder="Ej. Nómina, Personal, Débito..." maxlength="30" onfocus="cerrarScrollsPerfiles()"
+        <div style="font-size:11px;font-weight:700;color:#888;text-transform:uppercase;margin-bottom:6px">Alias <span style="font-weight:400;color:#aaa">(opcional)</span></div>
+        <input id="apodo-nueva-edit" placeholder="Ej. Nómina, Personal..." maxlength="30" onfocus="cerrarScrollsPerfiles()"
           style="width:100%;padding:12px 14px;border-radius:10px;border:1.5px solid #e5e7eb;font-size:14px;font-family:inherit;outline:none;background:#fff;margin-bottom:12px"/>
-
         <div style="font-size:11px;font-weight:700;color:#888;text-transform:uppercase;margin-bottom:6px">Límite de gasto</div>
         <div style="position:relative;margin-bottom:14px">
           <span style="position:absolute;left:14px;top:50%;transform:translateY(-50%);color:#666;font-size:15px">$</span>
           <input id="limite-edit" type="number" placeholder="0.00" min="0" step="100" onfocus="cerrarScrollsPerfiles()"
             style="width:100%;padding:12px 14px 12px 28px;border-radius:10px;border:1.5px solid #e5e7eb;font-size:15px;font-family:inherit;outline:none;background:#fff"/>
         </div>
-
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
           <button onclick="guardarNuevaTarjeta()" style="padding:11px;border-radius:10px;background:linear-gradient(180deg,#111,#444);color:#fff;border:none;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit">Guardar</button>
-          <button onclick="ocultarFormAgregarTarjeta()" style="padding:13px;border-radius:12px;border:1.5px solid #e0e0e0;background:#fff;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit;color:#666">Cancelar</button>
+          <button onclick="ocultarFormAgregarTarjeta()" style="padding:11px;border-radius:10px;border:1.5px solid #e0e0e0;background:#fff;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;color:#666">Cancelar</button>
+        </div>
+      </div>` : ''}
+
+    </div>
+
+    <!-- ── RECUADRO: Cuentas de Débito ── -->
+    <div style="background:#fff;border-radius:16px;padding:18px;box-shadow:0 1px 6px rgba(0,0,0,0.08);margin-bottom:12px">
+
+      <!-- Header débito -->
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px">
+        <div style="width:34px;height:34px;border-radius:10px;background:linear-gradient(180deg,#333,#666);display:flex;align-items:center;justify-content:center;flex-shrink:0">
+          <svg width="17" height="17" fill="none" stroke="#fff" stroke-width="2" viewBox="0 0 24 24"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/><line x1="5" y1="15" x2="9" y2="15"/></svg>
+        </div>
+        <div style="flex:1">
+          <div style="font-size:14px;font-weight:700;color:#111">Cuentas de débito</div>
+          <div style="font-size:11px;color:#aaa">${(perfil.cuentasDebito||[]).length} registrada${(perfil.cuentasDebito||[]).length!==1?'s':''}</div>
+        </div>
+        <button onclick="toggleEdicionDebito()" style="background:${modoEdicionDebito?'#111':'#f0f0f0'};color:${modoEdicionDebito?'#fff':'#111'};border:none;border-radius:10px;padding:6px 12px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit">
+          ${modoEdicionDebito ? '✓ Listo' : 'Editar'}
+        </button>
+      </div>
+
+      <!-- Lista cuentas débito -->
+      <div style="display:flex;flex-direction:column;gap:8px">
+        ${(perfil.cuentasDebito && perfil.cuentasDebito.length) ? perfil.cuentasDebito.map((c,i)=>`
+          <div style="background:#f5f5f5;border-radius:10px;padding:10px 14px;display:flex;align-items:center;gap:10px">
+            <div style="width:10px;height:10px;border-radius:50%;background:#555;flex-shrink:0"></div>
+            <div style="flex:1;min-width:0">
+              <div style="font-size:14px;font-weight:600;color:#111;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${c.nombre}${c.apodo?` <span style="font-weight:400;color:#888">· ${c.apodo}</span>`:''}</div>
+              <div style="font-size:11px;color:#888">Débito${typeof c.disponible==='number'&&c.disponible>0?' · Saldo $'+c.disponible.toLocaleString('es-MX'):''}</div>
+            </div>
+            ${modoEdicionDebito ? `
+              <button onclick="abrirEditarDebito('${c.id}')" style="background:#e8e8e8;border:none;border-radius:8px;padding:7px 10px;color:#111;cursor:pointer;flex-shrink:0">
+                <svg width='13' height='13' fill='none' stroke='currentColor' stroke-width='2' viewBox='0 0 24 24'><path d='M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7'/><path d='M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z'/></svg>
+              </button>
+              <button onclick="eliminarDebitoPerfil('${c.id}')" style="background:#e8e8e8;border:none;border-radius:8px;padding:7px 10px;color:#111;cursor:pointer;flex-shrink:0">
+                <svg width='13' height='13' fill='none' stroke='currentColor' stroke-width='2' viewBox='0 0 24 24'><polyline points='3 6 5 6 21 6'/><path d='M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6'/><path d='M10 11v6'/><path d='M14 11v6'/></svg>
+              </button>
+            ` : ''}
+          </div>`).join('')
+        : `<div style="text-align:center;color:#ccc;font-size:13px;padding:10px 0">Sin cuentas de débito</div>`}
+      </div>
+
+      <!-- Agregar cuenta débito (modo edición) -->
+      ${modoEdicionDebito ? `
+      <button id="btn-mostrar-form-debito" onclick="mostrarFormAgregarDebito()"
+        style="margin-top:12px;width:100%;padding:12px;border-radius:10px;border:1.5px dashed #ccc;background:#fafafa;color:#555;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit">
+        + Agregar cuenta de débito
+      </button>
+      <div id="form-edit-debito" style="display:none;margin-top:12px;background:#f5f5f5;border-radius:12px;padding:14px">
+        <div style="font-size:13px;font-weight:700;color:#555;margin-bottom:12px">Nueva cuenta de débito</div>
+        <div style="font-size:11px;font-weight:700;color:#888;text-transform:uppercase;margin-bottom:6px">Banco</div>
+        <input id="inp-banco-debito-nuevo" placeholder="Ej. BBVA, Banorte, Nu..." maxlength="40" onfocus="cerrarScrollsPerfiles()"
+          style="width:100%;padding:12px 14px;border-radius:10px;border:1.5px solid #e5e7eb;font-size:14px;font-family:inherit;outline:none;background:#fff;margin-bottom:10px;color:#111"/>
+        <div style="font-size:11px;font-weight:700;color:#888;text-transform:uppercase;margin-bottom:6px">Alias <span style="font-weight:400;color:#aaa">(opcional)</span></div>
+        <input id="inp-apodo-debito-nuevo" placeholder="Ej. Nómina, Ahorros..." maxlength="30" onfocus="cerrarScrollsPerfiles()"
+          style="width:100%;padding:12px 14px;border-radius:10px;border:1.5px solid #e5e7eb;font-size:14px;font-family:inherit;outline:none;background:#fff;margin-bottom:10px;color:#111"/>
+        <div style="font-size:11px;font-weight:700;color:#888;text-transform:uppercase;margin-bottom:6px">Saldo disponible <span style="font-weight:400;color:#aaa">(opcional)</span></div>
+        <div style="position:relative;margin-bottom:14px">
+          <span style="position:absolute;left:14px;top:50%;transform:translateY(-50%);color:#666;font-size:15px">$</span>
+          <input id="inp-disponible-debito-nuevo" type="number" placeholder="0.00" min="0" step="100" onfocus="cerrarScrollsPerfiles()"
+            style="width:100%;padding:12px 14px 12px 28px;border-radius:10px;border:1.5px solid #e5e7eb;font-size:15px;font-family:inherit;outline:none;background:#fff;color:#111"/>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+          <button onclick="guardarNuevaDebito()" style="padding:11px;border-radius:10px;background:linear-gradient(180deg,#111,#444);color:#fff;border:none;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit">Guardar</button>
+          <button onclick="ocultarFormAgregarDebito()" style="padding:11px;border-radius:10px;border:1.5px solid #e0e0e0;background:#fff;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;color:#666">Cancelar</button>
         </div>
       </div>` : ''}
 
@@ -3437,25 +3550,6 @@ window.ocultarFormAgregarTarjeta = function(){
   document.getElementById('btn-mostrar-form-tarjeta').style.display = 'block';
 }
 
-window.toggleEdicion = function(){
-  modoEdicion = !modoEdicion;
-  selectedBancoEdit = '';
-  selectedCorteEdit = null;
-  // Al salir del modo edición (Listo), reconstruir el carrusel con los cambios
-  if(!modoEdicion){
-    buildCarrusel();
-  } else {
-    // Al entrar en edición, asegurarse de que el form esté oculto
-    setTimeout(()=>{
-      const f = document.getElementById('form-edit-tarjeta');
-      const b = document.getElementById('btn-mostrar-form-tarjeta');
-      if(f) f.style.display='none';
-      if(b) b.style.display='block';
-    }, 50);
-  }
-  renderPerfiles();
-}
-
 let selectedBancoEdit = '';
 let selectedCorteEdit = null;
 
@@ -3503,6 +3597,90 @@ window.abrirPopupCorteEdit = function(){
   cerrarTodosLosPopups();
   window._corteEditMode = true;
   document.getElementById('corte-popup-overlay').classList.add('open');
+}
+
+// ══ GESTIÓN DÉBITO EN PERFILES ══════════════════════════════════════
+window.mostrarFormAgregarDebito = function(){
+  document.getElementById('form-edit-debito').style.display = 'block';
+  document.getElementById('btn-mostrar-form-debito').style.display = 'none';
+  document.getElementById('inp-banco-debito-nuevo').value = '';
+  document.getElementById('inp-apodo-debito-nuevo').value = '';
+  document.getElementById('inp-disponible-debito-nuevo').value = '';
+}
+
+window.ocultarFormAgregarDebito = function(){
+  document.getElementById('form-edit-debito').style.display = 'none';
+  document.getElementById('btn-mostrar-form-debito').style.display = 'block';
+}
+
+window.guardarNuevaDebito = async function(){
+  const nombre = document.getElementById('inp-banco-debito-nuevo').value.trim();
+  const apodo  = document.getElementById('inp-apodo-debito-nuevo').value.trim();
+  const disp   = parseFloat(document.getElementById('inp-disponible-debito-nuevo').value) || 0;
+  if(!nombre){ showToast('Ingresa el nombre del banco'); return; }
+  if(!perfil.cuentasDebito) perfil.cuentasDebito = [];
+  const nueva = {
+    id: Date.now()+'_'+Math.random().toString(36).substr(2,9),
+    tipoCuenta: 'debito',
+    nombre, apodo, disponible: disp, color: 'card-color-0'
+  };
+  perfil.cuentasDebito.push(nueva);
+  try{
+    await setDoc(doc(db,'usuarios', currentUser.uid, 'perfil','datos'), perfil);
+    window.perfil = perfil;
+    showSuccess('Cuenta agregada', `${nombre}${apodo ? ' · ' + apodo : ''}`);
+    buildCarruselDebito();
+    renderPerfiles();
+  } catch(e){ showToast('❌ Error al guardar'); }
+}
+
+window.eliminarDebitoPerfil = async function(id){
+  if(!perfil.cuentasDebito) return;
+  perfil.cuentasDebito = perfil.cuentasDebito.filter(c=>c.id!==id);
+  try{
+    await setDoc(doc(db,'usuarios', currentUser.uid, 'perfil','datos'), perfil);
+    window.perfil = perfil;
+    showToast('Cuenta eliminada');
+    buildCarruselDebito();
+    renderPerfiles();
+  } catch(e){ showToast('❌ Error al eliminar'); }
+}
+
+window.abrirEditarDebito = function(id){
+  if(!perfil.cuentasDebito) return;
+  const c = perfil.cuentasDebito.find(x=>x.id===id);
+  if(!c) return;
+  document.getElementById('edit-debito-id').value = id;
+  document.getElementById('edit-debito-banco').value = c.nombre;
+  document.getElementById('edit-debito-apodo').value = c.apodo || '';
+  document.getElementById('edit-debito-disponible').value = typeof c.disponible === 'number' ? c.disponible : '';
+  document.getElementById('edit-debito-overlay').classList.add('open');
+}
+
+window.cerrarEditDebito = function(e){
+  if(!e || e.target===document.getElementById('edit-debito-overlay')){
+    document.getElementById('edit-debito-overlay').classList.remove('open');
+  }
+}
+
+window.guardarEdicionDebito = async function(){
+  const id   = document.getElementById('edit-debito-id').value;
+  const nombre = document.getElementById('edit-debito-banco').value.trim();
+  const apodo  = document.getElementById('edit-debito-apodo').value.trim();
+  const disp   = parseFloat(document.getElementById('edit-debito-disponible').value) || 0;
+  if(!nombre){ showToast('Ingresa el nombre del banco'); return; }
+  if(!perfil.cuentasDebito) return;
+  perfil.cuentasDebito = perfil.cuentasDebito.map(c=>
+    c.id===id ? {...c, nombre, apodo, disponible: disp} : c
+  );
+  try{
+    await setDoc(doc(db,'usuarios', currentUser.uid, 'perfil','datos'), perfil);
+    window.perfil = perfil;
+    showSuccess('Cuenta actualizada', `${nombre}${apodo ? ' · ' + apodo : ''}`);
+    document.getElementById('edit-debito-overlay').classList.remove('open');
+    buildCarruselDebito();
+    renderPerfiles();
+  } catch(e){ showToast('❌ Error al guardar'); }
 }
 
 
@@ -6618,6 +6796,39 @@ window.confirmarEliminarPerfil = async function(){
 </div>
 
 
+
+<!-- ══ MODAL EDITAR CUENTA DÉBITO (PERFILES) ══ -->
+<div class="modal-overlay" id="edit-debito-overlay" onclick="cerrarEditDebito(event)">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div style="display:flex;align-items:center;gap:12px;margin-bottom:20px">
+      <div style="width:40px;height:40px;border-radius:12px;background:linear-gradient(180deg,#111,#444);display:flex;align-items:center;justify-content:center;flex-shrink:0">
+        <svg width="20" height="20" fill="none" stroke="#fff" stroke-width="2" viewBox="0 0 24 24"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/><line x1="5" y1="15" x2="9" y2="15"/></svg>
+      </div>
+      <div class="modal-title" style="margin-bottom:0">Editar cuenta de débito</div>
+    </div>
+    <input type="hidden" id="edit-debito-id"/>
+    <div class="field-wrap">
+      <div class="field-label">Banco</div>
+      <input class="inp" id="edit-debito-banco" placeholder="Ej. BBVA, Banorte, Nu..." maxlength="40"/>
+    </div>
+    <div class="field-wrap">
+      <div class="field-label">Alias <span style="font-weight:400;color:#aaa">(opcional)</span></div>
+      <input class="inp" id="edit-debito-apodo" placeholder="Ej. Nómina, Ahorros..." maxlength="30"/>
+    </div>
+    <div class="field-wrap">
+      <div class="field-label">Saldo disponible <span style="font-weight:400;color:#aaa">(opcional)</span></div>
+      <div class="amount-wrap">
+        <span class="amount-prefix">$</span>
+        <input class="amount-inp" id="edit-debito-disponible" type="number" placeholder="0.00" min="0" step="100"/>
+      </div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:4px">
+      <button class="modal-save" onclick="guardarEdicionDebito()" style="margin-top:0">Guardar cambios</button>
+      <button onclick="cerrarEditDebito()" style="padding:14px;border-radius:12px;border:1.5px solid #e0e0e0;background:#fff;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit;color:#666">Cancelar</button>
+    </div>
+  </div>
+</div>
 
 <div class="modal-overlay" id="modal-eliminar-banco" onclick="cerrarModalBanco(event)">
   <div class="modal">
