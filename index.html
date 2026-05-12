@@ -189,8 +189,13 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .modal-overlay.open .modal{transform:translateY(0)}
 /* Date Picker */
 #scroll-anio::-webkit-scrollbar,#scroll-mes::-webkit-scrollbar,#scroll-dia::-webkit-scrollbar{display:none}
-.scroll-item{height:44px;min-height:44px;box-sizing:border-box;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:500;color:#888;cursor:pointer;scroll-snap-align:start;transition:color 0.15s;width:100%;text-align:center}
-.dp-item{height:44px;min-height:44px;box-sizing:border-box;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:500;color:#888;cursor:pointer;transition:color 0.15s;width:100%;text-align:center}
+.scroll-item{height:44px;min-height:44px;box-sizing:border-box;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:500;color:#444;cursor:pointer;scroll-snap-align:start;transition:color 0.15s,opacity 0.15s;width:100%;text-align:center}
+.dp-item{height:44px;min-height:44px;box-sizing:border-box;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:500;color:#444;cursor:pointer;transition:color 0.15s,opacity 0.15s;width:100%;text-align:center}
+/* Fade top/bottom en pickers de scroll */
+.picker-fade-wrap{position:relative}
+.picker-fade-wrap::before,.picker-fade-wrap::after{content:'';position:absolute;left:0;right:0;height:44px;pointer-events:none;z-index:3}
+.picker-fade-wrap::before{top:0;background:linear-gradient(to bottom,#f5f5f5 20%,rgba(245,245,245,0) 100%)}
+.picker-fade-wrap::after{bottom:0;background:linear-gradient(to top,#f5f5f5 20%,rgba(245,245,245,0) 100%)}
 .dp-item.sel{color:#fff!important;font-size:18px;font-weight:700}
 .scroll-item.sel{color:#fff !important;font-size:17px;font-weight:700}
 #scroll-meses-cont::-webkit-scrollbar{display:none}
@@ -1001,7 +1006,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
       </button>
     </div>
 
-    <div class="added-cards" id="added-cards-list"></div>
+    <div class="added-cards" id="added-cards-cred"></div>
+    <div class="added-cards" id="added-cards-deb" style="display:none"></div>
 
     <!-- ── FORMULARIO CRÉDITO ── -->
     <div id="form-tarjeta">
@@ -1397,8 +1403,17 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 <div class="main-app" id="main-app">
   <div class="top-section">
     <div style="height:16px"></div>
+    <!-- Sin tarjetas de crédito -->
+    <div id="tarjetas-empty" style="display:none;text-align:center;padding:60px 24px">
+      <div style="width:72px;height:72px;border-radius:24px;background:linear-gradient(180deg,#111,#444);display:flex;align-items:center;justify-content:center;margin:0 auto 24px;box-shadow:0 8px 32px rgba(0,0,0,0.15)">
+        <svg width="32" height="32" fill="none" stroke="#fff" stroke-width="2" viewBox="0 0 24 24"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/><line x1="5" y1="15" x2="9" y2="15"/></svg>
+      </div>
+      <div style="font-size:22px;font-weight:800;color:#111;margin-bottom:8px">Sin tarjetas de crédito</div>
+      <div style="font-size:14px;color:#aaa;line-height:1.6">No agregaste ninguna tarjeta de crédito.<br>Puedes añadirla desde la pestaña de <strong style="color:#111">Perfiles</strong>.</div>
+    </div>
+
     <!-- Recuadro unificado: carrusel + movimientos -->
-    <div style="margin:0 20px 32px;background:#fff;border-radius:24px;padding:20px 16px;box-shadow:0 4px 24px rgba(0,0,0,0.08)">
+    <div id="tarjetas-carrusel-wrap" style="margin:0 20px 32px;background:#fff;border-radius:24px;padding:20px 16px;box-shadow:0 4px 24px rgba(0,0,0,0.08)">
       <div class="cards-outer" id="cards-outer" style="margin:0;border-radius:16px"></div>
       <div class="dots" id="dots"></div>
       <div style="margin-top:18px">
@@ -1483,7 +1498,7 @@ window.guardarPerfil = function(){
   selectedBancoDebNombre = '';
   selectedCorte = null;
   _obTipoActivo = 'credito';
-  document.getElementById('added-cards-list').innerHTML = '';
+  document.getElementById('added-cards-cred').innerHTML = ''; document.getElementById('added-cards-deb').innerHTML = '';
   document.getElementById('ob-title-tarjetas').textContent = 'Agrega tu primera tarjeta';
   document.getElementById('btn-finalizar').style.display = 'none';
   document.getElementById('btn-finalizar-deb').style.display = 'none';
@@ -1562,14 +1577,14 @@ window.toggleScrollBancoOb = function(){
     const currentIdx = BANCOS_OB.indexOf(currentBanco);
     const cont = document.getElementById('scroll-banco-ob-items');
     const scrollEl = document.getElementById('scroll-banco-ob');
-    cont.innerHTML = BANCOS_OB.map(function(b,i){ return '<div class="scroll-item'+(i===currentIdx?' sel':'')+' " data-n="'+i+'" style="'+(i===currentIdx?'color:#fff;':'')+'">'+b+'</div>'; }).join('');
+    cont.innerHTML = BANCOS_OB.map(function(b,i){ return '<div class="scroll-item'+(i===currentIdx?' sel':'')+' " data-n="'+i+'" style="'+(i===currentIdx?'color:#fff;':'color:#444;')+'">'+b+'</div>'; }).join('');
     setTimeout(()=>{
       const idx = currentIdx >= 0 ? currentIdx : 0;
       scrollEl.scrollTop = idx*44;
       cont.querySelectorAll('.scroll-item').forEach((el,i)=>{
         const sel = i===idx;
         el.classList.toggle('sel', sel);
-        el.style.color = sel ? '#fff' : '';
+        el.style.color = sel ? '#fff' : '#444';
       });
     }, 50);
     snapScrollConInicio(scrollEl, 44, currentIdx >= 0 ? currentIdx : 0, idx=>{
@@ -1577,7 +1592,7 @@ window.toggleScrollBancoOb = function(){
       cont.querySelectorAll('.scroll-item').forEach((el,i)=>{
         const sel = i===idx;
         el.classList.toggle('sel', sel);
-        el.style.color = sel ? '#fff' : '';
+        el.style.color = sel ? '#fff' : '#444';
       });
       document.getElementById('inp-banco-ob').value = banco;
       document.getElementById('banco-ob-txt').textContent = banco;
@@ -1598,14 +1613,14 @@ window.toggleScrollCorteOb = function(){
     const cont = document.getElementById('scroll-corte-ob-items');
     const scrollEl = document.getElementById('scroll-corte-ob');
     cont.innerHTML = Array.from({length:31},(_,i)=>i+1).map(n=>`
-      <div class="scroll-item${n===currentCorte?' sel':''}" data-n="${n}" style="${n===currentCorte?'color:#fff;':''}">${n}</div>
+      <div class="scroll-item${n===currentCorte?' sel':''}" data-n="${n}" style="${n===currentCorte?'color:#fff;':'color:#444;'}">${n}</div>
     `).join('');
     setTimeout(()=>{
       scrollEl.scrollTop = (currentCorte-1)*44;
       cont.querySelectorAll('.scroll-item').forEach((el,i)=>{
         const sel = i===(currentCorte-1);
         el.classList.toggle('sel', sel);
-        el.style.color = sel ? '#fff' : '';
+        el.style.color = sel ? '#fff' : '#444';
       });
     }, 50);
     snapScrollConInicio(scrollEl, 44, currentCorte-1, idx=>{
@@ -1613,7 +1628,7 @@ window.toggleScrollCorteOb = function(){
       cont.querySelectorAll('.scroll-item').forEach((el,i)=>{
         const sel = i===idx;
         el.classList.toggle('sel', sel);
-        el.style.color = sel ? '#fff' : '';
+        el.style.color = sel ? '#fff' : '#444';
       });
       document.getElementById('inp-corte-ob').value = dia;
       document.getElementById('corte-ob-txt').textContent = 'Día ' + dia;
@@ -1685,24 +1700,24 @@ window.agregarTarjetaOb = function(){
 }
 
 function renderTarjetasOb(){
-  const el = document.getElementById('added-cards-list');
-  const credItems = tarjetasOb.map(t=>`
+  const elCred = document.getElementById('added-cards-cred');
+  const elDeb  = document.getElementById('added-cards-deb');
+  elCred.innerHTML = tarjetasOb.map(t=>`
     <div class="added-card-item">
       <div>
-        <div class="added-card-name">${t.nombre}${t.apodo ? ' · '+t.apodo : ''} <span style="font-size:10px;font-weight:600;color:#888;background:#f0f0f0;border-radius:6px;padding:2px 6px;margin-left:4px">Crédito</span></div>
+        <div class="added-card-name">${t.nombre}${t.apodo ? ' · '+t.apodo : ''}</div>
         <div class="added-card-info">Corte día ${t.corte} · Límite $${t.limite.toLocaleString('es-MX')}</div>
       </div>
       <button class="added-card-del" onclick="quitarTarjetaOb('${t.id}')">×</button>
     </div>`).join('');
-  const debItems = tarjetasDebOb.map(t=>`
+  elDeb.innerHTML = tarjetasDebOb.map(t=>`
     <div class="added-card-item">
       <div>
-        <div class="added-card-name">${t.nombre}${t.apodo ? ' · '+t.apodo : ''} <span style="font-size:10px;font-weight:600;color:#555;background:#f0f0f0;border-radius:6px;padding:2px 6px;margin-left:4px">Débito</span></div>
+        <div class="added-card-name">${t.nombre}${t.apodo ? ' · '+t.apodo : ''}</div>
         <div class="added-card-info">Disponible $${t.disponible.toLocaleString('es-MX')}</div>
       </div>
       <button class="added-card-del" onclick="quitarDebitoOb('${t.id}')">×</button>
     </div>`).join('');
-  el.innerHTML = credItems + debItems;
 }
 
 window.quitarTarjetaOb = function(id){
@@ -1766,14 +1781,17 @@ window.obSwitchTipo = function(tipo){
     btnDeb.style.color  = '#888';
     formCred.style.display = 'block';
     formDeb.style.display  = 'none';
+    document.getElementById('added-cards-cred').style.display = '';
+    document.getElementById('added-cards-deb').style.display  = 'none';
   } else {
     slider.style.transform = 'translateX(100%)';
     btnCred.style.color = '#888';
     btnDeb.style.color  = '#fff';
     formCred.style.display = 'none';
     formDeb.style.display  = 'block';
-    const cont = document.getElementById('scroll-banco-deb-ob-items');
-    if(cont && !cont.children.length) buildScrollBancoDebOb();
+    document.getElementById('added-cards-cred').style.display = 'none';
+    document.getElementById('added-cards-deb').style.display  = '';
+    document.getElementById('banco-deb-ob-scroll-wrap').style.display = 'none';
   }
   _actualizarBotonesTerminar();
 }
@@ -1789,41 +1807,41 @@ function _actualizarBotonesTerminar(){
   }
 }
 
-// Scroll banco para débito en onboarding (reutiliza la lista de bancos)
+// Scroll banco para débito en onboarding (mismo patrón que crédito)
 const _BANCOS_LIST = ['BBVA','Banorte','Citibanamex','Santander','HSBC','Scotiabank','Inbursa','Invex','Hey Banco','Nu','Otro'];
-
-function buildScrollBancoDebOb(){
-  const cont   = document.getElementById('scroll-banco-deb-ob-items');
-  const scroll = document.getElementById('scroll-banco-deb-ob');
-  cont.innerHTML = _BANCOS_LIST.map((b,i)=>`
-    <div class="scroll-item" data-val="${b}" onclick="selBancoDebOb(this,'${b}')">${b}</div>
-  `).join('');
-  // Scroll handler para resaltar centro
-  scroll.addEventListener('scroll', ()=>{
-    const items = cont.querySelectorAll('.scroll-item');
-    const center= scroll.scrollTop + scroll.clientHeight/2;
-    items.forEach(it=>{
-      const mid = it.offsetTop + it.offsetHeight/2;
-      it.classList.toggle('sel', Math.abs(mid - center) < 22);
-    });
-  });
-}
-
-window.selBancoDebOb = function(el, banco){
-  selectedBancoDebNombre = banco;
-  document.getElementById('inp-banco-deb-ob').value = banco === 'Otro' ? '' : banco;
-  document.getElementById('banco-deb-ob-txt').textContent = banco;
-  document.getElementById('banco-deb-ob-txt').style.color = '#111';
-  document.getElementById('inp-banco-deb-ob-otro').style.display = banco === 'Otro' ? 'block' : 'none';
-  // No cerrar scroll automáticamente para permitir deslizar
-}
 
 window.toggleScrollBancoDebOb = function(){
   const wrap = document.getElementById('banco-deb-ob-scroll-wrap');
-  const abierto = wrap.style.display !== 'none';
-  wrap.style.display = abierto ? 'none' : 'block';
-  if(!abierto && !document.getElementById('scroll-banco-deb-ob-items').children.length){
-    buildScrollBancoDebOb();
+  const isOpen = wrap.style.display === 'block';
+  wrap.style.display = isOpen ? 'none' : 'block';
+  if(!isOpen){
+    const currentBanco = document.getElementById('inp-banco-deb-ob').value || '';
+    const currentIdx = _BANCOS_LIST.indexOf(currentBanco);
+    const cont = document.getElementById('scroll-banco-deb-ob-items');
+    const scrollEl = document.getElementById('scroll-banco-deb-ob');
+    cont.innerHTML = _BANCOS_LIST.map(function(b,i){ return '<div class="scroll-item'+(i===currentIdx?' sel':'')+'" data-n="'+i+'" style="'+(i===currentIdx?'color:#fff;':'color:#444;')+'">'+b+'</div>'; }).join('');
+    setTimeout(()=>{
+      const idx = currentIdx >= 0 ? currentIdx : 0;
+      scrollEl.scrollTop = idx*44;
+      cont.querySelectorAll('.scroll-item').forEach((el,i)=>{
+        const sel = i===idx;
+        el.classList.toggle('sel', sel);
+        el.style.color = sel ? '#fff' : '#444';
+      });
+    }, 50);
+    snapScrollConInicio(scrollEl, 44, currentIdx >= 0 ? currentIdx : 0, idx=>{
+      const banco = _BANCOS_LIST[Math.min(idx, _BANCOS_LIST.length-1)];
+      cont.querySelectorAll('.scroll-item').forEach((el,i)=>{
+        const sel = i===idx;
+        el.classList.toggle('sel', sel);
+        el.style.color = sel ? '#fff' : '#444';
+      });
+      selectedBancoDebNombre = banco;
+      document.getElementById('inp-banco-deb-ob').value = banco === 'Otro' ? '' : banco;
+      document.getElementById('banco-deb-ob-txt').textContent = banco;
+      document.getElementById('banco-deb-ob-txt').style.color = '#111';
+      document.getElementById('inp-banco-deb-ob-otro').style.display = banco === 'Otro' ? 'block' : 'none';
+    });
   }
 }
 
@@ -1874,7 +1892,7 @@ window.finalizarOnboarding = async function(){
     await setDoc(doc(db,'usuarios', currentUser.uid, 'perfil','datos'), perfil);
     document.querySelectorAll('.screen').forEach(s=>{ s.classList.add('hidden'); s.style.display='none'; });
     document.getElementById('main-app').style.display = 'none';
-    showWelcome(perfil.nombre || currentUser.uid, ()=>iniciarApp());
+    showWelcome(loginUsuarioActivo || currentUser.uid, ()=>iniciarApp());
   } catch(e){ showToast('❌ Error al guardar perfil'); }
 }
 
@@ -2123,8 +2141,19 @@ async function iniciarApp(){
 
 // ── CARRUSEL ─────────────────────────────────────────────────────────────
 function buildCarrusel(){
-  const dotsEl = document.getElementById('dots');
-  const outer  = document.getElementById('cards-outer');
+  const dotsEl  = document.getElementById('dots');
+  const outer   = document.getElementById('cards-outer');
+  const emptyEl = document.getElementById('tarjetas-empty');
+  const wrapEl  = document.getElementById('tarjetas-carrusel-wrap');
+
+  if(!perfil || !perfil.tarjetas || !perfil.tarjetas.length){
+    if(emptyEl) emptyEl.style.display = 'block';
+    if(wrapEl)  wrapEl.style.display  = 'none';
+    return;
+  }
+  if(emptyEl) emptyEl.style.display = 'none';
+  if(wrapEl)  wrapEl.style.display  = '';
+
   outer.innerHTML  = '';
   dotsEl.innerHTML = '';
   current = 0;
@@ -2492,7 +2521,8 @@ window.guardar = async function(){
       };
       try{
         await addDoc(collection(db,'usuarios', currentUser.uid, 'movimientos'), datos);
-        showSuccess();
+        const _label = t.nombre + (t.apodo ? ' · ' + t.apodo : '');
+        showSuccess('Gasto registrado', `${_label} — $${monto.toLocaleString('es-MX', {minimumFractionDigits:2})}`);
         const _tSob = t;
         setTimeout(()=>{
           const pC = getPeriodo(_tSob.corte);
@@ -2561,7 +2591,7 @@ async function eliminarPerfil(){
     document.getElementById('inp-limite-ob').value = '';
     document.getElementById('inp-banco-ob').value = '';
     document.getElementById('inp-banco-ob').style.display = 'none';
-    document.getElementById('added-cards-list').innerHTML = '';
+    document.getElementById('added-cards-cred').innerHTML = ''; document.getElementById('added-cards-deb').innerHTML = '';
     document.getElementById('form-tarjeta').style.display = 'block';
     document.getElementById('btn-finalizar').style.display = 'none';
     document.getElementById('ob-title-tarjetas').textContent = 'Agrega tu primera tarjeta';
@@ -2574,9 +2604,9 @@ async function eliminarPerfil(){
     document.getElementById('corte-selector-btn').classList.remove('selected');
     document.getElementById('corte-selector-txt').textContent = 'Seleccionar día...';
 
-    // Mostrar pantalla de bienvenida
+    // Ir directo al onboarding
     actualizarBotonesCancelar();
-    showScreen('screen-welcome');
+    irACrearPerfil();
     showToast('Perfil eliminado');
   } catch(e){ showToast('❌ Error al eliminar perfil'); }
 }
@@ -2749,9 +2779,9 @@ window.guardarNuevoUsuario = function(){
   actualizarBotonesCancelar();
 
   // Limpiar onboarding y mostrar bienvenida
-  perfil = null; tarjetasOb = []; promocionesCache = [];
+  perfil = null; tarjetasOb = []; tarjetasDebOb = []; promocionesCache = [];
   document.getElementById('inp-nombre').value = '';
-  document.getElementById('added-cards-list').innerHTML = '';
+  document.getElementById('added-cards-cred').innerHTML = ''; document.getElementById('added-cards-deb').innerHTML = '';
   document.getElementById('ob-title-tarjetas').textContent = 'Agrega tu primera tarjeta';
   document.getElementById('btn-finalizar').style.display = 'none';
   resetFormTarjeta();
@@ -2812,7 +2842,7 @@ window.cerrarSesion = function(){
 window.ejecutarCerrarSesion = function(){
   document.getElementById('modal-confirm-logout').classList.remove('show');
   const nombre = currentUser?.uid || '';
-  perfil = null; movimientos = []; tarjetasOb = []; pendingUser = null;
+  perfil = null; movimientos = []; tarjetasOb = []; tarjetasDebOb = []; pendingUser = null;
   if(_unsubMovimientos){ _unsubMovimientos(); _unsubMovimientos = null; }
   document.querySelectorAll('.modal-overlay').forEach(m=>m.classList.remove('open'));
   document.querySelectorAll('.screen').forEach(s=>{ s.classList.add('hidden'); s.style.display='none'; });
@@ -3203,6 +3233,7 @@ document.addEventListener('click', function(e){
     'banco-edit-tarjeta-wrap','corte-edit-tarjeta-wrap',
     'banco-edit-nuevo-wrap','corte-edit-nuevo-wrap',
     'banco-ob-scroll-wrap','corte-ob-scroll-wrap',
+    'banco-debito-nuevo-wrap','banco-debito-edit-wrap',
   ];
   inlineWraps.forEach(id=>{
     const wrap = document.getElementById(id);
@@ -3215,6 +3246,8 @@ document.addEventListener('click', function(e){
         'corte-edit-nuevo-wrap':   'corte-edit-btn',
         'banco-ob-scroll-wrap':    'banco-ob-display',
         'corte-ob-scroll-wrap':    'corte-ob-display',
+        'banco-debito-nuevo-wrap': 'banco-debito-nuevo-btn',
+        'banco-debito-edit-wrap':  'banco-debito-edit-btn',
       };
       const triggerEl = document.getElementById(triggers[id]);
       if(!triggerEl || !triggerEl.contains(e.target)){
@@ -3357,25 +3390,42 @@ window.renderPerfiles = function(){
           </button>
         </div>
 
-        <!-- Lista tarjetas crédito -->
-        <div style="display:flex;flex-direction:column;gap:8px">
+        <!-- Lista tarjetas crédito como tarjetas visuales -->
+        <div style="display:flex;flex-direction:column;gap:12px">
           ${(perfil.tarjetas||[]).map((t,i)=>`
-            <div style="background:#f5f5f5;border-radius:10px;padding:10px 14px;display:flex;align-items:center;gap:10px">
-              <div style="width:10px;height:10px;border-radius:50%;background:${colores[i%colores.length]};flex-shrink:0"></div>
-              <div style="flex:1;min-width:0">
-                <div style="font-size:14px;font-weight:600;color:#111;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${t.nombre}${t.apodo?` <span style="font-weight:400;color:#888">· ${t.apodo}</span>`:''}</div>
-                <div style="font-size:11px;color:#888">Corte día ${t.corte} · Límite $${t.limite.toLocaleString('es-MX')}</div>
+            <div style="position:relative;border-radius:18px;padding:18px 18px 16px;background:linear-gradient(135deg,#1a1a1a 0%,#3a3a3a 60%,#555 100%);color:#fff;box-shadow:0 6px 24px rgba(0,0,0,0.22);overflow:hidden">
+              <div style="position:absolute;top:-28px;right:-28px;width:110px;height:110px;border-radius:50%;background:rgba(255,255,255,0.06);pointer-events:none"></div>
+              <div style="position:absolute;bottom:-18px;left:40px;width:70px;height:70px;border-radius:50%;background:rgba(255,255,255,0.04);pointer-events:none"></div>
+              <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:4px">
+                <div>
+                  <div style="font-size:18px;font-weight:800;color:#fff;letter-spacing:-0.3px;line-height:1.1">${t.nombre}</div>
+                  ${t.apodo ? `<div style="font-size:12px;color:rgba(255,255,255,0.7);margin-top:2px;font-weight:500">${t.apodo}</div>` : ''}
+                </div>
+                ${modoEdicionCredito ? `
+                <div style="display:flex;gap:6px;flex-shrink:0">
+                  <button onclick="abrirEditarTarjeta('${t.id}')" style="background:rgba(255,255,255,0.18);border:1px solid rgba(255,255,255,0.3);border-radius:8px;padding:6px 9px;color:#fff;cursor:pointer;display:flex;align-items:center;backdrop-filter:blur(4px)">
+                    <svg width='13' height='13' fill='none' stroke='currentColor' stroke-width='2' viewBox='0 0 24 24'><path d='M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7'/><path d='M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z'/></svg>
+                  </button>
+                  <button onclick="eliminarTarjetaPerfil('${t.id}')" style="background:rgba(255,255,255,0.18);border:1px solid rgba(255,255,255,0.3);border-radius:8px;padding:6px 9px;color:#fff;cursor:pointer;display:flex;align-items:center;backdrop-filter:blur(4px)">
+                    <svg width='13' height='13' fill='none' stroke='currentColor' stroke-width='2' viewBox='0 0 24 24'><polyline points='3 6 5 6 21 6'/><path d='M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6'/><path d='M10 11v6'/><path d='M14 11v6'/></svg>
+                  </button>
+                </div>` : `
+                <div style="background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.3);border-radius:20px;padding:4px 10px;font-size:11px;font-weight:600;color:#fff;display:flex;align-items:center;gap:5px">
+                  <svg width='11' height='11' fill='none' stroke='currentColor' stroke-width='2' viewBox='0 0 24 24'><rect x='1' y='4' width='22' height='16' rx='2'/><line x1='1' y1='10' x2='23' y2='10'/></svg>
+                  Cr\u00e9dito
+                </div>`}
               </div>
-              ${modoEdicionCredito ? `
-                <button onclick="abrirEditarTarjeta('${t.id}')" style="background:#e8e8e8;border:none;border-radius:8px;padding:7px 10px;color:#111;cursor:pointer;flex-shrink:0">
-                  <svg width='13' height='13' fill='none' stroke='currentColor' stroke-width='2' viewBox='0 0 24 24'><path d='M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7'/><path d='M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z'/></svg>
-                </button>
-                <button onclick="eliminarTarjetaPerfil('${t.id}')" style="background:#e8e8e8;border:none;border-radius:8px;padding:7px 10px;color:#111;cursor:pointer;flex-shrink:0">
-                  <svg width='13' height='13' fill='none' stroke='currentColor' stroke-width='2' viewBox='0 0 24 24'><polyline points='3 6 5 6 21 6'/><path d='M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6'/><path d='M10 11v6'/><path d='M14 11v6'/></svg>
-                </button>
-              ` : ''}
+              <div style="margin-top:12px;margin-bottom:12px">
+                <div style="font-size:11px;color:rgba(255,255,255,0.65);font-weight:500;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:3px">L\u00edmite de cr\u00e9dito</div>
+                <div style="font-size:22px;font-weight:700;color:#fff;letter-spacing:-0.5px">$${t.limite.toLocaleString('es-MX',{minimumFractionDigits:2})}</div>
+              </div>
+              <div style="height:1px;background:rgba(255,255,255,0.15);margin-bottom:10px"></div>
+              <div style="display:flex;align-items:center;gap:7px">
+                <svg width='15' height='15' fill='none' stroke='rgba(255,255,255,0.8)' stroke-width='2' viewBox='0 0 24 24'><rect x='3' y='4' width='18' height='18' rx='2'/><line x1='16' y1='2' x2='16' y2='6'/><line x1='8' y1='2' x2='8' y2='6'/><line x1='3' y1='10' x2='21' y2='10'/></svg>
+                <span style="font-size:12px;color:rgba(255,255,255,0.75);font-weight:500">Corte d\u00eda ${t.corte}</span>
+              </div>
             </div>`).join('')}
-          ${!(perfil.tarjetas||[]).length ? `<div style="text-align:center;color:#ccc;font-size:13px;padding:10px 0">Sin tarjetas de crédito</div>` : ''}
+          ${!(perfil.tarjetas||[]).length ? `<div style="text-align:center;color:#ccc;font-size:13px;padding:10px 0">Sin tarjetas de cr\u00e9dito</div>` : ''}
         </div>
 
         <!-- Agregar tarjeta crédito (modo edición) -->
@@ -3447,25 +3497,42 @@ window.renderPerfiles = function(){
           </button>
         </div>
 
-        <!-- Lista cuentas débito -->
-        <div style="display:flex;flex-direction:column;gap:8px">
+        <!-- Lista cuentas débito como tarjetas -->
+        <div style="display:flex;flex-direction:column;gap:12px">
           ${(perfil.cuentasDebito && perfil.cuentasDebito.length) ? perfil.cuentasDebito.map((c,i)=>`
-            <div style="background:#f5f5f5;border-radius:10px;padding:10px 14px;display:flex;align-items:center;gap:10px">
-              <div style="width:10px;height:10px;border-radius:50%;background:#555;flex-shrink:0"></div>
-              <div style="flex:1;min-width:0">
-                <div style="font-size:14px;font-weight:600;color:#111;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${c.nombre}${c.apodo?` <span style="font-weight:400;color:#888">· ${c.apodo}</span>`:''}</div>
-                <div style="font-size:11px;color:#888">Débito${typeof c.disponible==='number'&&c.disponible>0?' · Saldo $'+c.disponible.toLocaleString('es-MX'):''}</div>
+            <div style="position:relative;border-radius:18px;padding:18px 18px 16px;background:linear-gradient(135deg,#1a1a1a 0%,#3a3a3a 60%,#555 100%);color:#fff;box-shadow:0 6px 24px rgba(0,0,0,0.22);overflow:hidden">
+              <div style="position:absolute;top:-28px;right:-28px;width:110px;height:110px;border-radius:50%;background:rgba(255,255,255,0.06);pointer-events:none"></div>
+              <div style="position:absolute;bottom:-18px;left:40px;width:70px;height:70px;border-radius:50%;background:rgba(255,255,255,0.04);pointer-events:none"></div>
+              <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:4px">
+                <div>
+                  <div style="font-size:18px;font-weight:800;color:#fff;letter-spacing:-0.3px;line-height:1.1">${c.nombre}</div>
+                  ${c.apodo ? `<div style="font-size:12px;color:rgba(255,255,255,0.7);margin-top:2px;font-weight:500">${c.apodo}</div>` : ''}
+                </div>
+                ${modoEdicionDebito ? `
+                <div style="display:flex;gap:6px;flex-shrink:0">
+                  <button onclick="abrirEditarDebito('${c.id}')" style="background:rgba(255,255,255,0.18);border:1px solid rgba(255,255,255,0.3);border-radius:8px;padding:6px 9px;color:#fff;cursor:pointer;display:flex;align-items:center;backdrop-filter:blur(4px)">
+                    <svg width='13' height='13' fill='none' stroke='currentColor' stroke-width='2' viewBox='0 0 24 24'><path d='M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7'/><path d='M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z'/></svg>
+                  </button>
+                  <button onclick="eliminarDebitoPerfil('${c.id}')" style="background:rgba(255,255,255,0.18);border:1px solid rgba(255,255,255,0.3);border-radius:8px;padding:6px 9px;color:#fff;cursor:pointer;display:flex;align-items:center;backdrop-filter:blur(4px)">
+                    <svg width='13' height='13' fill='none' stroke='currentColor' stroke-width='2' viewBox='0 0 24 24'><polyline points='3 6 5 6 21 6'/><path d='M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6'/><path d='M10 11v6'/><path d='M14 11v6'/></svg>
+                  </button>
+                </div>` : `
+                <div style="background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.3);border-radius:20px;padding:4px 10px;font-size:11px;font-weight:600;color:#fff;display:flex;align-items:center;gap:5px">
+                  <svg width='11' height='11' fill='none' stroke='currentColor' stroke-width='2' viewBox='0 0 24 24'><rect x='1' y='4' width='22' height='16' rx='2'/><line x1='1' y1='10' x2='23' y2='10'/></svg>
+                  D\u00e9bito
+                </div>`}
               </div>
-              ${modoEdicionDebito ? `
-                <button onclick="abrirEditarDebito('${c.id}')" style="background:#e8e8e8;border:none;border-radius:8px;padding:7px 10px;color:#111;cursor:pointer;flex-shrink:0">
-                  <svg width='13' height='13' fill='none' stroke='currentColor' stroke-width='2' viewBox='0 0 24 24'><path d='M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7'/><path d='M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z'/></svg>
-                </button>
-                <button onclick="eliminarDebitoPerfil('${c.id}')" style="background:#e8e8e8;border:none;border-radius:8px;padding:7px 10px;color:#111;cursor:pointer;flex-shrink:0">
-                  <svg width='13' height='13' fill='none' stroke='currentColor' stroke-width='2' viewBox='0 0 24 24'><polyline points='3 6 5 6 21 6'/><path d='M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6'/><path d='M10 11v6'/><path d='M14 11v6'/></svg>
-                </button>
-              ` : ''}
+              <div style="margin-top:12px;margin-bottom:12px">
+                <div style="font-size:11px;color:rgba(255,255,255,0.65);font-weight:500;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:3px">Saldo disponible</div>
+                <div style="font-size:22px;font-weight:700;color:#fff;letter-spacing:-0.5px">${typeof c.disponible==='number'&&c.disponible>0?'$'+c.disponible.toLocaleString('es-MX',{minimumFractionDigits:2}):'\u2014'}</div>
+              </div>
+              <div style="height:1px;background:rgba(255,255,255,0.15);margin-bottom:10px"></div>
+              <div style="display:flex;align-items:center;gap:7px">
+                <svg width='15' height='15' fill='none' stroke='rgba(255,255,255,0.8)' stroke-width='2' viewBox='0 0 24 24'><rect x='1' y='4' width='22' height='16' rx='2'/><line x1='1' y1='10' x2='23' y2='10'/><line x1='5' y1='15' x2='9' y2='15'/></svg>
+                <span style="font-size:12px;color:rgba(255,255,255,0.75);font-weight:500">Cuenta de d\u00e9bito</span>
+              </div>
             </div>`).join('')
-          : `<div style="text-align:center;color:#ccc;font-size:13px;padding:10px 0">Sin cuentas de débito</div>`}
+          : `<div style="text-align:center;color:#ccc;font-size:13px;padding:10px 0">Sin cuentas de d\u00e9bito</div>`}
         </div>
 
         <!-- Agregar cuenta débito (modo edición) -->
@@ -3477,8 +3544,22 @@ window.renderPerfiles = function(){
         <div id="form-edit-debito" style="display:none;margin-top:12px;background:#f5f5f5;border-radius:12px;padding:14px">
           <div style="font-size:13px;font-weight:700;color:#555;margin-bottom:12px">Nueva cuenta de débito</div>
           <div style="font-size:11px;font-weight:700;color:#888;text-transform:uppercase;margin-bottom:6px">Banco</div>
-          <input id="inp-banco-debito-nuevo" placeholder="Ej. BBVA, Banorte, Nu..." maxlength="40" onfocus="cerrarScrollsPerfiles()"
-            style="width:100%;padding:12px 14px;border-radius:10px;border:1.5px solid #e5e7eb;font-size:14px;font-family:inherit;outline:none;background:#fff;margin-bottom:10px;color:#111"/>
+          <div onclick="toggleScrollBancoDebitoNuevo()" class="banco-selector-btn" id="banco-debito-nuevo-btn" style="cursor:pointer;margin-bottom:6px">
+            <span id="banco-debito-nuevo-txt">Seleccionar banco...</span><span style="color:#aaa;font-size:12px">&#9662;</span>
+          </div>
+          <input type="hidden" id="inp-banco-debito-nuevo"/>
+          <div id="banco-debito-nuevo-wrap" style="display:none;margin-bottom:10px;background:#f0f0f0;border-radius:14px;overflow:hidden;position:relative">
+            <div style="font-size:10px;font-weight:700;color:#aaa;text-align:center;text-transform:uppercase;letter-spacing:0.08em;padding:8px 0 4px">Desliza para seleccionar</div>
+            <div style="position:relative;height:132px;margin:0 8px">
+              <div style="position:absolute;left:0;right:0;top:50%;transform:translateY(-50%);height:44px;border-radius:10px;background:linear-gradient(180deg,#111,#444);pointer-events:none;z-index:1"></div>
+              <div id="scroll-banco-debito-nuevo" style="position:absolute;inset:0;overflow-y:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch;z-index:2">
+                <div style="height:44px"></div>
+                <div id="scroll-banco-debito-nuevo-items" style="width:100%"></div>
+                <div style="height:44px"></div>
+              </div>
+            </div>
+            <div style="height:8px"></div>
+          </div>
           <div style="font-size:11px;font-weight:700;color:#888;text-transform:uppercase;margin-bottom:6px">Alias <span style="font-weight:400;color:#aaa">(opcional)</span></div>
           <input id="inp-apodo-debito-nuevo" placeholder="Ej. Nómina, Ahorros..." maxlength="30" onfocus="cerrarScrollsPerfiles()"
             style="width:100%;padding:12px 14px;border-radius:10px;border:1.5px solid #e5e7eb;font-size:14px;font-family:inherit;outline:none;background:#fff;margin-bottom:10px;color:#111"/>
@@ -3535,18 +3616,62 @@ window.guardarEdicionTarjeta = async function(){
   if(!corte){  showToast('Selecciona fecha de corte'); return; }
   if(!limite || limite <= 0){ showToast('Ingresa un límite válido'); return; }
 
-  const apodoEdit = document.getElementById('apodo-edit-tarjeta').value.trim();
-  perfil.tarjetas = perfil.tarjetas.map(t=>
-    t.id === editandoTarjetaId ? {...t, nombre, apodo:apodoEdit, corte, limite} : t
+  const apodoEdit   = document.getElementById('apodo-edit-tarjeta').value.trim();
+  const tarjetaOrig = perfil.tarjetas.find(t => t.id === editandoTarjetaId);
+  const bancoOrig   = tarjetaOrig ? tarjetaOrig.nombre : '';
+
+  // Si cambió el banco, pedir confirmación primero
+  if(bancoOrig && nombre !== bancoOrig){
+    _pendingEditTarjeta = { nombre, corte, limite, apodoEdit, bancoOrig };
+    _mostrarConfirmCambioBanco(bancoOrig, nombre);
+    return;
+  }
+
+  await _ejecutarGuardadoTarjeta(nombre, corte, limite, apodoEdit);
+}
+
+let _pendingEditTarjeta = null;
+
+function _mostrarConfirmCambioBanco(desde, hacia){
+  document.getElementById('edit-tarjeta-overlay').classList.remove('open');
+  document.getElementById('confirm-banco-desde').textContent = desde;
+  document.getElementById('confirm-banco-hacia').textContent = hacia;
+  document.getElementById('modal-confirm-banco-cambio').classList.add('open');
+}
+
+window._cancelarCambioBanco = function(){
+  document.getElementById('modal-confirm-banco-cambio').classList.remove('open');
+  _pendingEditTarjeta = null;
+  document.getElementById('edit-tarjeta-overlay').classList.add('open');
+}
+
+window._confirmarCambioBanco = async function(){
+  document.getElementById('modal-confirm-banco-cambio').classList.remove('open');
+  if(!_pendingEditTarjeta) return;
+  const { nombre, corte, limite, apodoEdit, bancoOrig } = _pendingEditTarjeta;
+  _pendingEditTarjeta = null;
+  await _ejecutarGuardadoTarjeta(nombre, corte, limite, apodoEdit, true, bancoOrig);
+}
+
+async function _ejecutarGuardadoTarjeta(nombre, corte, limite, apodoEdit, isCambioBanco, bancoOrig){
+  perfil.tarjetas = perfil.tarjetas.map(t =>
+    t.id === editandoTarjetaId ? {...t, nombre, apodo: apodoEdit, corte, limite} : t
   );
   try{
     await setDoc(doc(db,'usuarios', currentUser.uid, 'perfil','datos'), perfil);
     buildCarrusel();
-    showSuccess('Tarjeta actualizada', `${nombre}${apodoEdit ? ' · ' + apodoEdit : ''} — Corte día ${corte}`);
     document.getElementById('edit-tarjeta-overlay').classList.remove('open');
     editandoTarjetaId = null;
     window._editMode = null;
     renderPerfiles();
+    if(isCambioBanco && bancoOrig){
+      const overlayBanco = document.getElementById('success-banco-overlay');
+      document.getElementById('success-banco-desde').textContent = bancoOrig;
+      document.getElementById('success-banco-hacia').textContent = nombre;
+      overlayBanco.classList.add('show');
+    } else {
+      showSuccess('Cambio actualizado', `${nombre}${apodoEdit ? ' · ' + apodoEdit : ''} — Corte día ${corte}`);
+    }
   } catch(e){ showToast('❌ Error al guardar'); }
 }
 
@@ -3586,8 +3711,11 @@ window.eliminarTarjetaPerfil = async function(id){
 }
 
 window.guardarNuevaTarjeta = async function(){
-  const nombre = selectedBancoEdit || document.getElementById('banco-edit-input')?.value?.trim();
-  const corte  = selectedCorteEdit;
+  const nombre = selectedBancoEdit
+    || document.getElementById('inp-banco-edit-nuevo')?.value?.trim()
+    || document.getElementById('banco-edit-input')?.value?.trim();
+  const corte = selectedCorteEdit
+    || parseInt(document.getElementById('inp-corte-edit-nuevo')?.value, 10) || null;
   const limite = parseFloat(document.getElementById('limite-edit').value);
   if(!nombre){ showToast('Selecciona un banco'); return; }
   if(!corte){ showToast('Selecciona fecha de corte'); return; }
@@ -3625,6 +3753,10 @@ window.mostrarFormAgregarDebito = function(){
   document.getElementById('form-edit-debito').style.display = 'block';
   document.getElementById('btn-mostrar-form-debito').style.display = 'none';
   document.getElementById('inp-banco-debito-nuevo').value = '';
+  const txt = document.getElementById('banco-debito-nuevo-txt');
+  if(txt){ txt.textContent = 'Seleccionar banco...'; txt.style.color = ''; }
+  const w = document.getElementById('banco-debito-nuevo-wrap');
+  if(w) w.style.display = 'none';
   document.getElementById('inp-apodo-debito-nuevo').value = '';
   document.getElementById('inp-disponible-debito-nuevo').value = '';
 }
@@ -3657,6 +3789,17 @@ window.guardarNuevaDebito = async function(){
 
 window.eliminarDebitoPerfil = async function(id){
   if(!perfil.cuentasDebito) return;
+
+  const tieneCredito = perfil.tarjetas && perfil.tarjetas.length > 0;
+  const esUltima = perfil.cuentasDebito.length === 1;
+
+  if(esUltima && !tieneCredito){
+    // Sin ningún producto restante → ofrecer eliminar perfil
+    window._cuentaIdPendiente = id;
+    document.getElementById('modal-eliminar-perfil').classList.add('open');
+    return;
+  }
+
   perfil.cuentasDebito = perfil.cuentasDebito.filter(c=>c.id!==id);
   try{
     await setDoc(doc(db,'usuarios', currentUser.uid, 'perfil','datos'), perfil);
@@ -3673,6 +3816,10 @@ window.abrirEditarDebito = function(id){
   if(!c) return;
   document.getElementById('edit-debito-id').value = id;
   document.getElementById('edit-debito-banco').value = c.nombre;
+  const txt = document.getElementById('banco-debito-edit-txt');
+  if(txt){ txt.textContent = c.nombre || 'Seleccionar banco...'; txt.style.color = c.nombre ? '#111' : ''; }
+  const w = document.getElementById('banco-debito-edit-wrap');
+  if(w) w.style.display = 'none';
   document.getElementById('edit-debito-apodo').value = c.apodo || '';
   document.getElementById('edit-debito-disponible').value = typeof c.disponible === 'number' ? c.disponible : '';
   document.getElementById('edit-debito-overlay').classList.add('open');
@@ -4034,15 +4181,15 @@ window.debSelMes = async function(mes){
       const signo     = esIngreso ? '+' : '-';
       const color     = esIngreso ? '#111' : '#888';
       const fechaStr  = m.fecha ? m.fecha.split('-').reverse().join('/') : '—';
-      const concepto  = m.concepto || (esIngreso ? 'Ingreso' : 'Egreso');
+      const horaStr   = m.hora || '—';
       return `
         <div class="mov-item">
           <div class="mov-icon" style="background:${iconBg}">
             <svg width="16" height="16" fill="none" stroke="${iconColor}" stroke-width="2.5" viewBox="0 0 24 24">${iconPath}</svg>
           </div>
           <div class="mov-info">
-            <div class="mov-name" style="font-size:14px;font-weight:600;color:#111">${concepto}</div>
-            <div class="mov-date">${fechaStr}</div>
+            <div class="mov-name" style="font-size:14px;font-weight:600;color:#111">${fechaStr} ${horaStr}</div>
+            <div class="mov-date">${esIngreso ? 'Ingreso' : 'Egreso'}</div>
           </div>
           <div class="mov-amount" style="color:${color}">${signo}$${monto}</div>
         </div>`;
@@ -4533,14 +4680,14 @@ window.verDetalleDebito = function(id){
   const signo     = esIngreso ? '+' : '-';
   const monto     = (m.monto||0).toLocaleString('es-MX',{minimumFractionDigits:2,maximumFractionDigits:2});
   const fechaStr  = m.fecha ? m.fecha.split('-').reverse().join('/') : '—';
-  const concepto  = m.concepto || (esIngreso ? 'Ingreso' : 'Egreso');
+  const horaStr   = m.hora || '—';
   const banco     = m.banco || '';
   const apodo     = m.apodo || '';
   document.getElementById('detalle-gasto-content').innerHTML =
     (banco ? '<div style="margin-bottom:14px"><div style="font-size:10px;font-weight:700;color:#aaa;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:4px">Banco</div><div style="font-size:16px;font-weight:600;color:#111">' + banco + (apodo ? ' · ' + apodo : '') + '</div></div>' : '')
-    + '<div style="margin-bottom:14px"><div style="font-size:10px;font-weight:700;color:#aaa;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:4px">Concepto</div><div style="font-size:15px;color:#333">' + concepto + '</div></div>'
     + '<div style="margin-bottom:14px"><div style="font-size:10px;font-weight:700;color:#aaa;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:4px">Tipo</div><div style="font-size:15px;color:#333">' + (esIngreso ? 'Ingreso' : 'Egreso') + '</div></div>'
-    + '<div style="margin-bottom:20px"><div style="font-size:10px;font-weight:700;color:#aaa;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:4px">Fecha</div><div style="font-size:15px;color:#333">' + fechaStr + '</div></div>'
+    + '<div style="margin-bottom:14px"><div style="font-size:10px;font-weight:700;color:#aaa;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:4px">Fecha</div><div style="font-size:15px;color:#333">' + fechaStr + '</div></div>'
+    + '<div style="margin-bottom:20px"><div style="font-size:10px;font-weight:700;color:#aaa;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:4px">Hora</div><div style="font-size:15px;color:#333">' + horaStr + '</div></div>'
     + '<div style="margin-bottom:20px"><div style="font-size:10px;font-weight:700;color:#aaa;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:4px">Importe</div><div style="font-size:26px;font-weight:700;color:#111">' + signo + '$' + monto + '</div></div>'
     + '<button onclick="cerrarDetalleGasto()" style="width:100%;padding:13px;border-radius:12px;background:linear-gradient(180deg,#111,#444);color:#fff;border:none;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit">Cerrar</button>';
   document.getElementById('modal-detalle-gasto').classList.add('open');
@@ -4554,7 +4701,6 @@ window.openEditDeb = function(id){
   if(!m) return;
   _editingDebId = id;
   document.getElementById('deb-edit-monto').value   = m.monto || '';
-  document.getElementById('deb-edit-concepto').value = m.concepto || '';
   document.getElementById('modal-edit-deb').classList.add('open');
 }
 
@@ -4568,14 +4714,13 @@ window.cerrarEditDeb = function(e){
 window.guardarEditDeb = async function(){
   if(!_editingDebId) return;
   const monto   = parseFloat(document.getElementById('deb-edit-monto').value);
-  const concepto = document.getElementById('deb-edit-concepto').value.trim();
   const btn = document.getElementById('deb-edit-save-btn');
   if(!monto || monto <= 0){ showToast('Ingresa un monto válido'); return; }
   btn.disabled = true;
   try{
     const { updateDoc, doc: _doc } = await import('https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js');
-    await updateDoc(_doc(db,'usuarios',currentUser.uid,'movimientosDebito',_editingDebId),{monto,concepto});
-    _debMovimientos = _debMovimientos.map(m=>m.id===_editingDebId?{...m,monto,concepto}:m);
+    await updateDoc(_doc(db,'usuarios',currentUser.uid,'movimientosDebito',_editingDebId),{monto});
+    _debMovimientos = _debMovimientos.map(m=>m.id===_editingDebId?{...m,monto}:m);
     _updateDebCards();
     _renderDebMovimientos();
     document.getElementById('modal-edit-deb').classList.remove('open');
@@ -4631,6 +4776,10 @@ window.irPromociones = function(){
 }
 
 window.abrirModalPromo = function(){
+  if(!perfil || !perfil.tarjetas || !perfil.tarjetas.length){
+    showSuccess('Sin tarjetas de crédito', 'Agrégalas desde la pestaña de Perfiles');
+    return;
+  }
   promoBancoSel = '';
   promoTarjetaSel = null;
   document.getElementById('promo-banco-txt').textContent = 'Seleccionar banco...';
@@ -4725,7 +4874,7 @@ window.abrirScrollTarjetaPromo = function(){
   const currentIdx = Math.max(0, tarjetas.findIndex(t=>t.id===promoTarjetaSel));
 
   cont.innerHTML = tarjetas.map((t,i)=>`
-    <div class="scroll-item${i===currentIdx?' sel':''}" style="width:100%;text-align:center;${i===currentIdx?'color:#fff;':''}">${t.apodo||t.nombre}</div>
+    <div class="scroll-item${i===currentIdx?' sel':''}" style="width:100%;text-align:center;${i===currentIdx?'color:#fff;':'color:#444;'}">${t.apodo||t.nombre}</div>
   `).join('');
 
   wrap.style.display = 'block';
@@ -4734,7 +4883,7 @@ window.abrirScrollTarjetaPromo = function(){
     scrollCont.scrollTop = currentIdx * 44;
     cont.querySelectorAll('.scroll-item').forEach((el,i)=>{
       el.classList.toggle('sel', i===currentIdx);
-      el.style.color = i===currentIdx ? '#fff' : '';
+      el.style.color = i===currentIdx ? '#fff' : '#444';
     });
   }, 50);
 
@@ -4742,7 +4891,7 @@ window.abrirScrollTarjetaPromo = function(){
     const t = tarjetas[Math.min(idx, tarjetas.length-1)];
     cont.querySelectorAll('.scroll-item').forEach((el,i)=>{
       el.classList.toggle('sel', i===idx);
-      el.style.color = i===idx ? '#fff' : '';
+      el.style.color = i===idx ? '#fff' : '#444';
     });
     promoTarjetaSel = t.id;
     document.getElementById('promo-tarjeta-txt').textContent = t.apodo||t.nombre;
@@ -4764,7 +4913,7 @@ window.abrirScrollBancoPromo = function(){
   const currentIdx = Math.max(0, bancos.indexOf(promoBancoSel));
 
   cont.innerHTML = bancos.map((b,i)=>`
-    <div class="scroll-item${i===currentIdx?' sel':''}" style="width:100%;text-align:center;${i===currentIdx?'color:#fff;':''}">${b}</div>
+    <div class="scroll-item${i===currentIdx?' sel':''}" style="width:100%;text-align:center;${i===currentIdx?'color:#fff;':'color:#444;'}">${b}</div>
   `).join('');
 
   wrap.style.display = 'block';
@@ -4773,7 +4922,7 @@ window.abrirScrollBancoPromo = function(){
     scrollCont.scrollTop = currentIdx * 44;
     cont.querySelectorAll('.scroll-item').forEach((el,i)=>{
       el.classList.toggle('sel', i===currentIdx);
-      el.style.color = i===currentIdx ? '#fff' : '';
+      el.style.color = i===currentIdx ? '#fff' : '#444';
     });
   }, 50);
 
@@ -4781,7 +4930,7 @@ window.abrirScrollBancoPromo = function(){
     const banco = bancos[Math.min(idx, bancos.length-1)];
     cont.querySelectorAll('.scroll-item').forEach((el,i)=>{
       el.classList.toggle('sel', i===idx);
-      el.style.color = i===idx ? '#fff' : '';
+      el.style.color = i===idx ? '#fff' : '#444';
     });
     promoBancoSel = banco;
     promoTarjetaSel = null;
@@ -4805,7 +4954,7 @@ window.abrirScrollMeses = function(){
   const cont = document.getElementById('scroll-meses-items');
   const current = parseInt(document.getElementById('promo-meses').value) || 3;
   cont.innerHTML = Array.from({length:24},(_,i)=>i+1).map(n=>`
-    <div class="scroll-item${n===current?' sel':''}" data-m="${n}" style="width:100%;text-align:center;${n===current?'color:#fff;':''}">${n} ${n===1?'mes':'meses'}</div>
+    <div class="scroll-item${n===current?' sel':''}" data-m="${n}" style="width:100%;text-align:center;${n===current?'color:#fff;':'color:#444;'}">${n} ${n===1?'mes':'meses'}</div>
   `).join('');
   wrap.style.display = 'block';
   // Scroll al seleccionado
@@ -4816,7 +4965,7 @@ window.abrirScrollMeses = function(){
     cont.querySelectorAll('.scroll-item').forEach((el,i)=>{
       const sel = i===(current-1);
       el.classList.toggle('sel', sel);
-      el.style.color = sel ? '#fff' : '';
+      el.style.color = sel ? '#fff' : '#444';
     });
   }, 50);
   // Listener
@@ -4825,7 +4974,7 @@ window.abrirScrollMeses = function(){
     cont.querySelectorAll('.scroll-item').forEach((el,i)=>{
       const sel = i===idx;
       el.classList.toggle('sel', sel);
-      el.style.color = sel ? '#fff' : '';
+      el.style.color = sel ? '#fff' : '#444';
     });
     document.getElementById('promo-meses').value = meses;
     document.getElementById('promo-meses-txt').textContent = meses + (meses===1?' mes':' meses');
@@ -4985,21 +5134,21 @@ function buildScrollMesesEdit(current){
   const cont = document.getElementById('edit-scroll-meses-items');
   const scrollCont = document.getElementById('edit-scroll-meses-cont');
   cont.innerHTML = Array.from({length:24},(_,i)=>i+1).map(n=>
-    `<div class="scroll-item${n===current?' sel':''}" style="${n===current?'color:#fff;':''}">${n} ${n===1?'mes':'meses'}</div>`
+    `<div class="scroll-item${n===current?' sel':''}" style="${n===current?'color:#fff;':'color:#444;'}">${n} ${n===1?'mes':'meses'}</div>`
   ).join('');
   setTimeout(()=>{
     scrollCont.scrollTop = (current-1)*44;
     cont.querySelectorAll('.scroll-item').forEach((el,i)=>{
       const sel = i===(current-1);
       el.classList.toggle('sel', sel);
-      el.style.color = sel ? '#fff' : '';
+      el.style.color = sel ? '#fff' : '#444';
     });
     snapScroll(scrollCont, 44, idx=>{
       const meses = Math.min(24, Math.max(1, idx+1));
       cont.querySelectorAll('.scroll-item').forEach((el,i)=>{
         const sel = i===idx;
         el.classList.toggle('sel', sel);
-        el.style.color = sel ? '#fff' : '';
+        el.style.color = sel ? '#fff' : '#444';
       });
       document.getElementById('edit-promo-meses').value = meses;
       document.getElementById('edit-promo-meses-txt').textContent = meses + (meses===1?' mes':' meses');
@@ -5019,17 +5168,17 @@ window.abrirScrollMesesPagEdit = function(){
     const cont = document.getElementById('edit-scroll-mesespag-items');
     const scrollCont = document.getElementById('edit-scroll-mesespag-cont');
     cont.innerHTML = Array.from({length:maxMeses},(_,i)=>i+1).map(n=>
-      `<div class="scroll-item${n===current?' sel':''}" style="${n===current?'color:#fff;':''}">${n} ${n===1?'mes':'meses'}</div>`
+      `<div class="scroll-item${n===current?' sel':''}" style="${n===current?'color:#fff;':'color:#444;'}">${n} ${n===1?'mes':'meses'}</div>`
     ).join('');
     setTimeout(()=>{
       scrollCont.scrollTop = (current-1)*44;
       cont.querySelectorAll('.scroll-item').forEach((el,i)=>{
-        const sel=i===(current-1); el.classList.toggle('sel',sel); el.style.color=sel?'#fff':'';
+        const sel=i===(current-1); el.classList.toggle('sel',sel); el.style.color=sel?'#fff':'#444';
       });
       snapScroll(scrollCont, 44, idx=>{
         const meses = Math.min(maxMeses, Math.max(1, idx+1));
         cont.querySelectorAll('.scroll-item').forEach((el,i)=>{
-          const sel=i===idx; el.classList.toggle('sel',sel); el.style.color=sel?'#fff':'';
+          const sel=i===idx; el.classList.toggle('sel',sel); el.style.color=sel?'#fff':'#444';
         });
         document.getElementById('edit-promo-mesespag').value = meses;
         document.getElementById('edit-promo-mesespag-txt').textContent = meses + (meses===1?' mes pagado':' meses pagados');
@@ -5482,16 +5631,16 @@ function buildScrollBancoPerfiles(scrollId, itemsId, wrapId, txtId, inpId, curre
     const cont = document.getElementById(itemsId);
     const scrollEl = document.getElementById(scrollId);
     cont.innerHTML = BANCOS.map(function(b,i){
-      return '<div class="scroll-item'+(i===currentIdx?' sel':'')+'" style="'+(i===currentIdx?'color:#fff;':'')+'">' + b + '</div>';
+      return '<div class="scroll-item'+(i===currentIdx?' sel':'')+'" style="'+(i===currentIdx?'color:#fff;':'color:#444;')+'">' + b + '</div>';
     }).join('');
     setTimeout(()=>{
       const idx = currentIdx >= 0 ? currentIdx : 0;
       scrollEl.scrollTop = idx*44;
-      cont.querySelectorAll('.scroll-item').forEach((el,i)=>{ el.classList.toggle('sel',i===idx); el.style.color=i===idx?'#fff':''; });
+      cont.querySelectorAll('.scroll-item').forEach((el,i)=>{ el.classList.toggle('sel',i===idx); el.style.color=i===idx?'#fff':'#444'; });
     },50);
     snapScrollConInicio(scrollEl, 44, currentIdx >= 0 ? currentIdx : 0, function(idx){
       const b = BANCOS[Math.min(idx,BANCOS.length-1)];
-      cont.querySelectorAll('.scroll-item').forEach((el,i)=>{ el.classList.toggle('sel',i===idx); el.style.color=i===idx?'#fff':''; });
+      cont.querySelectorAll('.scroll-item').forEach((el,i)=>{ el.classList.toggle('sel',i===idx); el.style.color=i===idx?'#fff':'#444'; });
       document.getElementById(inpId).value = b;
       document.getElementById(txtId).textContent = b;
     });
@@ -5510,15 +5659,15 @@ function buildScrollCortePerfiles(scrollId, itemsId, wrapId, txtId, inpId, curre
     const cont = document.getElementById(itemsId);
     const scrollEl = document.getElementById(scrollId);
     cont.innerHTML = Array.from({length:31},(_,i)=>i+1).map(function(n){
-      return '<div class="scroll-item'+(n-1===currentIdx?' sel':'')+'" style="'+(n-1===currentIdx?'color:#fff;':'')+'">'+n+'</div>';
+      return '<div class="scroll-item'+(n-1===currentIdx?' sel':'')+'" style="'+(n-1===currentIdx?'color:#fff;':'color:#444;')+'">'+n+'</div>';
     }).join('');
     setTimeout(()=>{
       scrollEl.scrollTop = currentIdx*44;
-      cont.querySelectorAll('.scroll-item').forEach((el,i)=>{ el.classList.toggle('sel',i===currentIdx); el.style.color=i===currentIdx?'#fff':''; });
+      cont.querySelectorAll('.scroll-item').forEach((el,i)=>{ el.classList.toggle('sel',i===currentIdx); el.style.color=i===currentIdx?'#fff':'#444'; });
     },50);
     snapScrollConInicio(scrollEl, 44, currentIdx, function(idx){
       const dia = idx+1;
-      cont.querySelectorAll('.scroll-item').forEach((el,i)=>{ el.classList.toggle('sel',i===idx); el.style.color=i===idx?'#fff':''; });
+      cont.querySelectorAll('.scroll-item').forEach((el,i)=>{ el.classList.toggle('sel',i===idx); el.style.color=i===idx?'#fff':'#444'; });
       document.getElementById(inpId).value = dia;
       document.getElementById(txtId).textContent = 'Día ' + dia;
     });
@@ -5526,7 +5675,7 @@ function buildScrollCortePerfiles(scrollId, itemsId, wrapId, txtId, inpId, curre
 }
 
 window.cerrarScrollsPerfiles = function(){
-  ['banco-edit-tarjeta-wrap','corte-edit-tarjeta-wrap','banco-edit-nuevo-wrap','corte-edit-nuevo-wrap']
+  ['banco-edit-tarjeta-wrap','corte-edit-tarjeta-wrap','banco-edit-nuevo-wrap','corte-edit-nuevo-wrap','banco-debito-nuevo-wrap','banco-debito-edit-wrap']
     .forEach(id=>{ const el=document.getElementById(id); if(el) el.style.display='none'; });
 }
 
@@ -5552,6 +5701,16 @@ window.toggleScrollCorteEdit = function(btn){
     document.getElementById('banco-edit-nuevo-wrap').style.display = 'none';
     buildScrollCortePerfiles('scroll-corte-edit-nuevo','scroll-corte-edit-nuevo-items','corte-edit-nuevo-wrap','corte-edit-txt','inp-corte-edit-nuevo', document.getElementById('inp-corte-edit-nuevo').value);
   }
+}
+
+window.toggleScrollBancoDebitoNuevo = function(){
+  cerrarScrollsPerfiles();
+  buildScrollBancoPerfiles('scroll-banco-debito-nuevo','scroll-banco-debito-nuevo-items','banco-debito-nuevo-wrap','banco-debito-nuevo-txt','inp-banco-debito-nuevo', document.getElementById('inp-banco-debito-nuevo').value);
+}
+
+window.toggleScrollBancoDebitoEdit = function(){
+  cerrarScrollsPerfiles();
+  buildScrollBancoPerfiles('scroll-banco-debito-edit','scroll-banco-debito-edit-items','banco-debito-edit-wrap','banco-debito-edit-txt','edit-debito-banco', document.getElementById('edit-debito-banco').value);
 }
 
 function irProximamente(){
@@ -5850,13 +6009,26 @@ window.cerrarModalBanco = function(e){
 window.confirmarEliminarBanco = function(){
   document.getElementById('modal-eliminar-banco').classList.remove('open');
 
-  if(perfil.tarjetas.length === 1){
+  const tieneDebito = perfil.cuentasDebito && perfil.cuentasDebito.length > 0;
+
+  if(perfil.tarjetas.length === 1 && !tieneDebito){
+    // Sin ningún producto restante → ofrecer eliminar perfil
     document.getElementById('modal-eliminar-perfil').classList.add('open');
     return;
   }
 
+  const eliminada = perfil.tarjetas.find(t=>t.id===window._bancoId);
   perfil.tarjetas = perfil.tarjetas.filter(t=>t.id!==window._bancoId);
-  renderPerfiles();
+  setDoc(doc(db,'usuarios', currentUser.uid, 'perfil','datos'), perfil)
+    .then(()=>{
+      buildCarrusel(); renderPerfiles();
+      const nombre  = eliminada ? eliminada.nombre : 'Tarjeta';
+      const apodo   = eliminada?.apodo ? ` · ${eliminada.apodo}` : '';
+      const limite  = eliminada ? `$${eliminada.limite.toLocaleString('es-MX')}` : '';
+      const corte   = eliminada ? `Corte día ${eliminada.corte}` : '';
+      showSuccess(`${nombre}${apodo} eliminada`, `Límite ${limite} · ${corte}`);
+    })
+    .catch(()=>{ showToast('❌ Error al eliminar'); });
 }
 
 window.cerrarModalPerfil = function(e){
@@ -6001,19 +6173,19 @@ window.confirmarEliminarPerfil = async function(){
           <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><line x1="12" y1="19" x2="12" y2="5"/><polyline points="5 12 12 5 19 12"/></svg>
         </div>
         <div>
-          <div style="font-size:17px;font-weight:700;margin-bottom:3px">Ingreso</div>
+          <div style="font-size:17px;font-weight:700;margin-bottom:3px">Nuevo</div>
           <div style="font-size:13px;color:rgba(255,255,255,0.6);font-weight:400">Registra un depósito o entrada</div>
         </div>
         <svg style="margin-left:auto;flex-shrink:0" width="18" height="18" fill="none" stroke="rgba(255,255,255,0.4)" stroke-width="2" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
       </button>
       <!-- Egreso -->
-      <button onclick="openModalDebitoEgreso()" style="width:100%;padding:20px 24px;border-radius:20px;background:#fff;color:#111;border:1.5px solid #e0e0e0;font-size:16px;font-weight:700;cursor:pointer;font-family:inherit;display:flex;align-items:center;gap:16px;box-shadow:0 4px 16px rgba(0,0,0,0.08);text-align:left">
+      <button onclick="openModalDebitoExtemporaneo()" style="width:100%;padding:20px 24px;border-radius:20px;background:#fff;color:#111;border:1.5px solid #e0e0e0;font-size:16px;font-weight:700;cursor:pointer;font-family:inherit;display:flex;align-items:center;gap:16px;box-shadow:0 4px 16px rgba(0,0,0,0.08);text-align:left">
         <div style="width:48px;height:48px;border-radius:14px;background:#f0f0f0;display:flex;align-items:center;justify-content:center;flex-shrink:0">
-          <svg width="24" height="24" fill="none" stroke="#111" stroke-width="2.5" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><polyline points="19 12 12 19 5 12"/></svg>
+          <svg width="24" height="24" fill="none" stroke="#111" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
         </div>
         <div>
-          <div style="font-size:17px;font-weight:700;margin-bottom:3px">Egreso</div>
-          <div style="font-size:13px;color:#888;font-weight:400">Registra un gasto o retiro</div>
+          <div style="font-size:17px;font-weight:700;margin-bottom:3px">Extemporáneo</div>
+          <div style="font-size:13px;color:#888;font-weight:400">Registra un egreso fuera de fecha</div>
         </div>
         <svg style="margin-left:auto;flex-shrink:0" width="18" height="18" fill="none" stroke="#ccc" stroke-width="2" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
       </button>
@@ -6035,7 +6207,7 @@ window.confirmarEliminarPerfil = async function(){
         <svg width="32" height="32" fill="none" stroke="#fff" stroke-width="2" viewBox="0 0 24 24"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/><line x1="5" y1="15" x2="9" y2="15"/></svg>
       </div>
       <div style="font-size:22px;font-weight:800;color:#111;margin-bottom:8px">Sin cuentas de débito</div>
-      <div style="font-size:14px;color:#aaa;line-height:1.6">Agrega una cuenta de débito<br>desde el menú de configuración.</div>
+      <div style="font-size:14px;color:#aaa;line-height:1.6">No agregaste ninguna cuenta de débito.<br>Puedes añadirla desde la pestaña de <strong style="color:#111">Perfiles</strong>.</div>
     </div>
 
     <!-- Carrusel débito -->
@@ -6376,10 +6548,18 @@ window.toggleScrollFechaExt = function(){
   const isOpen = wrap.style.display === 'block';
   if(isOpen){ wrap.style.display = 'none'; return; }
 
-  const hoy = new Date();
-  dpAnio = hoy.getFullYear();
-  dpMes  = hoy.getMonth() + 1;
-  dpDia  = hoy.getDate();
+  const fechaGuardada = document.getElementById('inp-fecha-ext').value;
+  if(fechaGuardada){
+    const partes = fechaGuardada.split('-');
+    dpAnio = parseInt(partes[0], 10);
+    dpMes  = parseInt(partes[1], 10);
+    dpDia  = parseInt(partes[2], 10);
+  } else {
+    const hoy = new Date();
+    dpAnio = hoy.getFullYear();
+    dpMes  = hoy.getMonth() + 1;
+    dpDia  = hoy.getDate();
+  }
 
   const anios = [dpAnio - 1, dpAnio];
   const mesesCortos = MESES.map(m=>m.substring(0,3));
@@ -6407,7 +6587,8 @@ window.toggleScrollFechaExt = function(){
   wrap.style.display = 'block';
 
   setTimeout(()=>{
-    buildExtCol('scroll-ext-anio','scroll-ext-anio-items', anios.map(String), 1, idx=>{
+    const anioExtIdx = anios.indexOf(dpAnio) !== -1 ? anios.indexOf(dpAnio) : 1;
+    buildExtCol('scroll-ext-anio','scroll-ext-anio-items', anios.map(String), anioExtIdx, idx=>{
       dpAnio = anios[Math.min(idx, anios.length-1)];
       _rebuildExtDias();
     });
@@ -6467,19 +6648,26 @@ function _buildScrollTarjetasModal(){
   const scroll = document.getElementById('scroll-tarjeta-modal');
   if(!cont || !scroll) return;
   const tarjetas = (window.perfil && window.perfil.tarjetas) ? window.perfil.tarjetas : [];
-  cont.innerHTML = tarjetas.map((t,i) => `
-    <div style="padding:11px 16px;text-align:center;font-size:15px;font-weight:600;color:#fff;cursor:pointer"
-         onclick="window._selTarjetaModal(${i})">
-      ${t.nombre}${t.apodo ? ' · ' + t.apodo : ''}
-    </div>`).join('');
-  scroll.onscroll = () => {
-    const items = cont.querySelectorAll('div');
-    const center = scroll.scrollTop + scroll.clientHeight / 2;
-    items.forEach(it => {
-      it.style.opacity = Math.abs((it.offsetTop + it.offsetHeight/2) - center) < 26 ? '1' : '0.45';
+  const currentId = document.getElementById('inp-tarjeta-modal').value;
+  const currentIdx = tarjetas.findIndex(t => t.id === currentId);
+  const selIdx = currentIdx >= 0 ? currentIdx : 0;
+  cont.innerHTML = tarjetas.map((t,i) => {
+    const label = t.nombre + (t.apodo ? ' · ' + t.apodo : '');
+    const sel = i === selIdx;
+    return `<div class="scroll-item${sel?' sel':''}" style="${sel?'color:#fff;':'color:#444;'}" onclick="window._selTarjetaModal(${i})">${label}</div>`;
+  }).join('');
+  setTimeout(() => {
+    scroll.scrollTop = selIdx * 44;
+    cont.querySelectorAll('.scroll-item').forEach((el,i) => {
+      const s = i===selIdx; el.classList.toggle('sel',s); el.style.color = s?'#fff':'#444';
     });
-  };
-  if(tarjetas.length) window._selTarjetaModal(0);
+  }, 50);
+  snapScrollConInicio(scroll, 44, selIdx, idx => {
+    cont.querySelectorAll('.scroll-item').forEach((el,i) => {
+      const s = i===idx; el.classList.toggle('sel',s); el.style.color = s?'#fff':'#444';
+    });
+    window._selTarjetaModal(idx);
+  });
 }
 
 function _buildScrollTarjetasExt(){
@@ -6487,19 +6675,26 @@ function _buildScrollTarjetasExt(){
   const scroll = document.getElementById('scroll-tarjeta-ext');
   if(!cont || !scroll) return;
   const tarjetas = (window.perfil && window.perfil.tarjetas) ? window.perfil.tarjetas : [];
-  cont.innerHTML = tarjetas.map((t,i) => `
-    <div style="padding:11px 16px;text-align:center;font-size:15px;font-weight:600;color:#fff;cursor:pointer"
-         onclick="window._selTarjetaExt(${i})">
-      ${t.nombre}${t.apodo ? ' · ' + t.apodo : ''}
-    </div>`).join('');
-  scroll.onscroll = () => {
-    const items = cont.querySelectorAll('div');
-    const center = scroll.scrollTop + scroll.clientHeight / 2;
-    items.forEach(it => {
-      it.style.opacity = Math.abs((it.offsetTop + it.offsetHeight/2) - center) < 26 ? '1' : '0.45';
+  const currentId = document.getElementById('inp-tarjeta-ext').value;
+  const currentIdx = tarjetas.findIndex(t => t.id === currentId);
+  const selIdx = currentIdx >= 0 ? currentIdx : 0;
+  cont.innerHTML = tarjetas.map((t,i) => {
+    const label = t.nombre + (t.apodo ? ' · ' + t.apodo : '');
+    const sel = i === selIdx;
+    return `<div class="scroll-item${sel?' sel':''}" style="${sel?'color:#fff;':'color:#444;'}" onclick="window._selTarjetaExt(${i})">${label}</div>`;
+  }).join('');
+  setTimeout(() => {
+    scroll.scrollTop = selIdx * 44;
+    cont.querySelectorAll('.scroll-item').forEach((el,i) => {
+      const s = i===selIdx; el.classList.toggle('sel',s); el.style.color = s?'#fff':'#444';
     });
-  };
-  if(tarjetas.length) window._selTarjetaExt(0);
+  }, 50);
+  snapScrollConInicio(scroll, 44, selIdx, idx => {
+    cont.querySelectorAll('.scroll-item').forEach((el,i) => {
+      const s = i===idx; el.classList.toggle('sel',s); el.style.color = s?'#fff':'#444';
+    });
+    window._selTarjetaExt(idx);
+  });
 }
 
 window._selTarjetaModal = function(i){
@@ -6616,7 +6811,10 @@ window.guardarExt = async function(){
     document.getElementById('inp-fecha-ext').value    = '';
     document.getElementById('inp-comercio-ext').value = '';
     document.getElementById('inp-concepto-ext').value = '';
-    if(typeof showSuccess === 'function') showSuccess('Movimiento guardado', 'Tu gasto extemporáneo fue registrado');
+    if(typeof showSuccess === 'function'){
+      const _label = t.nombre + (t.apodo ? ' · ' + t.apodo : '');
+      showSuccess('Gasto extemporáneo registrado', `${_label} — $${monto.toLocaleString('es-MX', {minimumFractionDigits:2})}`);
+    }
     // Verificar sobregiro si la fecha cae en el corte actual
     setTimeout(()=>{
       try{
@@ -6655,13 +6853,26 @@ window.cerrarModalBanco = function(e){
 window.confirmarEliminarBanco = function(){
   document.getElementById('modal-eliminar-banco').classList.remove('open');
 
-  if(perfil.tarjetas.length === 1){
+  const tieneDebito = perfil.cuentasDebito && perfil.cuentasDebito.length > 0;
+
+  if(perfil.tarjetas.length === 1 && !tieneDebito){
+    // Sin ningún producto restante → ofrecer eliminar perfil
     document.getElementById('modal-eliminar-perfil').classList.add('open');
     return;
   }
 
+  const eliminada = perfil.tarjetas.find(t=>t.id===window._bancoId);
   perfil.tarjetas = perfil.tarjetas.filter(t=>t.id!==window._bancoId);
-  renderPerfiles();
+  setDoc(doc(db,'usuarios', currentUser.uid, 'perfil','datos'), perfil)
+    .then(()=>{
+      buildCarrusel(); renderPerfiles();
+      const nombre  = eliminada ? eliminada.nombre : 'Tarjeta';
+      const apodo   = eliminada?.apodo ? ` · ${eliminada.apodo}` : '';
+      const limite  = eliminada ? `$${eliminada.limite.toLocaleString('es-MX')}` : '';
+      const corte   = eliminada ? `Corte día ${eliminada.corte}` : '';
+      showSuccess(`${nombre}${apodo} eliminada`, `Límite ${limite} · ${corte}`);
+    })
+    .catch(()=>{ showToast('❌ Error al eliminar'); });
 }
 
 window.cerrarModalPerfil = function(e){
@@ -6947,7 +7158,22 @@ window.confirmarEliminarPerfil = async function(){
     <input type="hidden" id="edit-debito-id"/>
     <div class="field-wrap">
       <div class="field-label">Banco</div>
-      <input class="inp" id="edit-debito-banco" placeholder="Ej. BBVA, Banorte, Nu..." maxlength="40"/>
+      <div onclick="toggleScrollBancoDebitoEdit()" class="banco-selector-btn" id="banco-debito-edit-btn" style="cursor:pointer;margin-bottom:6px">
+        <span id="banco-debito-edit-txt">Seleccionar banco...</span><span style="color:#aaa;font-size:12px">&#9662;</span>
+      </div>
+      <input type="hidden" id="edit-debito-banco"/>
+      <div id="banco-debito-edit-wrap" style="display:none;margin-bottom:4px;background:#f0f0f0;border-radius:14px;overflow:hidden;position:relative">
+        <div style="font-size:10px;font-weight:700;color:#aaa;text-align:center;text-transform:uppercase;letter-spacing:0.08em;padding:8px 0 4px">Desliza para seleccionar</div>
+        <div style="position:relative;height:132px;margin:0 8px">
+          <div style="position:absolute;left:0;right:0;top:50%;transform:translateY(-50%);height:44px;border-radius:10px;background:linear-gradient(180deg,#111,#444);pointer-events:none;z-index:1"></div>
+          <div id="scroll-banco-debito-edit" style="position:absolute;inset:0;overflow-y:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch;z-index:2">
+            <div style="height:44px"></div>
+            <div id="scroll-banco-debito-edit-items" style="width:100%"></div>
+            <div style="height:44px"></div>
+          </div>
+        </div>
+        <div style="height:8px"></div>
+      </div>
     </div>
     <div class="field-wrap">
       <div class="field-label">Alias <span style="font-weight:400;color:#aaa">(opcional)</span></div>
@@ -7280,9 +7506,24 @@ window.confirmarEliminarPerfil = async function(){
 <div class="modal-overlay" id="modal-debito-overlay" onclick="cerrarModalDebito(event)">
   <div class="modal">
     <div class="modal-handle"></div>
-    <div style="display:flex;align-items:center;gap:10px;margin-bottom:20px">
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px">
       <div id="debito-modal-icon" style="width:40px;height:40px;border-radius:12px;display:flex;align-items:center;justify-content:center;flex-shrink:0"></div>
       <div id="debito-modal-title" style="font-size:18px;font-weight:700;color:#111"></div>
+    </div>
+
+    <!-- Toggle Ingreso / Egreso -->
+    <div style="display:flex;background:#ebebeb;border-radius:14px;padding:4px;margin-bottom:16px;position:relative">
+      <div id="debito-tipo-slider" style="position:absolute;top:4px;bottom:4px;left:4px;width:calc(50% - 4px);background:#0a0a0a;border-radius:10px;box-shadow:0 2px 10px rgba(0,0,0,0.25);transition:transform 0.25s cubic-bezier(0.34,1.2,0.64,1)"></div>
+      <button id="debito-toggle-ingreso" onclick="_debitoSwitchTipo('ingreso')"
+        style="flex:1;padding:11px 8px;border:none;background:none;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;border-radius:10px;position:relative;z-index:1;transition:color 0.2s;display:flex;align-items:center;justify-content:center;gap:6px;color:#fff">
+        <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><line x1="12" y1="19" x2="12" y2="5"/><polyline points="5 12 12 5 19 12"/></svg>
+        Ingreso
+      </button>
+      <button id="debito-toggle-egreso" onclick="_debitoSwitchTipo('egreso')"
+        style="flex:1;padding:11px 8px;border:none;background:none;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;border-radius:10px;position:relative;z-index:1;transition:color 0.2s;display:flex;align-items:center;justify-content:center;gap:6px;color:#888">
+        <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><polyline points="19 12 12 19 5 12"/></svg>
+        Egreso
+      </button>
     </div>
 
     <!-- Selector de cuenta débito -->
@@ -7322,11 +7563,45 @@ window.confirmarEliminarPerfil = async function(){
           onfocus="document.getElementById('debito-cuenta-scroll-wrap').style.display='none'"/>
       </div>
     </div>
-    <div class="field-wrap">
-      <div class="field-label">Fecha</div>
-      <input id="debito-inp-fecha" type="date" class="inp"
-        onfocus="document.getElementById('debito-cuenta-scroll-wrap').style.display='none'"/>
-    </div>
+      <!-- Fecha débito extemporáneo (solo visible en modo ext) -->
+      <div class="field-wrap" id="debito-fecha-wrap" style="display:none">
+        <div class="field-label">Fecha</div>
+        <div onclick="event.stopPropagation();document.getElementById('debito-cuenta-scroll-wrap').style.display='none';toggleScrollFechaDebito()" id="debito-fecha-display"
+          style="padding:12px 14px;border-radius:10px;border:1.5px solid #e0e0e0;font-size:15px;cursor:pointer;color:#999;display:flex;justify-content:space-between;align-items:center;background:#fff;box-shadow:0 1px 4px rgba(0,0,0,0.06)">
+          <span id="debito-fecha-txt">Seleccionar fecha</span>
+          <span style="color:#aaa;font-size:12px">▾</span>
+        </div>
+        <div id="debito-fecha-scroll-wrap" style="display:none;margin-top:6px;background:#f5f5f5;border-radius:14px;overflow:hidden" onclick="event.stopPropagation()">
+          <div style="display:flex;gap:4px;padding:8px 8px 0">
+            <div style="flex:1;font-size:10px;font-weight:700;color:#aaa;text-transform:uppercase;letter-spacing:0.06em;text-align:center">Año</div>
+            <div style="flex:1;font-size:10px;font-weight:700;color:#aaa;text-transform:uppercase;letter-spacing:0.06em;text-align:center">Mes</div>
+            <div style="flex:1;font-size:10px;font-weight:700;color:#aaa;text-transform:uppercase;letter-spacing:0.06em;text-align:center">Día</div>
+          </div>
+          <div style="position:relative;height:132px;margin:4px 8px 0">
+            <div style="position:absolute;left:0;right:0;top:50%;transform:translateY(-50%);height:44px;border-radius:10px;background:linear-gradient(180deg,#111,#444);pointer-events:none;z-index:1"></div>
+            <div style="position:absolute;inset:0;display:flex;z-index:2">
+              <div id="scroll-deb-anio" style="flex:1;overflow-y:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch">
+                <div style="height:44px"></div>
+                <div id="scroll-deb-anio-items"></div>
+                <div style="height:44px"></div>
+              </div>
+              <div id="scroll-deb-mes" style="flex:1;overflow-y:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch">
+                <div style="height:44px"></div>
+                <div id="scroll-deb-mes-items"></div>
+                <div style="height:44px"></div>
+              </div>
+              <div id="scroll-deb-dia" style="flex:1;overflow-y:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch">
+                <div style="height:44px"></div>
+                <div id="scroll-deb-dia-items"></div>
+                <div style="height:44px"></div>
+              </div>
+            </div>
+          </div>
+          <div style="height:8px"></div>
+        </div>
+      </div>
+      <input type="hidden" id="debito-inp-fecha"/>
+    <input type="hidden" id="debito-inp-hora"/>
     <div id="debito-error" style="font-size:13px;color:#e53935;min-height:18px;margin-bottom:6px;text-align:center"></div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:4px">
       <button id="debito-save-btn" onclick="guardarDebito()" class="modal-save" style="margin-top:0">Guardar</button>
@@ -7439,8 +7714,9 @@ window.confirmarEliminarPerfil = async function(){
 let _debitoTipo = 'egreso'; // 'ingreso' | 'egreso'
 let _debitoCuentaSel = null; // cuenta débito seleccionada en el modal
 
-window.openModalDebitoIngreso = function() { _abrirModalDebito('ingreso'); };
-window.openModalDebitoEgreso  = function() { _abrirModalDebito('egreso');  };
+window.openModalDebitoIngreso        = function() { _abrirModalDebito('ingreso', false); };
+window.openModalDebitoEgreso         = function() { _abrirModalDebito('egreso',  false); };
+window.openModalDebitoExtemporaneo   = function() { _abrirModalDebito('egreso',  true);  };
 
 // Construye el scroll de cuentas débito dentro del modal
 function _buildScrollCuentasDebito() {
@@ -7454,23 +7730,24 @@ function _buildScrollCuentasDebito() {
     return;
   }
 
-  cont.innerHTML = cuentas.map((c, i) => `
-    <div style="padding:11px 16px;text-align:center;font-size:15px;font-weight:600;color:#fff;cursor:pointer"
-         onclick="_selCuentaDebito(${i})">
-      ${c.nombre}${c.apodo ? ' · ' + c.apodo : ''}
-    </div>`).join('');
-
-  // Resaltar ítem central al hacer scroll
-  scroll.onscroll = () => {
-    const items = cont.querySelectorAll('div');
-    const center = scroll.scrollTop + scroll.clientHeight / 2;
-    items.forEach(it => {
-      it.style.opacity = Math.abs((it.offsetTop + it.offsetHeight / 2) - center) < 26 ? '1' : '0.4';
+  const selIdx = 0;
+  cont.innerHTML = cuentas.map((c, i) => {
+    const label = c.nombre + (c.apodo ? ' · ' + c.apodo : '');
+    const sel = i === selIdx;
+    return `<div class="scroll-item${sel?' sel':''}" style="${sel?'color:#fff;':'color:#444;'}" onclick="_selCuentaDebito(${i})">${label}</div>`;
+  }).join('');
+  setTimeout(() => {
+    scroll.scrollTop = selIdx * 44;
+    cont.querySelectorAll('.scroll-item').forEach((el,i) => {
+      const s = i===selIdx; el.classList.toggle('sel',s); el.style.color = s?'#fff':'#444';
     });
-  };
-
-  // Seleccionar la primera automáticamente
-  _selCuentaDebito(0);
+  }, 50);
+  snapScrollConInicio(scroll, 44, selIdx, idx => {
+    cont.querySelectorAll('.scroll-item').forEach((el,i) => {
+      const s = i===idx; el.classList.toggle('sel',s); el.style.color = s?'#fff':'#444';
+    });
+    _selCuentaDebito(idx);
+  });
 }
 
 window._selCuentaDebito = function(i) {
@@ -7490,38 +7767,68 @@ window.toggleScrollCuentaDebito = function() {
   const wrap = document.getElementById('debito-cuenta-scroll-wrap');
   const open = wrap.style.display !== 'none';
   wrap.style.display = open ? 'none' : 'block';
-  if (!open) _buildScrollCuentasDebito();
+  if (!open) {
+    _buildScrollCuentasDebito();
+  }
 };
 
-function _abrirModalDebito(tipo) {
+window._debitoSwitchTipo = function(tipo) {
   _debitoTipo = tipo;
-  _debitoCuentaSel = null;
-
-  const icon  = document.getElementById('debito-modal-icon');
-  const title = document.getElementById('debito-modal-title');
-  const btn   = document.getElementById('debito-save-btn');
-
+  const icon   = document.getElementById('debito-modal-icon');
+  const title  = document.getElementById('debito-modal-title');
+  const slider = document.getElementById('debito-tipo-slider');
+  const btnIng = document.getElementById('debito-toggle-ingreso');
+  const btnEgr = document.getElementById('debito-toggle-egreso');
   if (tipo === 'ingreso') {
+    slider.style.transform = 'translateX(0)';
+    btnIng.style.color = '#fff';
+    btnEgr.style.color = '#888';
     icon.style.background = 'linear-gradient(180deg,#111,#444)';
     icon.innerHTML = '<svg width="20" height="20" fill="none" stroke="#fff" stroke-width="2.5" viewBox="0 0 24 24"><line x1="12" y1="19" x2="12" y2="5"/><polyline points="5 12 12 5 19 12"/></svg>';
-    title.textContent = 'Registrar ingreso';
-    btn.style.background = 'linear-gradient(180deg,#111,#444)';
-    btn.style.color = '#fff';
+    title.textContent = 'Registrar nuevo';
   } else {
+    slider.style.transform = 'translateX(100%)';
+    btnIng.style.color = '#888';
+    btnEgr.style.color = '#fff';
     icon.style.background = '#f0f0f0';
     icon.innerHTML = '<svg width="20" height="20" fill="none" stroke="#111" stroke-width="2.5" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><polyline points="19 12 12 19 5 12"/></svg>';
     title.textContent = 'Registrar egreso';
-    btn.style.background = 'linear-gradient(180deg,#111,#444)';
-    btn.style.color = '#fff';
+  }
+};
+
+let _debitoEsExtemporaneo = false;
+
+function _abrirModalDebito(tipo, esExtemporaneo) {
+  _debitoTipo = tipo;
+  _debitoEsExtemporaneo = !!esExtemporaneo;
+  _debitoCuentaSel = null;
+
+  const btn = document.getElementById('debito-save-btn');
+  btn.style.background = 'linear-gradient(180deg,#111,#444)';
+  btn.style.color = '#fff';
+
+  window._debitoSwitchTipo(tipo);
+
+  // Mostrar u ocultar el campo de fecha según modo
+  const fechaWrap = document.getElementById('debito-fecha-wrap');
+  if (_debitoEsExtemporaneo) {
+    fechaWrap.style.display = 'block';
+    document.getElementById('debito-inp-fecha').value = '';
+    document.getElementById('debito-fecha-txt').textContent = 'Seleccionar fecha';
+    document.getElementById('debito-fecha-txt').style.color = '#999';
+    document.getElementById('debito-fecha-scroll-wrap').style.display = 'none';
+  } else {
+    fechaWrap.style.display = 'none';
+    const hoy  = new Date();
+    const yyyy = hoy.getFullYear();
+    const mm   = String(hoy.getMonth()+1).padStart(2,'0');
+    const dd   = String(hoy.getDate()).padStart(2,'0');
+    document.getElementById('debito-inp-fecha').value = `${yyyy}-${mm}-${dd}`;
   }
 
-  const hoy  = new Date();
-  const yyyy = hoy.getFullYear();
-  const mm   = String(hoy.getMonth()+1).padStart(2,'0');
-  const dd   = String(hoy.getDate()).padStart(2,'0');
-  document.getElementById('debito-inp-fecha').value    = `${yyyy}-${mm}-${dd}`;
   document.getElementById('debito-inp-monto').value    = '';
   document.getElementById('debito-inp-concepto').value = '';
+  document.getElementById('debito-inp-hora').value     = '';
   document.getElementById('debito-inp-cuenta-id').value = '';
   document.getElementById('debito-error').textContent  = '';
   document.getElementById('debito-cuenta-scroll-wrap').style.display = 'none';
@@ -7555,13 +7862,21 @@ window.cerrarModalDebito = function(e) {
 window.guardarDebito = async function() {
   const monto    = parseFloat(document.getElementById('debito-inp-monto').value);
   const concepto = document.getElementById('debito-inp-concepto').value.trim();
-  const fecha    = document.getElementById('debito-inp-fecha').value;
+  const hora     = document.getElementById('debito-inp-hora').value;
   const errEl    = document.getElementById('debito-error');
   const btn      = document.getElementById('debito-save-btn');
 
+  let fecha;
+  if (_debitoEsExtemporaneo) {
+    fecha = document.getElementById('debito-inp-fecha').value;
+  } else {
+    const hoyDeb = new Date();
+    fecha = `${hoyDeb.getFullYear()}-${String(hoyDeb.getMonth()+1).padStart(2,'0')}-${String(hoyDeb.getDate()).padStart(2,'0')}`;
+  }
+
   if (!_debitoCuentaSel) { errEl.textContent = 'Selecciona una cuenta'; return; }
   if (!monto || monto <= 0) { errEl.textContent = 'Ingresa un monto válido'; return; }
-  if (!fecha)               { errEl.textContent = 'Selecciona una fecha';    return; }
+  if (_debitoEsExtemporaneo && !fecha) { errEl.textContent = 'Selecciona una fecha'; return; }
   errEl.textContent = '';
   btn.disabled = true;
 
@@ -7570,6 +7885,7 @@ window.guardarDebito = async function() {
       tipo:       _debitoTipo,
       tipoCuenta: 'debito',
       concepto,
+      hora,
       monto,
       fecha,
       creadoEn:   Date.now(),
@@ -7592,10 +7908,16 @@ window.guardarDebito = async function() {
     }
 
     if (typeof showSuccess === 'function') {
-      showSuccess(
-        _debitoTipo === 'ingreso' ? 'Ingreso registrado' : 'Egreso registrado',
-        _debitoTipo === 'ingreso' ? 'El ingreso fue guardado correctamente' : 'El egreso fue guardado correctamente'
-      );
+      const _cLabel = _debitoCuentaSel.nombre + (_debitoCuentaSel.apodo ? ' · ' + _debitoCuentaSel.apodo : '');
+      const _montoFmt = `$${monto.toLocaleString('es-MX', {minimumFractionDigits:2})}`;
+      const _esExt = _debitoEsExtemporaneo;
+      if (_debitoTipo === 'ingreso') {
+        showSuccess('Ingreso registrado', `${_cLabel} — ${_montoFmt}`);
+      } else if (_esExt) {
+        showSuccess('Egreso extemporáneo registrado', `${_cLabel} — ${_montoFmt}`);
+      } else {
+        showSuccess('Egreso registrado', `${_cLabel} — ${_montoFmt}`);
+      }
     }
   } catch(err) {
     errEl.textContent = 'Error al guardar: ' + (err.message || err);
@@ -7604,6 +7926,91 @@ window.guardarDebito = async function() {
   }
   btn.disabled = false;
 };
+
+
+// ── DATE SCROLL DÉBITO ──────────────────────────────────────
+let _dpDebAnio, _dpDebMes, _dpDebDia;
+
+window.toggleScrollFechaDebito = function() {
+  const wrap = document.getElementById('debito-fecha-scroll-wrap');
+  const isOpen = wrap.style.display === 'block';
+  if (isOpen) { wrap.style.display = 'none'; return; }
+
+  const fechaGuardada = document.getElementById('debito-inp-fecha').value;
+  if (fechaGuardada) {
+    const partes = fechaGuardada.split('-');
+    _dpDebAnio = parseInt(partes[0], 10);
+    _dpDebMes  = parseInt(partes[1], 10);
+    _dpDebDia  = parseInt(partes[2], 10);
+  } else {
+    const hoy = new Date();
+    _dpDebAnio = hoy.getFullYear();
+    _dpDebMes  = hoy.getMonth() + 1;
+    _dpDebDia  = hoy.getDate();
+  }
+
+  const anios = [_dpDebAnio - 1, _dpDebAnio];
+  const mesesCortos = MESES.map(m => m.substring(0, 3));
+  const maxD = diasEnMes(_dpDebMes, _dpDebAnio);
+  const dias = Array.from({length: maxD}, (_, i) => String(i + 1).padStart(2, '0'));
+
+  function buildDebCol(scrollId, itemsId, items, selIdx, onSelect) {
+    const scrollEl = document.getElementById(scrollId);
+    const itemsEl  = document.getElementById(itemsId);
+    itemsEl.innerHTML = items.map((v, i) =>
+      `<div class="dp-item${i === selIdx ? ' sel' : ''}">${v}</div>`
+    ).join('');
+    scrollEl.scrollTop = selIdx * 44;
+    let snapTimer;
+    scrollEl.onscroll = () => {
+      const idx = Math.min(Math.max(Math.round(scrollEl.scrollTop / 44), 0), items.length - 1);
+      itemsEl.querySelectorAll('.dp-item').forEach((el, i) => el.classList.toggle('sel', i === idx));
+      onSelect(idx);
+      clearTimeout(snapTimer);
+      snapTimer = setTimeout(() => scrollEl.scrollTo({top: idx * 44, behavior: 'smooth'}), 80);
+    };
+    onSelect(selIdx);
+  }
+
+  wrap.style.display = 'block';
+
+  setTimeout(() => {
+    const anioDebIdx = anios.indexOf(_dpDebAnio) !== -1 ? anios.indexOf(_dpDebAnio) : 1;
+    buildDebCol('scroll-deb-anio', 'scroll-deb-anio-items', anios.map(String), anioDebIdx, idx => {
+      _dpDebAnio = anios[Math.min(idx, anios.length - 1)];
+      _rebuildDebDias();
+    });
+    buildDebCol('scroll-deb-mes', 'scroll-deb-mes-items', mesesCortos, _dpDebMes - 1, idx => {
+      _dpDebMes = idx + 1;
+      _rebuildDebDias();
+    });
+    buildDebCol('scroll-deb-dia', 'scroll-deb-dia-items', dias, _dpDebDia - 1, idx => {
+      _dpDebDia = idx + 1;
+      _actualizarFechaDebito();
+    });
+    _actualizarFechaDebito();
+  }, 50);
+};
+
+function _rebuildDebDias() {
+  const md = diasEnMes(_dpDebMes, _dpDebAnio);
+  const ds = Array.from({length: md}, (_, i) => String(i + 1).padStart(2, '0'));
+  const sd = Math.min(_dpDebDia - 1, md - 1);
+  const scrollEl = document.getElementById('scroll-deb-dia');
+  document.getElementById('scroll-deb-dia-items').innerHTML = ds.map((v, i) =>
+    `<div class="dp-item${i === sd ? ' sel' : ''}">${v}</div>`).join('');
+  scrollEl.scrollTop = sd * 44;
+  _dpDebDia = sd + 1;
+  _actualizarFechaDebito();
+}
+
+function _actualizarFechaDebito() {
+  const mes = String(_dpDebMes).padStart(2, '0');
+  const dia = String(_dpDebDia).padStart(2, '0');
+  document.getElementById('debito-inp-fecha').value = `${_dpDebAnio}-${mes}-${dia}`;
+  document.getElementById('debito-fecha-txt').textContent = `${dia} de ${MESES[_dpDebMes - 1]} ${_dpDebAnio}`;
+  document.getElementById('debito-fecha-txt').style.color = '#111';
+}
 </script>
 
 <!-- ══ MODAL EDITAR MOVIMIENTO DÉBITO ══ -->
@@ -7611,10 +8018,6 @@ window.guardarDebito = async function() {
   <div class="modal">
     <div class="modal-handle"></div>
     <div class="modal-title">Editar movimiento</div>
-    <div class="field-wrap">
-      <div class="field-label">Concepto</div>
-      <input class="inp" id="deb-edit-concepto" placeholder="Ej. Despensa, gasolina..." maxlength="80"/>
-    </div>
     <div class="field-wrap">
       <div class="field-label">Monto</div>
       <div class="amount-wrap">
@@ -7646,5 +8049,56 @@ window.guardarDebito = async function() {
   </div>
 </div>
 
+<!-- ══ SUCCESS OVERLAY CAMBIO DE BANCO ══ -->
+<div class="success-overlay" id="success-banco-overlay" style="z-index:700" onclick="event.stopPropagation()">
+  <div class="success-box" style="max-width:320px;width:90%">
+    <div class="success-icon">
+      <svg width="28" height="28" fill="none" stroke="#fff" stroke-width="2.5" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+    </div>
+    <div class="success-title">Banco actualizado</div>
+    <div style="display:flex;align-items:center;justify-content:center;gap:10px;margin:14px 0 4px;flex-wrap:wrap">
+      <span id="success-banco-desde" style="font-size:15px;font-weight:700;color:#111;background:#f5f5f5;padding:6px 14px;border-radius:20px"></span>
+      <svg width="18" height="18" fill="none" stroke="#aaa" stroke-width="2.5" viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+      <span id="success-banco-hacia" style="font-size:15px;font-weight:700;color:#fff;background:linear-gradient(180deg,#111,#444);padding:6px 14px;border-radius:20px"></span>
+    </div>
+    <button onclick="document.getElementById('success-banco-overlay').classList.remove('show')"
+      style="margin-top:20px;padding:12px 36px;border-radius:12px;background:linear-gradient(180deg,#111,#444);color:#fff;border:none;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit;width:100%">
+      Listo
+    </button>
+  </div>
+</div>
+
+<!-- ══ MODAL CONFIRMAR CAMBIO DE BANCO ══ -->
+<div class="modal-overlay" id="modal-confirm-banco-cambio" style="z-index:500" onclick="_cancelarCambioBanco()">
+  <div class="modal" onclick="event.stopPropagation()">
+    <div class="modal-handle"></div>
+    <div style="text-align:center;padding:10px 0 20px">
+      <div style="width:56px;height:56px;border-radius:50%;background:#f0f0f0;display:flex;align-items:center;justify-content:center;margin:0 auto 16px">
+        <svg width="26" height="26" fill="none" stroke="#111" stroke-width="2" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+      </div>
+      <div style="font-size:18px;font-weight:700;color:#111;margin-bottom:14px">¿Cambiar banco?</div>
+      <div style="font-size:14px;color:#666;line-height:1.7;padding:0 8px">
+        Se cambiará el banco de<br>
+        <strong style="color:#111;font-size:15px" id="confirm-banco-desde">—</strong>
+        <span style="margin:0 8px;color:#aaa">→</span>
+        <strong style="color:#111;font-size:15px" id="confirm-banco-hacia">—</strong>
+      </div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:8px">
+      <button onclick="_cancelarCambioBanco()" style="padding:13px;border-radius:12px;border:1.5px solid #e0e0e0;background:#fff;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit;color:#111">Cancelar</button>
+      <button onclick="_confirmarCambioBanco()" style="padding:13px;border-radius:12px;background:linear-gradient(180deg,#111,#444);color:#fff;border:none;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit">Confirmar</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// Agrega clase picker-fade-wrap a todos los contenedores de scroll picker
+// para mostrar gradiente arriba/abajo y dejar claro que hay más opciones
+document.addEventListener('DOMContentLoaded', function(){
+  document.querySelectorAll('[style*="height:132px"]').forEach(function(el){
+    el.classList.add('picker-fade-wrap');
+  });
+});
+</script>
 </body>
 </html>
