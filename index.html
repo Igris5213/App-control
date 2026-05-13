@@ -103,9 +103,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
   color:#fff;
   box-sizing:border-box;
   min-height:240px;
-  opacity:0;
-  transform:scale(0.92) translateY(8px);
-  transition:opacity 0.35s ease, transform 0.35s cubic-bezier(0.34,1.2,0.64,1);
   box-shadow:0 12px 40px rgba(0,0,0,0.22);
 }
 .bank-card.active-card{
@@ -113,8 +110,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
   flex-direction:column;
   justify-content:space-between;
   width:100%;
-  opacity:1;
-  transform:scale(1) translateY(0);
 }
 
 /* CSS tarjeta */
@@ -187,10 +182,12 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .modal-overlay.open{opacity:1;pointer-events:all}
 .modal{background:#fff;border-radius:24px;padding:24px 20px 40px;width:100%;max-width:430px;transform:translateY(100%);transition:transform 0.3s;box-shadow:0 -4px 32px rgba(0,0,0,0.12)}
 .modal-overlay.open .modal{transform:translateY(0)}
+#modal-confirm-mov .modal{transform:scale(0.9)}
+#modal-confirm-mov.open .modal{transform:scale(1)}
 /* Date Picker */
 #scroll-anio::-webkit-scrollbar,#scroll-mes::-webkit-scrollbar,#scroll-dia::-webkit-scrollbar{display:none}
-.scroll-item{height:44px;min-height:44px;box-sizing:border-box;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:500;color:#444;cursor:pointer;scroll-snap-align:start;transition:color 0.15s,opacity 0.15s;width:100%;text-align:center}
-.dp-item{height:44px;min-height:44px;box-sizing:border-box;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:500;color:#444;cursor:pointer;transition:color 0.15s,opacity 0.15s;width:100%;text-align:center}
+.scroll-item{height:44px;min-height:44px;box-sizing:border-box;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:500;color:#444;cursor:pointer;scroll-snap-align:start;width:100%;text-align:center}
+.dp-item{height:44px;min-height:44px;box-sizing:border-box;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:500;color:#444;cursor:pointer;width:100%;text-align:center}
 /* Fade top/bottom en pickers de scroll */
 .picker-fade-wrap{position:relative}
 .picker-fade-wrap::before,.picker-fade-wrap::after{content:'';position:absolute;left:0;right:0;height:44px;pointer-events:none;z-index:3}
@@ -216,7 +213,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .toast.show{opacity:1}
 
 /* Modal de éxito */
-.success-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.4);z-index:600;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity 0.3s}
+.success-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.4);z-index:1200;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity 0.3s}
 .success-overlay.show{opacity:1;pointer-events:all}
 .success-box{background:#fff;border-radius:24px;padding:36px 32px;text-align:center;box-shadow:0 12px 48px rgba(0,0,0,0.22);transform:scale(0.85);transition:transform 0.35s cubic-bezier(0.34,1.3,0.64,1)}
 .success-overlay.show .success-box{transform:scale(1)}
@@ -2247,27 +2244,11 @@ window.goTo = function(idx, animate=true){
   if(!perfil) return;
   const n = perfil.tarjetas.length;
   idx = Math.max(0, Math.min(idx, n-1));
-  // Ocultar la tarjeta actual con animación de salida
-  const prev = document.querySelector('.bank-card.active-card');
-  if(prev && idx !== current){
-    prev.style.opacity = '0';
-    prev.style.transform = 'scale(0.92) translateY(8px)';
-  }
   current = idx;
   window.current = current;
-  setTimeout(()=>{
-    document.querySelectorAll('.bank-card').forEach((c,i)=>{
-      if(i !== idx){
-        c.classList.remove('active-card');
-        c.style.opacity = '';
-        c.style.transform = '';
-      }
-    });
-    const next = document.querySelectorAll('.bank-card')[idx];
-    if(next){
-      next.classList.add('active-card');
-    }
-  }, animate && prev ? 120 : 0);
+  document.querySelectorAll('.bank-card').forEach((c,i)=>{
+    c.classList.toggle('active-card', i === idx);
+  });
   document.querySelectorAll('.dot').forEach((d,i)=>d.classList.toggle('active',i===idx));
   renderMovimientos();
   updateCards();
@@ -2494,53 +2475,119 @@ window.openEdit = function(id){
 }
 
 window.closeModalOut = function(e){
-  if(e.target===document.getElementById('modal-overlay')) document.getElementById('modal-overlay').classList.remove('open');
+  if(e.target===document.getElementById('modal-overlay')){
+    const o = document.getElementById('modal-overlay');
+    o.classList.remove('open');
+    o.style.zIndex = '';
+  }
 }
+
+// ── Contexto de confirmación de movimiento ──────────
+window._confirmMovCtx = null; // 'credito' | 'debito' | 'ext'
 
 window.guardar = async function(){
   const monto = parseFloat(document.getElementById('inp-monto').value);
   if(!monto || monto <= 0){ document.getElementById('inp-monto').focus(); return; }
-  const btn = document.getElementById('modal-save-btn');
-  btn.disabled = true;
-  try{
-    if(editingId){
+
+  if(editingId){
+    // Edición directa — sin confirmación
+    const btn = document.getElementById('modal-save-btn');
+    btn.disabled = true;
+    try{
       await updateDoc(doc(db,'usuarios', currentUser.uid, 'movimientos',editingId),{monto});
       movimientos = movimientos.map(m=>m.id===editingId?{...m,monto}:m);
       updateCards();
       renderMovimientos();
       showSuccess('Gasto actualizado', 'El monto fue modificado correctamente');
-    } else {
-      const t = window._tarjetaModalSel || perfil?.tarjetas?.[current];
-      if(!t){ showToast('Selecciona una tarjeta'); btn.disabled=false; return; }
-      const now = new Date();
-      const datos = {
-        tipo:'egreso', tarjetaId:t.id, banco:t.nombre, monto,
-        fecha: now.toISOString().split('T')[0], creadoEn: now.getTime(),
-        comercio: document.getElementById('inp-comercio').value.trim(),
-        concepto: document.getElementById('inp-concepto').value.trim()
-      };
-      try{
-        await addDoc(collection(db,'usuarios', currentUser.uid, 'movimientos'), datos);
-        const _label = t.nombre + (t.apodo ? ' · ' + t.apodo : '');
-        showSuccess('Gasto registrado', `${_label} — $${monto.toLocaleString('es-MX', {minimumFractionDigits:2})}`);
-        const _tSob = t;
-        setTimeout(()=>{
-          const pC = getPeriodo(_tSob.corte);
-          const usado = movimientos
-            .filter(m=>m.tarjetaId===_tSob.id)
-            .filter(m=>{ const f=new Date(m.fecha+'T12:00:00'); return f>=pC.inicio && f<=pC.fin; })
-            .reduce((s,m)=>s+m.monto, 0);
-          if(usado > _tSob.limite) showSobregiro(_tSob, usado - _tSob.limite);
-        }, 1500);
-      } catch(fireErr){
-        showToast('❌ Error: '+fireErr.message);
-        btn.disabled=false;
-        return;
-      }
+      document.getElementById('modal-overlay').classList.remove('open');
+    } catch(e){ showToast('❌ Error: '+e.message); }
+    btn.disabled = false;
+    return;
+  }
+
+  // Nuevo movimiento — mostrar confirmación
+  const t = window._tarjetaModalSel || perfil?.tarjetas?.[current];
+  if(!t){ showToast('Selecciona una tarjeta'); return; }
+
+  const now = new Date();
+  const fechaStr = now.toISOString().split('T')[0];
+  const [anio, mes, dia] = fechaStr.split('-');
+  const MESES_ESP = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
+  const fechaLegible = `${parseInt(dia)} de ${MESES_ESP[parseInt(mes)-1]} ${anio}`;
+
+  const comercio = document.getElementById('inp-comercio').value.trim();
+  const concepto = document.getElementById('inp-concepto').value.trim();
+
+  window._confirmMovCtx = 'credito';
+
+  // Llenar modal de confirmación
+  document.getElementById('confirm-mov-tarjeta').textContent = t.nombre;
+  document.getElementById('confirm-mov-fecha').textContent = fechaLegible;
+
+  const rowComercio = document.getElementById('confirm-mov-row-comercio');
+  const rowConcepto = document.getElementById('confirm-mov-row-concepto');
+  rowComercio.style.display = comercio ? 'flex' : 'none';
+  rowConcepto.style.display = concepto ? 'flex' : 'none';
+  document.getElementById('confirm-mov-comercio').textContent = comercio;
+  document.getElementById('confirm-mov-concepto').textContent = concepto;
+
+  // Cerrar modal formulario y abrir confirmación
+  document.getElementById('modal-overlay').classList.remove('open');
+  setTimeout(() => document.getElementById('modal-confirm-mov').classList.add('open'), 250);
+}
+
+window._cancelarConfirmMov = function(e){
+  if(e !== undefined && e.target !== document.getElementById('modal-confirm-mov')) return;
+  const ctx = window._confirmMovCtx;
+  window._confirmMovCtx = null;
+  const overlay = document.getElementById('modal-confirm-mov');
+  overlay.classList.remove('open');
+  setTimeout(function(){
+    if(ctx === 'credito')     window._reabrirModalCredito();
+    else if(ctx === 'debito') document.getElementById('modal-debito-overlay').classList.add('open');
+    else if(ctx === 'ext')    window._reabrirModalExt();
+  }, 300);
+}
+
+window._ejecutarGuardarMov = async function(){
+  const btn = document.getElementById('confirm-mov-ok-btn');
+  btn.disabled = true;
+  document.getElementById('modal-confirm-mov').classList.remove('open');
+
+  if(window._confirmMovCtx === 'credito'){
+    const monto = parseFloat(document.getElementById('inp-monto').value);
+    const t = window._tarjetaModalSel || perfil?.tarjetas?.[current];
+    const now = new Date();
+    const datos = {
+      tipo:'egreso', tarjetaId:t.id, banco:t.nombre, monto,
+      fecha: now.toISOString().split('T')[0], creadoEn: now.getTime(),
+      comercio: document.getElementById('inp-comercio').value.trim(),
+      concepto: document.getElementById('inp-concepto').value.trim()
+    };
+    try{
+      await addDoc(collection(db,'usuarios', currentUser.uid, 'movimientos'), datos);
+      document.getElementById('modal-overlay').classList.remove('open');
+      showSuccess('Movimiento registrado', 'El gasto fue guardado correctamente');
+      const _tSob = t;
+      setTimeout(()=>{
+        const pC = getPeriodo(_tSob.corte);
+        const usado = movimientos
+          .filter(m=>m.tarjetaId===_tSob.id)
+          .filter(m=>{ const f=new Date(m.fecha+'T12:00:00'); return f>=pC.inicio && f<=pC.fin; })
+          .reduce((s,m)=>s+m.monto, 0);
+        if(usado > _tSob.limite) showSobregiro(_tSob, usado - _tSob.limite);
+      }, 1500);
+    } catch(fireErr){
+      showToast('❌ Error: '+fireErr.message);
     }
-    document.getElementById('modal-overlay').classList.remove('open');
-  } catch(e){ showToast('❌ Error: '+e.message); }
+  } else if(window._confirmMovCtx === 'debito'){
+    await _ejecutarGuardarDebitoDB();
+  } else if(window._confirmMovCtx === 'ext'){
+    await _ejecutarGuardarExtDB();
+  }
+
   btn.disabled = false;
+  window._confirmMovCtx = null;
 }
 
 // ── Eliminar ─────────────────────────────────────
@@ -2621,6 +2668,7 @@ function showSuccess(titulo='Movimiento guardado', subtitulo='Tu gasto fue regis
   overlay.classList.add('show');
   setTimeout(()=>{ overlay.classList.remove('show'); subEl.style.display = ''; }, 1800);
 }
+
 
 window.showSobregiro = function(tarjeta, exceso){
   const el = document.getElementById('sobregiro-sub');
@@ -5830,29 +5878,20 @@ function buildCarruselDebito(){
   _cargarMovDebito();
 }
 
-window.debGoTo = function(idx, animate=true){
+window.debGoTo = function(idx){
   const cuentas = (perfil && perfil.cuentasDebito) ? perfil.cuentasDebito : [];
   if(!cuentas.length) return;
   idx = Math.max(0, Math.min(idx, cuentas.length - 1));
-  const outer = document.getElementById('deb-cards-outer');
-  const prev  = outer.querySelector('.bank-card.active-card');
-  if(prev && idx !== _debCurrent){
-    prev.style.opacity   = '0';
-    prev.style.transform = 'scale(0.92) translateY(8px)';
-  }
   _debCurrent = idx;
+  const outer = document.getElementById('deb-cards-outer');
   const cards = outer.querySelectorAll('.bank-card');
   cards.forEach((c, i) => {
     const isActive = i === idx;
     c.classList.toggle('active-card', isActive);
-    if(animate){
-      c.style.transition = 'opacity 0.28s ease, transform 0.28s ease';
-    } else {
-      c.style.transition = 'none';
-    }
-    c.style.display   = isActive ? 'block' : 'none';
-    c.style.opacity   = isActive ? '1' : '0';
-    c.style.transform = isActive ? 'scale(1) translateY(0)' : 'scale(0.92) translateY(8px)';
+    c.style.transition = '';
+    c.style.display   = isActive ? 'flex' : 'none';
+    c.style.opacity   = '';
+    c.style.transform = '';
   });
   const dots = document.getElementById('deb-dots').querySelectorAll('.dot');
   dots.forEach((d, i) => d.classList.toggle('active', i === idx));
@@ -6231,6 +6270,9 @@ window.confirmarEliminarPerfil = async function(){
 <div class="screen hidden" id="screen-promociones">
   <div style="width:100%;max-width:390px;padding:0 4px">
 
+    <div style="font-size:22px;font-weight:800;color:#111;margin-bottom:6px">Promociones</div>
+    <div style="font-size:14px;color:#aaa;margin-bottom:20px">Tus MSI y beneficios activos</div>
+
     <!-- Botón agregar -->
     <button onclick="abrirModalPromo()" style="width:100%;padding:14px;border-radius:14px;background:linear-gradient(180deg,#111,#444);color:#fff;border:none;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit;margin-bottom:16px;display:flex;align-items:center;justify-content:center;gap:8px">
       <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
@@ -6523,19 +6565,22 @@ function actualizarDias(){
 
 function snapScroll(el, itemH, onSnap){
   let timer;
+  let lastIdx = -1;
   const handler = ()=>{
+    const idx = Math.round(el.scrollTop / itemH);
+    if(idx !== lastIdx){
+      lastIdx = idx;
+      onSnap(idx);
+    }
     clearTimeout(timer);
     timer = setTimeout(()=>{
-      const idx = Math.round(el.scrollTop / itemH);
       el.scrollTo({top: idx * itemH, behavior:'smooth'});
-      setTimeout(()=>onSnap(idx), 200);
-    }, 30);
+    }, 80);
   };
   el.removeEventListener('scroll', el._snapHandler);
   el._snapHandler = handler;
   el.addEventListener('scroll', handler, {passive:true});
 }
-
 // Como snapScroll pero dispara onSnap inmediatamente con el índice inicial
 // para registrar la selección aunque el usuario no mueva el scroll
 function snapScrollConInicio(el, itemH, initialIdx, onSnap){
@@ -6570,18 +6615,18 @@ window.toggleScrollFechaExt = function(){
     const scrollEl = document.getElementById(scrollId);
     const itemsEl  = document.getElementById(itemsId);
     itemsEl.innerHTML = items.map((v,i)=>
-      `<div class="dp-item${i===selIdx?' sel':''}">${v}</div>`
+      `<div class="dp-item${i===selIdx?' sel':''}" style="${i===selIdx?'color:#fff;':'color:#444;'}">${v}</div>`
     ).join('');
     scrollEl.scrollTop = selIdx * 44;
-    let snapTimer;
-    scrollEl.onscroll = ()=>{
-      const idx = Math.min(Math.max(Math.round(scrollEl.scrollTop / 44), 0), items.length-1);
-      itemsEl.querySelectorAll('.dp-item').forEach((el,i)=>el.classList.toggle('sel',i===idx));
+    const highlight = idx => {
+      itemsEl.querySelectorAll('.dp-item').forEach((el,i)=>{
+        const sel = i === idx;
+        el.classList.toggle('sel', sel);
+        el.style.color = sel ? '#fff' : '#444';
+      });
       onSelect(idx);
-      clearTimeout(snapTimer);
-      snapTimer = setTimeout(()=>scrollEl.scrollTo({top:idx*44,behavior:'smooth'}), 80);
     };
-    onSelect(selIdx);
+    snapScrollConInicio(scrollEl, 44, selIdx, highlight);
   }
 
   wrap.style.display = 'block';
@@ -6757,6 +6802,14 @@ window.openModal = function(){
   setTimeout(() => document.getElementById('inp-monto').focus(), 300);
 };
 
+// Reabre el modal de crédito sin limpiar campos (usado al presionar Corregir)
+window._reabrirModalCredito = function(){
+  document.getElementById('modal-tarjeta-scroll-wrap').style.display = 'none';
+  const overlay = document.getElementById('modal-overlay');
+  overlay.style.zIndex = '1200';
+  overlay.classList.add('open');
+};
+
 window.openModalExt = function(){
   document.getElementById('inp-comercio-ext').value = '';
   document.getElementById('inp-concepto-ext').value = '';
@@ -6780,9 +6833,21 @@ window.openModalExt = function(){
   document.getElementById('modal-ext-overlay').classList.add('open');
 };
 
+// Reabre el modal extemporáneo sin limpiar campos (usado al presionar Corregir)
+window._reabrirModalExt = function(){
+  document.getElementById('ext-tarjeta-scroll-wrap').style.display = 'none';
+  document.getElementById('fecha-ext-scroll-wrap').style.display = 'none';
+  const overlay = document.getElementById('modal-ext-overlay');
+  overlay.style.zIndex = '1200';
+  overlay.classList.add('open');
+};
+
 window.closeModalExtOut = function(e){
-  if(e.target === document.getElementById('modal-ext-overlay'))
-    document.getElementById('modal-ext-overlay').classList.remove('open');
+  if(e.target === document.getElementById('modal-ext-overlay')){
+    const o = document.getElementById('modal-ext-overlay');
+    o.classList.remove('open');
+    o.style.zIndex = '';
+  }
 };
 
 window.guardarExt = async function(){
@@ -6793,6 +6858,32 @@ window.guardarExt = async function(){
 
   const t = window._tarjetaExtSel || window.perfil?.tarjetas?.[window.current || 0];
   if(!t){ if(typeof showToast==='function') showToast('Selecciona una tarjeta'); return; }
+
+  const MESES_ESP3 = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
+  const [anioE, mesE, diaE] = fecha.split('-');
+  const fechaLegibleE = `${parseInt(diaE)} de ${MESES_ESP3[parseInt(mesE)-1]} ${anioE}`;
+  const comercio = document.getElementById('inp-comercio-ext').value.trim();
+  const concepto = document.getElementById('inp-concepto-ext').value.trim();
+
+  window._confirmMovCtx = 'ext';
+
+  document.getElementById('confirm-mov-tarjeta').textContent = t.nombre + (t.apodo ? ' · ' + t.apodo : '');
+  document.getElementById('confirm-mov-fecha').textContent = fechaLegibleE;
+  document.getElementById('confirm-mov-monto').textContent = '$' + monto.toLocaleString('es-MX', {minimumFractionDigits:2, maximumFractionDigits:2});
+
+  document.getElementById('confirm-mov-row-comercio').style.display = comercio ? 'flex' : 'none';
+  document.getElementById('confirm-mov-row-concepto').style.display = concepto ? 'flex' : 'none';
+  document.getElementById('confirm-mov-comercio').textContent = comercio;
+  document.getElementById('confirm-mov-concepto').textContent = concepto;
+
+  document.getElementById('modal-ext-overlay').classList.remove('open');
+  setTimeout(() => document.getElementById('modal-confirm-mov').classList.add('open'), 250);
+};
+
+window._ejecutarGuardarExtDB = async function(){
+  const monto = parseFloat(document.getElementById('inp-monto-ext').value);
+  const fecha  = document.getElementById('inp-fecha-ext').value;
+  const t = window._tarjetaExtSel || window.perfil?.tarjetas?.[window.current || 0];
 
   const now = new Date();
   const fechaConHora = new Date(fecha + 'T' + String(now.getHours()).padStart(2,'0') + ':' + String(now.getMinutes()).padStart(2,'0') + ':' + String(now.getSeconds()).padStart(2,'0'));
@@ -6806,16 +6897,12 @@ window.guardarExt = async function(){
   try{
     const { addDoc, collection } = await import('https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js');
     await addDoc(collection(window.db, 'usuarios', window.currentUser.uid, 'movimientos'), datos);
-    document.getElementById('modal-ext-overlay').classList.remove('open');
     document.getElementById('inp-monto-ext').value    = '';
     document.getElementById('inp-fecha-ext').value    = '';
     document.getElementById('inp-comercio-ext').value = '';
     document.getElementById('inp-concepto-ext').value = '';
-    if(typeof showSuccess === 'function'){
-      const _label = t.nombre + (t.apodo ? ' · ' + t.apodo : '');
-      showSuccess('Gasto extemporáneo registrado', `${_label} — $${monto.toLocaleString('es-MX', {minimumFractionDigits:2})}`);
-    }
-    // Verificar sobregiro si la fecha cae en el corte actual
+    showSuccess('Movimiento registrado', 'El gasto fue guardado correctamente');
+
     setTimeout(()=>{
       try{
         const p = (typeof getPeriodo === 'function') ? getPeriodo(t.corte) : null;
@@ -6900,6 +6987,10 @@ window.confirmarEliminarPerfil = async function(){
 <!-- PANTALLA MOVIMIENTOS -->
 
 <div class="screen hidden" id="screen-movimientos">
+  <div style="width:100%;max-width:390px;padding:0 4px;margin-bottom:16px">
+    <div style="font-size:22px;font-weight:800;color:#111;margin-bottom:6px">Historial</div>
+    <div style="font-size:14px;color:#aaa">Consulta todos tus movimientos</div>
+  </div>
   <div style="width:100%;background:#fff;border-radius:24px;padding:20px 16px;box-shadow:0 4px 24px rgba(0,0,0,0.08)">
 
     <!-- Toggle tipo tarjeta historial -->
@@ -7862,9 +7953,7 @@ window.cerrarModalDebito = function(e) {
 window.guardarDebito = async function() {
   const monto    = parseFloat(document.getElementById('debito-inp-monto').value);
   const concepto = document.getElementById('debito-inp-concepto').value.trim();
-  const hora     = document.getElementById('debito-inp-hora').value;
   const errEl    = document.getElementById('debito-error');
-  const btn      = document.getElementById('debito-save-btn');
 
   let fecha;
   if (_debitoEsExtemporaneo) {
@@ -7878,7 +7967,42 @@ window.guardarDebito = async function() {
   if (!monto || monto <= 0) { errEl.textContent = 'Ingresa un monto válido'; return; }
   if (_debitoEsExtemporaneo && !fecha) { errEl.textContent = 'Selecciona una fecha'; return; }
   errEl.textContent = '';
-  btn.disabled = true;
+
+  // Mostrar modal de confirmación
+  window._confirmMovCtx = 'debito';
+  const MESES_ESP2 = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
+  const [anioD, mesD, diaD] = fecha.split('-');
+  const fechaLegibleD = `${parseInt(diaD)} de ${MESES_ESP2[parseInt(mesD)-1]} ${anioD}`;
+  const tipoLabel = (_debitoTipo === 'egreso') ? 'Gasto · Débito' : 'Ingreso · Débito';
+
+  document.getElementById('confirm-mov-tarjeta').textContent = _debitoCuentaSel.apodo || _debitoCuentaSel.nombre;
+  document.getElementById('confirm-mov-fecha').textContent = fechaLegibleD;
+  document.getElementById('confirm-mov-monto').textContent = '$' + monto.toLocaleString('es-MX', {minimumFractionDigits:2, maximumFractionDigits:2});
+
+  const rowComercio = document.getElementById('confirm-mov-row-comercio');
+  const rowConcepto = document.getElementById('confirm-mov-row-concepto');
+  rowComercio.style.display = 'none';
+  rowConcepto.style.display = concepto ? 'flex' : 'none';
+  document.getElementById('confirm-mov-concepto').textContent = concepto;
+
+  // Cerrar modal formulario y abrir confirmación
+  document.getElementById('modal-debito-overlay').classList.remove('open');
+  setTimeout(() => document.getElementById('modal-confirm-mov').classList.add('open'), 250);
+};
+
+window._ejecutarGuardarDebitoDB = async function() {
+  const monto    = parseFloat(document.getElementById('debito-inp-monto').value);
+  const concepto = document.getElementById('debito-inp-concepto').value.trim();
+  const hora     = document.getElementById('debito-inp-hora').value;
+  const errEl    = document.getElementById('debito-error');
+
+  let fecha;
+  if (_debitoEsExtemporaneo) {
+    fecha = document.getElementById('debito-inp-fecha').value;
+  } else {
+    const hoyDeb = new Date();
+    fecha = `${hoyDeb.getFullYear()}-${String(hoyDeb.getMonth()+1).padStart(2,'0')}-${String(hoyDeb.getDate()).padStart(2,'0')}`;
+  }
 
   try {
     const datos = {
@@ -7901,30 +8025,15 @@ window.guardarDebito = async function() {
 
     document.getElementById('modal-debito-overlay').classList.remove('open');
     document.getElementById('debito-cuenta-scroll-wrap').style.display = 'none';
+    showSuccess('Movimiento registrado', 'El movimiento fue guardado correctamente');
 
-    // Refrescar pantalla de cuentas si está visible
     if (typeof _cargarMovDebito === 'function') {
       _cargarMovDebito();
     }
 
-    if (typeof showSuccess === 'function') {
-      const _cLabel = _debitoCuentaSel.nombre + (_debitoCuentaSel.apodo ? ' · ' + _debitoCuentaSel.apodo : '');
-      const _montoFmt = `$${monto.toLocaleString('es-MX', {minimumFractionDigits:2})}`;
-      const _esExt = _debitoEsExtemporaneo;
-      if (_debitoTipo === 'ingreso') {
-        showSuccess('Ingreso registrado', `${_cLabel} — ${_montoFmt}`);
-      } else if (_esExt) {
-        showSuccess('Egreso extemporáneo registrado', `${_cLabel} — ${_montoFmt}`);
-      } else {
-        showSuccess('Egreso registrado', `${_cLabel} — ${_montoFmt}`);
-      }
-    }
   } catch(err) {
     errEl.textContent = 'Error al guardar: ' + (err.message || err);
-    btn.disabled = false;
-    return;
   }
-  btn.disabled = false;
 };
 
 
@@ -7958,18 +8067,18 @@ window.toggleScrollFechaDebito = function() {
     const scrollEl = document.getElementById(scrollId);
     const itemsEl  = document.getElementById(itemsId);
     itemsEl.innerHTML = items.map((v, i) =>
-      `<div class="dp-item${i === selIdx ? ' sel' : ''}">${v}</div>`
+      `<div class="dp-item${i === selIdx ? ' sel' : ''}" style="${i === selIdx ? 'color:#fff;' : 'color:#444;'}">${v}</div>`
     ).join('');
     scrollEl.scrollTop = selIdx * 44;
-    let snapTimer;
-    scrollEl.onscroll = () => {
-      const idx = Math.min(Math.max(Math.round(scrollEl.scrollTop / 44), 0), items.length - 1);
-      itemsEl.querySelectorAll('.dp-item').forEach((el, i) => el.classList.toggle('sel', i === idx));
+    const highlight = idx => {
+      itemsEl.querySelectorAll('.dp-item').forEach((el, i) => {
+        const sel = i === idx;
+        el.classList.toggle('sel', sel);
+        el.style.color = sel ? '#fff' : '#444';
+      });
       onSelect(idx);
-      clearTimeout(snapTimer);
-      snapTimer = setTimeout(() => scrollEl.scrollTo({top: idx * 44, behavior: 'smooth'}), 80);
     };
-    onSelect(selIdx);
+    snapScrollConInicio(scrollEl, 44, selIdx, highlight);
   }
 
   wrap.style.display = 'block';
@@ -8045,6 +8154,47 @@ function _actualizarFechaDebito() {
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:8px">
       <button onclick="cerrarConfirmDeb()" style="padding:13px;border-radius:12px;border:1.5px solid #e0e0e0;background:#fff;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit;color:#666">Cancelar</button>
       <button id="confirm-deb-btn" onclick="confirmarEliminarMovDeb()" style="padding:13px;border-radius:12px;border:none;background:linear-gradient(180deg,#333,#666);color:#fff;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit">Eliminar</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ MODAL CONFIRMAR NUEVO MOVIMIENTO (CC y Débito) ══ -->
+<div class="modal-overlay" id="modal-confirm-mov" style="z-index:1100;align-items:center" onclick="_cancelarConfirmMov(event)">
+  <div class="modal" onclick="event.stopPropagation()" style="padding-bottom:32px;transform:scale(0.9);transition:transform 0.3s cubic-bezier(0.34,1.3,0.64,1);border-radius:24px;width:calc(100% - 40px);max-width:390px" id="modal-confirm-mov-box">
+    <div class="modal-handle"></div>
+    <div style="text-align:center;padding:6px 0 18px">
+      <div style="width:56px;height:56px;border-radius:50%;background:linear-gradient(180deg,#111,#444);display:flex;align-items:center;justify-content:center;margin:0 auto 14px">
+        <svg width="26" height="26" fill="none" stroke="#fff" stroke-width="2.2" viewBox="0 0 24 24"><path d="M9 12l2 2 4-4"/><circle cx="12" cy="12" r="10"/></svg>
+      </div>
+      <div style="font-size:18px;font-weight:800;color:#111;margin-bottom:4px">¿Es correcta la información?</div>
+      <div style="font-size:13px;color:#aaa">Revisa los datos antes de guardar</div>
+    </div>
+    <div style="background:#f5f5f5;border-radius:16px;padding:16px 18px;margin-bottom:20px;display:flex;flex-direction:column;gap:10px">
+      <div id="confirm-mov-row-tarjeta" style="display:flex;justify-content:space-between;align-items:center">
+        <span style="font-size:13px;color:#888;font-weight:500">Tarjeta / Cuenta</span>
+        <span id="confirm-mov-tarjeta" style="font-size:14px;font-weight:700;color:#111;text-align:right;max-width:180px"></span>
+      </div>
+      <div id="confirm-mov-row-comercio" style="display:flex;justify-content:space-between;align-items:center">
+        <span style="font-size:13px;color:#888;font-weight:500">Comercio</span>
+        <span id="confirm-mov-comercio" style="font-size:14px;font-weight:700;color:#111;text-align:right;max-width:180px"></span>
+      </div>
+      <div id="confirm-mov-row-concepto" style="display:flex;justify-content:space-between;align-items:center">
+        <span style="font-size:13px;color:#888;font-weight:500">Concepto</span>
+        <span id="confirm-mov-concepto" style="font-size:14px;font-weight:700;color:#111;text-align:right;max-width:180px"></span>
+      </div>
+      <div id="confirm-mov-row-fecha" style="display:flex;justify-content:space-between;align-items:center">
+        <span style="font-size:13px;color:#888;font-weight:500">Fecha</span>
+        <span id="confirm-mov-fecha" style="font-size:14px;font-weight:700;color:#111"></span>
+      </div>
+      <div style="height:1px;background:#e8e8e8"></div>
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <span style="font-size:14px;color:#111;font-weight:600">Monto</span>
+        <span id="confirm-mov-monto" style="font-size:20px;font-weight:800;color:#111"></span>
+      </div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+      <button onclick="_cancelarConfirmMov()" style="padding:14px;border-radius:12px;border:1.5px solid #e0e0e0;background:#fff;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit;color:#111">Corregir</button>
+      <button id="confirm-mov-ok-btn" onclick="_ejecutarGuardarMov()" style="padding:14px;border-radius:12px;background:linear-gradient(180deg,#111,#444);color:#fff;border:none;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit">Confirmar</button>
     </div>
   </div>
 </div>
