@@ -229,7 +229,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .toast.show{opacity:1}
 
 /* Modal de éxito */
-.success-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.4);z-index:1200;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity 0.3s}
+.success-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.4);z-index:9999;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity 0.3s}
 .success-overlay.show{opacity:1;pointer-events:all}
 .success-box{background:#fff;border-radius:24px;padding:36px 32px;text-align:center;box-shadow:0 12px 48px rgba(0,0,0,0.22);transform:scale(0.85);transition:transform 0.35s cubic-bezier(0.34,1.3,0.64,1)}
 .success-overlay.show .success-box{transform:scale(1)}
@@ -1745,7 +1745,7 @@ window.agregarTarjetaOb = function(){
   selectedCorte = null;
   resetFormTarjeta();
   _actualizarBotonesTerminar();
-  showSuccess('Tarjeta agregada', '');
+  window.showSuccess('Tarjeta agregada', '');
 }
 
 function renderTarjetasOb(){
@@ -1923,7 +1923,7 @@ window.agregarDebitoOb = function(){
   document.getElementById('inp-disponible-deb-ob').value = '';
 
   _actualizarBotonesTerminar();
-  showSuccess('Cuenta agregada', '');
+  window.showSuccess('Cuenta agregada', '');
 }
 
 window.finalizarOnboarding = async function(){
@@ -2632,24 +2632,39 @@ window.guardar = async function(){
     const btnRes = document.getElementById('deb-resumen-confirmar-btn');
     btnRes.textContent = 'Guardar';
     btnRes.style.background = 'linear-gradient(180deg,#111,#444)';
-    btnRes.onclick = async function(){
-      btnRes.disabled = true;
-      document.getElementById('modal-deb-resumen').classList.remove('open');
-      const updEdit = { monto, ...(comercioEdit?{comercio:comercioEdit}:{}), ...(conceptoEdit?{concepto:conceptoEdit}:{}), ...(fechaEdit?{fecha:fechaEdit}:{}) };
-      try{
-        await updateDoc(doc(db,'usuarios', currentUser.uid, 'movimientos',editingId), updEdit);
-        movimientos = movimientos.map(m=>m.id===editingId?{...m,...updEdit}:m);
-        movimientos.sort((a,b)=>{ const fa=a.fecha||'',fb=b.fecha||''; return fb!==fa?fb.localeCompare(fa):(b.creadoEn||0)-(a.creadoEn||0); });
-        updateCards();
-        renderMovimientos();
-        editingId = null;
-        showSuccess('Movimiento actualizado', '');
-      } catch(e){ showToast('❌ Error: '+e.message); }
-      btnRes.disabled = false;
-    };
+    // Capturar datos anteriores para el resumen antes/después
+    const mAntes = movimientos.find(x=>x.id===editingId);
+    const fmt$   = v => '$' + Number(v).toLocaleString('es-MX',{minimumFractionDigits:2});
+    const MESES_R2 = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
+    const fmtFecha = f=>{ if(!f) return '—'; const [a,me,d]=f.split('-'); return parseInt(d)+' de '+MESES_R2[parseInt(me)-1]+' '+a; };
+    const cambios2 = [];
+    if(mAntes){
+      if(comercioEdit && mAntes.comercio !== comercioEdit) cambios2.push({campo:'Comercio', antes:mAntes.comercio||'—', despues:comercioEdit});
+      if(conceptoEdit && mAntes.concepto !== conceptoEdit) cambios2.push({campo:'Concepto', antes:mAntes.concepto||'—', despues:conceptoEdit});
+      if(fechaEdit && mAntes.fecha !== fechaEdit) cambios2.push({campo:'Fecha', antes:fmtFecha(mAntes.fecha), despues:fmtFecha(fechaEdit)});
+      if(mAntes.monto !== monto) cambios2.push({campo:'Importe', antes:fmt$(mAntes.monto), despues:fmt$(monto)});
+    }
 
+    const banco2 = mAntes ? (mAntes.banco||'') : '';
+    const apodo2 = mAntes ? (mAntes.apodo||'') : '';
+    const titulo2 = banco2 + (apodo2 ? ' · '+apodo2 : '');
+
+    window._resumenMovCtx = 'credito';
     document.getElementById('modal-overlay').classList.remove('open');
-    setTimeout(()=>document.getElementById('modal-deb-resumen').classList.add('open'), 250);
+    setTimeout(()=>{
+      _mostrarResumenMovimiento(titulo2 || 'Movimiento', 'Revisa los cambios', cambios2.length ? cambios2 : [{campo:'Importe', antes:'—', despues:fmt$(monto)}], async function(){
+        const updEdit = { monto, ...(comercioEdit?{comercio:comercioEdit}:{}), ...(conceptoEdit?{concepto:conceptoEdit}:{}), ...(fechaEdit?{fecha:fechaEdit}:{}) };
+        try{
+          await updateDoc(doc(db,'usuarios', currentUser.uid, 'movimientos',editingId), updEdit);
+          movimientos = movimientos.map(m=>m.id===editingId?{...m,...updEdit}:m);
+          movimientos.sort((a,b)=>{ const fa=a.fecha||'',fb=b.fecha||''; return fb!==fa?fb.localeCompare(fa):(b.creadoEn||0)-(a.creadoEn||0); });
+          updateCards();
+          renderMovimientos();
+          editingId = null;
+          // showSuccess se muestra desde _confirmarResumenMovimiento
+        } catch(e){ showToast('❌ Error: '+e.message); }
+      });
+    }, 250);
     return;
   }
 
@@ -2732,7 +2747,7 @@ window._ejecutarGuardarMov = async function(){
       document.getElementById('inp-comercio').value = '';
       document.getElementById('inp-concepto').value = '';
       document.getElementById('modal-overlay').classList.remove('open');
-      showSuccess('Movimiento registrado', '');
+      window.showSuccess('Movimiento registrado', '');
       const _tSob = t;
       setTimeout(()=>{
         const pC = getPeriodo(_tSob.corte);
@@ -2764,7 +2779,7 @@ window.confirmarEliminar = async function(){
   try{ await deleteDoc(doc(db,'usuarios', currentUser.uid, 'movimientos',deletingId));
     movimientos = movimientos.filter(m=>m.id!==deletingId);
     updateCards(); renderMovimientos();
-    showSuccess('Gasto eliminado', 'El movimiento fue eliminado correctamente'); }
+    window.showSuccess('Gasto eliminado', 'El movimiento fue eliminado correctamente'); }
   catch(e){ showToast('❌ Error al eliminar'); }
   btn.disabled=false; deletingId=null;
   document.getElementById('confirm-overlay').classList.remove('open');
@@ -3169,7 +3184,7 @@ window.guardarNuevaPass = function(){
   lista[idx].hash = hashSimple(lista[idx].user + nueva);
   guardarUsuarios(lista);
   document.getElementById('modal-cambiar-pass').classList.remove('open');
-  showSuccess('Contraseña actualizada', 'Tu contraseña fue cambiada correctamente');
+  window.showSuccess('Contraseña actualizada', 'Tu contraseña fue cambiada correctamente');
 }
 
 // ── Admin ─────────────────────────────────────────
@@ -3332,11 +3347,11 @@ window.confirmarEdicion = function(){
   document.getElementById('modal-admin-editar').classList.remove('open');
 
   if(nombreCambio && passCambio){
-    showSuccess('Usuario actualizado', '');
+    window.showSuccess('Usuario actualizado', '');
   } else if(nombreCambio){
-    showSuccess('Usuario actualizado', '');
+    window.showSuccess('Usuario actualizado', '');
   } else {
-    showSuccess('Contraseña actualizada', '');
+    window.showSuccess('Contraseña actualizada', '');
   }
 
   setTimeout(()=>renderAdminUsers(), 150);
@@ -3376,7 +3391,7 @@ window.confirmarEliminarUsuario = async function(){
   lista.splice(adminDeleteIndex, 1);
   guardarUsuarios(lista);
   document.getElementById('modal-admin-confirm').classList.remove('show');
-  showSuccess('Usuario eliminado', '');
+  window.showSuccess('Usuario eliminado', '');
 
   // Si ya no quedan usuarios, ir al login limpio con el botón "Agregar usuario"
   if(lista.length === 0){
@@ -3888,10 +3903,58 @@ async function _ejecutarGuardadoTarjeta(nombre, corte, limite, apodoEdit, isCamb
       if(!isNaN(antes.limite) && !isNaN(limiteNum) && antes.limite !== limiteNum) cambios.push({campo:'Límite', antes:fmt$(antes.limite), despues:fmt$(limiteNum)});
       setTimeout(()=>_mostrarResumenCambioTarjeta(titulo, cambios), 100);
     } else {
-      showSuccess('Tarjeta actualizada', '');
+      window.showSuccess('Tarjeta actualizada', '');
     }
   } catch(e){ showToast('❌ Error al guardar'); }
 }
+
+window._listoResumenTarjeta = function(){
+  document.getElementById('modal-resumen-cambio-tarjeta').classList.remove('open');
+  setTimeout(()=>window.showSuccess('Información actualizada',''), 350);
+};
+window._listoResumenDebito = function(){
+  document.getElementById('modal-resumen-cambio-debito').classList.remove('open');
+  setTimeout(()=>window.showSuccess('Información actualizada',''), 350);
+};
+
+// ── Resumen antes/después genérico para movimientos ──────────
+function _mostrarResumenMovimiento(titulo, subtitulo, cambios, onConfirmar){
+  const overlay = document.getElementById('modal-resumen-movimiento');
+  document.getElementById('resumen-mov-titulo').textContent  = titulo;
+  document.getElementById('resumen-mov-sub').textContent     = subtitulo;
+  const body = document.getElementById('resumen-mov-body');
+  body.innerHTML = cambios.map(c=>`
+    <div style="margin-bottom:12px">
+      <div style="font-size:11px;font-weight:700;color:#aaa;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:6px">${c.campo}</div>
+      <div style="display:flex;align-items:center;gap:8px">
+        <div style="flex:1;background:#f5f5f5;border-radius:8px;padding:8px 10px;font-size:13px;color:#888;text-decoration:line-through">${c.antes}</div>
+        <svg width="14" height="14" fill="none" stroke="#111" stroke-width="2" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
+        <div style="flex:1;background:linear-gradient(180deg,#111,#444);border-radius:8px;padding:8px 10px;font-size:13px;color:#fff;font-weight:600">${c.despues}</div>
+      </div>
+    </div>`).join('');
+  window._resumenMovOnConfirmar = onConfirmar;
+  overlay.classList.add('open');
+}
+window._confirmarResumenMovimiento = function(){
+  const rm = document.getElementById('modal-resumen-movimiento');
+  rm.classList.remove('open');
+  rm.style.zIndex = '';
+  setTimeout(()=>window.showSuccess('Movimiento actualizado',''), 350);
+  if(typeof window._resumenMovOnConfirmar === 'function'){
+    const cb = window._resumenMovOnConfirmar;
+    window._resumenMovOnConfirmar = null;
+    setTimeout(cb, 300);
+  }
+};
+window._corregirResumenMovimiento = function(){
+  document.getElementById('modal-resumen-movimiento').classList.remove('open');
+  // Reabre el formulario correspondiente al contexto
+  if(window._resumenMovCtx === 'credito'){
+    document.getElementById('modal-overlay').classList.add('open');
+  } else if(window._resumenMovCtx === 'debito'){
+    document.getElementById('modal-debito-overlay').classList.add('open');
+  }
+};
 
 window._corregirDesdeResumenDebito = function(){
   document.getElementById('modal-resumen-cambio-debito').classList.remove('open');
@@ -3902,7 +3965,6 @@ window._corregirDesdeResumenDebito = function(){
 
 function _mostrarResumenCambioDebito(titulo, cambios){
   const overlay = document.getElementById('modal-resumen-cambio-debito');
-  document.getElementById('resumen-cambio-debito-titulo').textContent = titulo;
   const body = document.getElementById('resumen-cambio-debito-body');
   if(!cambios.length){
     body.innerHTML = '<div style="text-align:center;color:#aaa;font-size:14px;padding:8px 0">Sin cambios detectados</div>';
@@ -3938,7 +4000,6 @@ window._corregirDesdeResumenTarjeta = function(){
 function _mostrarResumenCambioTarjeta(titulo, cambios){
   // Mostrar resumen visual de cambios
   const overlay = document.getElementById('modal-resumen-cambio-tarjeta');
-  document.getElementById('resumen-cambio-titulo').textContent = titulo;
   const body = document.getElementById('resumen-cambio-body');
   if(!cambios.length){
     body.innerHTML = '<div style="text-align:center;color:#aaa;font-size:14px;padding:8px 0">Sin cambios detectados</div>';
@@ -4012,7 +4073,7 @@ window.guardarNuevaTarjeta = async function(){
     // NO reconstruir carrusel hasta que el usuario toque "Listo"
     selectedBancoEdit = '';
     selectedCorteEdit = null;
-    showSuccess('Tarjeta agregada', `${nombre}${apodoNueva ? ' · ' + apodoNueva : ''} — Corte día ${corte}`);
+    window.showSuccess('Tarjeta agregada', `${nombre}${apodoNueva ? ' · ' + apodoNueva : ''} — Corte día ${corte}`);
     renderPerfiles();
   }catch(e){ showToast('❌ Error al guardar'); }
 }
@@ -4062,7 +4123,7 @@ window.guardarNuevaDebito = async function(){
   try{
     await setDoc(doc(db,'usuarios', currentUser.uid, 'perfil','datos'), perfil);
     window.perfil = perfil;
-    showSuccess('Cuenta agregada', `${nombre}${apodo ? ' · ' + apodo : ''}`);
+    window.showSuccess('Cuenta agregada', `${nombre}${apodo ? ' · ' + apodo : ''}`);
     buildCarruselDebito();
     renderPerfiles();
   } catch(e){ showToast('❌ Error al guardar'); }
@@ -4143,7 +4204,7 @@ window.guardarEdicionDebito = async function(){
         _mostrarResumenCambioDebito(titulo, cambios);
       }, 100);
     } else {
-      showSuccess('Cuenta actualizada', '');
+      window.showSuccess('Cuenta actualizada', '');
     }
   } catch(e){ showToast('❌ Error al guardar'); }
 }
@@ -4609,16 +4670,18 @@ function renderMovimientosFull(tarjetaId){
     el.innerHTML = '<div class="empty-mov">Sin movimientos para esta tarjeta</div>';
     return;
   }
-  el.innerHTML = data.map(m=>`
+  el.innerHTML = data.map(m=>{
+    const concepto = m.comercio || m.concepto || m.detalle || 'Gasto';
+    return `
     <div class="mov-item" onclick="resaltarMov(this)" onmousedown="startLongPress(this)" onmouseup="cancelLongPress()" onmouseleave="cancelLongPress()" ontouchstart="startLongPress(this)" ontouchend="cancelLongPress()" ontouchmove="cancelLongPress()" data-id="${m.id}">
       <div class="mov-icon"><svg width="16" height="16" fill="none" stroke="#111" stroke-width="2.5" viewBox="0 0 24 24"><line x1="12" y1="19" x2="12" y2="5"/><polyline points="5 12 12 19 19 12"/></svg></div>
-      <div class="mov-info"><div class="mov-date">${fmtDateShort(m.fecha,m.creadoEn)}</div></div>
-      <div class="mov-amount">-${fmt(m.monto)}</div>
-      <div class="mov-actions">
-        <button class="edit-btn" onclick="event.stopPropagation();openEdit('${m.id}')"><svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>
-        <button class="del-btn2" onclick="event.stopPropagation();eliminar('${m.id}')"><svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/></svg></button>
+      <div class="mov-info">
+        <div class="mov-name" style="font-weight:700">${concepto}</div>
+        <div class="mov-date">${fmtDateShort(m.fecha,m.creadoEn)}</div>
       </div>
-    </div>`).join('');
+      <div class="mov-amount">-${fmt(m.monto)}</div>
+    </div>`;
+  }).join('');
 }
 
 
@@ -4909,12 +4972,7 @@ window.startLongPress = function(el){
   _longPressTimer = setTimeout(()=>{
     _longPressTimer = null; // marcamos que fue longpress
     const id = el.dataset.id;
-    if(id){
-      const m = movimientos.find(x=>x.id===id);
-      if(m && (m.comercio || m.concepto || m.detalle)){
-        verDetalleGasto(id);
-      }
-    }
+    if(id) verDetalleGasto(id);
   }, 500);
 }
 
@@ -4926,12 +4984,7 @@ window.cancelLongPress = function(){
   }
 }
 
-window.cancelLongPress = function(){
-  if(_longPressTimer){
-    clearTimeout(_longPressTimer);
-    _longPressTimer = null;
-  }
-}
+
 
 window.resaltarMov = function(el){
   // Determinar el contenedor padre (mov-list o movimientos-full)
@@ -5096,12 +5149,26 @@ window.guardarEditDeb = function(){
     + '<div style="height:1px;background:#e8e8e8"></div>'
     + '<div style="display:flex;justify-content:space-between;align-items:center"><span style="font-size:14px;color:#111;font-weight:600">Importe</span><span style="font-size:20px;font-weight:800;color:#111">$'+monto.toLocaleString('es-MX',{minimumFractionDigits:2,maximumFractionDigits:2})+'</span></div>';
 
-  document.getElementById('deb-resumen-confirmar-btn').textContent = 'Guardar';
-  document.getElementById('deb-resumen-confirmar-btn').style.background = 'linear-gradient(180deg,#111,#444)';
-  document.getElementById('deb-resumen-confirmar-btn').onclick = _ejecutarGuardarEditDeb;
+  const mDebAntes = _debMovimientos.find(x=>x.id===_editingDebId);
+  const fmt$D = v=>'$'+Number(v).toLocaleString('es-MX',{minimumFractionDigits:2});
+  const MESES_RD=['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
+  const fmtFechaD=f=>{if(!f)return'—';const[a,me,d]=f.split('-');return parseInt(d)+' de '+MESES_RD[parseInt(me)-1]+' '+a;};
+  const cambiosD=[];
+  if(mDebAntes){
+    if(concepto && mDebAntes.concepto!==concepto) cambiosD.push({campo:'Concepto',antes:mDebAntes.concepto||'—',despues:concepto});
+    if(detalle  && mDebAntes.detalle !==detalle)  cambiosD.push({campo:'Detalle', antes:mDebAntes.detalle ||'—',despues:detalle});
+    if(fecha    && mDebAntes.fecha   !==fecha)    cambiosD.push({campo:'Fecha',   antes:fmtFechaD(mDebAntes.fecha),despues:fmtFechaD(fecha)});
+    if(mDebAntes.monto!==monto) cambiosD.push({campo:'Importe',antes:fmt$D(mDebAntes.monto),despues:fmt$D(monto)});
+  }
+  const bancoD = mDebAntes?(mDebAntes.banco||''):'';
+  const apodoD = mDebAntes?(mDebAntes.apodo||''):'';
+  const tituloD = bancoD+(apodoD?' · '+apodoD:'');
 
+  window._resumenMovCtx = 'debito';
   document.getElementById('modal-edit-deb').classList.remove('open');
-  setTimeout(()=>document.getElementById('modal-deb-resumen').classList.add('open'), 250);
+  setTimeout(()=>{
+    _mostrarResumenMovimiento(tituloD||'Movimiento','Revisa los cambios',cambiosD.length?cambiosD:[{campo:'Importe',antes:'—',despues:fmt$D(monto)}], _ejecutarGuardarEditDeb);
+  }, 250);
 }
 
 window._ejecutarGuardarEditDeb = async function(){
@@ -5110,9 +5177,6 @@ window._ejecutarGuardarEditDeb = async function(){
   const concepto = document.getElementById('deb-edit-concepto').value.trim();
   const detalle  = document.getElementById('deb-edit-detalle').value.trim();
   const fecha    = document.getElementById('deb-edit-fecha').value;
-  const btn = document.getElementById('deb-resumen-confirmar-btn');
-  btn.disabled = true;
-  document.getElementById('modal-deb-resumen').classList.remove('open');
   try{
     const { updateDoc, doc: _doc } = await import('https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js');
     const upd = { monto };
@@ -5125,9 +5189,8 @@ window._ejecutarGuardarEditDeb = async function(){
     _updateDebCards();
     _renderDebMovimientos();
     _editingDebId = null;
-    showSuccess('Movimiento actualizado', '');
+    // showSuccess se muestra desde _confirmarResumenMovimiento
   } catch(e){ showToast('❌ Error: '+e.message); }
-  btn.disabled = false;
 }
 
 window.pedirConfirmEditar = function(id){
@@ -5180,7 +5243,7 @@ window.confirmarEliminarMovDeb = async function(){
     _debMovimientos = _debMovimientos.filter(m=>m.id!==_deletingDebId);
     _updateDebCards();
     _renderDebMovimientos();
-    showSuccess('Movimiento eliminado', '');
+    window.showSuccess('Movimiento eliminado', '');
   } catch(e){ showToast('❌ Error al eliminar'); }
   btn.disabled = false;
   _deletingDebId = null;
@@ -5212,7 +5275,7 @@ window.irPromociones = function(){
 
 window.abrirModalPromo = function(){
   if(!perfil || !perfil.tarjetas || !perfil.tarjetas.length){
-    showSuccess('Sin tarjetas de crédito', 'Agrégalas desde la pestaña de Perfiles');
+    window.showSuccess('Sin tarjetas de crédito', 'Agrégalas desde la pestaña de Perfiles');
     return;
   }
   promoBancoSel = '';
@@ -5441,7 +5504,7 @@ window.guardarPromo = async function(){
   try{
     await addDoc(collection(db,'usuarios', currentUser.uid, 'promociones'), datos);
     document.getElementById('modal-promo-overlay').classList.remove('open');
-    showSuccess('Promoción guardada', `${nombre} — ${meses} meses sin intereses`);
+    window.showSuccess('Promoción guardada', `${nombre} — ${meses} meses sin intereses`);
     renderPromociones();
   }catch(e){ showToast('❌ Error al guardar'); }
 }
@@ -5654,7 +5717,7 @@ window.guardarEditPromo = async function(){
     const mesesPagados = parseInt(document.getElementById('edit-promo-mesespag').value) || 1;
     await updateDoc(doc(db,'promociones',id),{ importe, meses, mensualidad: importe/meses, mesesPagados });
     document.getElementById('modal-edit-promo').classList.remove('open');
-    showSuccess('Promoción actualizada','Los cambios fueron guardados');
+    window.showSuccess('Promoción actualizada','Los cambios fueron guardados');
     renderPromociones();
   }catch(e){ showToast('❌ Error al guardar'); }
 }
@@ -6464,7 +6527,7 @@ window.confirmarEliminarBanco = function(){
       const apodo   = eliminada?.apodo ? ` · ${eliminada.apodo}` : '';
       const limite  = eliminada ? `$${eliminada.limite.toLocaleString('es-MX')}` : '';
       const corte   = eliminada ? `Corte día ${eliminada.corte}` : '';
-      showSuccess(`${nombre}${apodo} eliminada`, `Límite ${limite} · ${corte}`);
+      window.showSuccess(`${nombre}${apodo} eliminada`, `Límite ${limite} · ${corte}`);
     })
     .catch(()=>{ showToast('❌ Error al eliminar'); });
 }
@@ -7497,7 +7560,7 @@ window._ejecutarGuardarExtDB = async function(){
     document.getElementById('inp-fecha-ext').value    = '';
     document.getElementById('inp-comercio-ext').value = '';
     document.getElementById('inp-concepto-ext').value = '';
-    showSuccess('Movimiento registrado', '');
+    window.showSuccess('Movimiento registrado', '');
 
     setTimeout(()=>{
       try{
@@ -7553,7 +7616,7 @@ window.confirmarEliminarBanco = function(){
       const apodo   = eliminada?.apodo ? ` · ${eliminada.apodo}` : '';
       const limite  = eliminada ? `$${eliminada.limite.toLocaleString('es-MX')}` : '';
       const corte   = eliminada ? `Corte día ${eliminada.corte}` : '';
-      showSuccess(`${nombre}${apodo} eliminada`, `Límite ${limite} · ${corte}`);
+      window.showSuccess(`${nombre}${apodo} eliminada`, `Límite ${limite} · ${corte}`);
     })
     .catch(()=>{ showToast('❌ Error al eliminar'); });
 }
@@ -8656,7 +8719,7 @@ window._ejecutarGuardarDebitoDB = async function() {
 
     document.getElementById('modal-debito-overlay').classList.remove('open');
     document.getElementById('debito-cuenta-scroll-wrap').style.display = 'none';
-    showSuccess('Movimiento registrado', '');
+    window.showSuccess('Movimiento registrado', '');
 
     if (typeof _cargarMovDebito === 'function') {
       _cargarMovDebito();
@@ -8969,16 +9032,43 @@ document.addEventListener('DOMContentLoaded', function(){
   </div>
 </div>
 
+<!-- ══ MODAL RESUMEN MOVIMIENTO GENÉRICO ══ -->
+<div class="modal-overlay" id="modal-resumen-movimiento" onclick="if(event.target===this)this.classList.remove('open')" style="z-index:1200">
+  <div class="modal" onclick="event.stopPropagation()" style="padding-bottom:28px">
+    <div class="modal-handle"></div>
+    <div style="text-align:center;margin-bottom:18px">
+      <div style="width:56px;height:56px;border-radius:50%;background:#f0f0f0;display:flex;align-items:center;justify-content:center;margin:0 auto 12px">
+        <svg width="28" height="28" fill="none" stroke="#111" stroke-width="2.2" viewBox="0 0 24 24"><path d="M9 12l2 2 4-4"/><circle cx="12" cy="12" r="10"/></svg>
+      </div>
+      <div style="font-size:18px;font-weight:800;color:#111;margin-bottom:4px">¿Son correctos los cambios?</div>
+      <div style="font-size:13px;color:#aaa">Revisa antes de guardar</div>
+
+    </div>
+    <div id="resumen-mov-body" style="margin-bottom:20px"></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+      <button onclick="_corregirResumenMovimiento()"
+        style="padding:14px;border-radius:12px;border:1.5px solid #e0e0e0;background:#fff;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit;color:#111">
+        Corregir
+      </button>
+      <button onclick="_confirmarResumenMovimiento()"
+        style="padding:14px;border-radius:12px;background:linear-gradient(180deg,#111,#444);color:#fff;border:none;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit">
+        Confirmar
+      </button>
+    </div>
+  </div>
+</div>
+
 <!-- ══ MODAL RESUMEN CAMBIO DÉBITO ══ -->
 <div class="modal-overlay" id="modal-resumen-cambio-debito" onclick="if(event.target===this)this.classList.remove('open')" style="z-index:1200">
   <div class="modal" onclick="event.stopPropagation()" style="padding-bottom:28px">
     <div class="modal-handle"></div>
     <div style="text-align:center;margin-bottom:18px">
-      <div style="width:56px;height:56px;border-radius:50%;background:linear-gradient(180deg,#111,#444);display:flex;align-items:center;justify-content:center;margin:0 auto 12px">
-        <svg width="26" height="26" fill="none" stroke="#fff" stroke-width="2.2" viewBox="0 0 24 24"><path d="M9 12l2 2 4-4"/><circle cx="12" cy="12" r="10"/></svg>
+      <div style="width:56px;height:56px;border-radius:50%;background:#f0f0f0;display:flex;align-items:center;justify-content:center;margin:0 auto 12px">
+        <svg width="28" height="28" fill="none" stroke="#111" stroke-width="2.2" viewBox="0 0 24 24"><path d="M9 12l2 2 4-4"/><circle cx="12" cy="12" r="10"/></svg>
       </div>
-      <div style="font-size:18px;font-weight:800;color:#111" id="resumen-cambio-debito-titulo"></div>
-      <div style="font-size:13px;color:#aaa;margin-top:2px">Cuenta actualizada</div>
+      <div style="font-size:18px;font-weight:800;color:#111;margin-bottom:4px">¿Son correctos los cambios?</div>
+      <div style="font-size:13px;color:#aaa">Revisa antes de guardar</div>
+
     </div>
     <div id="resumen-cambio-debito-body" style="margin-bottom:20px"></div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
@@ -8986,7 +9076,7 @@ document.addEventListener('DOMContentLoaded', function(){
         style="padding:14px;border-radius:12px;border:1.5px solid #e0e0e0;background:#fff;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit;color:#111">
         Corregir
       </button>
-      <button onclick="document.getElementById('modal-resumen-cambio-debito').classList.remove('open');setTimeout(()=>showSuccess('Información actualizada',''),300)"
+      <button onclick="_listoResumenDebito()"
         style="padding:14px;border-radius:12px;background:linear-gradient(180deg,#111,#444);color:#fff;border:none;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit">
         Listo
       </button>
@@ -8999,11 +9089,12 @@ document.addEventListener('DOMContentLoaded', function(){
   <div class="modal" onclick="event.stopPropagation()" style="padding-bottom:28px">
     <div class="modal-handle"></div>
     <div style="text-align:center;margin-bottom:18px">
-      <div style="width:56px;height:56px;border-radius:50%;background:linear-gradient(180deg,#111,#444);display:flex;align-items:center;justify-content:center;margin:0 auto 12px">
-        <svg width="26" height="26" fill="none" stroke="#fff" stroke-width="2.2" viewBox="0 0 24 24"><path d="M9 12l2 2 4-4"/><circle cx="12" cy="12" r="10"/></svg>
+      <div style="width:56px;height:56px;border-radius:50%;background:#f0f0f0;display:flex;align-items:center;justify-content:center;margin:0 auto 12px">
+        <svg width="28" height="28" fill="none" stroke="#111" stroke-width="2.2" viewBox="0 0 24 24"><path d="M9 12l2 2 4-4"/><circle cx="12" cy="12" r="10"/></svg>
       </div>
-      <div style="font-size:18px;font-weight:800;color:#111" id="resumen-cambio-titulo"></div>
-      <div style="font-size:13px;color:#aaa;margin-top:2px">Tarjeta actualizada</div>
+      <div style="font-size:18px;font-weight:800;color:#111;margin-bottom:4px">¿Son correctos los cambios?</div>
+      <div style="font-size:13px;color:#aaa">Revisa antes de guardar</div>
+
     </div>
     <div id="resumen-cambio-body" style="margin-bottom:20px"></div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
@@ -9011,7 +9102,7 @@ document.addEventListener('DOMContentLoaded', function(){
         style="padding:14px;border-radius:12px;border:1.5px solid #e0e0e0;background:#fff;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit;color:#111">
         Corregir
       </button>
-      <button onclick="document.getElementById('modal-resumen-cambio-tarjeta').classList.remove('open');setTimeout(()=>showSuccess('Información actualizada',''),300)"
+      <button onclick="_listoResumenTarjeta()"
         style="padding:14px;border-radius:12px;background:linear-gradient(180deg,#111,#444);color:#fff;border:none;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit">
         Listo
       </button>
