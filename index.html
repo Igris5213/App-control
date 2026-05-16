@@ -256,7 +256,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
   align-items:center;
   z-index:500;
   padding:0 8px;
-  overflow:visible;
+  overflow:hidden;
 }
 
 .nav-item{
@@ -268,7 +268,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
   justify-content:center;
   cursor:pointer;
   font-family:inherit;
-  padding:10px 12px;
+  padding:8px 7px;
   border-radius:50px;
   gap:0;
   transition:all 0.32s cubic-bezier(0.34,1.5,0.64,1);
@@ -283,11 +283,12 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .nav-item.active{
   background:#0a0a0a;
   color:#fff;
-  padding:18px 22px;
+  padding:8px 14px;
   border-radius:30px;
-  box-shadow:0 8px 28px rgba(0,0,0,0.45), 0 2px 8px rgba(0,0,0,0.2);
-  transform:translateY(-14px);
+  box-shadow:0 4px 16px rgba(0,0,0,0.35);
+  transform:translateY(0);
 }
+.nav-item.active span{opacity:1!important;}
 
 .nav-item.active svg{
   width:26px;
@@ -297,8 +298,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .nav-trail{ display:none; }
 
 .nav-item svg{
-  width:22px;
-  height:22px;
+  width:20px;
+  height:20px;
   transition:all 0.32s cubic-bezier(0.34,1.5,0.64,1);
 }
 
@@ -1475,7 +1476,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-import { getFirestore, collection, addDoc, updateDoc, deleteDoc, doc, onSnapshot, query, orderBy, setDoc, getDoc, getDocs } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+import { getFirestore, initializeFirestore, CACHE_SIZE_UNLIMITED, collection, addDoc, updateDoc, deleteDoc, doc, onSnapshot, query, orderBy, setDoc, getDoc, getDocs } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyBYKluSaB9AJw3WIQg1V2VYQqWoNJ4Pzk4",
@@ -1486,7 +1487,11 @@ const firebaseConfig = {
   appId: "1:505273629372:web:00b657c6aae2e33234aeb9"
 };
 const fbApp = initializeApp(firebaseConfig);
-const db = getFirestore(fbApp);
+const db = initializeFirestore(fbApp, {
+  experimentalForceLongPolling: false,
+  ignoreUndefinedProperties: true,
+  localCache: { kind: 'memory' }
+});
 let currentUser = { uid: 'usuario' };
 
 // ── Estado ───────────────────────────────────────
@@ -2495,10 +2500,15 @@ function renderMovimientos(){
   const idx = (current >= 0 && current < perfil.tarjetas.length) ? current : 0;
   const t = perfil.tarjetas[idx];
   if(!t){ el.innerHTML=''; return; }
-  // Últimos 10 movimientos de esta tarjeta (sin filtro de período para mostrar siempre los más recientes)
+  // Últimos 10 movimientos más recientes por fecha del movimiento
   const filtrados = movimientos
     .filter(m => m.tarjetaId === t.id)
-    .sort((a,b) => b.creadoEn - a.creadoEn)
+    .sort((a,b) => {
+      const fa = a.fecha || '';
+      const fb = b.fecha || '';
+      if(fb !== fa) return fb.localeCompare(fa);
+      return (b.creadoEn||0) - (a.creadoEn||0);
+    })
     .slice(0, 10);
 
   if(!filtrados.length){ el.innerHTML=`<div class="empty-mov">Sin movimientos en el corte actual</div>`; return; }
@@ -2559,30 +2569,49 @@ window.toggleScrollFechaModal = function(){
 
   const fechaGuardada = document.getElementById('inp-fecha-modal').value;
   let dAnio, dMes, dDia;
+  const hoy = new Date();
+  const hoyAnio = hoy.getFullYear(), hoyMes = hoy.getMonth()+1, hoyDia = hoy.getDate();
   if(fechaGuardada){
     [dAnio, dMes, dDia] = fechaGuardada.split('-').map(Number);
-  } else { const h=new Date(); dAnio=h.getFullYear(); dMes=h.getMonth()+1; dDia=h.getDate(); }
+  } else { dAnio=hoyAnio; dMes=hoyMes; dDia=hoyDia; }
 
   const MESES_C = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
-  const anios = [dAnio-1, dAnio];
-  const maxD  = new Date(dAnio, dMes, 0).getDate();
-  const dias  = Array.from({length:maxD},(_,i)=>String(i+1).padStart(2,'0'));
+  const anios = [hoyAnio-1, hoyAnio];
+
+  function getMeses(){ return dAnio===hoyAnio ? MESES_C.slice(0,hoyMes) : MESES_C; }
+  function getDias(){
+    const maxD = new Date(dAnio,dMes,0).getDate();
+    const limite = (dAnio===hoyAnio && dMes===hoyMes) ? hoyDia : maxD;
+    return Array.from({length:Math.min(maxD,limite)},(_,i)=>String(i+1).padStart(2,'0'));
+  }
 
   function buildCol(scrollId, itemsId, items, selIdx, onSel){
     const sc = document.getElementById(scrollId);
     const it = document.getElementById(itemsId);
+    selIdx = Math.max(0, Math.min(selIdx, items.length-1));
     it.innerHTML = items.map((v,i)=>`<div class="dp-item${i===selIdx?' sel':''}" style="${i===selIdx?'color:#fff':'color:#444'}">${v}</div>`).join('');
     sc.scrollTop = selIdx * 44;
     snapScrollConInicio(sc, 44, selIdx, idx=>{
+      idx = Math.min(idx, items.length-1);
       it.querySelectorAll('.dp-item').forEach((el,i)=>{ el.classList.toggle('sel',i===idx); el.style.color=i===idx?'#fff':'#444'; });
       onSel(idx); _actualizarFechaModal();
     });
   }
 
   wrap.style.display = 'block';
-  buildCol('scroll-modal-anio','scroll-modal-anio-items', anios.map(String), anios.indexOf(dAnio)>=0?anios.indexOf(dAnio):1, idx=>{ dAnio=anios[idx]; });
-  buildCol('scroll-modal-mes', 'scroll-modal-mes-items',  MESES_C, dMes-1, idx=>{ dMes=idx+1; });
-  buildCol('scroll-modal-dia', 'scroll-modal-dia-items',  dias,    dDia-1, idx=>{ dDia=idx+1; });
+  buildCol('scroll-modal-anio','scroll-modal-anio-items', anios.map(String), anios.indexOf(dAnio)>=0?anios.indexOf(dAnio):1, idx=>{
+    dAnio=anios[idx];
+    if(dAnio===hoyAnio && dMes>hoyMes){ dMes=hoyMes; }
+    if(dAnio===hoyAnio && dMes===hoyMes && dDia>hoyDia){ dDia=hoyDia; }
+    buildCol('scroll-modal-mes','scroll-modal-mes-items', getMeses(), dMes-1, idx2=>{ dMes=idx2+1; buildCol('scroll-modal-dia','scroll-modal-dia-items',getDias(),dDia-1,idx3=>{ dDia=idx3+1; }); });
+    buildCol('scroll-modal-dia','scroll-modal-dia-items', getDias(), dDia-1, idx3=>{ dDia=idx3+1; });
+  });
+  buildCol('scroll-modal-mes','scroll-modal-mes-items', getMeses(), dMes-1, idx=>{
+    dMes=idx+1;
+    if(dAnio===hoyAnio && dMes===hoyMes && dDia>hoyDia){ dDia=hoyDia; }
+    buildCol('scroll-modal-dia','scroll-modal-dia-items', getDias(), dDia-1, idx3=>{ dDia=idx3+1; });
+  });
+  buildCol('scroll-modal-dia','scroll-modal-dia-items', getDias(), dDia-1, idx=>{ dDia=idx+1; });
 
   function _actualizarFechaModal(){
     const MESES_ESP=['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
@@ -2660,6 +2689,11 @@ window.guardar = async function(){
           movimientos.sort((a,b)=>{ const fa=a.fecha||'',fb=b.fecha||''; return fb!==fa?fb.localeCompare(fa):(b.creadoEn||0)-(a.creadoEn||0); });
           updateCards();
           renderMovimientos();
+          // Actualizar historial si está visible
+          const movFull = document.getElementById('movimientos-full');
+          if(movFull && window._pendingTarjetaId){
+            renderMovimientosFull(window._pendingTarjetaId);
+          }
           editingId = null;
           // showSuccess se muestra desde _confirmarResumenMovimiento
         } catch(e){ showToast('❌ Error: '+e.message); }
@@ -3912,8 +3946,25 @@ window._listoResumenTarjeta = function(){
   document.getElementById('modal-resumen-cambio-tarjeta').classList.remove('open');
   setTimeout(()=>window.showSuccess('Información actualizada',''), 350);
 };
-window._listoResumenDebito = function(){
+window._listoResumenDebito = async function(){
   document.getElementById('modal-resumen-cambio-debito').classList.remove('open');
+  // Ahora sí persistir en Firestore con los datos pendientes
+  const id     = window._pendienteDebitoId;
+  const nombre = window._pendienteDebitoNombre;
+  const apodo  = window._pendienteDebitoApodo;
+  const disp   = window._pendienteDebitoDisp;
+  if(id && nombre !== undefined && perfil.cuentasDebito){
+    perfil.cuentasDebito = perfil.cuentasDebito.map(c=>
+      c.id===id ? {...c, nombre, apodo, disponible: disp} : c
+    );
+    try{
+      await setDoc(doc(db,'usuarios', currentUser.uid, 'perfil','datos'), perfil);
+      window.perfil = perfil;
+      buildCarruselDebito();
+      renderPerfiles();
+    } catch(e){ showToast('\u274c Error al guardar'); return; }
+    window._pendienteDebitoId = null;
+  }
   setTimeout(()=>window.showSuccess('Información actualizada',''), 350);
 };
 
@@ -3952,18 +4003,32 @@ window._corregirResumenMovimiento = function(){
   if(window._resumenMovCtx === 'credito'){
     document.getElementById('modal-overlay').classList.add('open');
   } else if(window._resumenMovCtx === 'debito'){
-    document.getElementById('modal-debito-overlay').classList.add('open');
+    document.getElementById('modal-edit-deb').classList.add('open');
   }
 };
 
 window._corregirDesdeResumenDebito = function(){
   document.getElementById('modal-resumen-cambio-debito').classList.remove('open');
+  // Cerrar cualquier otro modal que pudiera estar abierto
+  document.getElementById('modal-debito-overlay').classList.remove('open');
   setTimeout(()=>{
-    if(window._ultimaDebitoEditadaId) abrirEditarDebito(window._ultimaDebitoEditadaId);
+    // Restaurar directamente los valores que el usuario había escrito,
+    // SIN llamar abrirEditarDebito (que los sobreescribiría desde perfil)
+    if(window._pendienteDebitoId){
+      document.getElementById('edit-debito-id').value       = window._pendienteDebitoId;
+      document.getElementById('edit-debito-banco').value    = window._pendienteDebitoNombre || '';
+      document.getElementById('edit-debito-apodo').value    = window._pendienteDebitoApodo  || '';
+      document.getElementById('banco-debito-edit-txt-ro').textContent = window._pendienteDebitoNombre || '—';
+      document.getElementById('apodo-debito-edit-txt-ro').textContent = window._pendienteDebitoApodo  || '—';
+      document.getElementById('edit-debito-disponible').value = window._pendienteDebitoDisp !== undefined ? window._pendienteDebitoDisp : '';
+      document.getElementById('edit-debito-overlay').classList.add('open');
+    }
   }, 300);
 };
 
 function _mostrarResumenCambioDebito(titulo, cambios){
+  // Asegurarse que el modal de resumen de movimientos no esté abierto
+  document.getElementById('modal-resumen-movimiento').classList.remove('open');
   const overlay = document.getElementById('modal-resumen-cambio-debito');
   const body = document.getElementById('resumen-cambio-debito-body');
   if(!cambios.length){
@@ -4180,33 +4245,39 @@ window.guardarEdicionDebito = async function(){
   if(!nombre){ showToast('Ingresa el nombre del banco'); return; }
   if(!perfil.cuentasDebito) return;
 
-  // Capturar estado anterior
+  // Capturar estado anterior ANTES de modificar nada
   const cAntes = perfil.cuentasDebito.find(c=>c.id===id);
   const antes = cAntes ? { disponible: parseFloat(cAntes.disponible)||0 } : null;
 
-  perfil.cuentasDebito = perfil.cuentasDebito.map(c=>
-    c.id===id ? {...c, nombre, apodo, disponible: disp} : c
-  );
-  try{
-    await setDoc(doc(db,'usuarios', currentUser.uid, 'perfil','datos'), perfil);
-    window.perfil = perfil;
-    document.getElementById('edit-debito-overlay').classList.remove('open');
-    buildCarruselDebito();
-    renderPerfiles();
+  // Guardar datos pendientes para confirmar después (sin tocar Firestore aún)
+  window._pendienteDebitoId     = id;
+  window._pendienteDebitoNombre = nombre;
+  window._pendienteDebitoApodo  = apodo;
+  window._pendienteDebitoDisp   = disp;
+  window._ultimaDebitoEditadaId = id;
 
-    const titulo = nombre + (apodo ? ' · ' + apodo : '');
-    if(antes){
-      const fmt$ = v => '$' + Number(v).toLocaleString('es-MX',{minimumFractionDigits:2});
-      const cambios = [];
-      if(!isNaN(antes.disponible) && !isNaN(disp) && antes.disponible !== disp)
-        cambios.push({campo:'Saldo disponible', antes:fmt$(antes.disponible), despues:fmt$(disp)});
-      setTimeout(()=>{
-        _mostrarResumenCambioDebito(titulo, cambios);
-      }, 100);
-    } else {
+  document.getElementById('edit-debito-overlay').classList.remove('open');
+
+  const titulo = nombre + (apodo ? ' · ' + apodo : '');
+  if(antes){
+    const fmt$ = v => '$' + Number(v).toLocaleString('es-MX',{minimumFractionDigits:2});
+    const cambios = [];
+    if(!isNaN(antes.disponible) && !isNaN(disp) && antes.disponible !== disp)
+      cambios.push({campo:'Saldo disponible', antes:fmt$(antes.disponible), despues:fmt$(disp)});
+    setTimeout(()=>{ _mostrarResumenCambioDebito(titulo, cambios); }, 100);
+  } else {
+    // Sin cambios detectables, guardar directo
+    perfil.cuentasDebito = perfil.cuentasDebito.map(c=>
+      c.id===id ? {...c, nombre, apodo, disponible: disp} : c
+    );
+    try{
+      await setDoc(doc(db,'usuarios', currentUser.uid, 'perfil','datos'), perfil);
+      window.perfil = perfil;
+      buildCarruselDebito();
+      renderPerfiles();
       window.showSuccess('Cuenta actualizada', '');
-    }
-  } catch(e){ showToast('❌ Error al guardar'); }
+    } catch(e){ showToast('\u274c Error al guardar'); }
+  }
 }
 
 
@@ -4236,6 +4307,8 @@ function resetHistorial(){
   // Ocultar resumen y restaurar selectores
   const resumen = document.getElementById('resumen-seleccion');
   if(resumen) resumen.style.display = 'none';
+  const leyendaH = document.getElementById('leyenda-historial');
+  if(leyendaH) leyendaH.style.display = '';
   const elBanco = document.getElementById('paso-banco-hist');
   if(elBanco) elBanco.style.display = '';
   ['banco-seleccionado-txt','tarjeta-seleccionada-txt','anio-seleccionado-txt','corte-seleccionado-txt'].forEach(id=>{
@@ -4257,6 +4330,7 @@ window.selHistTipo = function(tipo){
   if(tipo === 'debito'){
     panelDeb.style.display  = 'block';
     panelCred.style.display = 'none';
+    if(typeof resetHistorial === 'function') resetHistorial();
     debCargarCuentas().then(()=>debResetPanel());
     slider.style.transform = 'translateX(100%)';
     btnDeb.style.color  = '#fff';
@@ -4264,6 +4338,8 @@ window.selHistTipo = function(tipo){
   } else {
     panelDeb.style.display  = 'none';
     panelCred.style.display = 'block';
+    if(typeof debResetPanel === 'function') debResetPanel();
+    if(typeof resetHistorial === 'function') resetHistorial();
     slider.style.transform = 'translateX(0)';
     btnCred.style.color = '#fff';
     btnDeb.style.color  = '#888';
@@ -4274,7 +4350,7 @@ window.selHistTipo = function(tipo){
 const DEB_MESES_NOMBRES = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
 
 let debCuentasCache = []; // [{id, nombre, apodo, ...}]
-let _debMovsCache  = []; // movimientos de la tarjeta seleccionada (todos)
+let _debMovsCache  = []; window._debMovsCache = _debMovsCache; // movimientos de la tarjeta seleccionada (todos)
 let _debBancoSel = '';
 let _debTarjetaId = null;
 let _debAnioSel = null;
@@ -4319,8 +4395,8 @@ function debCargarListaBancos(){
   }
   cont.innerHTML = bancosUnicos.map(b=>`
     <div data-banco="${b}" onclick="debSelBanco('${b}')"
-      style="padding:14px 16px;border-bottom:1px solid rgba(255,255,255,0.08);cursor:pointer;display:flex;align-items:center;justify-content:space-between;color:#fff;font-weight:500;font-size:14px">
-      ${b}<svg width="16" height="16" fill="none" stroke="rgba(255,255,255,0.4)" stroke-width="2" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
+      style="padding:14px 16px;border-bottom:1px solid #e8e8e8;cursor:pointer;display:flex;align-items:center;justify-content:space-between;color:#111;font-weight:500;font-size:14px">
+      ${b}<svg width="16" height="16" fill="none" stroke="#aaa" stroke-width="2" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
     </div>`).join('');
   // NO abrir automáticamente: el usuario hace clic en "Seleccionar banco"
   document.getElementById('deb-dd-bancos').style.display = 'none';
@@ -4328,16 +4404,38 @@ function debCargarListaBancos(){
 }
 
 window.debToggleDD = function(id){
+  const orden      = ['deb-dd-bancos','deb-dd-tarjetas','deb-dd-anios','deb-dd-meses'];
+  const pasos      = ['deb-paso-banco','deb-paso-tarjeta','deb-paso-anio','deb-paso-mes'];
+  const textos_ids = ['deb-banco-txt','deb-tarjeta-txt','deb-anio-txt','deb-mes-txt'];
+  const defaults   = ['Seleccionar banco','Seleccionar tarjeta','Seleccionar año','Seleccionar mes'];
+  const idx = orden.indexOf(id);
+
+  // Bloquear si paso anterior no completado
+  if(idx > 0){
+    for(let i=0;i<idx;i++){
+      const txt = document.getElementById(textos_ids[i])?.textContent;
+      if(!txt||txt===defaults[i]) return;
+    }
+  }
+
+  // Al abrir un paso anterior, cerrar y resetear todos los posteriores
+  for(let i=idx+1; i<orden.length; i++){
+    const ddEl = document.getElementById(orden[i]);
+    if(ddEl) ddEl.style.display = 'none';
+    const iconEl = document.getElementById(orden[i]+'-icon');
+    if(iconEl) iconEl.style.transform = '';
+    const txtEl = document.getElementById(textos_ids[i]);
+    if(txtEl) txtEl.textContent = defaults[i];
+    if(i > idx+1){
+      const pasoEl = document.getElementById(pasos[i]);
+      if(pasoEl) pasoEl.style.display = 'none';
+    }
+  }
+  document.getElementById('deb-recuadro-movimientos').style.display = 'none';
+
   const dd = document.getElementById(id);
   const icon = document.getElementById(id+'-icon');
   const abierto = dd.style.display === 'block';
-  // Cerrar todos los dd de débito
-  ['deb-dd-bancos','deb-dd-tarjetas','deb-dd-anios','deb-dd-meses'].forEach(did=>{
-    const el=document.getElementById(did); if(el&&did!==id) el.style.display='none';
-  });
-  ['deb-dd-bancos-icon','deb-dd-tarjetas-icon','deb-dd-anios-icon','deb-dd-meses-icon'].forEach(iid=>{
-    const el=document.getElementById(iid); if(el&&iid!==id+'-icon') el.style.transform='';
-  });
   dd.style.display = abierto ? 'none' : 'block';
   if(icon) icon.style.transform = abierto ? '' : 'rotate(180deg)';
 }
@@ -4359,17 +4457,27 @@ window.debSelBanco = function(banco){
   const contT = document.getElementById('deb-lista-tarjetas');
   contT.innerHTML = tarjetas.map(t=>`
     <div data-id="${t.id}" onclick="debSelTarjeta('${t.id}')"
-      style="padding:14px 16px;border-bottom:1px solid rgba(255,255,255,0.08);cursor:pointer;display:flex;align-items:center;justify-content:space-between;color:#fff;font-weight:500;font-size:14px">
+      style="padding:14px 16px;border-bottom:1px solid #e8e8e8;cursor:pointer;display:flex;align-items:center;justify-content:space-between;color:#111;font-weight:500;font-size:14px">
       <span>${t.apodo||t.nombre}</span>
-      ${t.saldo!=null?`<span style="color:rgba(255,255,255,0.5);font-size:12px">$${Number(t.saldo).toLocaleString('es-MX',{minimumFractionDigits:2})}</span>`:''}
+      ${t.saldo!=null?`<span style="color:#aaa;font-size:12px">$${Number(t.saldo).toLocaleString('es-MX',{minimumFractionDigits:2})}</span>`:''}
     </div>`).join('');
+  // Cerrar pasos posteriores al banco
   document.getElementById('deb-paso-tarjeta').style.display = '';
   document.getElementById('deb-tarjeta-txt').textContent = 'Seleccionar tarjeta';
   document.getElementById('deb-dd-tarjetas').style.display = 'none';
   document.getElementById('deb-dd-tarjetas-icon').style.transform = '';
   document.getElementById('deb-paso-anio').style.display = 'none';
+  document.getElementById('deb-anio-txt').textContent = 'Seleccionar año';
+  document.getElementById('deb-dd-anios').style.display = 'none';
   document.getElementById('deb-paso-mes').style.display = 'none';
+  document.getElementById('deb-mes-txt').textContent = 'Seleccionar mes';
+  document.getElementById('deb-dd-meses').style.display = 'none';
   document.getElementById('deb-recuadro-movimientos').style.display = 'none';
+  // Auto-abrir tarjeta
+  setTimeout(()=>{
+    document.getElementById('deb-dd-tarjetas').style.display = 'block';
+    document.getElementById('deb-dd-tarjetas-icon').style.transform = 'rotate(180deg)';
+  }, 200);
 }
 
 window.debSelTarjeta = async function(id){
@@ -4389,10 +4497,17 @@ window.debSelTarjeta = async function(id){
   // Mostrar "cargando" en el selector de año mientras trae datos
   const contA = document.getElementById('deb-lista-anios');
   contA.innerHTML = '<div style="padding:14px 16px;color:rgba(255,255,255,0.4);font-size:14px">Cargando...</div>';
+  // Cerrar pasos posteriores a tarjeta
   document.getElementById('deb-paso-anio').style.display = '';
   document.getElementById('deb-anio-txt').textContent = 'Seleccionar año';
+  document.getElementById('deb-dd-anios').style.display = 'none';
+  document.getElementById('deb-dd-anios-icon').style.transform = '';
   document.getElementById('deb-paso-mes').style.display = 'none';
+  document.getElementById('deb-mes-txt').textContent = 'Seleccionar mes';
+  document.getElementById('deb-dd-meses').style.display = 'none';
   document.getElementById('deb-recuadro-movimientos').style.display = 'none';
+  // Auto-abrir año después de cargar
+
   // Cargar todos los movimientos de esta tarjeta y derivar años con datos
   try {
     const { getDocs, collection, query, orderBy } = await import('https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js');
@@ -4402,7 +4517,13 @@ window.debSelTarjeta = async function(id){
     ));
     _debMovsCache = snap.docs.map(d=>({id:d.id,...d.data()}))
       .filter(m => m.cuentaId === id && m.fecha);
-  } catch(e){ _debMovsCache = []; }
+    window._debMovsCache = _debMovsCache;
+  } catch(e){ _debMovsCache = []; window._debMovsCache = _debMovsCache; }
+  // Auto-abrir año
+  setTimeout(()=>{
+    document.getElementById('deb-dd-anios').style.display = 'block';
+    document.getElementById('deb-dd-anios-icon').style.transform = 'rotate(180deg)';
+  }, 300);
   // Años únicos con movimientos, más reciente primero
   const aniosConDatos = [...new Set(_debMovsCache.map(m => m.fecha.substring(0,4)))]
     .map(Number).sort((a,b)=>b-a);
@@ -4412,9 +4533,9 @@ window.debSelTarjeta = async function(id){
   }
   contA.innerHTML = aniosConDatos.map(a=>`
     <div data-anio="${a}" onclick="debSelAnio(${a})"
-      style="padding:14px 16px;border-bottom:1px solid rgba(255,255,255,0.08);cursor:pointer;display:flex;align-items:center;justify-content:space-between;color:#fff;font-weight:500;font-size:14px">
+      style="padding:14px 16px;border-bottom:1px solid #e8e8e8;cursor:pointer;display:flex;align-items:center;justify-content:space-between;color:#111;font-weight:500;font-size:14px">
       <span>${a}</span>
-      <svg width="16" height="16" fill="none" stroke="rgba(255,255,255,0.4)" stroke-width="2" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
+      <svg width="16" height="16" fill="none" stroke="#aaa" stroke-width="2" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
     </div>`).join('');
   // NO abrir el dropdown automáticamente: el usuario hace clic cuando quiera
   document.getElementById('deb-dd-anios').style.display = 'none';
@@ -4436,7 +4557,7 @@ window.debSelAnio = function(anio){
   const mesesConDatos = [...new Set(
     _debMovsCache.filter(m => m.fecha.startsWith(anioPfx))
       .map(m => parseInt(m.fecha.substring(5,7)) - 1)
-  )].sort((a,b)=>b-a);
+  )].sort((a,b)=>a-b);
   const contM = document.getElementById('deb-lista-meses');
   if(!mesesConDatos.length){
     contM.innerHTML = '<div style="padding:14px 16px;color:rgba(255,255,255,0.4);font-size:14px">Sin movimientos en este año</div>';
@@ -4449,15 +4570,21 @@ window.debSelAnio = function(anio){
   }
   contM.innerHTML = mesesConDatos.map(i=>`
     <div data-mes="${i}" onclick="debSelMes(${i})"
-      style="padding:14px 16px;border-bottom:1px solid rgba(255,255,255,0.08);cursor:pointer;display:flex;align-items:center;justify-content:space-between;color:#fff;font-weight:500;font-size:14px">
+      style="padding:14px 16px;border-bottom:1px solid #e8e8e8;cursor:pointer;display:flex;align-items:center;justify-content:space-between;color:#111;font-weight:500;font-size:14px">
       <span>${DEB_MESES_NOMBRES[i]}</span>
-      <svg width="16" height="16" fill="none" stroke="rgba(255,255,255,0.4)" stroke-width="2" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
+      <svg width="16" height="16" fill="none" stroke="#aaa" stroke-width="2" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
     </div>`).join('');
+  // Cerrar pasos posteriores a año
   document.getElementById('deb-paso-mes').style.display = '';
   document.getElementById('deb-mes-txt').textContent = 'Seleccionar mes';
   document.getElementById('deb-dd-meses').style.display = 'none';
   document.getElementById('deb-dd-meses-icon').style.transform = '';
   document.getElementById('deb-recuadro-movimientos').style.display = 'none';
+  // Auto-abrir mes
+  setTimeout(()=>{
+    document.getElementById('deb-dd-meses').style.display = 'block';
+    document.getElementById('deb-dd-meses-icon').style.transform = 'rotate(180deg)';
+  }, 200);
 
 }
 
@@ -4496,7 +4623,7 @@ window.debSelMes = async function(mes){
 
   try {
     // Usar caché ya cargado al seleccionar tarjeta (sin nueva llamada a Firestore)
-    let movs = _debMovsCache;
+    let movs = window._debMovsCache || _debMovsCache;
     // Si el caché está vacío (ej. recarga), volver a cargar
     if(!movs.length && _debTarjetaId){
       const { getDocs, collection, query, orderBy } = await import('https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js');
@@ -4506,6 +4633,7 @@ window.debSelMes = async function(mes){
       ));
       _debMovsCache = snap.docs.map(d=>({id:d.id,...d.data()}))
         .filter(m => m.cuentaId === _debTarjetaId && m.fecha);
+      window._debMovsCache = _debMovsCache;
       movs = _debMovsCache;
     }
     // Filtrar por rango del mes
@@ -4532,22 +4660,20 @@ window.debSelMes = async function(mes){
       const iconPath = esIngreso
         ? '<line x1="12" y1="19" x2="12" y2="5"/><polyline points="5 12 12 5 19 12"/>'
         : '<line x1="12" y1="5" x2="12" y2="19"/><polyline points="19 12 12 19 5 12"/>';
-      const iconColor = esIngreso ? '#111' : '#888';
-      const iconBg    = esIngreso ? '#f0f0f0' : '#f5f5f5';
+      const concepto  = m.concepto || (esIngreso ? 'Ingreso' : 'Egreso');
       const fmt2l = n => n.toLocaleString('es-MX',{minimumFractionDigits:2,maximumFractionDigits:2});
       const monto     = fmt2l(m.monto||0);
       const signo     = esIngreso ? '+' : '-';
       const color     = esIngreso ? '#111' : '#888';
       const fechaStr  = m.fecha ? m.fecha.split('-').reverse().join('/') : '—';
-      const horaStr   = m.hora || '—';
       return `
-        <div class="mov-item">
-          <div class="mov-icon" style="background:${iconBg}">
-            <svg width="16" height="16" fill="none" stroke="${iconColor}" stroke-width="2.5" viewBox="0 0 24 24">${iconPath}</svg>
+        <div class="mov-item" onclick="resaltarMovDeb(this)" onmousedown="startLongPressDebHist(this,'${m.id}')" onmouseup="cancelLongPress()" onmouseleave="cancelLongPress()" ontouchstart="startLongPressDebHist(this,'${m.id}')" ontouchend="cancelLongPress()" ontouchmove="cancelLongPress()" data-id="${m.id}">
+          <div class="mov-icon">
+            <svg class="${esIngreso?'mov-icon-ingreso':'mov-icon-egreso'}" width="16" height="16" fill="none" stroke="#111" stroke-width="2.5" viewBox="0 0 24 24">${iconPath}</svg>
           </div>
           <div class="mov-info">
-            <div class="mov-name" style="font-size:14px;font-weight:600;color:#111">${fechaStr} ${horaStr}</div>
-            <div class="mov-date">${esIngreso ? 'Ingreso' : 'Egreso'}</div>
+            <div class="mov-name" style="font-weight:700">${concepto}</div>
+            <div class="mov-date">${fechaStr}</div>
           </div>
           <div class="mov-amount" style="color:${color}">${signo}$${monto}</div>
         </div>`;
@@ -4557,6 +4683,18 @@ window.debSelMes = async function(mes){
     console.error('debSelMes error:', err);
   }
 }
+
+window.startLongPressDebHist = function(el, id){
+  _longPressTimer = setTimeout(()=>{
+    _longPressTimer = null;
+    // Cargar el movimiento en _debMovimientos temporalmente para verDetalleDebito
+    const m = _debMovsCache.find(x=>x.id===id);
+    if(!m) return;
+    // Asegurarse que esté en _debMovimientos para que verDetalleDebito lo encuentre
+    if(!_debMovimientos.find(x=>x.id===id)) _debMovimientos.push(m);
+    verDetalleDebito(id);
+  }, 600);
+};
 
 window.debNuevaBusqueda = function(){
   debResetPanel();
@@ -4665,7 +4803,18 @@ function renderMovimientosFull(tarjetaId){
   if(rec) rec.style.display = 'block';
   const btnBusq = document.getElementById('btn-nueva-busqueda');
   if(btnBusq){ btnBusq.style.display='flex'; }
-  const data = movimientos.filter(m=>m.tarjetaId===tarjetaId).sort((a,b)=>b.creadoEn-a.creadoEn);
+  // Filtrar por período activo si hay uno seleccionado
+  const corteActivo   = window._pendingCorte;
+  const periodoActivo = window._pendingPeriodoFin;
+  const tarjetaActiva = window._pendingTarjetaId;
+  let data;
+  if(corteActivo && periodoActivo && tarjetaActiva === tarjetaId){
+    data = movsPorCorte(tarjetaId, corteActivo, periodoActivo);
+  } else {
+    data = movimientos
+      .filter(m=>m.tarjetaId===tarjetaId)
+      .sort((a,b)=>{ const fa=a.fecha||'',fb=b.fecha||''; return fb!==fa?fb.localeCompare(fa):(b.creadoEn||0)-(a.creadoEn||0); });
+  }
   if(!data.length){
     el.innerHTML = '<div class="empty-mov">Sin movimientos para esta tarjeta</div>';
     return;
@@ -4706,6 +4855,40 @@ window.toggleBanco = function(){
 }
 
 window.toggleDropdown = function(id){
+  const orden = ['dd-bancos','dd-tarjetas','dd-anios','dd-cortes'];
+  const pasos  = ['paso-banco-hist','paso-apodo','paso-anio','paso-corte'];
+  const textos_ids = ['banco-seleccionado-txt','tarjeta-seleccionada-txt','anio-seleccionado-txt','corte-seleccionado-txt'];
+  const defaults   = ['Seleccionar banco','Seleccionar tarjeta','Seleccionar año','Seleccionar corte'];
+  const idx = orden.indexOf(id);
+
+  // Bloquear si paso anterior no completado
+  if(idx > 0){
+    for(let i=0; i<idx; i++){
+      const txt = document.getElementById(textos_ids[i])?.textContent;
+      if(!txt || txt===defaults[i]) return;
+    }
+  }
+
+  // Al abrir un paso anterior, cerrar y resetear todos los posteriores
+  for(let i=idx+1; i<orden.length; i++){
+    const ddEl = document.getElementById(orden[i]);
+    if(ddEl) ddEl.style.display = 'none';
+    const iconEl = document.getElementById(orden[i]+'-icon');
+    if(iconEl) iconEl.style.transform = '';
+    const txtEl = document.getElementById(textos_ids[i]);
+    if(txtEl) txtEl.textContent = defaults[i];
+    if(i > idx+1){ // ocultar pasos posteriores al siguiente
+      const pasoEl = document.getElementById(pasos[i]);
+      if(pasoEl) pasoEl.style.display = 'none';
+    }
+  }
+  // Ocultar resultados si se reabre un paso
+  if(document.getElementById('dd-bancos').style.display !== 'block' ||
+     document.getElementById('dd-tarjetas').style.display !== 'block'){
+    document.getElementById('recuadro-movimientos').style.display = 'none';
+    document.getElementById('btn-nueva-busqueda').style.display = 'none';
+  }
+
   const dd = document.getElementById(id);
   const icon = document.getElementById(id+'-icon');
   const abierto = dd.style.display === 'block';
@@ -4714,16 +4897,24 @@ window.toggleDropdown = function(id){
 }
 
 window.seleccionarBancoMov = function(nombre){
-  // Actualizar texto y cerrar dropdown
   document.getElementById('banco-seleccionado-txt').textContent = nombre;
   document.getElementById('dd-bancos').style.display = 'none';
   document.getElementById('dd-bancos-icon').style.transform = '';
-  // Resaltar opción seleccionada
   document.querySelectorAll('#lista-bancos-btns div').forEach(b=>{
-    b.style.background = b.dataset.nombre===nombre ? '#111' : '#fff';
-    b.style.color = b.dataset.nombre===nombre ? '#fff' : '#111';
-    b.style.fontWeight = '500';
+    b.style.background = '#fff'; b.style.color = '#111'; b.style.fontWeight = '500';
   });
+  // Cerrar y ocultar todos los pasos posteriores
+  document.getElementById('paso-apodo').style.display = 'none';
+  document.getElementById('paso-anio').style.display = 'none';
+  document.getElementById('paso-corte').style.display = 'none';
+  document.getElementById('dd-tarjetas').style.display = 'none';
+  document.getElementById('dd-anios').style.display = 'none';
+  document.getElementById('dd-cortes').style.display = 'none';
+  document.getElementById('tarjeta-seleccionada-txt').textContent = 'Seleccionar tarjeta';
+  document.getElementById('anio-seleccionado-txt').textContent = 'Seleccionar año';
+  document.getElementById('corte-seleccionado-txt').textContent = 'Seleccionar corte';
+  document.getElementById('recuadro-movimientos').style.display = 'none';
+  document.getElementById('btn-nueva-busqueda').style.display = 'none';
   // Resetear tarjeta y movimientos
   document.getElementById('tarjeta-seleccionada-txt').textContent = 'Seleccionar tarjeta';
   document.getElementById('dd-tarjetas').style.display = 'none';
@@ -4759,9 +4950,8 @@ window.seleccionarApodoMov = function(tarjetaId, apodo, corte){
   document.getElementById('dd-tarjetas-icon').style.transform = '';
   // Resaltar opción seleccionada
   document.querySelectorAll('#lista-apodos-btns div').forEach(b=>{
-    const sel = b.dataset.id===tarjetaId;
-    b.style.background = sel ? 'linear-gradient(180deg,#111,#444)' : '#fff';
-    b.style.color = sel ? '#fff' : '#111';
+    b.style.background = '#fff';
+    b.style.color = '#111';
     b.style.fontWeight = '500';
   });
   const t = perfil.tarjetas.find(x=>x.id===tarjetaId);
@@ -4769,13 +4959,17 @@ window.seleccionarApodoMov = function(tarjetaId, apodo, corte){
   window._movTarjetaId = tarjetaId;
   window._movCorte = t.corte;
   const anios = getAniosDisponibles(tarjetaId, t.corte);
-  document.getElementById('paso-anio').style.display = 'block';
-  document.getElementById('anio-seleccionado-txt').textContent = 'Seleccionar año';
-  document.getElementById('dd-anios').style.display = 'none';
+  // Cerrar pasos posteriores a tarjeta
   document.getElementById('paso-corte').style.display = 'none';
+  document.getElementById('corte-seleccionado-txt').textContent = 'Seleccionar corte';
+  document.getElementById('dd-cortes').style.display = 'none';
+  document.getElementById('dd-cortes-icon').style.transform = '';
   document.getElementById('recuadro-movimientos').style.display = 'none';
   document.getElementById('movimientos-full').innerHTML = '';
   document.getElementById('btn-nueva-busqueda').style.display = 'none';
+  // Abrir año
+  document.getElementById('paso-anio').style.display = 'block';
+  document.getElementById('anio-seleccionado-txt').textContent = 'Seleccionar año';
 
   if(!anios.length){
     document.getElementById('lista-anios-btns').innerHTML = '<div style="padding:14px 16px;color:rgba(255,255,255,0.4);font-size:14px">Sin movimientos registrados</div>';
@@ -4799,9 +4993,8 @@ window.seleccionarApodoMov = function(tarjetaId, apodo, corte){
 window.seleccionarAnioMov = function(anio){
   // Resaltar año seleccionado
   document.querySelectorAll('#lista-anios-btns div').forEach(b=>{
-    const sel = parseInt(b.dataset.anio)===anio;
-    b.style.background = sel ? 'linear-gradient(180deg,#111,#444)' : '#fff';
-    b.style.color = sel ? '#fff' : '#111';
+    b.style.background = '#fff';
+    b.style.color = '#111';
     b.style.fontWeight = '500';
   });
   document.getElementById('anio-seleccionado-txt').textContent = anio;
@@ -4812,13 +5005,14 @@ window.seleccionarAnioMov = function(anio){
   const tarjetaId = window._movTarjetaId;
   const corte = window._movCorte;
   const cortes = getCortesDisponibles(tarjetaId, corte, anio);
-  const pasoCorte = document.getElementById('paso-corte');
-  pasoCorte.style.display = 'block';
-  document.getElementById('corte-seleccionado-txt').textContent = 'Seleccionar corte';
-  document.getElementById('dd-cortes').style.display = 'none';
+  // Cerrar pasos posteriores a año
   document.getElementById('recuadro-movimientos').style.display = 'none';
   document.getElementById('movimientos-full').innerHTML = '';
   document.getElementById('btn-nueva-busqueda').style.display = 'none';
+  // Abrir corte
+  const pasoCorte = document.getElementById('paso-corte');
+  pasoCorte.style.display = 'block';
+  document.getElementById('corte-seleccionado-txt').textContent = 'Seleccionar corte';
 
   document.getElementById('lista-cortes-btns').innerHTML = cortes.map(c=>`
     <div data-key="${c.key}" onclick="seleccionarCorteMov('${tarjetaId}',${corte},'${c.key}')"
@@ -4834,8 +5028,8 @@ window.seleccionarCorteMov = function(tarjetaId, corte, periodoFinKey){
   const periodoFin = new Date(periodoFinKey+'T12:00:00');
   // Resaltar opción
   document.querySelectorAll('#lista-cortes-btns div').forEach(b=>{
-    b.style.background = b.dataset.key===periodoFinKey ? '#fef3c7' : '#fff';
-    b.style.color = b.dataset.key===periodoFinKey ? '#92400e' : '#111';
+    b.style.background = '#fff';
+    b.style.color = '#111';
     b.style.fontWeight = '500';
   });
   // Cerrar dropdown y actualizar texto
@@ -4901,10 +5095,7 @@ window.seleccionarCorteMov = function(tarjetaId, corte, periodoFinKey){
         <div class="mov-icon"><svg width="16" height="16" fill="none" stroke="#111" stroke-width="2.5" viewBox="0 0 24 24"><line x1="12" y1="19" x2="12" y2="5"/><polyline points="5 12 12 19 19 12"/></svg></div>
         <div class="mov-info"><div class="mov-date">${fmtDateShort(m.fecha,m.creadoEn)}</div></div>
         <div class="mov-amount">-${fmt(m.monto)}</div>
-        <div class="mov-actions">
-          <button class="edit-btn" onclick="event.stopPropagation();openEdit('${m.id}')"><svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>
-          <button class="del-btn2" onclick="event.stopPropagation();eliminar('${m.id}')"><svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/></svg></button>
-        </div>
+
       </div>`).join('');
   };
 }
@@ -5081,34 +5272,52 @@ window.toggleScrollFechaEditDeb = function(){
 
   const fechaGuardada = document.getElementById('deb-edit-fecha').value;
   let dAnio, dMes, dDia;
+  const hoyAnio = new Date().getFullYear();
   if(fechaGuardada){
     [dAnio, dMes, dDia] = fechaGuardada.split('-').map(Number);
   } else {
-    const hoy = new Date();
-    dAnio = hoy.getFullYear(); dMes = hoy.getMonth()+1; dDia = hoy.getDate();
+    dAnio = hoyAnio; dMes = new Date().getMonth()+1; dDia = new Date().getDate();
   }
 
+  const hoy = new Date();
+  const hoyMes = hoy.getMonth()+1, hoyDia = hoy.getDate();
   const MESES_C = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
-  const anios = [dAnio-1, dAnio];
-  const maxD  = new Date(dAnio, dMes, 0).getDate();
-  const dias  = Array.from({length:maxD},(_,i)=>String(i+1).padStart(2,'0'));
+  const anios = [hoyAnio-1, hoyAnio];
+
+  function getMeses(){ return dAnio===hoyAnio ? MESES_C.slice(0,hoyMes) : MESES_C; }
+  function getDias(){
+    const maxD = new Date(dAnio,dMes,0).getDate();
+    const limite = (dAnio===hoyAnio && dMes===hoyMes) ? hoyDia : maxD;
+    return Array.from({length:Math.min(maxD,limite)},(_,i)=>String(i+1).padStart(2,'0'));
+  }
 
   function buildCol(scrollId, itemsId, items, selIdx, onSel){
     const sc = document.getElementById(scrollId);
     const it = document.getElementById(itemsId);
+    selIdx = Math.max(0, Math.min(selIdx, items.length-1));
     it.innerHTML = items.map((v,i)=>`<div class="dp-item${i===selIdx?' sel':''}" style="${i===selIdx?'color:#fff':'color:#444'}">${v}</div>`).join('');
     sc.scrollTop = selIdx * 44;
     snapScrollConInicio(sc, 44, selIdx, idx=>{
+      idx = Math.min(idx, items.length-1);
       it.querySelectorAll('.dp-item').forEach((el,i)=>{ el.classList.toggle('sel',i===idx); el.style.color=i===idx?'#fff':'#444'; });
-      onSel(idx);
-      _actualizarFechaEditDeb();
+      onSel(idx); _actualizarFechaEditDeb();
     });
   }
 
   wrap.style.display = 'block';
-  buildCol('scroll-deb-edit-anio','scroll-deb-edit-anio-items', anios.map(String), anios.indexOf(dAnio)>=0?anios.indexOf(dAnio):1, idx=>{ dAnio=anios[idx]; });
-  buildCol('scroll-deb-edit-mes','scroll-deb-edit-mes-items', MESES_C, dMes-1, idx=>{ dMes=idx+1; });
-  buildCol('scroll-deb-edit-dia','scroll-deb-edit-dia-items', dias, dDia-1, idx=>{ dDia=idx+1; });
+  buildCol('scroll-deb-edit-anio','scroll-deb-edit-anio-items', anios.map(String), anios.indexOf(dAnio)>=0?anios.indexOf(dAnio):1, idx=>{
+    dAnio=anios[idx];
+    if(dAnio===hoyAnio && dMes>hoyMes){ dMes=hoyMes; }
+    if(dAnio===hoyAnio && dMes===hoyMes && dDia>hoyDia){ dDia=hoyDia; }
+    buildCol('scroll-deb-edit-mes','scroll-deb-edit-mes-items', getMeses(), dMes-1, idx2=>{ dMes=idx2+1; buildCol('scroll-deb-edit-dia','scroll-deb-edit-dia-items',getDias(),dDia-1,idx3=>{ dDia=idx3+1; }); });
+    buildCol('scroll-deb-edit-dia','scroll-deb-edit-dia-items', getDias(), dDia-1, idx3=>{ dDia=idx3+1; });
+  });
+  buildCol('scroll-deb-edit-mes','scroll-deb-edit-mes-items', getMeses(), dMes-1, idx=>{
+    dMes=idx+1;
+    if(dAnio===hoyAnio && dMes===hoyMes && dDia>hoyDia){ dDia=hoyDia; }
+    buildCol('scroll-deb-edit-dia','scroll-deb-edit-dia-items', getDias(), dDia-1, idx3=>{ dDia=idx3+1; });
+  });
+  buildCol('scroll-deb-edit-dia','scroll-deb-edit-dia-items', getDias(), dDia-1, idx=>{ dDia=idx+1; });
 
   function _actualizarFechaEditDeb(){
     const MESES_ESP = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
@@ -5184,10 +5393,20 @@ window._ejecutarGuardarEditDeb = async function(){
     if(detalle)  upd.detalle  = detalle;
     if(fecha)    upd.fecha    = fecha;
     await updateDoc(_doc(db,'usuarios',currentUser.uid,'movimientosDebito',_editingDebId), upd);
-    _debMovimientos = _debMovimientos.map(m=>m.id===_editingDebId?{...m,monto,...(concepto?{concepto}:{}),...(detalle?{detalle}:{}),...(fecha?{fecha}:{})}:m);
+    const upd2 = {monto,...(concepto?{concepto}:{}),...(detalle?{detalle}:{}),...(fecha?{fecha}:{})};
+    _debMovimientos = _debMovimientos.map(m=>m.id===_editingDebId?{...m,...upd2}:m);
     _debMovimientos.sort((a,b)=>{ const fa=a.fecha||'',fb=b.fecha||''; return fb!==fa?fb.localeCompare(fa):(b.creadoEn||0)-(a.creadoEn||0); });
+    // Actualizar window._debMovsCache para historial
+    if(window._debMovsCache){
+      window._debMovsCache = window._debMovsCache.map(m=>m.id===_editingDebId?{...m,...upd2}:m);
+    }
     _updateDebCards();
     _renderDebMovimientos();
+    // Re-renderizar historial si está visible
+    if(typeof _debMesSel !== 'undefined' && _debMesSel !== null &&
+       document.getElementById('deb-recuadro-movimientos')?.style.display !== 'none'){
+      if(typeof debSelMes === 'function') debSelMes(_debMesSel);
+    }
     _editingDebId = null;
     // showSuccess se muestra desde _confirmarResumenMovimiento
   } catch(e){ showToast('❌ Error: '+e.message); }
@@ -5270,7 +5489,8 @@ window.irPromociones = function(){
   const scr = document.getElementById('screen-promociones');
   scr.classList.remove('hidden');
   scr.style.display = 'flex';
-  renderPromociones();
+  const _usarCache = window._promoUltimaElim && (Date.now() - window._promoUltimaElim < 30000);
+  renderPromociones(_usarCache);
 }
 
 window.abrirModalPromo = function(){
@@ -5511,23 +5731,31 @@ window.guardarPromo = async function(){
 
 window.eliminarPromo = async function(id){
   try{
-    await deleteDoc(doc(db,'promociones',id));
-    renderPromociones();
-    showToast('Promoción eliminada');
-  }catch(e){ showToast('❌ Error'); }
+    await deleteDoc(doc(db,'usuarios', currentUser.uid, 'promociones', id));
+    // Quitar del cache local y marcar timestamp de eliminación
+    promocionesCache = promocionesCache.filter(p=>p.id!==id);
+    window._promoUltimaElim = Date.now();
+    renderPromociones(true);
+    window.showSuccess('Promoción eliminada','');
+  }catch(e){ showToast('❌ Error al eliminar'); }
 }
 
-async function renderPromociones(){
+async function renderPromociones(useCache=false){
   const lista = document.getElementById('promociones-lista');
   if(!lista) return;
   try{
-    const snap = await getDocs(query(collection(db,'usuarios', currentUser.uid, 'promociones'), orderBy('creadoEn','desc')));
-    const todosPromos = snap.docs.map(d=>({id:d.id,...d.data()}));
-    // Filtrar solo las promociones de las tarjetas del perfil actual
-    const tarjetaIds = (perfil?.tarjetas||[]).map(t=>t.id);
-    const promos = todosPromos.filter(p=>tarjetaIds.includes(p.tarjetaId));
-    promocionesCache = promos; // actualizar cache
-    updateCards(); // recalcular usados con mensualidades
+    let promos;
+    if(useCache){
+      const tarjetaIds = (perfil?.tarjetas||[]).map(t=>t.id);
+      promos = promocionesCache.filter(p=>tarjetaIds.includes(p.tarjetaId));
+    } else {
+      const snap = await getDocs(query(collection(db,'usuarios', currentUser.uid, 'promociones'), orderBy('creadoEn','desc')));
+      const todosPromos = snap.docs.map(d=>({id:d.id,...d.data()}));
+      const tarjetaIds = (perfil?.tarjetas||[]).map(t=>t.id);
+      promos = todosPromos.filter(p=>tarjetaIds.includes(p.tarjetaId));
+      promocionesCache = promos;
+    }
+    updateCards();
     if(!promos.length){
       lista.innerHTML = '<div style="text-align:center;padding:48px 20px;color:#bbb;font-size:14px">Sin promociones registradas</div>';
       return;
@@ -5542,7 +5770,7 @@ async function renderPromociones(){
       html += '<div style="width:36px;height:36px;border-radius:10px;background:linear-gradient(180deg,#111,#444);display:flex;align-items:center;justify-content:center;flex-shrink:0"><svg width="17" height="17" fill="none" stroke="#fff" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="10" width="18" height="11" rx="2"/><path d="M7 10V7a5 5 0 0 1 10 0v3"/></svg></div>';
       html += '<div style="flex:1"><div style="font-size:15px;font-weight:700;color:#111">' + banco + '</div>';
       html += '<div style="font-size:11px;color:#aaa;margin-top:1px">' + grupoPromos.length + ' ' + (grupoPromos.length===1?'promoci\u00f3n':'promociones') + '</div></div>';
-      html += '<svg class="banco-chevron" width="20" height="20" fill="none" stroke="#aaa" stroke-width="2" viewBox="0 0 24 24" style="transition:transform 0.2s;flex-shrink:0"><polyline points="6 9 12 15 18 9"/></svg>';
+      html += '<svg class="banco-chevron" width="20" height="20" fill="none" stroke="rgba(255,255,255,0.8)" stroke-width="2" viewBox="0 0 24 24" style="transition:transform 0.2s;flex-shrink:0"><polyline points="6 9 12 15 18 9"/></svg>';
       html += '</div>';
       html += '<div id="' + bancoId + '" style="display:none;padding:0 12px 12px">';
       grupoPromos.forEach(function(p){
@@ -5744,8 +5972,11 @@ window.cerrarConfirmPromo = function(e){
 
 window.confirmarEliminarPromo = async function(){
   if(!_promoIdToDelete) return;
-  await eliminarPromo(_promoIdToDelete);
+  // Cerrar todos los modales de promo antes de eliminar
   document.getElementById('confirm-promo-overlay').classList.remove('open');
+  document.getElementById('modal-promo-overlay').classList.remove('open');
+  document.getElementById('tarjeta-promo-popup').classList.remove('open');
+  await eliminarPromo(_promoIdToDelete);
   _promoIdToDelete = null;
 }
 
@@ -6010,8 +6241,7 @@ window.confirmarBusquedaHistorial = function(){
         <div class="mov-date">${fmtDateShort(m.fecha, m.creadoEn)}</div>
       </div>
       <div class="mov-amount">-${fmt(m.monto)}</div>
-      <button class="edit-btn" onclick="event.stopPropagation();openEdit('${m.id}')"><svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>
-      <button class="del-btn2" onclick="event.stopPropagation();eliminar('${m.id}')"><svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/></svg></button>
+
     </div>`).join('');
 }
 
@@ -6119,10 +6349,7 @@ window.aceptarConfirmHist = function(){
         <div class="mov-icon"><svg width="16" height="16" fill="none" stroke="#111" stroke-width="2.5" viewBox="0 0 24 24"><line x1="12" y1="19" x2="12" y2="5"/><polyline points="5 12 12 19 19 12"/></svg></div>
         <div class="mov-info"><div class="mov-date">${fmtDateShort(m.fecha,m.creadoEn)}</div></div>
         <div class="mov-amount">-${fmt(m.monto)}</div>
-        <div class="mov-actions">
-          <button class="edit-btn" onclick="event.stopPropagation();openEdit('${m.id}')"><svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>
-          <button class="del-btn2" onclick="event.stopPropagation();eliminar('${m.id}')"><svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/></svg></button>
-        </div>
+
       </div>`).join('');
   };
   // Renderizar inmediatamente
@@ -6426,9 +6653,15 @@ function _renderDebMovimientos(){
   const c = cuentas[_debCurrent];
   if(!c){ el.innerHTML = ''; return; }
 
-  // Filtrar por cuenta (si los movimientos tienen cuentaId) o mostrar todos si no
+  // Filtrar por cuenta y ordenar por fecha más reciente
   const movC = _debMovimientos
     .filter(m => m.cuentaId === c.id || (!m.cuentaId && _debCurrent === 0))
+    .sort((a,b) => {
+      const fa = a.fecha || '';
+      const fb = b.fecha || '';
+      if(fb !== fa) return fb.localeCompare(fa);
+      return (b.creadoEn||0) - (a.creadoEn||0);
+    })
     .slice(0, 10);
 
   if(!movC.length){
@@ -6459,6 +6692,56 @@ function _renderDebMovimientos(){
       </div>`;
   }).join('');
 }
+
+// ── Swipe navigation ──────────────────────────────────────
+(function(){
+  const SCREENS = [
+    { id:'nav-detalle',     fn: ()=>{ setNavActive('nav-detalle');     irDetalle(); } },
+    { id:'nav-cuentas',     fn: ()=>{ setNavActive('nav-cuentas');     irCuentas(); } },
+    { id:'nav-movimientos', fn: ()=>{ setNavActive('nav-movimientos'); irMovimientos(); } },
+    { id:'nav-plus',        fn: ()=>{ setNavActive('nav-plus');        irPlus(); } },
+    { id:'nav-promociones', fn: ()=>{ setNavActive('nav-promociones'); irPromociones(); } },
+    { id:'nav-perfiles',    fn: ()=>{ setNavActive('nav-perfiles');    cambiarTab(null,'perfiles'); } },
+    { id:'nav-config',      fn: ()=>{ setNavActive('nav-config');      irConfiguracion(); } },
+  ];
+
+  let touchStartX = 0, touchStartY = 0, touchStartTime = 0;
+
+  function getCurrentIdx(){
+    const active = document.querySelector('.nav-item.active');
+    if(!active) return 0;
+    return SCREENS.findIndex(s=>s.id===active.id);
+  }
+
+  document.addEventListener('touchstart', function(e){
+    const touch = e.touches[0];
+    touchStartX = touch.clientX;
+    touchStartY = touch.clientY;
+    touchStartTime = Date.now();
+  }, { passive: true });
+
+  document.addEventListener('touchend', function(e){
+    // No swipe si hay un modal abierto
+    if(document.querySelector('.modal-overlay.open')) return;
+    // No swipe si se está en un scroll horizontal (carrusel)
+    const touch = e.changedTouches[0];
+    const dx = touch.clientX - touchStartX;
+    const dy = touch.clientY - touchStartY;
+    const dt = Date.now() - touchStartTime;
+    // Debe ser horizontal, rápido y suficientemente largo
+    if(Math.abs(dx) < 60) return;
+    if(Math.abs(dy) > Math.abs(dx) * 0.7) return; // más vertical que horizontal
+    if(dt > 400) return; // demasiado lento
+    const idx = getCurrentIdx();
+    if(dx < 0 && idx < SCREENS.length - 1){
+      // Swipe izquierda → siguiente pantalla
+      SCREENS[idx + 1].fn();
+    } else if(dx > 0 && idx > 0){
+      // Swipe derecha → pantalla anterior
+      SCREENS[idx - 1].fn();
+    }
+  }, { passive: true });
+})();
 
 window.setNavActive = function(id){
   document.querySelectorAll('.nav-item').forEach(b=>b.classList.remove('active'));
@@ -6567,6 +6850,7 @@ window.confirmarEliminarPerfil = async function(){
     <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
       <rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/>
     </svg>
+    <span style="font-size:10px;font-weight:600;letter-spacing:0.02em;margin-top:2px;opacity:0;transition:opacity 0.2s">Tarjetas</span>
     
   </button>
 
@@ -6574,6 +6858,7 @@ window.confirmarEliminarPerfil = async function(){
     <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
       <rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/><line x1="5" y1="15" x2="9" y2="15"/><line x1="12" y1="15" x2="14" y2="15"/>
     </svg>
+    <span style="font-size:10px;font-weight:600;letter-spacing:0.02em;margin-top:2px;opacity:0;transition:opacity 0.2s">Cuentas</span>
     
   </button>
 
@@ -6582,6 +6867,7 @@ window.confirmarEliminarPerfil = async function(){
       <line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/>
       <circle cx="3" cy="6" r="1"/><circle cx="3" cy="12" r="1"/><circle cx="3" cy="18" r="1"/>
     </svg>
+    <span style="font-size:10px;font-weight:600;letter-spacing:0.02em;margin-top:2px;opacity:0;transition:opacity 0.2s">Historial</span>
     
   </button>
 
@@ -6589,6 +6875,7 @@ window.confirmarEliminarPerfil = async function(){
     <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
       <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
     </svg>
+    <span style="font-size:10px;font-weight:600;letter-spacing:0.02em;margin-top:2px;opacity:0;transition:opacity 0.2s">Registrar</span>
     
   </button>
 
@@ -6597,6 +6884,7 @@ window.confirmarEliminarPerfil = async function(){
       <path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/>
       <line x1="7" y1="7" x2="7.01" y2="7"/>
     </svg>
+    <span style="font-size:10px;font-weight:600;letter-spacing:0.02em;margin-top:2px;opacity:0;transition:opacity 0.2s">Promociones</span>
     
   </button>
 
@@ -6604,6 +6892,7 @@ window.confirmarEliminarPerfil = async function(){
     <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
       <circle cx="12" cy="8" r="4"/><path d="M4 20c2-4 14-4 16 0"/>
     </svg>
+    <span style="font-size:10px;font-weight:600;letter-spacing:0.02em;margin-top:2px;opacity:0;transition:opacity 0.2s">Perfiles</span>
     
   </button>
 
@@ -6612,7 +6901,7 @@ window.confirmarEliminarPerfil = async function(){
       <circle cx="12" cy="12" r="3"/>
       <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
     </svg>
-    
+    <span style="font-size:10px;font-weight:600;letter-spacing:0.02em;margin-top:2px;opacity:0;transition:opacity 0.2s">Config</span>
   </button>
 
 </div>
@@ -7090,11 +7379,18 @@ window.toggleScrollFechaExt = function(){
     dpMes  = hoy.getMonth() + 1;
     dpDia  = hoy.getDate();
   }
-
-  const anios = [dpAnio - 1, dpAnio];
+  const hoyFecha = new Date();
+  const hoyAnio = hoyFecha.getFullYear(), hoyMes = hoyFecha.getMonth()+1, hoyDia = hoyFecha.getDate();
+  const anios = [hoyAnio-1, hoyAnio];
   const mesesCortos = MESES.map(m=>m.substring(0,3));
+  function getMesesExt(){ return dpAnio===hoyAnio ? mesesCortos.slice(0,hoyMes) : mesesCortos; }
+  function getDiasExt(){
+    const maxD = diasEnMes(dpMes, dpAnio);
+    const lim = (dpAnio===hoyAnio && dpMes===hoyMes) ? hoyDia : maxD;
+    return Array.from({length:Math.min(maxD,lim)},(_,i)=>String(i+1).padStart(2,'0'));
+  }
   const maxD = diasEnMes(dpMes, dpAnio);
-  const dias = Array.from({length:maxD},(_,i)=>String(i+1).padStart(2,'0'));
+  const dias = getDiasExt();
 
   function buildExtCol(scrollId, itemsId, items, selIdx, onSelect){
     const scrollEl = document.getElementById(scrollId);
@@ -7120,10 +7416,16 @@ window.toggleScrollFechaExt = function(){
     const anioExtIdx = anios.indexOf(dpAnio) !== -1 ? anios.indexOf(dpAnio) : 1;
     buildExtCol('scroll-ext-anio','scroll-ext-anio-items', anios.map(String), anioExtIdx, idx=>{
       dpAnio = anios[Math.min(idx, anios.length-1)];
+      if(dpAnio===hoyAnio && dpMes>hoyMes){ dpMes=hoyMes; }
+      if(dpAnio===hoyAnio && dpMes===hoyMes && dpDia>hoyDia){ dpDia=hoyDia; }
+      // Reconstruir mes con límite
+      const msExt = dpAnio===hoyAnio ? mesesCortos.slice(0,hoyMes) : mesesCortos;
+      buildExtCol('scroll-ext-mes','scroll-ext-mes-items', msExt, dpMes-1, idx2=>{ dpMes=idx2+1; _rebuildExtDias(); });
       _rebuildExtDias();
     });
-    buildExtCol('scroll-ext-mes','scroll-ext-mes-items', mesesCortos, dpMes-1, idx=>{
+    buildExtCol('scroll-ext-mes','scroll-ext-mes-items', dpAnio===hoyAnio?mesesCortos.slice(0,hoyMes):mesesCortos, dpMes-1, idx=>{
       dpMes = idx+1;
+      if(dpAnio===hoyAnio && dpMes===hoyMes && dpDia>hoyDia){ dpDia=hoyDia; }
       _rebuildExtDias();
     });
     buildExtCol('scroll-ext-dia','scroll-ext-dia-items', dias, dpDia-1, idx=>{
@@ -7136,8 +7438,10 @@ window.toggleScrollFechaExt = function(){
 
 function _rebuildExtDias(){
   const md = diasEnMes(dpMes, dpAnio);
-  const ds = Array.from({length:md},(_,i)=>String(i+1).padStart(2,'0'));
-  const sd = Math.min(dpDia-1, md-1);
+  const hoyF = new Date(); const hoyA=hoyF.getFullYear(),hoyM=hoyF.getMonth()+1,hoyD=hoyF.getDate();
+  const limite = (dpAnio===hoyA && dpMes===hoyM) ? hoyD : md;
+  const ds = Array.from({length:Math.min(md,limite)},(_,i)=>String(i+1).padStart(2,'0'));
+  const sd = Math.min(dpDia-1, ds.length-1);
   const scrollEl = document.getElementById('scroll-ext-dia');
   document.getElementById('scroll-ext-dia-items').innerHTML = ds.map((v,i)=>
     `<div class="dp-item${i===sd?' sel':''}">${v}</div>`).join('');
@@ -7685,7 +7989,7 @@ window.confirmarEliminarPerfil = async function(){
           </div>
           <svg id="deb-dd-bancos-icon" width="20" height="20" fill="none" stroke="rgba(255,255,255,0.8)" stroke-width="2" viewBox="0 0 24 24" style="transition:transform 0.2s;flex-shrink:0"><polyline points="6 9 12 15 18 9"/></svg>
         </div>
-        <div id="deb-dd-bancos" style="display:none;border-top:1px solid rgba(255,255,255,0.15);background:#1e1e1e">
+        <div id="deb-dd-bancos" style="display:none;border-top:1px solid #e0e0e0;background:#fff">
           <div id="deb-lista-bancos" style="display:flex;flex-direction:column"></div>
         </div>
       </div>
@@ -7699,7 +8003,7 @@ window.confirmarEliminarPerfil = async function(){
           </div>
           <svg id="deb-dd-tarjetas-icon" width="20" height="20" fill="none" stroke="rgba(255,255,255,0.8)" stroke-width="2" viewBox="0 0 24 24" style="transition:transform 0.2s;flex-shrink:0"><polyline points="6 9 12 15 18 9"/></svg>
         </div>
-        <div id="deb-dd-tarjetas" style="display:none;border-top:1px solid rgba(255,255,255,0.15);background:#1e1e1e">
+        <div id="deb-dd-tarjetas" style="display:none;border-top:1px solid #e0e0e0;background:#fff">
           <div id="deb-lista-tarjetas" style="display:flex;flex-direction:column"></div>
         </div>
       </div>
@@ -7713,7 +8017,7 @@ window.confirmarEliminarPerfil = async function(){
           </div>
           <svg id="deb-dd-anios-icon" width="20" height="20" fill="none" stroke="rgba(255,255,255,0.8)" stroke-width="2" viewBox="0 0 24 24" style="transition:transform 0.2s;flex-shrink:0"><polyline points="6 9 12 15 18 9"/></svg>
         </div>
-        <div id="deb-dd-anios" style="display:none;border-top:1px solid rgba(255,255,255,0.15);background:#1e1e1e">
+        <div id="deb-dd-anios" style="display:none;border-top:1px solid #e0e0e0;background:#fff">
           <div id="deb-lista-anios" style="display:flex;flex-direction:column"></div>
         </div>
       </div>
@@ -7727,7 +8031,7 @@ window.confirmarEliminarPerfil = async function(){
           </div>
           <svg id="deb-dd-meses-icon" width="20" height="20" fill="none" stroke="rgba(255,255,255,0.8)" stroke-width="2" viewBox="0 0 24 24" style="transition:transform 0.2s;flex-shrink:0"><polyline points="6 9 12 15 18 9"/></svg>
         </div>
-        <div id="deb-dd-meses" style="display:none;border-top:1px solid rgba(255,255,255,0.15);background:#1e1e1e">
+        <div id="deb-dd-meses" style="display:none;border-top:1px solid #e0e0e0;background:#fff">
           <div id="deb-lista-meses" style="display:flex;flex-direction:column"></div>
         </div>
       </div>
@@ -7757,22 +8061,9 @@ window.confirmarEliminarPerfil = async function(){
             <div style="font-size:14px;font-weight:700;color:#111" id="deb-resumen-mes">—</div>
           </div>
         </div>
-        <!-- Totales ingresos / egresos / balance -->
-        <div style="height:1px;background:#f0f0f0;margin-bottom:12px"></div>
-        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px">
-          <div style="background:#f0f0f0;border-radius:10px;padding:10px 8px;text-align:center">
-            <div style="font-size:10px;font-weight:700;color:#111;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:4px">Ingresos</div>
-            <div style="font-size:13px;font-weight:700;color:#111" id="deb-resumen-ingresos">$0.00</div>
-          </div>
-          <div style="background:#f5f5f5;border-radius:10px;padding:10px 8px;text-align:center">
-            <div style="font-size:10px;font-weight:700;color:#888;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:4px">Egresos</div>
-            <div style="font-size:13px;font-weight:700;color:#888" id="deb-resumen-egresos">$0.00</div>
-          </div>
-          <div style="background:#f5f5f5;border-radius:10px;padding:10px 8px;text-align:center">
-            <div style="font-size:10px;font-weight:700;color:#555;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:4px">Balance</div>
-            <div style="font-size:13px;font-weight:700;color:#111" id="deb-resumen-balance">$0.00</div>
-          </div>
-        </div>
+        <div id="deb-resumen-ingresos" style="display:none"></div>
+        <div id="deb-resumen-egresos" style="display:none"></div>
+        <div id="deb-resumen-balance" style="display:none"></div>
       </div>
 
       <!-- Movimientos débito -->
@@ -7898,7 +8189,7 @@ window.confirmarEliminarPerfil = async function(){
 
 
 <!-- ══ MODAL EDITAR CUENTA DÉBITO (PERFILES) ══ -->
-<div class="modal-overlay" id="edit-debito-overlay" onclick="cerrarEditDebito(event)">
+<div class="modal-overlay" id="edit-debito-overlay" onclick="cerrarEditDebito(event)" style="z-index:1300">
   <div class="modal">
     <div class="modal-handle"></div>
     <div style="display:flex;align-items:center;gap:12px;margin-bottom:20px">
@@ -8751,11 +9042,18 @@ window.toggleScrollFechaDebito = function() {
     _dpDebMes  = hoy.getMonth() + 1;
     _dpDebDia  = hoy.getDate();
   }
-
-  const anios = [_dpDebAnio - 1, _dpDebAnio];
+  const hoyFechaDeb = new Date();
+  const hoyAnio = hoyFechaDeb.getFullYear(), hoyMesDeb = hoyFechaDeb.getMonth()+1, hoyDiaDeb = hoyFechaDeb.getDate();
+  const anios = [hoyAnio-1, hoyAnio];
   const mesesCortos = MESES.map(m => m.substring(0, 3));
+  function getMesesDeb(){ return _dpDebAnio===hoyAnio ? mesesCortos.slice(0,hoyMesDeb) : mesesCortos; }
+  function getDiasDeb(){
+    const maxD = diasEnMes(_dpDebMes, _dpDebAnio);
+    const lim = (_dpDebAnio===hoyAnio && _dpDebMes===hoyMesDeb) ? hoyDiaDeb : maxD;
+    return Array.from({length:Math.min(maxD,lim)},(_,i)=>String(i+1).padStart(2,'0'));
+  }
   const maxD = diasEnMes(_dpDebMes, _dpDebAnio);
-  const dias = Array.from({length: maxD}, (_, i) => String(i + 1).padStart(2, '0'));
+  const dias = getDiasDeb();
 
   function buildDebCol(scrollId, itemsId, items, selIdx, onSelect) {
     const scrollEl = document.getElementById(scrollId);
@@ -8781,10 +9079,15 @@ window.toggleScrollFechaDebito = function() {
     const anioDebIdx = anios.indexOf(_dpDebAnio) !== -1 ? anios.indexOf(_dpDebAnio) : 1;
     buildDebCol('scroll-deb-anio', 'scroll-deb-anio-items', anios.map(String), anioDebIdx, idx => {
       _dpDebAnio = anios[Math.min(idx, anios.length - 1)];
+      if(_dpDebAnio===hoyAnio && _dpDebMes>hoyMesDeb){ _dpDebMes=hoyMesDeb; }
+      if(_dpDebAnio===hoyAnio && _dpDebMes===hoyMesDeb && _dpDebDia>hoyDiaDeb){ _dpDebDia=hoyDiaDeb; }
+      const msDeb2 = _dpDebAnio===hoyAnio ? mesesCortos.slice(0,hoyMesDeb) : mesesCortos;
+      buildDebCol('scroll-deb-mes','scroll-deb-mes-items', msDeb2, _dpDebMes-1, idx2=>{ _dpDebMes=idx2+1; _rebuildDebDias(); });
       _rebuildDebDias();
     });
-    buildDebCol('scroll-deb-mes', 'scroll-deb-mes-items', mesesCortos, _dpDebMes - 1, idx => {
+    buildDebCol('scroll-deb-mes', 'scroll-deb-mes-items', _dpDebAnio===hoyAnio?mesesCortos.slice(0,hoyMesDeb):mesesCortos, _dpDebMes - 1, idx => {
       _dpDebMes = idx + 1;
+      if(_dpDebAnio===hoyAnio && _dpDebMes===hoyMesDeb && _dpDebDia>hoyDiaDeb){ _dpDebDia=hoyDiaDeb; }
       _rebuildDebDias();
     });
     buildDebCol('scroll-deb-dia', 'scroll-deb-dia-items', dias, _dpDebDia - 1, idx => {
@@ -8797,8 +9100,10 @@ window.toggleScrollFechaDebito = function() {
 
 function _rebuildDebDias() {
   const md = diasEnMes(_dpDebMes, _dpDebAnio);
-  const ds = Array.from({length: md}, (_, i) => String(i + 1).padStart(2, '0'));
-  const sd = Math.min(_dpDebDia - 1, md - 1);
+  const hoyF2=new Date(); const hoyA2=hoyF2.getFullYear(),hoyM2=hoyF2.getMonth()+1,hoyD2=hoyF2.getDate();
+  const limite2 = (_dpDebAnio===hoyA2 && _dpDebMes===hoyM2) ? hoyD2 : md;
+  const ds = Array.from({length:Math.min(md,limite2)}, (_, i) => String(i + 1).padStart(2, '0'));
+  const sd = Math.min(_dpDebDia - 1, ds.length - 1);
   const scrollEl = document.getElementById('scroll-deb-dia');
   document.getElementById('scroll-deb-dia-items').innerHTML = ds.map((v, i) =>
     `<div class="dp-item${i === sd ? ' sel' : ''}">${v}</div>`).join('');
@@ -9040,8 +9345,8 @@ document.addEventListener('DOMContentLoaded', function(){
       <div style="width:56px;height:56px;border-radius:50%;background:#f0f0f0;display:flex;align-items:center;justify-content:center;margin:0 auto 12px">
         <svg width="28" height="28" fill="none" stroke="#111" stroke-width="2.2" viewBox="0 0 24 24"><path d="M9 12l2 2 4-4"/><circle cx="12" cy="12" r="10"/></svg>
       </div>
-      <div style="font-size:18px;font-weight:800;color:#111;margin-bottom:4px">¿Son correctos los cambios?</div>
-      <div style="font-size:13px;color:#aaa">Revisa antes de guardar</div>
+      <div id="resumen-mov-titulo" style="font-size:18px;font-weight:800;color:#111;margin-bottom:4px">¿Son correctos los cambios?</div>
+      <div id="resumen-mov-sub" style="font-size:13px;color:#aaa">Revisa antes de guardar</div>
 
     </div>
     <div id="resumen-mov-body" style="margin-bottom:20px"></div>
@@ -9059,7 +9364,7 @@ document.addEventListener('DOMContentLoaded', function(){
 </div>
 
 <!-- ══ MODAL RESUMEN CAMBIO DÉBITO ══ -->
-<div class="modal-overlay" id="modal-resumen-cambio-debito" onclick="if(event.target===this)this.classList.remove('open')" style="z-index:1200">
+<div class="modal-overlay" id="modal-resumen-cambio-debito" onclick="if(event.target===this)this.classList.remove('open')" style="z-index:1400">
   <div class="modal" onclick="event.stopPropagation()" style="padding-bottom:28px">
     <div class="modal-handle"></div>
     <div style="text-align:center;margin-bottom:18px">
