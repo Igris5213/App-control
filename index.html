@@ -2364,15 +2364,13 @@ function getPeriodo(corte, ref=today){
     const nm=m===11?0:m+1, ny=m===11?y+1:y;
     finRaw=new Date(ny,nm,corte);
   }
-  // Ajustar fin al día hábil anterior si cae en finde o festivo
-  const fin = diaHabilAnterior(finRaw);
-  // Inicio = día siguiente al fin del período anterior
-  const inicioAdj = new Date(fin);
-  inicioAdj.setDate(inicioAdj.getDate() - 29); // aprox 30 días antes
-  // Mantener inicio como el día siguiente al corte anterior
+  // fin para mostrar (ajustado a día hábil) vs fin real para clasificar movimientos
+  const finMostrar = diaHabilAnterior(new Date(finRaw));
   const inicio = inicioRaw;
-  const dias = Math.max(0,Math.ceil((fin-today)/86400000));
-  return { inicio, fin, dias };
+  // Para clasificar movimientos usamos finRaw (fecha exacta del corte)
+  const fin = finRaw;
+  const dias = Math.max(0,Math.ceil((finMostrar-today)/86400000));
+  return { inicio, fin, finMostrar, dias };
 }
 
 function updateCards(){
@@ -2449,12 +2447,17 @@ function fmt(n){ return '$'+Number(n).toLocaleString('es-MX',{minimumFractionDig
 // Nombre del corte: mes en que termina
 function nombreCorte(corte, ref){
   const p = getPeriodo(corte, ref);
-  return p.fin.toLocaleDateString('es-MX',{month:'long'});
+  const opts = {day:'numeric', month:'short'};
+  const ini = p.inicio.toLocaleDateString('es-MX', opts);
+  const fin = (p.finMostrar||p.fin).toLocaleDateString('es-MX', opts);
+  return ini + ' – ' + fin;
 }
 
 // Obtener años disponibles para una tarjeta
 function getAniosDisponibles(tarjetaId, corte){
-  const movsTarjeta = movimientos.filter(m=>m.tarjetaId===tarjetaId);
+  const seen2 = new Map();
+  movimientos.filter(m=>m.tarjetaId===tarjetaId).forEach(m=>seen2.set(m.id,m));
+  const movsTarjeta = [...seen2.values()];
   const aniosSet = new Set();
   movsTarjeta.forEach(m=>{
     const p = getPeriodo(corte, new Date(m.fecha+'T12:00:00'));
@@ -2465,7 +2468,10 @@ function getAniosDisponibles(tarjetaId, corte){
 
 // Obtener cortes de un año específico para una tarjeta
 function getCortesDisponibles(tarjetaId, corte, anio){
-  const movsTarjeta = movimientos.filter(m=>m.tarjetaId===tarjetaId);
+  // Deduplicar por id — quedarse con el más reciente (mayor índice = más actualizado)
+  const seen = new Map();
+  movimientos.filter(m=>m.tarjetaId===tarjetaId).forEach(m=>seen.set(m.id,m));
+  const movsTarjeta = [...seen.values()];
   const cortesMap = {};
   movsTarjeta.forEach(m=>{
     const fecha = new Date(m.fecha+'T12:00:00');
@@ -2686,6 +2692,8 @@ window.guardar = async function(){
         try{
           await updateDoc(doc(db,'usuarios', currentUser.uid, 'movimientos',editingId), updEdit);
           movimientos = movimientos.map(m=>m.id===editingId?{...m,...updEdit}:m);
+          // Deduplicar por id para evitar entradas duplicadas
+          const movMap = new Map(); movimientos.forEach(m=>movMap.set(m.id,m)); movimientos=[...movMap.values()];
           movimientos.sort((a,b)=>{ const fa=a.fecha||'',fb=b.fecha||''; return fb!==fa?fb.localeCompare(fa):(b.creadoEn||0)-(a.creadoEn||0); });
           updateCards();
           renderMovimientos();
