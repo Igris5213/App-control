@@ -4516,7 +4516,8 @@ window.debSelTarjeta = async function(id){
       orderBy('creadoEn', 'desc')
     ));
     _debMovsCache = snap.docs.map(d=>({id:d.id,...d.data()}))
-      .filter(m => m.cuentaId === id && m.fecha);
+      .filter(m => m.cuentaId === id && m.fecha)
+      .sort((a,b)=>{ const fa=a.fecha||'',fb=b.fecha||''; return fa<fb?-1:fa>fb?1:0; });
     window._debMovsCache = _debMovsCache;
   } catch(e){ _debMovsCache = []; window._debMovsCache = _debMovsCache; }
   // Auto-abrir año
@@ -4623,7 +4624,9 @@ window.debSelMes = async function(mes){
 
   try {
     // Usar caché ya cargado al seleccionar tarjeta (sin nueva llamada a Firestore)
-    let movs = window._debMovsCache || _debMovsCache;
+    // Sincronizar cache local con window para tener datos frescos
+    if(window._debMovsCache && window._debMovsCache.length) _debMovsCache = window._debMovsCache;
+    let movs = _debMovsCache;
     // Si el caché está vacío (ej. recarga), volver a cargar
     if(!movs.length && _debTarjetaId){
       const { getDocs, collection, query, orderBy } = await import('https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js');
@@ -5397,9 +5400,9 @@ window._ejecutarGuardarEditDeb = async function(){
     _debMovimientos = _debMovimientos.map(m=>m.id===_editingDebId?{...m,...upd2}:m);
     _debMovimientos.sort((a,b)=>{ const fa=a.fecha||'',fb=b.fecha||''; return fb!==fa?fb.localeCompare(fa):(b.creadoEn||0)-(a.creadoEn||0); });
     // Actualizar window._debMovsCache para historial
-    if(window._debMovsCache){
-      window._debMovsCache = window._debMovsCache.map(m=>m.id===_editingDebId?{...m,...upd2}:m);
-    }
+    // Actualizar ambas referencias del cache
+    _debMovsCache = _debMovsCache.map(m=>m.id===_editingDebId?{...m,...upd2}:m);
+    window._debMovsCache = _debMovsCache;
     _updateDebCards();
     _renderDebMovimientos();
     // Re-renderizar historial si está visible
