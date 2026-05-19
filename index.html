@@ -3612,33 +3612,91 @@ window.cerrarAccionesPerfil = function(e){
 };
 
 window.abrirFormNuevaTarjeta = function(){
-  // Limpiar campos — mismos IDs del onboarding
-  document.getElementById('banco-ob-txt').textContent = 'Seleccionar banco...';
-  document.getElementById('banco-ob-display').style.color = '#999';
-  document.getElementById('inp-banco-ob').value = '';
-  document.getElementById('inp-banco-ob-otro').style.display = 'none';
-  document.getElementById('inp-banco-ob-otro').value = '';
-  document.getElementById('banco-ob-scroll-wrap').style.display = 'none';
-  document.getElementById('corte-ob-txt').textContent = 'Seleccionar día...';
-  document.getElementById('corte-ob-display').style.color = '#999';
-  document.getElementById('inp-corte-ob').value = '';
-  document.getElementById('corte-ob-scroll-wrap').style.display = 'none';
-  document.getElementById('inp-apodo-ob').value = '';
-  document.getElementById('inp-limite-ob').value = '';
+  // Limpiar campos con nuevos IDs del modal (sufijo -prf)
+  document.getElementById('banco-ob-prf-txt').textContent = 'Seleccionar banco...';
+  document.getElementById('banco-ob-prf-display').style.color = '#999';
+  document.getElementById('inp-banco-ob-prf').value = '';
+  document.getElementById('inp-banco-ob-prf-otro').style.display = 'none';
+  document.getElementById('inp-banco-ob-prf-otro').value = '';
+  document.getElementById('banco-ob-prf-scroll-wrap').style.display = 'none';
+  document.getElementById('corte-ob-prf-txt').textContent = 'Seleccionar día...';
+  document.getElementById('corte-ob-prf-display').style.color = '#999';
+  document.getElementById('inp-corte-ob-prf').value = '';
+  document.getElementById('corte-ob-prf-scroll-wrap').style.display = 'none';
+  document.getElementById('inp-apodo-ob-prf').value = '';
+  document.getElementById('inp-limite-ob-prf').value = '';
   document.getElementById('modal-nueva-tarjeta').classList.add('open');
 };
 
+window.toggleScrollBancoObPrf = function(){
+  const wrap = document.getElementById('banco-ob-prf-scroll-wrap');
+  const isOpen = wrap.style.display === 'block';
+  document.getElementById('corte-ob-prf-scroll-wrap').style.display = 'none';
+  wrap.style.display = isOpen ? 'none' : 'block';
+  if(!isOpen){
+    const BANCOS = window.BANCOS_OB || ['BBVA','Banorte','Citibanamex','Santander','HSBC','Scotiabank','Invex','Banamex'];
+    const currentBanco = document.getElementById('inp-banco-ob-prf').value || '';
+    const currentIdx = BANCOS.indexOf(currentBanco);
+    const cont = document.getElementById('scroll-banco-ob-prf-items');
+    const scrollEl = document.getElementById('scroll-banco-ob-prf');
+    _aislarScrollPerfiles(scrollEl);
+    cont.innerHTML = BANCOS.map(function(b,i){
+      return '<div class="scroll-item'+(i===currentIdx?' sel':'')+'" style="'+(i===currentIdx?'color:#fff;':'color:#444;')+'">'+b+'</div>';
+    }).join('');
+    setTimeout(()=>{
+      const idx = currentIdx >= 0 ? currentIdx : 0;
+      scrollEl.scrollTop = idx*44;
+      cont.querySelectorAll('.scroll-item').forEach((el,i)=>{ el.classList.toggle('sel',i===idx); el.style.color=i===idx?'#fff':'#444'; });
+    },50);
+    snapScrollConInicio(scrollEl, 44, currentIdx >= 0 ? currentIdx : 0, function(idx){
+      const banco = BANCOS[Math.min(idx, BANCOS.length-1)];
+      cont.querySelectorAll('.scroll-item').forEach((el,i)=>{ el.classList.toggle('sel',i===idx); el.style.color=i===idx?'#fff':'#444'; });
+      document.getElementById('inp-banco-ob-prf').value = banco;
+      document.getElementById('banco-ob-prf-txt').textContent = banco;
+      document.getElementById('banco-ob-prf-txt').style.color = '#111';
+      document.getElementById('inp-banco-ob-prf-otro').style.display = 'none';
+    });
+  }
+};
+
+window.toggleScrollCorteObPrf = function(){
+  const wrap = document.getElementById('corte-ob-prf-scroll-wrap');
+  const isOpen = wrap.style.display === 'block';
+  document.getElementById('banco-ob-prf-scroll-wrap').style.display = 'none';
+  wrap.style.display = isOpen ? 'none' : 'block';
+  if(!isOpen){
+    const currentCorte = parseInt(document.getElementById('inp-corte-ob-prf').value) || 1;
+    const cont = document.getElementById('scroll-corte-ob-prf-items');
+    const scrollEl = document.getElementById('scroll-corte-ob-prf');
+    _aislarScrollPerfiles(scrollEl);
+    cont.innerHTML = Array.from({length:31},(_,i)=>i+1).map(function(n){
+      return '<div class="scroll-item'+(n===currentCorte?' sel':'')+'" style="'+(n===currentCorte?'color:#fff;':'color:#444;')+'">'+n+'</div>';
+    }).join('');
+    setTimeout(()=>{
+      scrollEl.scrollTop = (currentCorte-1)*44;
+      cont.querySelectorAll('.scroll-item').forEach((el,i)=>{ el.classList.toggle('sel',i===(currentCorte-1)); el.style.color=i===(currentCorte-1)?'#fff':'#444'; });
+    },50);
+    snapScrollConInicio(scrollEl, 44, currentCorte-1, function(idx){
+      const dia = Math.min(31, Math.max(1, idx+1));
+      cont.querySelectorAll('.scroll-item').forEach((el,i)=>{ el.classList.toggle('sel',i===idx); el.style.color=i===idx?'#fff':'#444'; });
+      document.getElementById('inp-corte-ob-prf').value = dia;
+      document.getElementById('corte-ob-prf-txt').textContent = 'Día ' + dia;
+      document.getElementById('corte-ob-prf-txt').style.color = '#111';
+    });
+  }
+};
+
 window.cerrarModalNuevaTarjeta = function(){
-  document.getElementById('banco-ob-scroll-wrap').style.display = 'none';
-  document.getElementById('corte-ob-scroll-wrap').style.display = 'none';
+  document.getElementById('banco-ob-prf-scroll-wrap').style.display = 'none';
+  document.getElementById('corte-ob-prf-scroll-wrap').style.display = 'none';
   document.getElementById('modal-nueva-tarjeta').classList.remove('open');
 };
 
 window.guardarNuevaTarjetaModal = async function(){
-  const banco = document.getElementById('inp-banco-ob').value.trim() || document.getElementById('inp-banco-ob-otro').value.trim();
-  const apodo = document.getElementById('inp-apodo-ob').value.trim();
-  const corte = parseInt(document.getElementById('inp-corte-ob').value) || 0;
-  const limite = parseFloat(document.getElementById('inp-limite-ob').value) || 0;
+  const banco = document.getElementById('inp-banco-ob-prf').value.trim() || document.getElementById('inp-banco-ob-prf-otro').value.trim();
+  const apodo = document.getElementById('inp-apodo-ob-prf').value.trim();
+  const corte = parseInt(document.getElementById('inp-corte-ob-prf').value) || 0;
+  const limite = parseFloat(document.getElementById('inp-limite-ob-prf').value) || 0;
   if(!banco){ showToast('Selecciona el banco'); return; }
   if(!corte){ showToast('Selecciona la fecha de corte'); return; }
   if(!perfil.tarjetas) perfil.tarjetas = [];
@@ -3657,28 +3715,59 @@ window.guardarNuevaTarjetaModal = async function(){
   } catch(e){ showToast('❌ Error al guardar'); }
 };
 
+window.toggleScrollBancoNuevaCuenta = function(){
+  const wrap = document.getElementById('banco-nc-scroll-wrap');
+  const isOpen = wrap.style.display === 'block';
+  wrap.style.display = isOpen ? 'none' : 'block';
+  if(!isOpen){
+    const currentBanco = document.getElementById('inp-banco-nc').value || '';
+    const currentIdx = _BANCOS_LIST.indexOf(currentBanco);
+    const cont = document.getElementById('scroll-banco-nc-items');
+    const scrollEl = document.getElementById('scroll-banco-nc');
+    cont.innerHTML = _BANCOS_LIST.map(function(b,i){ return '<div class="scroll-item'+(i===currentIdx?' sel':'')+'" data-n="'+i+'" style="'+(i===currentIdx?'color:#fff;':'color:#444;')+'">'+b+'</div>'; }).join('');
+    setTimeout(()=>{
+      const idx = currentIdx >= 0 ? currentIdx : 0;
+      scrollEl.scrollTop = idx*44;
+      cont.querySelectorAll('.scroll-item').forEach((el,i)=>{
+        el.classList.toggle('sel', i===idx);
+        el.style.color = i===idx ? '#fff' : '#444';
+      });
+    }, 50);
+    snapScrollConInicio(scrollEl, 44, currentIdx >= 0 ? currentIdx : 0, idx=>{
+      const banco = _BANCOS_LIST[Math.min(idx, _BANCOS_LIST.length-1)];
+      cont.querySelectorAll('.scroll-item').forEach((el,i)=>{
+        el.classList.toggle('sel', i===idx);
+        el.style.color = i===idx ? '#fff' : '#444';
+      });
+      document.getElementById('inp-banco-nc').value = banco === 'Otro' ? '' : banco;
+      document.getElementById('banco-nc-txt').textContent = banco;
+      document.getElementById('banco-nc-display').style.color = '#111';
+      document.getElementById('inp-banco-nc-otro').style.display = banco === 'Otro' ? 'block' : 'none';
+    });
+  }
+};
+
 window.abrirFormNuevaCuenta = function(){
-  // Limpiar campos — mismos IDs del onboarding débito
-  document.getElementById('banco-deb-ob-txt').textContent = 'Seleccionar banco...';
-  document.getElementById('banco-deb-ob-display').style.color = '#999';
-  document.getElementById('inp-banco-deb-ob').value = '';
-  document.getElementById('inp-banco-deb-ob-otro').style.display = 'none';
-  document.getElementById('inp-banco-deb-ob-otro').value = '';
-  document.getElementById('banco-deb-ob-scroll-wrap').style.display = 'none';
-  document.getElementById('inp-apodo-deb-ob').value = '';
-  document.getElementById('inp-disponible-deb-ob').value = '';
+  document.getElementById('banco-nc-txt').textContent = 'Seleccionar banco...';
+  document.getElementById('banco-nc-display').style.color = '#999';
+  document.getElementById('inp-banco-nc').value = '';
+  document.getElementById('inp-banco-nc-otro').style.display = 'none';
+  document.getElementById('inp-banco-nc-otro').value = '';
+  document.getElementById('banco-nc-scroll-wrap').style.display = 'none';
+  document.getElementById('inp-apodo-nc').value = '';
+  document.getElementById('inp-disponible-nc').value = '';
   document.getElementById('modal-nueva-cuenta').classList.add('open');
 };
 
 window.cerrarModalNuevaCuenta = function(){
-  document.getElementById('banco-deb-ob-scroll-wrap').style.display = 'none';
+  document.getElementById('banco-nc-scroll-wrap').style.display = 'none';
   document.getElementById('modal-nueva-cuenta').classList.remove('open');
 };
 
 window.guardarNuevaCuentaModal = async function(){
-  const nombre = document.getElementById('inp-banco-deb-ob').value.trim() || document.getElementById('inp-banco-deb-ob-otro').value.trim();
-  const apodo  = document.getElementById('inp-apodo-deb-ob').value.trim();
-  const disp   = parseFloat(document.getElementById('inp-disponible-deb-ob').value) || 0;
+  const nombre = document.getElementById('inp-banco-nc').value.trim() || document.getElementById('inp-banco-nc-otro').value.trim();
+  const apodo  = document.getElementById('inp-apodo-nc').value.trim();
+  const disp   = parseFloat(document.getElementById('inp-disponible-nc').value) || 0;
   if(!nombre){ showToast('Selecciona el banco'); return; }
   if(!perfil.cuentasDebito) perfil.cuentasDebito = [];
   const nueva = {
@@ -3846,7 +3935,7 @@ window.renderPerfiles = function(){
             </div>
             <div style="height:8px"></div>
           </div>
-          <div style="font-size:11px;font-weight:700;color:#888;text-transform:uppercase;margin-bottom:6px">Alias <span style="font-weight:400;color:#aaa">(opcional)</span></div>
+          <div style="font-size:11px;font-weight:700;color:#888;text-transform:uppercase;margin-bottom:6px">Tarjeta</div>
           <input id="apodo-nueva-edit" placeholder="Ej. Nómina, Personal..." maxlength="30" onfocus="cerrarScrollsPerfiles()"
             style="width:100%;padding:12px 14px;border-radius:10px;border:1.5px solid #e5e7eb;font-size:14px;font-family:inherit;outline:none;background:#fff;margin-bottom:12px"/>
           <div style="font-size:11px;font-weight:700;color:#888;text-transform:uppercase;margin-bottom:6px">Límite de gasto</div>
@@ -3922,7 +4011,7 @@ window.renderPerfiles = function(){
             </div>
             <div style="height:8px"></div>
           </div>
-          <div style="font-size:11px;font-weight:700;color:#888;text-transform:uppercase;margin-bottom:6px">Alias <span style="font-weight:400;color:#aaa">(opcional)</span></div>
+          <div style="font-size:11px;font-weight:700;color:#888;text-transform:uppercase;margin-bottom:6px">Cuenta</div>
           <input id="inp-apodo-debito-nuevo" placeholder="Ej. Nómina, Ahorros..." maxlength="30" onfocus="cerrarScrollsPerfiles()"
             style="width:100%;padding:12px 14px;border-radius:10px;border:1.5px solid #e5e7eb;font-size:14px;font-family:inherit;outline:none;background:#fff;margin-bottom:10px;color:#111"/>
           <div style="font-size:11px;font-weight:700;color:#888;text-transform:uppercase;margin-bottom:6px">Saldo disponible <span style="font-weight:400;color:#aaa">(opcional)</span></div>
@@ -7074,10 +7163,36 @@ window.toggleScrollCorteEdit = function(btn){
 }
 
 window.toggleScrollBancoDebitoNuevo = function(){
-  cerrarScrollsPerfiles();
-  buildScrollBancoPerfiles('scroll-banco-debito-nuevo','scroll-banco-debito-nuevo-items','banco-debito-nuevo-wrap','banco-debito-nuevo-txt','inp-banco-debito-nuevo', document.getElementById('inp-banco-debito-nuevo').value);
-  const scrollEl = document.getElementById('scroll-banco-debito-nuevo');
-  if(scrollEl) _aislarScrollPerfiles(scrollEl);
+  const wrap = document.getElementById('banco-debito-nuevo-wrap');
+  const isOpen = wrap.style.display === 'block';
+  wrap.style.display = isOpen ? 'none' : 'block';
+  if(!isOpen){
+    const currentBanco = document.getElementById('inp-banco-debito-nuevo').value || '';
+    const currentIdx = _BANCOS_LIST.indexOf(currentBanco);
+    const cont = document.getElementById('scroll-banco-debito-nuevo-items');
+    const scrollEl = document.getElementById('scroll-banco-debito-nuevo');
+    cont.innerHTML = _BANCOS_LIST.map(function(b,i){ return '<div class="scroll-item'+(i===currentIdx?' sel':'')+'" data-n="'+i+'" style="'+(i===currentIdx?'color:#fff;':'color:#444;')+'">'+b+'</div>'; }).join('');
+    setTimeout(()=>{
+      const idx = currentIdx >= 0 ? currentIdx : 0;
+      scrollEl.scrollTop = idx*44;
+      cont.querySelectorAll('.scroll-item').forEach((el,i)=>{
+        const sel = i===idx;
+        el.classList.toggle('sel', sel);
+        el.style.color = sel ? '#fff' : '#444';
+      });
+    }, 50);
+    snapScrollConInicio(scrollEl, 44, currentIdx >= 0 ? currentIdx : 0, idx=>{
+      const banco = _BANCOS_LIST[Math.min(idx, _BANCOS_LIST.length-1)];
+      cont.querySelectorAll('.scroll-item').forEach((el,i)=>{
+        const sel = i===idx;
+        el.classList.toggle('sel', sel);
+        el.style.color = sel ? '#fff' : '#444';
+      });
+      document.getElementById('inp-banco-debito-nuevo').value = banco === 'Otro' ? '' : banco;
+      document.getElementById('banco-debito-nuevo-txt').textContent = banco;
+      document.getElementById('banco-debito-nuevo-txt').style.color = '#111';
+    });
+  }
 }
 
 window.toggleScrollBancoDebitoNuevoModal = function(){
@@ -10177,41 +10292,41 @@ document.addEventListener('DOMContentLoaded', function(){
     <div class="modal-title">Nueva tarjeta de crédito</div>
     <div class="ob-field">
       <div class="ob-label">Banco</div>
-      <div onclick="toggleScrollBancoOb()" id="banco-ob-display"
+      <div onclick="toggleScrollBancoObPrf()" id="banco-ob-prf-display"
         style="padding:12px 14px;border-radius:12px;border:1.5px solid #e0e0e0;font-size:15px;cursor:pointer;color:#999;display:flex;justify-content:space-between;align-items:center;background:#fff">
-        <span id="banco-ob-txt">Seleccionar banco...</span><span style="color:#aaa;font-size:12px">▾</span>
+        <span id="banco-ob-prf-txt">Seleccionar banco...</span><span style="color:#aaa;font-size:12px">▾</span>
       </div>
-      <input type="hidden" id="inp-banco-ob"/>
-      <div id="banco-ob-scroll-wrap" style="display:none;margin-top:6px;background:#f5f5f5;border-radius:14px;overflow:hidden;position:relative">
+      <input type="hidden" id="inp-banco-ob-prf"/>
+      <div id="banco-ob-prf-scroll-wrap" style="display:none;margin-top:6px;background:#f5f5f5;border-radius:14px;overflow:hidden;position:relative">
         <div style="font-size:10px;font-weight:700;color:#aaa;text-align:center;text-transform:uppercase;letter-spacing:0.08em;padding:8px 0 4px">Desliza para seleccionar</div>
         <div style="position:relative;height:132px;margin:0 8px">
           <div style="position:absolute;left:0;right:0;top:50%;transform:translateY(-50%);height:44px;border-radius:10px;background:linear-gradient(180deg,#111,#444);pointer-events:none;z-index:1"></div>
-          <div id="scroll-banco-ob" style="position:absolute;inset:0;overflow-y:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch;z-index:2">
-            <div style="height:44px"></div><div id="scroll-banco-ob-items" style="width:100%"></div><div style="height:44px"></div>
+          <div id="scroll-banco-ob-prf" style="position:absolute;inset:0;overflow-y:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch;z-index:2">
+            <div style="height:44px"></div><div id="scroll-banco-ob-prf-items" style="width:100%"></div><div style="height:44px"></div>
           </div>
         </div>
         <div style="height:8px"></div>
       </div>
-      <input class="ob-input" id="inp-banco-ob-otro" placeholder="Nombre del banco..." maxlength="20" style="display:none;margin-top:8px"/>
+      <input class="ob-input" id="inp-banco-ob-prf-otro" placeholder="Nombre del banco..." maxlength="20" style="display:none;margin-top:8px"/>
     </div>
     <div class="ob-field">
-      <div class="ob-label">Alias <span style="font-weight:400;color:#aaa">(opcional)</span></div>
-      <input class="ob-input" id="inp-apodo-ob" placeholder="Ej. Personal, Nómina..." maxlength="30"
-        onfocus="document.getElementById('banco-ob-scroll-wrap').style.display='none';document.getElementById('corte-ob-scroll-wrap').style.display='none';"/>
+      <div class="ob-label">Tarjeta</div>
+      <input class="ob-input" id="inp-apodo-ob-prf" placeholder="Ej. Personal, Nómina..." maxlength="30"
+        onfocus="document.getElementById('banco-ob-prf-scroll-wrap').style.display='none';document.getElementById('corte-ob-prf-scroll-wrap').style.display='none';"/>
     </div>
     <div class="ob-field">
       <div class="ob-label">Fecha de corte</div>
-      <div onclick="toggleScrollCorteOb()" id="corte-ob-display"
+      <div onclick="toggleScrollCorteObPrf()" id="corte-ob-prf-display"
         style="padding:12px 14px;border-radius:12px;border:1.5px solid #e0e0e0;font-size:15px;cursor:pointer;color:#999;display:flex;justify-content:space-between;align-items:center;background:#fff">
-        <span id="corte-ob-txt">Seleccionar día...</span><span style="color:#aaa;font-size:12px">▾</span>
+        <span id="corte-ob-prf-txt">Seleccionar día...</span><span style="color:#aaa;font-size:12px">▾</span>
       </div>
-      <input type="hidden" id="inp-corte-ob"/>
-      <div id="corte-ob-scroll-wrap" style="display:none;margin-top:6px;background:#f5f5f5;border-radius:14px;overflow:hidden;position:relative">
+      <input type="hidden" id="inp-corte-ob-prf"/>
+      <div id="corte-ob-prf-scroll-wrap" style="display:none;margin-top:6px;background:#f5f5f5;border-radius:14px;overflow:hidden;position:relative">
         <div style="font-size:10px;font-weight:700;color:#aaa;text-align:center;text-transform:uppercase;letter-spacing:0.08em;padding:8px 0 4px">Desliza para seleccionar</div>
         <div style="position:relative;height:132px;margin:0 8px">
           <div style="position:absolute;left:0;right:0;top:50%;transform:translateY(-50%);height:44px;border-radius:10px;background:linear-gradient(180deg,#111,#444);pointer-events:none;z-index:1"></div>
-          <div id="scroll-corte-ob" style="position:absolute;inset:0;overflow-y:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch;z-index:2">
-            <div style="height:44px"></div><div id="scroll-corte-ob-items" style="width:100%"></div><div style="height:44px"></div>
+          <div id="scroll-corte-ob-prf" style="position:absolute;inset:0;overflow-y:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch;z-index:2">
+            <div style="height:44px"></div><div id="scroll-corte-ob-prf-items" style="width:100%"></div><div style="height:44px"></div>
           </div>
         </div>
         <div style="height:8px"></div>
@@ -10221,8 +10336,8 @@ document.addEventListener('DOMContentLoaded', function(){
       <div class="ob-label">Límite de gasto</div>
       <div class="ob-prefix-wrap">
         <span class="ob-prefix">$</span>
-        <input class="ob-input ob-input-prefix" id="inp-limite-ob" type="number" placeholder="0.00" min="0" step="100"
-          onfocus="document.getElementById('banco-ob-scroll-wrap').style.display='none';document.getElementById('corte-ob-scroll-wrap').style.display='none';"/>
+        <input class="ob-input ob-input-prefix" id="inp-limite-ob-prf" type="number" placeholder="0.00" min="0" step="100"
+          onfocus="document.getElementById('banco-ob-prf-scroll-wrap').style.display='none';document.getElementById('corte-ob-prf-scroll-wrap').style.display='none';"/>
       </div>
     </div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:4px">
@@ -10239,34 +10354,34 @@ document.addEventListener('DOMContentLoaded', function(){
     <div class="modal-title">Nueva cuenta de débito</div>
     <div class="ob-field">
       <div class="ob-label">Banco</div>
-      <div onclick="toggleScrollBancoDebOb()" id="banco-deb-ob-display"
+      <div onclick="toggleScrollBancoNuevaCuenta()" id="banco-nc-display"
         style="padding:12px 14px;border-radius:12px;border:1.5px solid #e0e0e0;font-size:15px;cursor:pointer;color:#999;display:flex;justify-content:space-between;align-items:center;background:#fff">
-        <span id="banco-deb-ob-txt">Seleccionar banco...</span><span style="color:#aaa;font-size:12px">▾</span>
+        <span id="banco-nc-txt">Seleccionar banco...</span><span style="color:#aaa;font-size:12px">▾</span>
       </div>
-      <input type="hidden" id="inp-banco-deb-ob"/>
-      <div id="banco-deb-ob-scroll-wrap" style="display:none;margin-top:6px;background:#f5f5f5;border-radius:14px;overflow:hidden;position:relative">
+      <input type="hidden" id="inp-banco-nc"/>
+      <div id="banco-nc-scroll-wrap" style="display:none;margin-top:6px;background:#f5f5f5;border-radius:14px;overflow:hidden;position:relative">
         <div style="font-size:10px;font-weight:700;color:#aaa;text-align:center;text-transform:uppercase;letter-spacing:0.08em;padding:8px 0 4px">Desliza para seleccionar</div>
         <div style="position:relative;height:132px;margin:0 8px">
           <div style="position:absolute;left:0;right:0;top:50%;transform:translateY(-50%);height:44px;border-radius:10px;background:linear-gradient(180deg,#111,#444);pointer-events:none;z-index:1"></div>
-          <div id="scroll-banco-deb-ob" style="position:absolute;inset:0;overflow-y:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch;z-index:2">
-            <div style="height:44px"></div><div id="scroll-banco-deb-ob-items" style="width:100%"></div><div style="height:44px"></div>
+          <div id="scroll-banco-nc" style="position:absolute;inset:0;overflow-y:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch;z-index:2">
+            <div style="height:44px"></div><div id="scroll-banco-nc-items" style="width:100%"></div><div style="height:44px"></div>
           </div>
         </div>
         <div style="height:8px"></div>
       </div>
-      <input class="ob-input" id="inp-banco-deb-ob-otro" placeholder="Nombre del banco..." maxlength="20" style="display:none;margin-top:8px"/>
+      <input class="ob-input" id="inp-banco-nc-otro" placeholder="Nombre del banco..." maxlength="20" style="display:none;margin-top:8px"/>
     </div>
     <div class="ob-field">
-      <div class="ob-label">Alias <span style="font-weight:400;color:#aaa">(opcional)</span></div>
-      <input class="ob-input" id="inp-apodo-deb-ob" placeholder="Ej. Nómina, Ahorros..." maxlength="30"
-        onfocus="document.getElementById('banco-deb-ob-scroll-wrap').style.display='none';"/>
+      <div class="ob-label">Cuenta</div>
+      <input class="ob-input" id="inp-apodo-nc" placeholder="Ej. Nómina, Ahorros..." maxlength="30"
+        onfocus="document.getElementById('banco-nc-scroll-wrap').style.display='none';"/>
     </div>
     <div class="ob-field">
       <div class="ob-label">Saldo disponible</div>
       <div class="ob-prefix-wrap">
         <span class="ob-prefix">$</span>
-        <input class="ob-input ob-input-prefix" id="inp-disponible-deb-ob" type="number" placeholder="0.00" min="0" step="100"
-          onfocus="document.getElementById('banco-deb-ob-scroll-wrap').style.display='none';"/>
+        <input class="ob-input ob-input-prefix" id="inp-disponible-nc" type="number" placeholder="0.00" min="0" step="100"
+          onfocus="document.getElementById('banco-nc-scroll-wrap').style.display='none';"/>
       </div>
     </div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:4px">
