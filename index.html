@@ -2519,12 +2519,11 @@ function renderMovimientos(){
 
   if(!filtrados.length){ el.innerHTML=`<div class="empty-mov">Sin movimientos en el corte actual</div>`; return; }
   el.innerHTML = filtrados.map((m,idx)=>{
-    const concepto = m.comercio || m.concepto || m.detalle || 'Gasto';
-    return `
-    <div class="mov-item" onclick="resaltarMov(this)" onmousedown="startLongPress(this)" onmouseup="cancelLongPress()" onmouseleave="cancelLongPress()" ontouchstart="startLongPress(this)" ontouchend="cancelLongPress()" ontouchmove="cancelLongPress()" data-id="${m.id}">
+    const _c3 = m.comercio || m.concepto || m.detalle || 'Gasto';
+    return `<div class="mov-item" onclick="resaltarMov(this)" onmousedown="startLongPress(this)" onmouseup="cancelLongPress()" onmouseleave="cancelLongPress()" ontouchstart="startLongPress(this)" ontouchend="cancelLongPress()" ontouchmove="cancelLongPress()" data-id="${m.id}">
       <div class="mov-icon"><svg width="16" height="16" fill="none" stroke="#111" stroke-width="2.5" viewBox="0 0 24 24"><line x1="12" y1="19" x2="12" y2="5"/><polyline points="5 12 12 19 19 12"/></svg></div>
       <div class="mov-info">
-        <div class="mov-name" style="font-weight:700">${concepto}</div>
+        <div class="mov-name" style="font-weight:700">${_c3}</div>
         <div class="mov-date">${fmtDateShort(m.fecha,m.creadoEn)}</div>
       </div>
       <div class="mov-amount">-${fmt(m.monto)}</div>
@@ -2821,7 +2820,7 @@ window.confirmarEliminar = async function(){
   try{ await deleteDoc(doc(db,'usuarios', currentUser.uid, 'movimientos',deletingId));
     movimientos = movimientos.filter(m=>m.id!==deletingId);
     updateCards(); renderMovimientos();
-    window.showSuccess('Gasto eliminado', 'El movimiento fue eliminado correctamente'); }
+    window.showSuccess('Movimiento eliminado', ''); }
   catch(e){ showToast('❌ Error al eliminar'); }
   btn.disabled=false; deletingId=null;
   document.getElementById('confirm-overlay').classList.remove('open');
@@ -3986,7 +3985,7 @@ function _mostrarResumenMovimiento(titulo, subtitulo, cambios, onConfirmar){
     <div style="margin-bottom:12px">
       <div style="font-size:11px;font-weight:700;color:#aaa;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:6px">${c.campo}</div>
       <div style="display:flex;align-items:center;gap:8px">
-        <div style="flex:1;background:#f5f5f5;border-radius:8px;padding:8px 10px;font-size:13px;color:#888;text-decoration:line-through">${c.antes}</div>
+        <div style="flex:1;background:#f5f5f5;border-radius:8px;padding:8px 10px;font-size:13px;color:#888;text-decoration:none">${c.antes}</div>
         <svg width="14" height="14" fill="none" stroke="#111" stroke-width="2" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
         <div style="flex:1;background:linear-gradient(180deg,#111,#444);border-radius:8px;padding:8px 10px;font-size:13px;color:#fff;font-weight:600">${c.despues}</div>
       </div>
@@ -4046,7 +4045,7 @@ function _mostrarResumenCambioDebito(titulo, cambios){
       <div style="margin-bottom:12px">
         <div style="font-size:11px;font-weight:700;color:#aaa;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:6px">${c.campo}</div>
         <div style="display:flex;align-items:center;gap:8px">
-          <div style="flex:1;background:#f5f5f5;border-radius:8px;padding:8px 10px;font-size:13px;color:#888;text-decoration:line-through">${c.antes}</div>
+          <div style="flex:1;background:#f5f5f5;border-radius:8px;padding:8px 10px;font-size:13px;color:#888;text-decoration:none">${c.antes}</div>
           <svg width="14" height="14" fill="none" stroke="#111" stroke-width="2" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
           <div style="flex:1;background:linear-gradient(180deg,#111,#444);border-radius:8px;padding:8px 10px;font-size:13px;color:#fff;font-weight:600">${c.despues}</div>
         </div>
@@ -4081,7 +4080,7 @@ function _mostrarResumenCambioTarjeta(titulo, cambios){
       <div style="margin-bottom:12px">
         <div style="font-size:11px;font-weight:700;color:#aaa;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:6px">${c.campo}</div>
         <div style="display:flex;align-items:center;gap:8px">
-          <div style="flex:1;background:#f5f5f5;border-radius:8px;padding:8px 10px;font-size:13px;color:#888;text-decoration:line-through">${c.antes}</div>
+          <div style="flex:1;background:#f5f5f5;border-radius:8px;padding:8px 10px;font-size:13px;color:#888;text-decoration:none">${c.antes}</div>
           <svg width="14" height="14" fill="none" stroke="#111" stroke-width="2" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
           <div style="flex:1;background:linear-gradient(180deg,#111,#444);border-radius:8px;padding:8px 10px;font-size:13px;color:#fff;font-weight:600">${c.despues}</div>
         </div>
@@ -4292,6 +4291,7 @@ window.guardarEdicionDebito = async function(){
 
 
 function resetHistorial(){
+  window._renderHistorialActivo = null;
   document.getElementById('movimientos-full').innerHTML = '';
   document.getElementById('paso-anio').style.display = 'none';
   document.getElementById('anio-seleccionado-txt').textContent = 'Seleccionar año';
@@ -4831,12 +4831,11 @@ function renderMovimientosFull(tarjetaId){
     return;
   }
   el.innerHTML = data.map(m=>{
-    const concepto = m.comercio || m.concepto || m.detalle || 'Gasto';
-    return `
-    <div class="mov-item" onclick="resaltarMov(this)" onmousedown="startLongPress(this)" onmouseup="cancelLongPress()" onmouseleave="cancelLongPress()" ontouchstart="startLongPress(this)" ontouchend="cancelLongPress()" ontouchmove="cancelLongPress()" data-id="${m.id}">
+    const _c2 = m.comercio || m.concepto || m.detalle || 'Gasto';
+    return `<div class="mov-item" onclick="resaltarMov(this)" onmousedown="startLongPress(this)" onmouseup="cancelLongPress()" onmouseleave="cancelLongPress()" ontouchstart="startLongPress(this)" ontouchend="cancelLongPress()" ontouchmove="cancelLongPress()" data-id="${m.id}">
       <div class="mov-icon"><svg width="16" height="16" fill="none" stroke="#111" stroke-width="2.5" viewBox="0 0 24 24"><line x1="12" y1="19" x2="12" y2="5"/><polyline points="5 12 12 19 19 12"/></svg></div>
       <div class="mov-info">
-        <div class="mov-name" style="font-weight:700">${concepto}</div>
+        <div class="mov-name" style="font-weight:700">${_c2}</div>
         <div class="mov-date">${fmtDateShort(m.fecha,m.creadoEn)}</div>
       </div>
       <div class="mov-amount">-${fmt(m.monto)}</div>
@@ -5070,10 +5069,8 @@ window.seleccionarCorteMov = function(tarjetaId, corte, periodoFinKey){
     const tPV = (perfil?.tarjetas||[]).find(x=>x.id===p.tarjetaId);
     const cPV = tPV ? tPV.corte : 1;
     const mesPagoEnCorte = getMesPagoPromo(cPV, p.creadoEn, periodoFin);
-    if(p.mesesPagados !== undefined){
-      return mesPagoEnCorte >= 1 && mesPagoEnCorte <= p.mesesPagados && p.mesesPagados <= p.meses;
-    }
-    return mesPagoEnCorte >= 1 && mesPagoEnCorte <= p.meses;
+      // Mostrar en todos los cortes del 1 al total de meses
+      return mesPagoEnCorte >= 1 && mesPagoEnCorte <= p.meses;
   });
   const recPromos = document.getElementById('recuadro-promos-historial');
   if(promosVigentes.length){
@@ -5081,7 +5078,7 @@ window.seleccionarCorteMov = function(tarjetaId, corte, periodoFinKey){
     window._promosHistorialVigentes = promosVigentes;
     window._promosHistorialFecha = finFmt;
     window._promosHistorialPeriodoFin = periodoFin;
-    recPromos.style.display = 'block';
+    recPromos.style.display = 'none';
   } else {
     recPromos.style.display = 'none';
     window._promosHistorialVigentes = [];
@@ -5101,13 +5098,17 @@ window.seleccionarCorteMov = function(tarjetaId, corte, periodoFinKey){
     const rec2 = document.getElementById('recuadro-movimientos');
     if(rec2) rec2.style.display = 'block';
     if(!d.length){ elMov.innerHTML='<div class="empty-mov">Sin movimientos en este corte</div>'; return; }
-    elMov.innerHTML = d.map(m=>`
-      <div class="mov-item" onclick="resaltarMov(this)" onmousedown="startLongPress(this)" onmouseup="cancelLongPress()" onmouseleave="cancelLongPress()" ontouchstart="startLongPress(this)" ontouchend="cancelLongPress()" ontouchmove="cancelLongPress()" data-id="${m.id}">
+    elMov.innerHTML = d.map(m=>{
+      const _c1 = m.comercio || m.concepto || m.detalle || 'Gasto';
+      return `<div class="mov-item" onclick="resaltarMov(this)" onmousedown="startLongPress(this)" onmouseup="cancelLongPress()" onmouseleave="cancelLongPress()" ontouchstart="startLongPress(this)" ontouchend="cancelLongPress()" ontouchmove="cancelLongPress()" data-id="${m.id}">
         <div class="mov-icon"><svg width="16" height="16" fill="none" stroke="#111" stroke-width="2.5" viewBox="0 0 24 24"><line x1="12" y1="19" x2="12" y2="5"/><polyline points="5 12 12 19 19 12"/></svg></div>
-        <div class="mov-info"><div class="mov-date">${fmtDateShort(m.fecha,m.creadoEn)}</div></div>
+        <div class="mov-info">
+          <div class="mov-name" style="font-weight:700">${_c1}</div>
+          <div class="mov-date">${fmtDateShort(m.fecha,m.creadoEn)}</div>
+        </div>
         <div class="mov-amount">-${fmt(m.monto)}</div>
-
-      </div>`).join('');
+      </div>`;
+    }).join('');
   };
 }
 
@@ -5504,6 +5505,237 @@ window.irPromociones = function(){
   renderPromociones(_usarCache);
 }
 
+// ── Cargos Recurrentes ────────────────────────────────────────
+let cargosRecurrentesCache = [];
+
+let _cargoTipo = 'credito';
+
+window.cerrarScrollsCargo = function(){
+  ['cargo-banco-scroll-wrap','cargo-tarjeta-scroll-wrap',
+   'cargo-banco-deb-scroll-wrap','cargo-cuenta-scroll-wrap','cargo-dia-scroll-wrap']
+  .forEach(id=>{ const el=document.getElementById(id); if(el) el.style.display='none'; });
+};
+
+let _cargoBancoSel=null, _cargoTarjetaSel=null, _cargoBancoDebSel=null, _cargoCuentaSel=null;
+let _cargoTipo = 'credito';
+
+window.selCargoTipo = function(tipo){
+  _cargoTipo = tipo;
+  const slider=document.getElementById('cargo-toggle-slider');
+  const btnC=document.getElementById('cargo-btn-credito');
+  const btnD=document.getElementById('cargo-btn-debito');
+  if(tipo==='credito'){
+    slider.style.transform='translateX(0)'; btnC.style.color='#fff'; btnD.style.color='#888';
+    document.getElementById('cargo-credito-wrap').style.display='';
+    document.getElementById('cargo-debito-wrap').style.display='none';
+  } else {
+    slider.style.transform='translateX(100%)'; btnD.style.color='#fff'; btnC.style.color='#888';
+    document.getElementById('cargo-credito-wrap').style.display='none';
+    document.getElementById('cargo-debito-wrap').style.display='';
+  }
+  cerrarScrollsCargo();
+};
+
+window.abrirScrollCargoBanco = function(){
+  const wrap=document.getElementById('cargo-banco-scroll-wrap');
+  const isOpen=wrap.style.display==='block';
+  cerrarScrollsCargo();
+  if(isOpen) return;
+  const bancos=[...new Set((perfil?.tarjetas||[]).map(t=>t.nombre))];
+  if(!bancos.length){ showToast('No tienes tarjetas configuradas'); return; }
+  const cont=document.getElementById('scroll-cargo-banco-items');
+  const sc=document.getElementById('scroll-cargo-banco-cont');
+  const idx=Math.max(0,bancos.indexOf(_cargoBancoSel));
+  cont.innerHTML=bancos.map((b,i)=>`<div class="scroll-item${i===idx?' sel':''}" style="width:100%;text-align:center;${i===idx?'color:#fff;':'color:#444;'}">${b}</div>`).join('');
+  wrap.style.display='block';
+  setTimeout(()=>{ sc.scrollTop=idx*44; cont.querySelectorAll('.scroll-item').forEach((el,i)=>{ el.classList.toggle('sel',i===idx); el.style.color=i===idx?'#fff':'#444'; }); },50);
+  snapScrollConInicio(sc,44,idx,i=>{
+    const banco=bancos[Math.min(i,bancos.length-1)];
+    cont.querySelectorAll('.scroll-item').forEach((el,j)=>{ el.classList.toggle('sel',j===i); el.style.color=j===i?'#fff':'#444'; });
+    _cargoBancoSel=banco; _cargoTarjetaSel=null;
+    document.getElementById('cargo-banco-txt').textContent=banco;
+    document.getElementById('cargo-banco-btn').style.color='#111';
+    document.getElementById('cargo-tarjeta-txt').textContent='Seleccionar tarjeta...';
+    document.getElementById('cargo-tarjeta-btn').style.color='#999';
+    document.getElementById('cargo-tarjeta-scroll-wrap').style.display='none';
+    const tarjetas=(perfil?.tarjetas||[]).filter(t=>t.nombre===banco);
+    document.getElementById('cargo-tarjeta-wrap').style.display=tarjetas.length?'':'none';
+  });
+};
+
+window.abrirScrollCargoTarjeta = function(){
+  const wrap=document.getElementById('cargo-tarjeta-scroll-wrap');
+  const isOpen=wrap.style.display==='block';
+  cerrarScrollsCargo();
+  if(isOpen) return;
+  const tarjetas=(perfil?.tarjetas||[]).filter(t=>t.nombre===_cargoBancoSel);
+  if(!tarjetas.length){ showToast('Selecciona un banco primero'); return; }
+  const cont=document.getElementById('scroll-cargo-tarjeta-items');
+  const sc=document.getElementById('scroll-cargo-tarjeta-cont');
+  const idx=Math.max(0,tarjetas.findIndex(t=>t.id===_cargoTarjetaSel));
+  cont.innerHTML=tarjetas.map((t,i)=>`<div class="scroll-item${i===idx?' sel':''}" style="width:100%;text-align:center;${i===idx?'color:#fff;':'color:#444;'}">${t.apodo||t.nombre}</div>`).join('');
+  wrap.style.display='block';
+  setTimeout(()=>{ sc.scrollTop=idx*44; cont.querySelectorAll('.scroll-item').forEach((el,i)=>{ el.classList.toggle('sel',i===idx); el.style.color=i===idx?'#fff':'#444'; }); },50);
+  snapScrollConInicio(sc,44,idx,i=>{
+    const t=tarjetas[Math.min(i,tarjetas.length-1)];
+    cont.querySelectorAll('.scroll-item').forEach((el,j)=>{ el.classList.toggle('sel',j===i); el.style.color=j===i?'#fff':'#444'; });
+    _cargoTarjetaSel=t.id;
+    document.getElementById('cargo-tarjeta-txt').textContent=t.apodo||t.nombre;
+    document.getElementById('cargo-tarjeta-btn').style.color='#111';
+  });
+};
+
+window.abrirScrollCargoBancoDeb = function(){
+  const wrap=document.getElementById('cargo-banco-deb-scroll-wrap');
+  const isOpen=wrap.style.display==='block';
+  cerrarScrollsCargo();
+  if(isOpen) return;
+  const bancos=[...new Set((perfil?.cuentasDebito||[]).map(c=>c.nombre))];
+  if(!bancos.length){ showToast('No tienes cuentas configuradas'); return; }
+  const cont=document.getElementById('scroll-cargo-banco-deb-items');
+  const sc=document.getElementById('scroll-cargo-banco-deb-cont');
+  const idx=Math.max(0,bancos.indexOf(_cargoBancoDebSel));
+  cont.innerHTML=bancos.map((b,i)=>`<div class="scroll-item${i===idx?' sel':''}" style="width:100%;text-align:center;${i===idx?'color:#fff;':'color:#444;'}">${b}</div>`).join('');
+  wrap.style.display='block';
+  setTimeout(()=>{ sc.scrollTop=idx*44; cont.querySelectorAll('.scroll-item').forEach((el,i)=>{ el.classList.toggle('sel',i===idx); el.style.color=i===idx?'#fff':'#444'; }); },50);
+  snapScrollConInicio(sc,44,idx,i=>{
+    const banco=bancos[Math.min(i,bancos.length-1)];
+    cont.querySelectorAll('.scroll-item').forEach((el,j)=>{ el.classList.toggle('sel',j===i); el.style.color=j===i?'#fff':'#444'; });
+    _cargoBancoDebSel=banco; _cargoCuentaSel=null;
+    document.getElementById('cargo-banco-deb-txt').textContent=banco;
+    document.getElementById('cargo-banco-deb-btn').style.color='#111';
+    document.getElementById('cargo-cuenta-txt').textContent='Seleccionar cuenta...';
+    document.getElementById('cargo-cuenta-btn').style.color='#999';
+    document.getElementById('cargo-cuenta-scroll-wrap').style.display='none';
+    const cuentas=(perfil?.cuentasDebito||[]).filter(c=>c.nombre===banco);
+    document.getElementById('cargo-cuenta-wrap').style.display=cuentas.length?'':'none';
+  });
+};
+
+window.abrirScrollCargoCuenta = function(){
+  const wrap=document.getElementById('cargo-cuenta-scroll-wrap');
+  const isOpen=wrap.style.display==='block';
+  cerrarScrollsCargo();
+  if(isOpen) return;
+  const cuentas=(perfil?.cuentasDebito||[]).filter(c=>c.nombre===_cargoBancoDebSel);
+  if(!cuentas.length){ showToast('Selecciona un banco primero'); return; }
+  const cont=document.getElementById('scroll-cargo-cuenta-items');
+  const sc=document.getElementById('scroll-cargo-cuenta-cont');
+  const idx=Math.max(0,cuentas.findIndex(c=>c.id===_cargoCuentaSel));
+  cont.innerHTML=cuentas.map((c,i)=>`<div class="scroll-item${i===idx?' sel':''}" style="width:100%;text-align:center;${i===idx?'color:#fff;':'color:#444;'}">${c.apodo||c.nombre}</div>`).join('');
+  wrap.style.display='block';
+  setTimeout(()=>{ sc.scrollTop=idx*44; cont.querySelectorAll('.scroll-item').forEach((el,i)=>{ el.classList.toggle('sel',i===idx); el.style.color=i===idx?'#fff':'#444'; }); },50);
+  snapScrollConInicio(sc,44,idx,i=>{
+    const c=cuentas[Math.min(i,cuentas.length-1)];
+    cont.querySelectorAll('.scroll-item').forEach((el,j)=>{ el.classList.toggle('sel',j===i); el.style.color=j===i?'#fff':'#444'; });
+    _cargoCuentaSel=c.id;
+    document.getElementById('cargo-cuenta-txt').textContent=c.apodo||c.nombre;
+    document.getElementById('cargo-cuenta-btn').style.color='#111';
+  });
+};
+
+window.abrirScrollCargoDia = function(){
+  const wrap=document.getElementById('cargo-dia-scroll-wrap');
+  const isOpen=wrap.style.display==='block';
+  cerrarScrollsCargo();
+  if(isOpen) return;
+  const cur=parseInt(document.getElementById('cargo-dia-val').value)||1;
+  const cont=document.getElementById('scroll-cargo-dia-items');
+  const sc=document.getElementById('scroll-cargo-dia-cont');
+  const idx=cur-1;
+  cont.innerHTML=Array.from({length:31},(_,i)=>{
+    const d=i+1,sel=d===cur;
+    return `<div class="scroll-item${sel?' sel':''}" style="width:100%;text-align:center;${sel?'color:#fff;':'color:#444;'}">${d}</div>`;
+  }).join('');
+  wrap.style.display='block';
+  setTimeout(()=>{ sc.scrollTop=idx*44; cont.querySelectorAll('.scroll-item').forEach((el,i)=>{ el.classList.toggle('sel',i===idx); el.style.color=i===idx?'#fff':'#444'; }); },50);
+  snapScrollConInicio(sc,44,idx,i=>{
+    const dia=i+1;
+    cont.querySelectorAll('.scroll-item').forEach((el,j)=>{ el.classList.toggle('sel',j===i); el.style.color=j===i?'#fff':'#444'; });
+    document.getElementById('cargo-dia-val').value=dia;
+    document.getElementById('cargo-dia-txt').textContent='Día '+dia+' de cada mes';
+    document.getElementById('cargo-dia-btn').style.color='#111';
+  });
+};
+
+window.abrirModalCargoRecurrente = function(){
+  try{
+    _cargoBancoSel=null; _cargoTarjetaSel=null; _cargoBancoDebSel=null; _cargoCuentaSel=null;
+    document.getElementById('cargo-nombre').value='';
+    document.getElementById('cargo-monto').value='';
+    document.getElementById('cargo-dia-val').value='';
+    document.getElementById('cargo-dia-txt').textContent='Seleccionar día...';
+    document.getElementById('cargo-dia-btn').style.color='#999';
+    document.getElementById('cargo-banco-txt').textContent='Seleccionar banco...';
+    document.getElementById('cargo-banco-btn').style.color='#999';
+    document.getElementById('cargo-tarjeta-txt').textContent='Seleccionar tarjeta...';
+    document.getElementById('cargo-tarjeta-btn').style.color='#999';
+    document.getElementById('cargo-banco-deb-txt').textContent='Seleccionar banco...';
+    document.getElementById('cargo-banco-deb-btn').style.color='#999';
+    document.getElementById('cargo-cuenta-txt').textContent='Seleccionar cuenta...';
+    document.getElementById('cargo-cuenta-btn').style.color='#999';
+    document.getElementById('cargo-tarjeta-wrap').style.display='none';
+    document.getElementById('cargo-cuenta-wrap').style.display='none';
+    cerrarScrollsCargo();
+    selCargoTipo('credito');
+    document.getElementById('modal-cargo-recurrente').classList.add('open');
+  } catch(err){
+    console.error('abrirModalCargoRecurrente error:', err);
+    showToast('Error al abrir el formulario');
+  }
+};
+
+window.cerrarCargoRecurrente = function(e){
+  if(!e || e.target===document.getElementById('modal-cargo-recurrente')){
+    cerrarScrollsCargo();
+    document.getElementById('modal-cargo-recurrente').classList.remove('open');
+  }
+};
+
+
+window.guardarCargoRecurrente = async function(){
+  const nombre = document.getElementById('cargo-nombre').value.trim();
+  const monto  = parseFloat(document.getElementById('cargo-monto').value);
+  const dia    = parseInt(document.getElementById('cargo-dia-val').value);
+  if(!nombre){ showToast('Ingresa el nombre del cargo'); return; }
+  if(!monto||monto<=0){ showToast('Ingresa el monto'); return; }
+  if(!dia){ showToast('Selecciona el día del cargo'); return; }
+
+  let tarjetaId = null, cuentaId = null, banco = '', tipo = _cargoTipo;
+  if(_cargoTipo === 'credito'){
+    banco = _cargoBancoSel || '';
+    tarjetaId = _cargoTarjetaSel || null;
+    if(!banco){ showToast('Selecciona el banco'); return; }
+    if(!tarjetaId){ showToast('Selecciona la tarjeta'); return; }
+  } else {
+    banco = _cargoBancoDebSel || '';
+    cuentaId = _cargoCuentaSel || null;
+    if(!banco){ showToast('Selecciona el banco'); return; }
+    if(!cuentaId){ showToast('Selecciona la cuenta'); return; }
+  }
+  try{
+    const datos = { nombre, monto, dia, tipo, banco, tarjetaId, cuentaId, creadoEn: Date.now(), activo: true };
+    const docRef = await addDoc(collection(db,'usuarios', currentUser.uid, 'cargosRecurrentes'), datos);
+    cargosRecurrentesCache = [...cargosRecurrentesCache, {...datos, id: docRef.id}];
+    cerrarCargoRecurrente();
+    renderPromociones(true);
+    window.showSuccess('Cargo recurrente guardado', '');
+  }catch(e){ showToast('❌ Error al guardar'); }
+};
+
+async function renderCargosRecurrentes(){
+  const lista = document.getElementById('promociones-lista');
+  if(!lista) return;
+  // Cargar si no hay cache
+  if(!cargosRecurrentesCache.length){
+    try{
+      const snap = await getDocs(query(collection(db,'usuarios', currentUser.uid,'cargosRecurrentes'), orderBy('creadoEn','desc')));
+      cargosRecurrentesCache = snap.docs.map(d=>({id:d.id,...d.data()}));
+    }catch(e){ cargosRecurrentesCache = []; }
+  }
+  // Renderizar se hace junto con promociones — se llama desde renderPromociones
+}
+
 window.abrirModalPromo = function(){
   if(!perfil || !perfil.tarjetas || !perfil.tarjetas.length){
     window.showSuccess('Sin tarjetas de crédito', 'Agrégalas desde la pestaña de Perfiles');
@@ -5723,20 +5955,38 @@ window.guardarPromo = async function(){
 
   const t = (perfil?.tarjetas||[]).find(x=>x.id===promoTarjetaSel);
   const comercio = document.getElementById('promo-comercio').value.trim();
+
+  // Calcular creadoEn para que pago 1 = corte actual
+  // primerCorte = periodoFin del corte actual de esta tarjeta
+  // creadoEn = 1 día antes del primerCorte
+  const corteNum = t ? parseInt(t.corte) : 1;
+  const periodoActual = getPeriodo(corteNum, new Date());
+  const primerCorte = periodoActual.fin;
+  const creadoEnCalc = primerCorte.getTime() - 86400000;
+
   const datos = {
     tarjetaId: promoTarjetaSel,
     banco: promoBancoSel,
     tarjeta: t?.apodo||t?.nombre||'',
     nombre, comercio, importe, meses,
     mensualidad: importe/meses,
-    creadoEn: Date.now()
+    mesesPagados: 1,
+    creadoEn: creadoEnCalc
   };
 
   try{
-    await addDoc(collection(db,'usuarios', currentUser.uid, 'promociones'), datos);
+    const docRef = await addDoc(collection(db,'usuarios', currentUser.uid, 'promociones'), datos);
+    // Agregar al cache local inmediatamente con el id real
+    const nuevaPromo = {...datos, id: docRef.id};
+    promocionesCache = [...promocionesCache, nuevaPromo];
+    window.promocionesCache = promocionesCache;
     document.getElementById('modal-promo-overlay').classList.remove('open');
-    window.showSuccess('Promoción guardada', `${nombre} — ${meses} meses sin intereses`);
-    renderPromociones();
+    // Actualizar historial si está visible
+    setTimeout(()=>{
+      if(typeof window._renderHistorialActivo === 'function') window._renderHistorialActivo();
+    }, 300);
+    window.showSuccess('Promoción guardada', '');
+    renderPromociones(true);
   }catch(e){ showToast('❌ Error al guardar'); }
 }
 
@@ -5745,6 +5995,7 @@ window.eliminarPromo = async function(id){
     await deleteDoc(doc(db,'usuarios', currentUser.uid, 'promociones', id));
     // Quitar del cache local y marcar timestamp de eliminación
     promocionesCache = promocionesCache.filter(p=>p.id!==id);
+    window.promocionesCache = promocionesCache;
     window._promoUltimaElim = Date.now();
     renderPromociones(true);
     window.showSuccess('Promoción eliminada','');
@@ -5833,6 +6084,31 @@ async function renderPromociones(useCache=false){
       });
     });
   }catch(err){ console.error('renderPromociones error:', err); lista.innerHTML = '<div style="text-align:center;color:#bbb;padding:24px">Error al cargar</div>'; }
+  // Agregar sección de cargos recurrentes
+  try{
+    const snapC = await getDocs(query(collection(db,'usuarios', currentUser.uid,'cargosRecurrentes'), orderBy('creadoEn','desc')));
+    cargosRecurrentesCache = snapC.docs.map(d=>({id:d.id,...d.data()}));
+    if(cargosRecurrentesCache.length){
+      const seccion = document.createElement('div');
+      seccion.innerHTML = `
+        <div style="font-size:13px;font-weight:700;color:#aaa;text-transform:uppercase;letter-spacing:0.06em;margin:20px 0 10px">Cargos recurrentes</div>
+        ${cargosRecurrentesCache.map(c=>{
+          const t = (perfil?.tarjetas||[]).find(x=>x.id===c.tarjetaId);
+          const tNombre = t ? t.nombre+(t.apodo?' · '+t.apodo:'') : 'Sin tarjeta';
+          return `<div style="background:#fff;border-radius:16px;padding:16px;box-shadow:0 1px 6px rgba(0,0,0,0.06);margin-bottom:10px;display:flex;align-items:center;gap:12px">
+            <div style="width:40px;height:40px;border-radius:12px;background:#f0f0f0;display:flex;align-items:center;justify-content:center;flex-shrink:0">
+              <svg width="18" height="18" fill="none" stroke="#111" stroke-width="2" viewBox="0 0 24 24"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg>
+            </div>
+            <div style="flex:1;min-width:0">
+              <div style="font-size:15px;font-weight:700;color:#111">${c.nombre}</div>
+              <div style="font-size:12px;color:#aaa">Día ${c.dia} · ${tNombre}</div>
+            </div>
+            <div style="font-size:15px;font-weight:700;color:#111">$${Number(c.monto).toLocaleString('es-MX',{minimumFractionDigits:2})}</div>
+          </div>`;
+        }).join('')}`;
+      lista.appendChild(seccion);
+    }
+  }catch(e){ console.error('cargos error:', e); }
 }
 
 
@@ -5889,6 +6165,12 @@ function buildScrollMesesEdit(current){
       });
       document.getElementById('edit-promo-meses').value = meses;
       document.getElementById('edit-promo-meses-txt').textContent = meses + (meses===1?' mes':' meses');
+      // Si meses pagados supera el nuevo total, ajustarlo automáticamente
+      const mpActual = parseInt(document.getElementById('edit-promo-mesespag').value) || 1;
+      if(mpActual > meses){
+        document.getElementById('edit-promo-mesespag').value = meses;
+        document.getElementById('edit-promo-mesespag-txt').textContent = meses + (meses===1?' mes pagado':' meses pagados');
+      }
     });
   }, 80);
 }
@@ -5900,7 +6182,7 @@ window.abrirScrollMesesPagEdit = function(){
   document.getElementById('edit-meses-scroll-wrap').style.display = 'none';
   wrap.style.display = isOpen ? 'none' : 'block';
   if(!isOpen){
-    const maxMeses = parseInt(document.getElementById('edit-promo-meses').value) || 24;
+    const maxMeses = parseInt(document.getElementById('edit-promo-mesespag-meses-ref')?.value || document.getElementById('edit-promo-meses').value) || 24;
     const current = parseInt(document.getElementById('edit-promo-mesespag').value) || 1;
     const cont = document.getElementById('edit-scroll-mesespag-items');
     const scrollCont = document.getElementById('edit-scroll-mesespag-cont');
@@ -5952,12 +6234,99 @@ window.guardarEditPromo = async function(){
   const meses = parseInt(document.getElementById('edit-promo-meses').value);
   if(!importe||importe<=0){ showToast('Ingresa el importe'); return; }
   if(!meses){ showToast('Selecciona los meses'); return; }
-  try{
-    const mesesPagados = parseInt(document.getElementById('edit-promo-mesespag').value) || 1;
-    await updateDoc(doc(db,'promociones',id),{ importe, meses, mensualidad: importe/meses, mesesPagados });
+  const mesesPagados = Math.min(parseInt(document.getElementById('edit-promo-mesespag').value) || 1, meses);
+  if(mesesPagados > meses){ showToast('Los meses pagados no pueden ser mayores al total de meses'); return; }
+
+  // Mostrar modal de confirmación antes de guardar
+  const promoAntes = promocionesCache.find(p=>p.id===id);
+  if(promoAntes){
+    const fmt$ = v=>'$'+Number(v).toLocaleString('es-MX',{minimumFractionDigits:2});
+    const cambios = [];
+    if(Number(promoAntes.importe) !== importe) cambios.push({campo:'Importe', antes:fmt$(promoAntes.importe), despues:fmt$(importe)});
+    if(Number(promoAntes.meses) !== meses) cambios.push({campo:'Meses', antes:promoAntes.meses+' meses', despues:meses+' meses'});
+    if(Number(promoAntes.mesesPagados||1) !== mesesPagados) cambios.push({campo:'Pago actual', antes:'Pago '+(promoAntes.mesesPagados||1)+' de '+promoAntes.meses, despues:'Pago '+mesesPagados+' de '+meses});
+    if(!cambios.length){ window.showSuccess('Sin cambios',''); return; }
+
+    // Llenar modal resumen promo
+    const body = document.getElementById('resumen-promo-body');
+    body.innerHTML = cambios.map(c=>`
+      <div style="margin-bottom:12px">
+        <div style="font-size:11px;font-weight:700;color:#aaa;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:6px">${c.campo}</div>
+        <div style="display:flex;align-items:center;gap:8px">
+          <div style="flex:1;background:#f5f5f5;border-radius:8px;padding:8px 10px;font-size:13px;color:#888;text-decoration:none">${c.antes}</div>
+          <svg width="14" height="14" fill="none" stroke="#111" stroke-width="2" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
+          <div style="flex:1;background:linear-gradient(180deg,#111,#444);border-radius:8px;padding:8px 10px;font-size:13px;color:#fff;font-weight:600">${c.despues}</div>
+        </div>
+      </div>`).join('');
+    // Cerrar modal de edición antes de mostrar resumen
     document.getElementById('modal-edit-promo').classList.remove('open');
-    window.showSuccess('Promoción actualizada','Los cambios fueron guardados');
-    renderPromociones();
+    setTimeout(()=>{
+      document.getElementById('modal-resumen-promo').classList.add('open');
+    }, 300);
+    window._pendingPromoEdit = { id, importe, meses, mesesPagados };
+    return;
+  }
+  await _ejecutarGuardadoPromo(id, importe, meses, mesesPagados);
+}
+
+window._corregirResumenPromo = function(){
+  document.getElementById('modal-resumen-promo').classList.remove('open');
+  setTimeout(()=>{
+    // Cerrar scrolls antes de reabrir formulario
+    document.getElementById('edit-meses-scroll-wrap').style.display = 'none';
+    document.getElementById('edit-meses-pag-scroll-wrap').style.display = 'none';
+    document.getElementById('modal-edit-promo').classList.add('open');
+  }, 300);
+};
+
+window._confirmarResumenPromo = async function(){
+  document.getElementById('modal-resumen-promo').classList.remove('open');
+  const { id, importe, meses, mesesPagados } = window._pendingPromoEdit || {};
+  if(!id) return;
+  await _ejecutarGuardadoPromo(id, importe, meses, mesesPagados);
+};
+
+async function _ejecutarGuardadoPromo(id, importe, meses, mesesPagados){
+  try{
+    // Calcular creadoEn ajustado: mesesPagados = número de pago en el corte actualmente consultado
+    // Si no hay corte activo, usar el corte de la tarjeta de esta promo con getPeriodo(hoy)
+    let creadoEnAjustado = undefined;
+    if(mesesPagados >= 1){
+      const promoActual = promocionesCache.find(p=>p.id===id);
+      const tarjetaPromo = (perfil?.tarjetas||[]).find(t=>t.id===promoActual?.tarjetaId);
+      const corteNum = window._pendingCorte || (tarjetaPromo ? parseInt(tarjetaPromo.corte) : 0);
+      let pfin = window._pendingPeriodoFin ? new Date(window._pendingPeriodoFin) : null;
+      if(!pfin && corteNum){
+        pfin = getPeriodo(corteNum, new Date()).fin;
+      }
+      if(pfin && corteNum){
+        // primerCorte = día de corte, (mesesPagados-1) meses antes del periodoFin actual
+        const primerCorte = new Date(pfin.getFullYear(), pfin.getMonth() - (mesesPagados - 1), corteNum);
+        creadoEnAjustado = primerCorte.getTime() - 86400000;
+      }
+    }
+    const updData = { importe, meses, mensualidad: importe/meses, mesesPagados };
+    if(creadoEnAjustado !== undefined) updData.creadoEn = creadoEnAjustado;
+    await updateDoc(doc(db,'usuarios', currentUser.uid, 'promociones', id), updData);
+    // Actualizar cache local y sincronizar con window
+    const updCache = {...updData};
+    promocionesCache = promocionesCache.map(p=>p.id===id?{...p,...updCache}:p);
+    window.promocionesCache = promocionesCache;
+    window._promoUltimaElim = Date.now();
+    // Actualizar historial INMEDIATAMENTE (cache ya está listo)
+    if(typeof window._renderHistorialActivo === 'function'){
+      window._renderHistorialActivo();
+    } else if(typeof window.onAfterEdit === 'function'){
+      window.onAfterEdit();
+    }
+    // Cerrar todos los modales después
+    setTimeout(()=>{
+      ['modal-edit-promo','modal-promo-overlay','tarjeta-promo-popup','modal-detalle-promo'].forEach(mid=>{
+        document.getElementById(mid)?.classList.remove('open');
+      });
+    }, 50);
+    window.showSuccess('Promoción actualizada', '');
+    renderPromociones(true);
   }catch(e){ showToast('❌ Error al guardar'); }
 }
 
@@ -5989,6 +6358,11 @@ window.confirmarEliminarPromo = async function(){
   document.getElementById('tarjeta-promo-popup').classList.remove('open');
   await eliminarPromo(_promoIdToDelete);
   _promoIdToDelete = null;
+  // Actualizar historial si está visible
+  setTimeout(()=>{
+    if(typeof window._renderHistorialActivo === 'function') window._renderHistorialActivo();
+    else if(typeof window.onAfterEdit === 'function') window.onAfterEdit();
+  }, 300);
 }
 
 window.verPromo = async function(id){
@@ -6232,29 +6606,68 @@ window.confirmarBusquedaHistorial = function(){
     window._promosHistorialVigentes = promosVigentes;
     window._promosHistorialFecha = finFmt;
     window._promosHistorialPeriodoFin = periodoFin;
-    recPromos.style.display = 'block';
+    recPromos.style.display = 'none';
   } else {
     recPromos.style.display = 'none';
     window._promosHistorialVigentes = [];
   }
 
-  // Renderizar movimientos
+  // Ocultar botón de promociones (ahora se integran como movimientos)
+  if(recPromos) recPromos.style.display = 'none';
+
+  // Renderizar movimientos + promos integradas
   const el = document.getElementById('movimientos-full');
   el.innerHTML = '';
-  if(!data.length){
+
+  // Construir items de promo como movimientos especiales al inicio
+  const fechaAnteCorte = new Date(periodoFin);
+  fechaAnteCorte.setDate(fechaAnteCorte.getDate() - 1);
+  const fechaPromoStr = fechaAnteCorte.toISOString().split('T')[0];
+  const promoItems = promosVigentes.map(p=>{
+    const tP = (perfil?.tarjetas||[]).find(x=>x.id===p.tarjetaId);
+    const cP = tP ? tP.corte : 1;
+    const mesPago = getMesPagoPromo(cP, p.creadoEn, periodoFin);
+    return `<div class="mov-item" style="border:1.5px solid #e0e0e0"
+        onmousedown="startLongPressPromoHist(this,'${p.id}')" onmouseup="cancelLongPress()" onmouseleave="cancelLongPress()"
+        ontouchstart="startLongPressPromoHist(this,'${p.id}')" ontouchend="cancelLongPress()" ontouchmove="cancelLongPress()"
+        onclick="resaltarMov(this)" data-promo-id="${p.id}">
+      <div class="mov-icon" style="background:linear-gradient(180deg,#111,#444)">
+        <svg width="14" height="14" fill="none" stroke="#fff" stroke-width="2" viewBox="0 0 24 24"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/><circle cx="18" cy="15" r="2"/></svg>
+      </div>
+      <div class="mov-info">
+        <div class="mov-name" style="font-weight:700">${p.nombre||'Promoción'}</div>
+        <div class="mov-date">${mesPago} de ${p.meses} — ${fmtDateShort(fechaPromoStr, null)}</div>
+      </div>
+      <div class="mov-amount" style="color:#111">-${fmt(p.mensualidad||p.importe/p.meses)}</div>
+    </div>`;
+  }).join('');
+
+  if(!data.length && !promosVigentes.length){
     el.innerHTML = '<div style="text-align:center;padding:24px;color:#bbb;font-size:14px">Sin movimientos en este corte</div>';
     return;
   }
-  el.innerHTML = data.map(m=>`
-    <div class="mov-item" onclick="resaltarMov(this)" onmousedown="startLongPress(this)" onmouseup="cancelLongPress()" onmouseleave="cancelLongPress()" ontouchstart="startLongPress(this)" ontouchend="cancelLongPress()" ontouchmove="cancelLongPress()" data-id="${m.id}">
-      <div class="mov-icon"><svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><line x1="12" y1="19" x2="12" y2="5"/><polyline points="5 12 12 5 19 12"/></svg></div>
+
+  el.innerHTML = promoItems + data.map(m=>{
+    const _cx = m.comercio || m.concepto || m.detalle || 'Gasto';
+    return `<div class="mov-item" onclick="resaltarMov(this)" onmousedown="startLongPress(this)" onmouseup="cancelLongPress()" onmouseleave="cancelLongPress()" ontouchstart="startLongPress(this)" ontouchend="cancelLongPress()" ontouchmove="cancelLongPress()" data-id="${m.id}">
+      <div class="mov-icon"><svg width="16" height="16" fill="none" stroke="#111" stroke-width="2.5" viewBox="0 0 24 24"><line x1="12" y1="19" x2="12" y2="5"/><polyline points="5 12 12 19 19 12"/></svg></div>
       <div class="mov-info">
+        <div class="mov-name" style="font-weight:700">${_cx}</div>
         <div class="mov-date">${fmtDateShort(m.fecha, m.creadoEn)}</div>
       </div>
       <div class="mov-amount">-${fmt(m.monto)}</div>
-
-    </div>`).join('');
+    </div>`;
+  }).join('');
 }
+
+window.startLongPressPromoHist = function(el, id){
+  _longPressEl = el;
+  _longPressTimer = setTimeout(()=>{
+    _longPressTimer = null;
+    _longPressEl = null;
+    if(typeof verPromo === 'function') verPromo(id);
+  }, 500);
+};
 
 window.cancelarBusquedaHistorial = function(){
   document.getElementById('modal-confirm-hist').classList.remove('open');
@@ -6328,7 +6741,7 @@ window.aceptarConfirmHist = function(){
     window._promosHistorialVigentes = promosVigentes;
     window._promosHistorialFecha = finFmt;
     window._promosHistorialPeriodoFin = periodoFin;
-    recPromos.style.display = 'block';
+    recPromos.style.display = 'none';
   } else {
     recPromos.style.display = 'none';
     window._promosHistorialVigentes = [];
@@ -6347,24 +6760,67 @@ window.aceptarConfirmHist = function(){
   document.getElementById('paso-apodo').style.display = 'none';
   document.getElementById('paso-anio').style.display = 'none';
   document.getElementById('paso-corte').style.display = 'none';
-  // Callback para refrescar al editar/eliminar
-  onAfterEdit = ()=>{
+  // Función de render compartida (con promos integradas)
+  function _renderHistorial(){
     const d = movsPorCorte(tarjetaId, corte, periodoFin);
     const elMov = document.getElementById('movimientos-full');
     if(!elMov) return;
     const rec2 = document.getElementById('recuadro-movimientos');
     if(rec2) rec2.style.display = 'block';
-    if(!d.length){ elMov.innerHTML='<div class="empty-mov">Sin movimientos en este corte</div>'; return; }
-    elMov.innerHTML = d.map(m=>`
-      <div class="mov-item" onclick="resaltarMov(this)" onmousedown="startLongPress(this)" onmouseup="cancelLongPress()" onmouseleave="cancelLongPress()" ontouchstart="startLongPress(this)" ontouchend="cancelLongPress()" ontouchmove="cancelLongPress()" data-id="${m.id}">
-        <div class="mov-icon"><svg width="16" height="16" fill="none" stroke="#111" stroke-width="2.5" viewBox="0 0 24 24"><line x1="12" y1="19" x2="12" y2="5"/><polyline points="5 12 12 19 19 12"/></svg></div>
-        <div class="mov-info"><div class="mov-date">${fmtDateShort(m.fecha,m.creadoEn)}</div></div>
-        <div class="mov-amount">-${fmt(m.monto)}</div>
 
-      </div>`).join('');
-  };
+    // Promos integradas al inicio — leer del cache actualizado (desde window para tener la versión más reciente)
+    const _pcActual = window.promocionesCache || promocionesCache;
+    const _pvTodos = _pcActual.filter(p=>{
+      if(p.tarjetaId !== tarjetaId) return false;
+      const _tPV2 = (perfil?.tarjetas||[]).find(x=>x.id===p.tarjetaId);
+      const _cPV2 = _tPV2 ? _tPV2.corte : 1;
+      const _mep2 = getMesPagoPromo(_cPV2, p.creadoEn, periodoFin);
+      // Incluir si el pago está en rango válido (1 al total)
+      return _mep2 >= 1 && _mep2 <= p.meses;
+    });
+    const _pv = _pvTodos;
+    const _fechaAC = new Date(periodoFin);
+    _fechaAC.setDate(_fechaAC.getDate()-1);
+    const _fpStr = _fechaAC.toISOString().split('T')[0];
+    const _promoHTML = _pv.map(p=>{
+      const _tP = (perfil?.tarjetas||[]).find(x=>x.id===p.tarjetaId);
+      const _cP = _tP ? _tP.corte : 1;
+      const _mp = getMesPagoPromo(_cP, p.creadoEn, periodoFin);
+      return `<div class="mov-item" style="border:1.5px solid #e0e0e0"
+          onclick="resaltarMov(this)" onmousedown="startLongPressPromoHist(this,'${p.id}')" onmouseup="cancelLongPress()" onmouseleave="cancelLongPress()"
+          ontouchstart="startLongPressPromoHist(this,'${p.id}')" ontouchend="cancelLongPress()" ontouchmove="cancelLongPress()"
+          data-promo-id="${p.id}">
+        <div class="mov-icon">
+          <svg width="16" height="16" fill="none" stroke="#111" stroke-width="2.5" viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        </div>
+        <div class="mov-info">
+          <div class="mov-name" style="font-weight:700">${p.nombre||'Promoción'}</div>
+          <div class="mov-date">${_mp} de ${p.meses} — ${fmtDateShort(_fpStr, null)}</div>
+        </div>
+        <div class="mov-amount" style="color:#111">-${fmt(p.mensualidad||p.importe/p.meses)}</div>
+      </div>`;
+    }).join('');
+
+    if(!d.length && !_pv.length){
+      elMov.innerHTML = '<div class="empty-mov">Sin movimientos en este corte</div>';
+      return;
+    }
+    elMov.innerHTML = _promoHTML + d.map(m=>{
+      const _cy = m.comercio || m.concepto || m.detalle || 'Gasto';
+      return `<div class="mov-item" onclick="resaltarMov(this)" onmousedown="startLongPress(this)" onmouseup="cancelLongPress()" onmouseleave="cancelLongPress()" ontouchstart="startLongPress(this)" ontouchend="cancelLongPress()" ontouchmove="cancelLongPress()" data-id="${m.id}">
+        <div class="mov-icon"><svg width="16" height="16" fill="none" stroke="#111" stroke-width="2.5" viewBox="0 0 24 24"><line x1="12" y1="19" x2="12" y2="5"/><polyline points="5 12 12 19 19 12"/></svg></div>
+        <div class="mov-info">
+          <div class="mov-name" style="font-weight:700">${_cy}</div>
+          <div class="mov-date">${fmtDateShort(m.fecha,m.creadoEn)}</div>
+        </div>
+        <div class="mov-amount">-${fmt(m.monto)}</div>
+      </div>`;
+    }).join('');
+  }
+  onAfterEdit = _renderHistorial;
+  window._renderHistorialActivo = _renderHistorial;
   // Renderizar inmediatamente
-  onAfterEdit();
+  _renderHistorial();
 }
 
 
@@ -6725,6 +7181,8 @@ function _renderDebMovimientos(){
   }
 
   document.addEventListener('touchstart', function(e){
+    if(document.querySelector('.modal-overlay.open')) return;
+    if(e.target.closest('.modal-overlay')) return;
     const touch = e.touches[0];
     touchStartX = touch.clientX;
     touchStartY = touch.clientY;
@@ -6732,8 +7190,10 @@ function _renderDebMovimientos(){
   }, { passive: true });
 
   document.addEventListener('touchend', function(e){
-    // No swipe si hay un modal abierto
-    if(document.querySelector('.modal-overlay.open')) return;
+    // No swipe si hay cualquier modal abierto
+    if(document.querySelector('.modal-overlay.open, .modal-overlay.open *')) return;
+    // No swipe si el toque viene de dentro de un modal
+    if(e.target.closest('.modal-overlay')) return;
     // No swipe si se está en un scroll horizontal (carrusel)
     const touch = e.changedTouches[0];
     const dx = touch.clientX - touchStartX;
@@ -7035,11 +7495,17 @@ window.confirmarEliminarPerfil = async function(){
     <div style="font-size:22px;font-weight:800;color:#111;margin-bottom:6px">Promociones</div>
     <div style="font-size:14px;color:#aaa;margin-bottom:20px">Tus MSI y beneficios activos</div>
 
-    <!-- Botón agregar -->
-    <button onclick="abrirModalPromo()" style="width:100%;padding:14px;border-radius:14px;background:linear-gradient(180deg,#111,#444);color:#fff;border:none;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit;margin-bottom:16px;display:flex;align-items:center;justify-content:center;gap:8px">
-      <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-      Nueva promoción
-    </button>
+    <!-- Botones agregar -->
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px">
+      <button onclick="abrirModalPromo()" style="padding:14px;border-radius:14px;background:linear-gradient(180deg,#111,#444);color:#fff;border:none;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:6px">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        Nueva MSI
+      </button>
+      <button onclick="abrirModalCargoRecurrente()" style="padding:14px;border-radius:14px;background:#f0f0f0;color:#111;border:none;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:6px">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg>
+        Cargo recurrente
+      </button>
+    </div>
 
     <!-- Lista de promociones -->
     <div id="promociones-lista"></div>
@@ -7371,6 +7837,11 @@ function snapScroll(el, itemH, onSnap){
 function snapScrollConInicio(el, itemH, initialIdx, onSnap){
   snapScroll(el, itemH, onSnap);
   setTimeout(()=>onSnap(initialIdx), 80);
+}
+
+// Versión sin callback automático al inicializar — solo dispara al hacer scroll manual
+function snapScrollSinInicio(el, itemH, onSnap){
+  snapScroll(el, itemH, onSnap);
 }
 
 window.toggleScrollFechaExt = function(){
@@ -8183,9 +8654,7 @@ window.confirmarEliminarPerfil = async function(){
       </div>
     </div>
 
-    <button id="recuadro-promos-historial" onclick="abrirModalPromosHistorial()" style="display:none;width:100%;padding:14px;border-radius:14px;background:linear-gradient(180deg,#111,#444);color:#fff;border:none;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit;margin-bottom:12px;text-align:center">
-      Promociones
-    </button>
+<div id="recuadro-promos-historial" style="display:none"></div>
 
     <!-- Movimientos -->
     <div class="section-card" id="recuadro-movimientos" style="display:none;margin:0 0 12px">
@@ -8451,7 +8920,7 @@ window.confirmarEliminarPerfil = async function(){
         </svg>
       </div>
       <div style="font-size:17px;font-weight:700;color:#111;margin-bottom:8px">¿Eliminar promoción?</div>
-      <div style="font-size:14px;color:#888;line-height:1.5">Se eliminará el registro de esta<br>promoción a meses sin intereses.</div>
+
     </div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
       <button onclick="confirmarEliminarPromo()" style="padding:13px;border-radius:12px;background:linear-gradient(180deg,#111,#444);color:#fff;border:none;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit">Eliminar</button>
@@ -9367,6 +9836,167 @@ document.addEventListener('DOMContentLoaded', function(){
         Corregir
       </button>
       <button onclick="_confirmarResumenMovimiento()"
+        style="padding:14px;border-radius:12px;background:linear-gradient(180deg,#111,#444);color:#fff;border:none;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit">
+        Confirmar
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ MODAL NUEVO CARGO RECURRENTE ══ -->
+<div class="modal-overlay" id="modal-cargo-recurrente" onclick="cerrarCargoRecurrente(event)">
+  <div class="modal" onclick="event.stopPropagation()" style="max-height:90vh;overflow-y:auto;-webkit-overflow-scrolling:touch">
+    <div class="modal-handle"></div>
+    <div class="modal-title">Cargo recurrente</div>
+    <div style="font-size:13px;color:#aaa;margin:-14px 0 16px">Se cargará automáticamente cada mes</div>
+
+    <!-- Toggle Crédito / Débito -->
+    <div style="display:flex;background:#ebebeb;border-radius:16px;padding:4px;margin-bottom:20px;position:relative">
+      <div id="cargo-toggle-slider" style="position:absolute;top:4px;bottom:4px;left:4px;width:calc(50% - 4px);background:linear-gradient(180deg,#111,#444);border-radius:12px;transition:transform 0.25s cubic-bezier(0.34,1.2,0.64,1)"></div>
+      <button onclick="selCargoTipo('credito')" id="cargo-btn-credito" style="flex:1;padding:11px 8px;border:none;background:none;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;border-radius:12px;position:relative;z-index:1;color:#fff;transition:color 0.2s;display:flex;align-items:center;justify-content:center;gap:7px">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/><circle cx="18" cy="15" r="2"/></svg>Crédito
+      </button>
+      <button onclick="selCargoTipo('debito')" id="cargo-btn-debito" style="flex:1;padding:11px 8px;border:none;background:none;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;border-radius:12px;position:relative;z-index:1;color:#888;transition:color 0.2s;display:flex;align-items:center;justify-content:center;gap:7px">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/><line x1="5" y1="15" x2="9" y2="15"/></svg>Débito
+      </button>
+    </div>
+
+    <!-- CRÉDITO -->
+    <div id="cargo-credito-wrap">
+      <div class="field-wrap">
+        <div class="field-label">Banco</div>
+        <div onclick="abrirScrollCargoBanco()" id="cargo-banco-btn"
+          style="padding:12px 14px;border-radius:12px;border:1.5px solid #e0e0e0;font-size:15px;cursor:pointer;color:#999;display:flex;justify-content:space-between;align-items:center;background:#fff">
+          <span id="cargo-banco-txt">Seleccionar banco...</span><span style="color:#aaa;font-size:12px">▾</span>
+        </div>
+        <div id="cargo-banco-scroll-wrap" style="display:none;margin-top:6px;border-radius:14px;overflow:hidden;position:relative;background:#f5f5f5">
+          <div style="font-size:10px;font-weight:700;color:#aaa;text-align:center;text-transform:uppercase;letter-spacing:0.08em;padding:8px 0 4px">Desliza para seleccionar</div>
+          <div style="position:relative;height:132px;margin:0 8px">
+            <div style="position:absolute;left:0;right:0;top:50%;transform:translateY(-50%);height:44px;border-radius:10px;background:linear-gradient(180deg,#111,#444);pointer-events:none;z-index:1"></div>
+            <div id="scroll-cargo-banco-cont" style="position:absolute;inset:0;overflow-y:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch;z-index:2">
+              <div style="height:44px"></div><div id="scroll-cargo-banco-items" style="width:100%"></div><div style="height:44px"></div>
+            </div>
+          </div>
+          <div style="height:8px"></div>
+        </div>
+      </div>
+      <div class="field-wrap" id="cargo-tarjeta-wrap" style="display:none">
+        <div class="field-label">Tarjeta</div>
+        <div onclick="abrirScrollCargoTarjeta()" id="cargo-tarjeta-btn"
+          style="padding:12px 14px;border-radius:12px;border:1.5px solid #e0e0e0;font-size:15px;cursor:pointer;color:#999;display:flex;justify-content:space-between;align-items:center;background:#fff">
+          <span id="cargo-tarjeta-txt">Seleccionar tarjeta...</span><span style="color:#aaa;font-size:12px">▾</span>
+        </div>
+        <div id="cargo-tarjeta-scroll-wrap" style="display:none;margin-top:6px;border-radius:14px;overflow:hidden;position:relative;background:#f5f5f5">
+          <div style="font-size:10px;font-weight:700;color:#aaa;text-align:center;text-transform:uppercase;letter-spacing:0.08em;padding:8px 0 4px">Desliza para seleccionar</div>
+          <div style="position:relative;height:132px;margin:0 8px">
+            <div style="position:absolute;left:0;right:0;top:50%;transform:translateY(-50%);height:44px;border-radius:10px;background:linear-gradient(180deg,#111,#444);pointer-events:none;z-index:1"></div>
+            <div id="scroll-cargo-tarjeta-cont" style="position:absolute;inset:0;overflow-y:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch;z-index:2">
+              <div style="height:44px"></div><div id="scroll-cargo-tarjeta-items" style="width:100%"></div><div style="height:44px"></div>
+            </div>
+          </div>
+          <div style="height:8px"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- DÉBITO -->
+    <div id="cargo-debito-wrap" style="display:none">
+      <div class="field-wrap">
+        <div class="field-label">Banco</div>
+        <div onclick="abrirScrollCargoBancoDeb()" id="cargo-banco-deb-btn"
+          style="padding:12px 14px;border-radius:12px;border:1.5px solid #e0e0e0;font-size:15px;cursor:pointer;color:#999;display:flex;justify-content:space-between;align-items:center;background:#fff">
+          <span id="cargo-banco-deb-txt">Seleccionar banco...</span><span style="color:#aaa;font-size:12px">▾</span>
+        </div>
+        <div id="cargo-banco-deb-scroll-wrap" style="display:none;margin-top:6px;border-radius:14px;overflow:hidden;position:relative;background:#f5f5f5">
+          <div style="font-size:10px;font-weight:700;color:#aaa;text-align:center;text-transform:uppercase;letter-spacing:0.08em;padding:8px 0 4px">Desliza para seleccionar</div>
+          <div style="position:relative;height:132px;margin:0 8px">
+            <div style="position:absolute;left:0;right:0;top:50%;transform:translateY(-50%);height:44px;border-radius:10px;background:linear-gradient(180deg,#111,#444);pointer-events:none;z-index:1"></div>
+            <div id="scroll-cargo-banco-deb-cont" style="position:absolute;inset:0;overflow-y:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch;z-index:2">
+              <div style="height:44px"></div><div id="scroll-cargo-banco-deb-items" style="width:100%"></div><div style="height:44px"></div>
+            </div>
+          </div>
+          <div style="height:8px"></div>
+        </div>
+      </div>
+      <div class="field-wrap" id="cargo-cuenta-wrap" style="display:none">
+        <div class="field-label">Cuenta</div>
+        <div onclick="abrirScrollCargoCuenta()" id="cargo-cuenta-btn"
+          style="padding:12px 14px;border-radius:12px;border:1.5px solid #e0e0e0;font-size:15px;cursor:pointer;color:#999;display:flex;justify-content:space-between;align-items:center;background:#fff">
+          <span id="cargo-cuenta-txt">Seleccionar cuenta...</span><span style="color:#aaa;font-size:12px">▾</span>
+        </div>
+        <div id="cargo-cuenta-scroll-wrap" style="display:none;margin-top:6px;border-radius:14px;overflow:hidden;position:relative;background:#f5f5f5">
+          <div style="font-size:10px;font-weight:700;color:#aaa;text-align:center;text-transform:uppercase;letter-spacing:0.08em;padding:8px 0 4px">Desliza para seleccionar</div>
+          <div style="position:relative;height:132px;margin:0 8px">
+            <div style="position:absolute;left:0;right:0;top:50%;transform:translateY(-50%);height:44px;border-radius:10px;background:linear-gradient(180deg,#111,#444);pointer-events:none;z-index:1"></div>
+            <div id="scroll-cargo-cuenta-cont" style="position:absolute;inset:0;overflow-y:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch;z-index:2">
+              <div style="height:44px"></div><div id="scroll-cargo-cuenta-items" style="width:100%"></div><div style="height:44px"></div>
+            </div>
+          </div>
+          <div style="height:8px"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Nombre -->
+    <div class="field-wrap">
+      <div class="field-label">Nombre del cargo</div>
+      <input class="inp" id="cargo-nombre" type="text" placeholder="Ej. Netflix, Gimnasio..." maxlength="60" autocomplete="off" onfocus="cerrarScrollsCargo()"/>
+    </div>
+
+    <!-- Monto -->
+    <div class="field-wrap">
+      <div class="field-label">Monto mensual</div>
+      <div class="amount-wrap">
+        <span class="amount-prefix">$</span>
+        <input class="amount-inp" id="cargo-monto" type="number" placeholder="0.00" min="0" step="0.01" onfocus="cerrarScrollsCargo()"/>
+      </div>
+    </div>
+
+    <!-- Día -->
+    <div class="field-wrap">
+      <div class="field-label">Día del cargo</div>
+      <div onclick="abrirScrollCargoDia()" id="cargo-dia-btn"
+        style="padding:12px 14px;border-radius:12px;border:1.5px solid #e0e0e0;font-size:15px;cursor:pointer;color:#999;display:flex;justify-content:space-between;align-items:center;background:#fff">
+        <span id="cargo-dia-txt">Seleccionar día...</span><span style="color:#aaa;font-size:12px">▾</span>
+      </div>
+      <input type="hidden" id="cargo-dia-val"/>
+    </div>
+    <div id="cargo-dia-scroll-wrap" style="display:none;margin-top:-8px;margin-bottom:8px;border-radius:14px;overflow:hidden;position:relative;background:#f5f5f5">
+      <div style="font-size:10px;font-weight:700;color:#aaa;text-align:center;text-transform:uppercase;letter-spacing:0.08em;padding:8px 0 4px">Desliza para seleccionar</div>
+      <div style="position:relative;height:132px">
+        <div style="position:absolute;left:12px;right:12px;top:50%;transform:translateY(-50%);height:44px;border-radius:10px;background:linear-gradient(180deg,#111,#444);pointer-events:none;z-index:1"></div>
+        <div id="scroll-cargo-dia-cont" style="position:absolute;inset:0;overflow-y:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch;z-index:2">
+          <div style="height:44px"></div><div id="scroll-cargo-dia-items" style="width:100%"></div><div style="height:44px"></div>
+        </div>
+      </div>
+      <div style="height:8px"></div>
+    </div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:8px">
+      <button class="modal-save" onclick="guardarCargoRecurrente()" style="margin-top:0">Guardar</button>
+      <button onclick="cerrarCargoRecurrente()" style="padding:14px;border-radius:12px;border:1.5px solid #e0e0e0;background:#fff;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit;color:#666">Cancelar</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ MODAL RESUMEN EDICIÓN PROMO ══ -->
+<div class="modal-overlay" id="modal-resumen-promo" onclick="if(event.target===this)this.classList.remove('open')" style="z-index:1200">
+  <div class="modal" onclick="event.stopPropagation()" style="padding-bottom:28px">
+    <div class="modal-handle"></div>
+    <div style="text-align:center;margin-bottom:18px">
+      <div style="width:56px;height:56px;border-radius:50%;background:#f0f0f0;display:flex;align-items:center;justify-content:center;margin:0 auto 12px">
+        <svg width="28" height="28" fill="none" stroke="#111" stroke-width="2.2" viewBox="0 0 24 24"><path d="M9 12l2 2 4-4"/><circle cx="12" cy="12" r="10"/></svg>
+      </div>
+      <div style="font-size:18px;font-weight:800;color:#111;margin-bottom:4px">¿Son correctos los cambios?</div>
+      <div style="font-size:13px;color:#aaa">Revisa antes de guardar</div>
+    </div>
+    <div id="resumen-promo-body" style="margin-bottom:20px"></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+      <button onclick="_corregirResumenPromo()"
+        style="padding:14px;border-radius:12px;border:1.5px solid #e0e0e0;background:#fff;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit;color:#111">
+        Corregir
+      </button>
+      <button onclick="_confirmarResumenPromo()"
         style="padding:14px;border-radius:12px;background:linear-gradient(180deg,#111,#444);color:#fff;border:none;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit">
         Confirmar
       </button>
