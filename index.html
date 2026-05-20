@@ -81,6 +81,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .corte-item.selected{background:#111;border-color:#111;color:#fff;font-weight:600}
 
 /* ── APP PRINCIPAL ── */
+#screen-login{display:flex}
 .main-app{display:none;flex-direction:column;width:100%}
 .main-app.visible{display:flex;flex-direction:column;min-height:100vh;width:100%}
 .topbar{background:#f5f5f5;padding:16px 20px 8px;display:flex;align-items:center;justify-content:center;position:relative}
@@ -336,7 +337,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 <div class="toast" id="toast"></div>
 
 <!-- ══ PANTALLA 1: BIENVENIDA ══ -->
-<div class="screen" id="screen-welcome">
+<div class="screen hidden" id="screen-welcome">
   <div class="welcome-icon">
     <svg width="44" height="44" fill="none" stroke="#fff" stroke-width="2" viewBox="0 0 24 24"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
   </div>
@@ -3562,6 +3563,7 @@ document.addEventListener('click', function(e){
 
 // ── Arranque ─────────────────────────────────────
 async function init(){
+  renderizarUsuarios();
   // Primero: mostrar novedades si hay versión nueva, luego continuar al login
   if(checkVersion()) return;
   iniciarFlujoAuth();
@@ -4873,11 +4875,30 @@ window.debSelMes = async function(mes){
     balEl.textContent = (balance>=0?'+':'-')+'$'+fmt2(Math.abs(balance));
     balEl.style.color = '#111';
 
-    if(!movs.length){
+    // Cargos recurrentes de esta cuenta débito en este mes
+    const _cargosDeb = (window.cargosRecurrentesCache||[]).filter(c=>c.cuentaId===_debTarjetaId && c.tipo==='debito');
+    const _cargosDebHTML = _cargosDeb.map(c=>{
+      const diaStr = String(c.dia).padStart(2,'0');
+      const mesStr = fechaInicio.substring(5,7);
+      const anioStr = fechaInicio.substring(0,4);
+      const fechaCD = `${diaStr}/${mesStr}/${anioStr}`;
+      return `<div class="mov-item" style="border:1.5px solid #e8e8e8" onclick="resaltarMovDeb(this)" data-cargo-id="${c.id}">
+        <div class="mov-icon">
+          <svg width="16" height="16" fill="none" stroke="#111" stroke-width="2.5" viewBox="0 0 24 24"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg>
+        </div>
+        <div class="mov-info">
+          <div class="mov-name" style="font-weight:700">${c.nombre}</div>
+          <div class="mov-date">Cargo recurrente · ${fechaCD}</div>
+        </div>
+        <div class="mov-amount" style="color:#888">-$${Number(c.monto).toLocaleString('es-MX',{minimumFractionDigits:2})}</div>
+      </div>`;
+    }).join('');
+
+    if(!movs.length && !_cargosDeb.length){
       document.getElementById('deb-movimientos-lista').innerHTML = '<div class="empty-mov">Sin movimientos para este mes</div>';
       return;
     }
-    document.getElementById('deb-movimientos-lista').innerHTML = movs.map(m=>{
+    document.getElementById('deb-movimientos-lista').innerHTML = _cargosDebHTML + movs.map(m=>{
       const esIngreso = m.tipo === 'ingreso';
       const iconPath = esIngreso
         ? '<line x1="12" y1="19" x2="12" y2="5"/><polyline points="5 12 12 5 19 12"/>'
@@ -5723,7 +5744,7 @@ window.irPromociones = function(){
 }
 
 // ── Cargos Recurrentes ────────────────────────────────────────
-let cargosRecurrentesCache = [];
+let cargosRecurrentesCache = []; window.cargosRecurrentesCache = cargosRecurrentesCache;
 
 let _cargoTipo = 'credito';
 
@@ -6036,7 +6057,7 @@ window.eliminarCargoRecurrente = async function(id){
   document.getElementById('modal-detalle-cargo').classList.remove('open');
   try{
     await deleteDoc(doc(db,'usuarios', currentUser.uid, 'cargosRecurrentes', id));
-    cargosRecurrentesCache = cargosRecurrentesCache.filter(c=>c.id!==id);
+    cargosRecurrentesCache = cargosRecurrentesCache.filter(c=>c.id!==id); window.cargosRecurrentesCache = cargosRecurrentesCache;
     renderCargosRecurrentes();
     window.showSuccess('Cargo eliminado','');
   }catch(e){ showToast('❌ Error al eliminar'); }
@@ -6066,7 +6087,7 @@ window.guardarCargoRecurrente = async function(){
       // Modo edición — actualizar documento existente
       const datos = { nombre, monto, dia, tipo, banco, tarjetaId, cuentaId, activo: true };
       await updateDoc(doc(db,'usuarios', currentUser.uid, 'cargosRecurrentes', _cargoEditId), datos);
-      cargosRecurrentesCache = cargosRecurrentesCache.map(c=>c.id===_cargoEditId ? {...c,...datos} : c);
+      cargosRecurrentesCache = cargosRecurrentesCache.map(c=>c.id===_cargoEditId ? {...c,...datos} : c); window.cargosRecurrentesCache = cargosRecurrentesCache;
       _cargoEditId = null;
       cerrarCargoRecurrente();
       renderCargosRecurrentes();
@@ -6075,7 +6096,7 @@ window.guardarCargoRecurrente = async function(){
       // Modo nuevo
       const datos = { nombre, monto, dia, tipo, banco, tarjetaId, cuentaId, creadoEn: Date.now(), activo: true };
       const docRef = await addDoc(collection(db,'usuarios', currentUser.uid, 'cargosRecurrentes'), datos);
-      cargosRecurrentesCache = [...cargosRecurrentesCache, {...datos, id: docRef.id}];
+      cargosRecurrentesCache = [...cargosRecurrentesCache, {...datos, id: docRef.id}]; window.cargosRecurrentesCache = cargosRecurrentesCache;
       cerrarCargoRecurrente();
       renderCargosRecurrentes();
       window.showSuccess('Cargo recurrente guardado', '');
@@ -6088,36 +6109,38 @@ async function renderCargosRecurrentes(){
   if(!listaC) return;
   try{
     const snap = await getDocs(query(collection(db,'usuarios', currentUser.uid,'cargosRecurrentes'), orderBy('creadoEn','desc')));
-    cargosRecurrentesCache = snap.docs.map(d=>({id:d.id,...d.data()}));
+    cargosRecurrentesCache = snap.docs.map(d=>({id:d.id,...d.data()})); window.cargosRecurrentesCache = cargosRecurrentesCache;
     if(!cargosRecurrentesCache.length){
       listaC.innerHTML = '<div style="text-align:center;color:#aaa;padding:40px 0;font-size:15px">Sin cargos recurrentes</div>';
       return;
     }
-    listaC.innerHTML = cargosRecurrentesCache.map(c=>{
-      const t = (perfil?.tarjetas||[]).find(x=>x.id===c.tarjetaId);
-      const cu = (perfil?.cuentasDebito||[]).find(x=>x.id===c.cuentaId);
-      const cuenta = t ? t.nombre+(t.apodo?' · '+t.apodo:'') : cu ? cu.nombre+(cu.apodo?' · '+cu.apodo:'') : '—';
-      return `<div data-cargo-id="${c.id}" style="background:#fff;border-radius:16px;padding:16px;box-shadow:0 1px 6px rgba(0,0,0,0.06);margin-bottom:10px;display:flex;align-items:center;gap:10px;cursor:pointer" onclick="resaltarCargo(this)" onmousedown="startLongPressCargo(this,'${c.id}')" onmouseup="cancelLongPress()" onmouseleave="cancelLongPress()" ontouchstart="startLongPressCargo(this,'${c.id}')" ontouchend="cancelLongPress()" ontouchmove="cancelLongPress()">
-        <div style="width:36px;height:36px;border-radius:10px;background:#f5f5f5;display:flex;align-items:center;justify-content:center;flex-shrink:0">
-          <svg width="17" height="17" fill="none" stroke="#111" stroke-width="2" viewBox="0 0 24 24"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg>
-        </div>
-        <div style="flex:1;min-width:0">
-          <div style="font-size:15px;font-weight:700;color:#111">${c.nombre}</div>
-          <div style="font-size:12px;color:#aaa;margin-top:2px">Día ${c.dia} cada mes · ${cuenta}</div>
-        </div>
-        <div style="font-size:16px;font-weight:800;color:#111">$${Number(c.monto).toLocaleString('es-MX',{minimumFractionDigits:2})}</div>
-      </div>`;
-    }).join('');
+    const bancos = [...new Set(cargosRecurrentesCache.map(c=>c.banco||'Sin banco'))].sort();
+    let html = '';
+    bancos.forEach(function(banco){
+      const grupo = cargosRecurrentesCache.filter(function(c){ return (c.banco||'Sin banco')===banco; });
+      html += '<div style="font-size:12px;font-weight:700;color:#aaa;text-transform:uppercase;letter-spacing:0.06em;margin:12px 0 8px 4px">' + banco + '</div>';
+      grupo.forEach(function(c){
+        const t  = (perfil?.tarjetas||[]).find(x=>x.id===c.tarjetaId);
+        const cu = (perfil?.cuentasDebito||[]).find(x=>x.id===c.cuentaId);
+        const cuentaNombre = t ? (t.apodo||t.nombre) : cu ? (cu.apodo||cu.nombre) : '—';
+        const tipoIcon = c.tipo === 'debito'
+          ? '<svg width="17" height="17" fill="none" stroke="#111" stroke-width="2" viewBox="0 0 24 24"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>'
+          : '<svg width="17" height="17" fill="none" stroke="#111" stroke-width="2" viewBox="0 0 24 24"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg>';
+        html += '<div data-cargo-id="' + c.id + '" style="background:#fff;border-radius:16px;padding:16px;box-shadow:0 1px 6px rgba(0,0,0,0.06);margin-bottom:10px;display:flex;align-items:center;gap:12px;cursor:pointer"'
+          + ' onclick="resaltarCargo(this)"'
+          + ' onmousedown="startLongPressCargo(this,\'' + c.id + '\')" onmouseup="cancelLongPress()" onmouseleave="cancelLongPress()"'
+          + ' ontouchstart="startLongPressCargo(this,\'' + c.id + '\')" ontouchend="cancelLongPress()" ontouchmove="cancelLongPress()">';
+        html += '<div style="width:40px;height:40px;border-radius:12px;background:#f5f5f5;display:flex;align-items:center;justify-content:center;flex-shrink:0">' + tipoIcon + '</div>';
+        html += '<div style="flex:1;min-width:0">';
+        html += '<div style="font-size:15px;font-weight:700;color:#111;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">' + c.nombre + '</div>';
+        html += '<div style="font-size:12px;color:#aaa;margin-top:1px">Día ' + c.dia + ' · ' + cuentaNombre + '</div>';
+        html += '</div>';
+        html += '<div style="font-size:15px;font-weight:800;color:#111;flex-shrink:0">$' + Number(c.monto).toLocaleString('es-MX',{minimumFractionDigits:2}) + '</div>';
+        html += '</div>';
+      });
+    });
+    listaC.innerHTML = html;
   }catch(e){ console.error('cargos error:',e); listaC.innerHTML='<div style="text-align:center;color:#bbb;padding:24px">Error al cargar</div>'; }
-  const lista = document.getElementById('promociones-lista');
-  // Cargar si no hay cache
-  if(!cargosRecurrentesCache.length){
-    try{
-      const snap = await getDocs(query(collection(db,'usuarios', currentUser.uid,'cargosRecurrentes'), orderBy('creadoEn','desc')));
-      cargosRecurrentesCache = snap.docs.map(d=>({id:d.id,...d.data()}));
-    }catch(e){ cargosRecurrentesCache = []; }
-  }
-  // Renderizar se hace junto con promociones — se llama desde renderPromociones
 }
 
 window.abrirModalPromo = function(){
@@ -7123,11 +7146,29 @@ window.aceptarConfirmHist = function(){
       </div>`;
     }).join('');
 
-    if(!d.length && !_pv.length){
+    // Cargos recurrentes vigentes para esta tarjeta (crédito)
+    const _cargosHist = (window.cargosRecurrentesCache||[]).filter(c=>c.tarjetaId===tarjetaId && c.tipo!=='debito');
+    const _fechaCargo = new Date(periodoFin);
+    _fechaCargo.setDate(_fechaCargo.getDate()-1);
+    const _fechaCargoStr = _fechaCargo.toISOString().split('T')[0];
+    const _cargosHTML = _cargosHist.map(c=>`<div class="mov-item" style="border:1.5px solid #e8e8e8"
+        onclick="resaltarMov(this)"
+        data-cargo-id="${c.id}">
+      <div class="mov-icon">
+        <svg width="16" height="16" fill="none" stroke="#111" stroke-width="2.5" viewBox="0 0 24 24"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg>
+      </div>
+      <div class="mov-info">
+        <div class="mov-name" style="font-weight:700">${c.nombre}</div>
+        <div class="mov-date">Cargo recurrente · Día ${c.dia} — ${_fechaCargoStr.split('-').reverse().join('/')}</div>
+      </div>
+      <div class="mov-amount" style="color:#111">-${fmt(c.monto)}</div>
+    </div>`).join('');
+
+    if(!d.length && !_pv.length && !_cargosHist.length){
       elMov.innerHTML = '<div class="empty-mov">Sin movimientos en este corte</div>';
       return;
     }
-    elMov.innerHTML = _promoHTML + d.map(m=>{
+    elMov.innerHTML = _promoHTML + _cargosHTML + d.map(m=>{
       const _cy = m.comercio || m.concepto || m.detalle || 'Gasto';
       return `<div class="mov-item" onclick="resaltarMov(this)" onmousedown="startLongPress(this)" onmouseup="cancelLongPress()" onmouseleave="cancelLongPress()" ontouchstart="startLongPress(this)" ontouchend="cancelLongPress()" ontouchmove="cancelLongPress()" data-id="${m.id}">
         <div class="mov-icon"><svg width="16" height="16" fill="none" stroke="#111" stroke-width="2.5" viewBox="0 0 24 24"><line x1="12" y1="19" x2="12" y2="5"/><polyline points="5 12 12 19 19 12"/></svg></div>
