@@ -4876,7 +4876,13 @@ window.debSelMes = async function(mes){
     balEl.style.color = '#111';
 
     // Cargos recurrentes de esta cuenta débito en este mes
-    const _cargosDeb = (window.cargosRecurrentesCache||[]).filter(c=>c.cuentaId===_debTarjetaId && c.tipo==='debito');
+    if(!cargosRecurrentesCache.length){
+      try{
+        const _snapD = await getDocs(query(collection(db,'usuarios',currentUser.uid,'cargosRecurrentes'),orderBy('creadoEn','desc')));
+        cargosRecurrentesCache = _snapD.docs.map(d=>({id:d.id,...d.data()}));
+      }catch(_e){}
+    }
+    const _cargosDeb = cargosRecurrentesCache.filter(c=>c.cuentaId===_debTarjetaId && c.tipo==='debito');
     const _cargosDebHTML = _cargosDeb.map(c=>{
       // Fecha real: día del cargo en el mes del período seleccionado
       const _diaD  = String(c.dia).padStart(2,'0');
@@ -4889,7 +4895,7 @@ window.debSelMes = async function(mes){
         </div>
         <div class="mov-info">
           <div class="mov-name" style="font-weight:700">${c.nombre}</div>
-          <div class="mov-date">Cargo recurrente · ${fechaCD}</div>
+          <div class="mov-date">${fechaCD} — Cargo recurrente</div>
         </div>
         <div class="mov-amount" style="color:#888">-$${Number(c.monto).toLocaleString('es-MX',{minimumFractionDigits:2})}</div>
       </div>`;
@@ -5745,7 +5751,7 @@ window.irPromociones = function(){
 }
 
 // ── Cargos Recurrentes ────────────────────────────────────────
-let cargosRecurrentesCache = []; window.cargosRecurrentesCache = cargosRecurrentesCache;
+let cargosRecurrentesCache = [];
 
 let _cargoTipo = 'credito';
 
@@ -6058,7 +6064,7 @@ window.eliminarCargoRecurrente = async function(id){
   document.getElementById('modal-detalle-cargo').classList.remove('open');
   try{
     await deleteDoc(doc(db,'usuarios', currentUser.uid, 'cargosRecurrentes', id));
-    cargosRecurrentesCache = cargosRecurrentesCache.filter(c=>c.id!==id); window.cargosRecurrentesCache = cargosRecurrentesCache;
+    cargosRecurrentesCache = cargosRecurrentesCache.filter(c=>c.id!==id);
     renderCargosRecurrentes();
     window.showSuccess('Cargo eliminado','');
   }catch(e){ showToast('❌ Error al eliminar'); }
@@ -6088,7 +6094,7 @@ window.guardarCargoRecurrente = async function(){
       // Modo edición — actualizar documento existente
       const datos = { nombre, monto, dia, tipo, banco, tarjetaId, cuentaId, activo: true };
       await updateDoc(doc(db,'usuarios', currentUser.uid, 'cargosRecurrentes', _cargoEditId), datos);
-      cargosRecurrentesCache = cargosRecurrentesCache.map(c=>c.id===_cargoEditId ? {...c,...datos} : c); window.cargosRecurrentesCache = cargosRecurrentesCache;
+      cargosRecurrentesCache = cargosRecurrentesCache.map(c=>c.id===_cargoEditId ? {...c,...datos} : c);
       _cargoEditId = null;
       cerrarCargoRecurrente();
       renderCargosRecurrentes();
@@ -6097,7 +6103,7 @@ window.guardarCargoRecurrente = async function(){
       // Modo nuevo
       const datos = { nombre, monto, dia, tipo, banco, tarjetaId, cuentaId, creadoEn: Date.now(), activo: true };
       const docRef = await addDoc(collection(db,'usuarios', currentUser.uid, 'cargosRecurrentes'), datos);
-      cargosRecurrentesCache = [...cargosRecurrentesCache, {...datos, id: docRef.id}]; window.cargosRecurrentesCache = cargosRecurrentesCache;
+      cargosRecurrentesCache = [...cargosRecurrentesCache, {...datos, id: docRef.id}];
       cerrarCargoRecurrente();
       renderCargosRecurrentes();
       window.showSuccess('Cargo recurrente guardado', '');
@@ -6110,7 +6116,7 @@ async function renderCargosRecurrentes(){
   if(!listaC) return;
   try{
     const snap = await getDocs(query(collection(db,'usuarios', currentUser.uid,'cargosRecurrentes'), orderBy('creadoEn','desc')));
-    cargosRecurrentesCache = snap.docs.map(d=>({id:d.id,...d.data()})); window.cargosRecurrentesCache = cargosRecurrentesCache;
+    cargosRecurrentesCache = snap.docs.map(d=>({id:d.id,...d.data()}));
     if(!cargosRecurrentesCache.length){
       listaC.innerHTML = '<div style="text-align:center;color:#aaa;padding:40px 0;font-size:15px">Sin cargos recurrentes</div>';
       return;
@@ -7107,7 +7113,7 @@ window.aceptarConfirmHist = function(){
   document.getElementById('paso-anio').style.display = 'none';
   document.getElementById('paso-corte').style.display = 'none';
   // Función de render compartida (con promos integradas)
-  function _renderHistorial(){
+  async function _renderHistorial(){
     const d = movsPorCorte(tarjetaId, corte, periodoFin);
     const elMov = document.getElementById('movimientos-full');
     if(!elMov) return;
@@ -7141,21 +7147,36 @@ window.aceptarConfirmHist = function(){
         </div>
         <div class="mov-info">
           <div class="mov-name" style="font-weight:700">${p.nombre||'Promoción'}</div>
-          <div class="mov-date">${_mp} de ${p.meses} — ${fmtDateShort(_fpStr, null)}</div>
+          <div class="mov-date">${fmtDateShort(_fpStr, null)} — ${_mp} de ${p.meses}</div>
         </div>
         <div class="mov-amount" style="color:#111">-${fmt(p.mensualidad||p.importe/p.meses)}</div>
       </div>`;
     }).join('');
 
     // Cargos recurrentes vigentes para esta tarjeta (crédito)
-    const _cargosHist = (window.cargosRecurrentesCache||[]).filter(c=>c.tarjetaId===tarjetaId && c.tipo!=='debito');
+    // Usar cache local primero; si está vacío cargar de Firestore de forma síncrona (ya está en cache tras renderCargosRecurrentes)
+    if(!cargosRecurrentesCache.length){
+      try{
+        const _snapC = await getDocs(query(collection(db,'usuarios',currentUser.uid,'cargosRecurrentes'),orderBy('creadoEn','desc')));
+        cargosRecurrentesCache = _snapC.docs.map(d=>({id:d.id,...d.data()}));
+      }catch(_e){}
+    }
+    const _cargosHist = cargosRecurrentesCache.filter(c=>c.tarjetaId===tarjetaId && c.tipo!=='debito');
+    // Calcular el inicio del período para usar su mes/año como referencia de la fecha del cargo
+    const _periodoInicio = getPeriodo(corte, periodoFin).inicio;
     const _cargosHTML = _cargosHist.map(c=>{
-      // Fecha real: día del cargo en el mes del período
-      const _pMes  = periodoFin.getMonth()+1;
-      const _pAnio = periodoFin.getFullYear();
+      // La fecha del cargo es c.dia dentro del mes de inicio del corte
+      // Ej: corte 1 mayo→junio, inicio=2 mayo → cargo día 5 = 05/05/año
+      let _mesRef  = _periodoInicio.getMonth()+1;
+      let _anioRef = _periodoInicio.getFullYear();
+      // Si el día del cargo es menor que el día de inicio del período, cae en el mes siguiente
+      if(c.dia < _periodoInicio.getDate()){
+        _mesRef  = _mesRef===12 ? 1 : _mesRef+1;
+        _anioRef = _mesRef===1  ? _anioRef+1 : _anioRef;
+      }
       const _diaC  = String(c.dia).padStart(2,'0');
-      const _mesC  = String(_pMes).padStart(2,'0');
-      const _fechaC = `${_diaC}/${_mesC}/${_pAnio}`;
+      const _mesC  = String(_mesRef).padStart(2,'0');
+      const _fechaC = `${_diaC}/${_mesC}/${_anioRef}`;
       return `<div class="mov-item" style="border:1.5px solid #e8e8e8"
           onclick="resaltarMov(this)"
           data-cargo-id="${c.id}">
@@ -7164,7 +7185,7 @@ window.aceptarConfirmHist = function(){
         </div>
         <div class="mov-info">
           <div class="mov-name" style="font-weight:700">${c.nombre}</div>
-          <div class="mov-date">Cargo recurrente · ${_fechaC}</div>
+          <div class="mov-date">${_fechaC} — Cargo recurrente</div>
         </div>
         <div class="mov-amount" style="color:#111">-${fmt(c.monto)}</div>
       </div>`;
