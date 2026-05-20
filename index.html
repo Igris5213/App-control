@@ -2793,6 +2793,7 @@ window._ejecutarGuardarMov = async function(){
   const btn = document.getElementById('confirm-mov-ok-btn');
   btn.disabled = true;
   document.getElementById('modal-confirm-mov').classList.remove('open');
+  setTimeout(()=>{ if(btn) btn.disabled = false; }, 500);
 
   if(window._confirmMovCtx === 'credito'){
     const monto = parseFloat(document.getElementById('inp-monto').value);
@@ -2827,6 +2828,7 @@ window._ejecutarGuardarMov = async function(){
     }
   } else if(window._confirmMovCtx === 'debito'){
     await _ejecutarGuardarDebitoDB();
+    window.showSuccess('Movimiento registrado', '');
   } else if(window._confirmMovCtx === 'ext'){
     await _ejecutarGuardarExtDB();
   }
@@ -10012,7 +10014,6 @@ window._ejecutarGuardarDebitoDB = async function() {
     // Actualizar UI inmediatamente con el array local ya actualizado
     _updateDebCards();
     _renderDebMovimientos();
-    window.showSuccess('Movimiento registrado', '');
 
   } catch(err) {
     errEl.textContent = 'Error al guardar: ' + (err.message || err);
