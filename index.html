@@ -4878,10 +4878,11 @@ window.debSelMes = async function(mes){
     // Cargos recurrentes de esta cuenta débito en este mes
     const _cargosDeb = (window.cargosRecurrentesCache||[]).filter(c=>c.cuentaId===_debTarjetaId && c.tipo==='debito');
     const _cargosDebHTML = _cargosDeb.map(c=>{
-      const diaStr = String(c.dia).padStart(2,'0');
-      const mesStr = fechaInicio.substring(5,7);
-      const anioStr = fechaInicio.substring(0,4);
-      const fechaCD = `${diaStr}/${mesStr}/${anioStr}`;
+      // Fecha real: día del cargo en el mes del período seleccionado
+      const _diaD  = String(c.dia).padStart(2,'0');
+      const _mesD  = fechaInicio.substring(5,7);
+      const _anioD = fechaInicio.substring(0,4);
+      const fechaCD = `${_diaD}/${_mesD}/${_anioD}`;
       return `<div class="mov-item" style="border:1.5px solid #e8e8e8" onclick="resaltarMovDeb(this)" data-cargo-id="${c.id}">
         <div class="mov-icon">
           <svg width="16" height="16" fill="none" stroke="#111" stroke-width="2.5" viewBox="0 0 24 24"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg>
@@ -7148,21 +7149,26 @@ window.aceptarConfirmHist = function(){
 
     // Cargos recurrentes vigentes para esta tarjeta (crédito)
     const _cargosHist = (window.cargosRecurrentesCache||[]).filter(c=>c.tarjetaId===tarjetaId && c.tipo!=='debito');
-    const _fechaCargo = new Date(periodoFin);
-    _fechaCargo.setDate(_fechaCargo.getDate()-1);
-    const _fechaCargoStr = _fechaCargo.toISOString().split('T')[0];
-    const _cargosHTML = _cargosHist.map(c=>`<div class="mov-item" style="border:1.5px solid #e8e8e8"
-        onclick="resaltarMov(this)"
-        data-cargo-id="${c.id}">
-      <div class="mov-icon">
-        <svg width="16" height="16" fill="none" stroke="#111" stroke-width="2.5" viewBox="0 0 24 24"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg>
-      </div>
-      <div class="mov-info">
-        <div class="mov-name" style="font-weight:700">${c.nombre}</div>
-        <div class="mov-date">Cargo recurrente · Día ${c.dia} — ${_fechaCargoStr.split('-').reverse().join('/')}</div>
-      </div>
-      <div class="mov-amount" style="color:#111">-${fmt(c.monto)}</div>
-    </div>`).join('');
+    const _cargosHTML = _cargosHist.map(c=>{
+      // Fecha real: día del cargo en el mes del período
+      const _pMes  = periodoFin.getMonth()+1;
+      const _pAnio = periodoFin.getFullYear();
+      const _diaC  = String(c.dia).padStart(2,'0');
+      const _mesC  = String(_pMes).padStart(2,'0');
+      const _fechaC = `${_diaC}/${_mesC}/${_pAnio}`;
+      return `<div class="mov-item" style="border:1.5px solid #e8e8e8"
+          onclick="resaltarMov(this)"
+          data-cargo-id="${c.id}">
+        <div class="mov-icon">
+          <svg width="16" height="16" fill="none" stroke="#111" stroke-width="2.5" viewBox="0 0 24 24"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg>
+        </div>
+        <div class="mov-info">
+          <div class="mov-name" style="font-weight:700">${c.nombre}</div>
+          <div class="mov-date">Cargo recurrente · ${_fechaC}</div>
+        </div>
+        <div class="mov-amount" style="color:#111">-${fmt(c.monto)}</div>
+      </div>`;
+    }).join('');
 
     if(!d.length && !_pv.length && !_cargosHist.length){
       elMov.innerHTML = '<div class="empty-mov">Sin movimientos en este corte</div>';
