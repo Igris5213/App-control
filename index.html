@@ -21,6 +21,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 /* ── PANTALLAS DE ONBOARDING ── */
 .screen{position:fixed;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;z-index:200;padding:24px 50px 90px;background:#f5f5f5;overflow-y:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none}
 .screen::-webkit-scrollbar{display:none}
+#screen-cuentas{padding-top:16px}
 .screen.hidden{display:none}
 
 /* Bienvenida */
@@ -7966,7 +7967,6 @@ window.confirmarEliminarPerfil = async function(){
 <!-- ══ PANTALLA CUENTAS ══ -->
 <div class="screen hidden" id="screen-cuentas">
   <div style="width:100%">
-
     <!-- Sin cuentas -->
     <div id="cuentas-empty" style="display:none;text-align:center;padding:60px 24px">
       <div style="width:72px;height:72px;border-radius:24px;background:linear-gradient(180deg,#111,#444);display:flex;align-items:center;justify-content:center;margin:0 auto 24px;box-shadow:0 8px 32px rgba(0,0,0,0.15)">
@@ -7977,16 +7977,12 @@ window.confirmarEliminarPerfil = async function(){
     </div>
 
     <!-- Carrusel débito -->
-    <div id="cuentas-carrusel-wrap">
-      <div style="height:16px"></div>
-      <!-- Recuadro unificado: carrusel + movimientos -->
-      <div style="background:#fff;border-radius:24px;padding:20px 16px;box-shadow:0 4px 24px rgba(0,0,0,0.08);margin-bottom:32px">
-        <div class="cards-outer" id="deb-cards-outer" style="margin:0;border-radius:16px"></div>
-        <div class="dots" id="deb-dots"></div>
-        <div style="margin-top:18px">
-          <div class="section-card-title">Últimos movimientos</div>
-          <div id="deb-mov-list" style="max-height:504px;overflow-y:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none"></div>
-        </div>
+    <div id="cuentas-carrusel-wrap" style="background:#fff;border-radius:24px;padding:20px 16px;box-shadow:0 4px 24px rgba(0,0,0,0.08);margin-bottom:32px">
+      <div class="cards-outer" id="deb-cards-outer" style="margin:0;border-radius:16px"></div>
+      <div class="dots" id="deb-dots"></div>
+      <div style="margin-top:18px">
+        <div class="section-card-title">Últimos movimientos</div>
+        <div id="deb-mov-list" style="max-height:504px;overflow-y:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none"></div>
       </div>
     </div>
 
