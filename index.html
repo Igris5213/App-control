@@ -5920,21 +5920,21 @@ window.verDetalleCargo = function(id){
       <div style="font-size:13px;color:#aaa;margin-top:3px">Cargo recurrente · ${tipoLabel}</div>
     </div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:20px">
-      <div style="background:linear-gradient(180deg,#111,#444);border-radius:12px;padding:14px;text-align:center;grid-column:1/-1">
-        <div style="font-size:10px;font-weight:700;color:rgba(255,255,255,0.55);text-transform:uppercase;margin-bottom:4px">Monto mensual</div>
-        <div style="font-size:22px;font-weight:800;color:#fff">${montoFmt}</div>
-      </div>
-      <div style="background:#f5f5f5;border-radius:12px;padding:12px;text-align:center">
-        <div style="font-size:10px;font-weight:700;color:#aaa;text-transform:uppercase;margin-bottom:4px">Día de cargo</div>
-        <div style="font-size:15px;font-weight:700;color:#111">Día ${c.dia}</div>
-      </div>
       <div style="background:#f5f5f5;border-radius:12px;padding:12px;text-align:center">
         <div style="font-size:10px;font-weight:700;color:#aaa;text-transform:uppercase;margin-bottom:4px">Banco</div>
         <div style="font-size:14px;font-weight:700;color:#111">${c.banco||'—'}</div>
       </div>
-      <div style="background:#f5f5f5;border-radius:12px;padding:12px;text-align:center;grid-column:1/-1">
+      <div style="background:#f5f5f5;border-radius:12px;padding:12px;text-align:center">
         <div style="font-size:10px;font-weight:700;color:#aaa;text-transform:uppercase;margin-bottom:4px">${c.tipo==='debito'?'Cuenta':'Tarjeta'}</div>
         <div style="font-size:14px;font-weight:700;color:#111">${cuentaNombre}</div>
+      </div>
+      <div style="background:linear-gradient(180deg,#111,#444);border-radius:12px;padding:14px;text-align:center;grid-column:1/-1">
+        <div style="font-size:10px;font-weight:700;color:rgba(255,255,255,0.55);text-transform:uppercase;margin-bottom:4px">Monto mensual</div>
+        <div style="font-size:22px;font-weight:800;color:#fff">${montoFmt}</div>
+      </div>
+      <div style="background:#f5f5f5;border-radius:12px;padding:12px;text-align:center;grid-column:1/-1">
+        <div style="font-size:10px;font-weight:700;color:#aaa;text-transform:uppercase;margin-bottom:4px">Día de cargo</div>
+        <div style="font-size:15px;font-weight:700;color:#111">Día ${c.dia} de cada mes</div>
       </div>
     </div>
     <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px">
