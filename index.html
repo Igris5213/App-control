@@ -2459,26 +2459,53 @@ function getAniosDisponibles(tarjetaId, corte){
   movimientos.filter(m=>m.tarjetaId===tarjetaId).forEach(m=>seen2.set(m.id,m));
   const movsTarjeta = [...seen2.values()];
   const aniosSet = new Set();
+  const hoy = new Date();
+  // Años desde movimientos
   movsTarjeta.forEach(m=>{
     const p = getPeriodo(corte, new Date(m.fecha+'T12:00:00'));
     aniosSet.add(p.fin.getFullYear());
+  });
+  // Años desde cortes YA PASADOS donde haya una mensualidad de promo
+  const promos = (window.promocionesCache||[]).filter(p=>p.tarjetaId===tarjetaId);
+  promos.forEach(p=>{
+    const inicio = new Date(p.creadoEn);
+    for(let mes=0; mes<p.meses; mes++){
+      const fechaRef = new Date(inicio.getFullYear(), inicio.getMonth()+mes+1, parseInt(corte)+1);
+      const periodo = getPeriodo(corte, fechaRef);
+      if(periodo.inicio <= hoy) aniosSet.add(periodo.fin.getFullYear());
+    }
   });
   return [...aniosSet].sort((a,b)=>a-b);
 }
 
 // Obtener cortes de un año específico para una tarjeta
 function getCortesDisponibles(tarjetaId, corte, anio){
-  // Deduplicar por id — quedarse con el más reciente (mayor índice = más actualizado)
   const seen = new Map();
   movimientos.filter(m=>m.tarjetaId===tarjetaId).forEach(m=>seen.set(m.id,m));
   const movsTarjeta = [...seen.values()];
   const cortesMap = {};
+  const hoy = new Date();
+  // Cortes desde movimientos
   movsTarjeta.forEach(m=>{
     const fecha = new Date(m.fecha+'T12:00:00');
     const p = getPeriodo(corte, fecha);
     if(p.fin.getFullYear() !== anio) return;
     const key = p.fin.toISOString().split('T')[0];
     if(!cortesMap[key]) cortesMap[key] = { inicio:p.inicio, fin:p.fin, nombre: nombreCorte(corte, fecha), key };
+  });
+  // Cortes YA PASADOS donde haya una mensualidad de promo
+  const promos = (window.promocionesCache||[]).filter(p=>p.tarjetaId===tarjetaId);
+  promos.forEach(p=>{
+    const inicio = new Date(p.creadoEn);
+    for(let mes=0; mes<p.meses; mes++){
+      // Usar corte+1 como referencia para que getPeriodo resuelva al periodo correcto
+      const fechaRef = new Date(inicio.getFullYear(), inicio.getMonth()+mes+1, parseInt(corte)+1);
+      const periodo = getPeriodo(corte, fechaRef);
+      if(periodo.fin.getFullYear() !== anio) continue;
+      if(periodo.inicio > hoy) continue; // excluir cortes que aún no han empezado
+      const key = periodo.fin.toISOString().split('T')[0];
+      if(!cortesMap[key]) cortesMap[key] = { inicio:periodo.inicio, fin:periodo.fin, nombre: nombreCorte(corte, periodo.fin), key };
+    }
   });
   return Object.values(cortesMap).sort((a,b)=>a.fin-b.fin);
 }
@@ -2777,12 +2804,8 @@ window._ejecutarGuardarMov = async function(){
       concepto: document.getElementById('inp-concepto').value.trim()
     };
     try{
-      const docRef = await addDoc(collection(db,'usuarios', currentUser.uid, 'movimientos'), datos);
-      // Agregar al array local y actualizar UI
-      movimientos.push({ id: docRef.id, ...datos });
-      window.movimientos = movimientos;
-      updateCards();
-      renderMovimientos();
+      await addDoc(collection(db,'usuarios', currentUser.uid, 'movimientos'), datos);
+      // onSnapshot actualizará el array y la UI automáticamente
       // Limpiar campos del formulario
       document.getElementById('inp-monto').value    = '';
       document.getElementById('inp-comercio').value = '';
@@ -2820,6 +2843,8 @@ window.confirmarEliminar = async function(){
   try{ await deleteDoc(doc(db,'usuarios', currentUser.uid, 'movimientos',deletingId));
     movimientos = movimientos.filter(m=>m.id!==deletingId);
     updateCards(); renderMovimientos();
+    if(typeof window._renderHistorialActivo === 'function') window._renderHistorialActivo();
+    else if(typeof onAfterEdit === 'function') onAfterEdit();
     window.showSuccess('Movimiento eliminado', ''); }
   catch(e){ showToast('❌ Error al eliminar'); }
   btn.disabled=false; deletingId=null;
@@ -4742,7 +4767,7 @@ window.debSelTarjeta = async function(id){
   const aniosConDatos = [...new Set(_debMovsCache.map(m => m.fecha.substring(0,4)))]
     .map(Number).sort((a,b)=>b-a);
   if(!aniosConDatos.length){
-    contA.innerHTML = '<div style="padding:14px 16px;color:rgba(255,255,255,0.4);font-size:14px">Sin movimientos registrados</div>';
+    contA.innerHTML = '<div style="padding:14px 16px;color:rgba(255,255,255,0.4);font-size:14px">Sin cortes disponibles</div>';
     return;
   }
   contA.innerHTML = aniosConDatos.map(a=>`
@@ -5000,13 +5025,17 @@ window.irDetalle = function(){
 function cargarBancosFiltro(){
   const cont = document.getElementById('lista-bancos-btns');
   if(!cont || !perfil) return;
-  const bancosUnicos = [...new Set(perfil.tarjetas.map(t=>t.nombre))];
-  cont.innerHTML = bancosUnicos.map(nombre=>`
-    <div data-nombre="${nombre}" onclick="seleccionarBancoMov('${nombre}')"
-      style="padding:14px 16px;border-bottom:1px solid #f0f0f0;cursor:pointer;display:flex;align-items:center;justify-content:space-between;background:#fff;color:#111;font-weight:500;font-size:14px">
-      ${nombre}<svg width="16" height="16" fill="none" stroke="#aaa" stroke-width="2" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
-    </div>`).join('');
-  // Resetear texto sin abrir dropdown
+  const tarjetas = perfil.tarjetas || [];
+  const bancosUnicos = [...new Set(tarjetas.map(t=>t.nombre))];
+  if(!bancosUnicos.length){
+    cont.innerHTML = '<div style="padding:14px 16px;color:#aaa;font-size:14px">Sin tarjetas registradas</div>';
+  } else {
+    cont.innerHTML = bancosUnicos.map(nombre=>`
+      <div data-nombre="${nombre}" onclick="seleccionarBancoMov('${nombre}')"
+        style="padding:14px 16px;border-bottom:1px solid #f0f0f0;cursor:pointer;display:flex;align-items:center;justify-content:space-between;background:#fff;color:#111;font-weight:500;font-size:14px">
+        ${nombre}<svg width="16" height="16" fill="none" stroke="#aaa" stroke-width="2" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
+      </div>`).join('');
+  }
   document.getElementById('banco-seleccionado-txt').textContent = 'Seleccionar banco';
   document.getElementById('dd-bancos').style.display = 'none';
   document.getElementById('dd-bancos-icon').style.transform = '';
@@ -5187,7 +5216,7 @@ window.seleccionarApodoMov = function(tarjetaId, apodo, corte){
   document.getElementById('anio-seleccionado-txt').textContent = 'Seleccionar año';
 
   if(!anios.length){
-    document.getElementById('lista-anios-btns').innerHTML = '<div style="padding:14px 16px;color:rgba(255,255,255,0.4);font-size:14px">Sin movimientos registrados</div>';
+    document.getElementById('lista-anios-btns').innerHTML = '<div style="padding:14px 16px;color:rgba(255,255,255,0.4);font-size:14px">Sin cortes disponibles</div>';
     document.getElementById('dd-anios').style.display = 'block';
     document.getElementById('dd-anios-icon').style.transform = 'rotate(180deg)';
   } else {
@@ -5297,23 +5326,7 @@ window.seleccionarCorteMov = function(tarjetaId, corte, periodoFinKey){
   document.getElementById('paso-corte').style.display = 'none';
   // Callback para refrescar al editar/eliminar
   onAfterEdit = ()=>{
-    const d = movsPorCorte(tarjetaId, corte, periodoFin);
-    const elMov = document.getElementById('movimientos-full');
-    if(!elMov) return;
-    const rec2 = document.getElementById('recuadro-movimientos');
-    if(rec2) rec2.style.display = 'block';
-    if(!d.length){ elMov.innerHTML='<div class="empty-mov">Sin movimientos en este corte</div>'; return; }
-    elMov.innerHTML = d.map(m=>{
-      const _c1 = m.comercio || m.concepto || m.detalle || 'Gasto';
-      return `<div class="mov-item" onclick="resaltarMov(this)" onmousedown="startLongPress(this)" onmouseup="cancelLongPress()" onmouseleave="cancelLongPress()" ontouchstart="startLongPress(this)" ontouchend="cancelLongPress()" ontouchmove="cancelLongPress()" data-id="${m.id}">
-        <div class="mov-icon"><svg width="16" height="16" fill="none" stroke="#111" stroke-width="2.5" viewBox="0 0 24 24"><line x1="12" y1="19" x2="12" y2="5"/><polyline points="5 12 12 19 19 12"/></svg></div>
-        <div class="mov-info">
-          <div class="mov-name" style="font-weight:700">${_c1}</div>
-          <div class="mov-date">${fmtDateShort(m.fecha,m.creadoEn)}</div>
-        </div>
-        <div class="mov-amount">-${fmt(m.monto)}</div>
-      </div>`;
-    }).join('');
+    if(typeof window._renderHistorialActivo === 'function') window._renderHistorialActivo();
   };
 }
 
@@ -5883,10 +5896,98 @@ window.abrirScrollCargoDia = function(){
 window.startLongPressCargo = function(el, id){
   _longPressTimer = setTimeout(()=>{
     _longPressTimer = null;
-    // Mostrar modal de acciones para cargo recurrente
     window._cargoAccionId = id;
-    document.getElementById('modal-cargo-accion').classList.add('open');
+    verDetalleCargo(id);
   }, 500);
+};
+
+window.verDetalleCargo = function(id){
+  const c = cargosRecurrentesCache.find(x=>x.id===id);
+  if(!c) return;
+  const t  = (perfil?.tarjetas||[]).find(x=>x.id===c.tarjetaId);
+  const cu = (perfil?.cuentasDebito||[]).find(x=>x.id===c.cuentaId);
+  const cuentaNombre = t  ? (t.apodo  || t.nombre)
+                     : cu ? (cu.apodo || cu.nombre) : '—';
+  const tipoLabel = c.tipo === 'debito' ? 'Débito' : 'Crédito';
+  const montoFmt = '$' + Number(c.monto).toLocaleString('es-MX',{minimumFractionDigits:2,maximumFractionDigits:2});
+
+  document.getElementById('detalle-cargo-content').innerHTML = `
+    <div style="text-align:center;margin-bottom:20px">
+      <div style="width:52px;height:52px;border-radius:50%;background:#f5f5f5;display:flex;align-items:center;justify-content:center;margin:0 auto 10px">
+        <svg width="22" height="22" fill="none" stroke="#111" stroke-width="2" viewBox="0 0 24 24"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg>
+      </div>
+      <div style="font-size:18px;font-weight:800;color:#111">${c.nombre}</div>
+      <div style="font-size:13px;color:#aaa;margin-top:3px">Cargo recurrente · ${tipoLabel}</div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:20px">
+      <div style="background:linear-gradient(180deg,#111,#444);border-radius:12px;padding:14px;text-align:center;grid-column:1/-1">
+        <div style="font-size:10px;font-weight:700;color:rgba(255,255,255,0.55);text-transform:uppercase;margin-bottom:4px">Monto mensual</div>
+        <div style="font-size:22px;font-weight:800;color:#fff">${montoFmt}</div>
+      </div>
+      <div style="background:#f5f5f5;border-radius:12px;padding:12px;text-align:center">
+        <div style="font-size:10px;font-weight:700;color:#aaa;text-transform:uppercase;margin-bottom:4px">Día de cargo</div>
+        <div style="font-size:15px;font-weight:700;color:#111">Día ${c.dia}</div>
+      </div>
+      <div style="background:#f5f5f5;border-radius:12px;padding:12px;text-align:center">
+        <div style="font-size:10px;font-weight:700;color:#aaa;text-transform:uppercase;margin-bottom:4px">Banco</div>
+        <div style="font-size:14px;font-weight:700;color:#111">${c.banco||'—'}</div>
+      </div>
+      <div style="background:#f5f5f5;border-radius:12px;padding:12px;text-align:center;grid-column:1/-1">
+        <div style="font-size:10px;font-weight:700;color:#aaa;text-transform:uppercase;margin-bottom:4px">${c.tipo==='debito'?'Cuenta':'Tarjeta'}</div>
+        <div style="font-size:14px;font-weight:700;color:#111">${cuentaNombre}</div>
+      </div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px">
+      <button onclick="eliminarCargoRecurrente(window._cargoAccionId)"
+        style="padding:13px 6px;border-radius:12px;background:linear-gradient(180deg,#333,#666);color:#fff;border:none;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit">Eliminar</button>
+      <button onclick="document.getElementById('modal-detalle-cargo').classList.remove('open');editarCargoRecurrente(window._cargoAccionId)"
+        style="padding:13px 6px;border-radius:12px;background:linear-gradient(180deg,#111,#444);color:#fff;border:none;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit">Editar</button>
+      <button onclick="document.getElementById('modal-detalle-cargo').classList.remove('open')"
+        style="padding:13px 6px;border-radius:12px;border:1.5px solid #e0e0e0;background:#fff;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;color:#666">Cancelar</button>
+    </div>`;
+  document.getElementById('modal-detalle-cargo').classList.add('open');
+};
+
+let _cargoEditId = null;
+
+window.editarCargoRecurrente = function(id){
+  document.getElementById('modal-cargo-accion').classList.remove('open');
+  const c = cargosRecurrentesCache.find(x=>x.id===id);
+  if(!c){ showToast('No se encontró el cargo'); return; }
+  _cargoEditId = id;
+
+  cerrarScrollsCargo();
+  document.getElementById('cargo-nombre').value = c.nombre || '';
+  document.getElementById('cargo-monto').value  = c.monto  || '';
+
+  const dia = parseInt(c.dia) || 1;
+  document.getElementById('cargo-dia-val').value      = dia;
+  document.getElementById('cargo-dia-txt').textContent = 'Día ' + dia + ' de cada mes';
+  document.getElementById('cargo-dia-btn').style.color = '#111';
+
+  selCargoTipo(c.tipo === 'debito' ? 'debito' : 'credito');
+
+  if(c.tipo === 'debito'){
+    const cu = (perfil?.cuentasDebito||[]).find(x=>x.id===c.cuentaId);
+    _cargoBancoDebSel = c.banco || '';
+    _cargoCuentaSel   = c.cuentaId || null;
+    document.getElementById('cargo-banco-deb-txt').textContent = c.banco || 'Seleccionar banco...';
+    document.getElementById('cargo-banco-deb-btn').style.color = c.banco ? '#111' : '#999';
+    document.getElementById('cargo-cuenta-txt').textContent = cu ? (cu.apodo||cu.nombre) : 'Seleccionar cuenta...';
+    document.getElementById('cargo-cuenta-btn').style.color = cu ? '#111' : '#999';
+    document.getElementById('cargo-cuenta-wrap').style.display = cu ? '' : 'none';
+  } else {
+    const t = (perfil?.tarjetas||[]).find(x=>x.id===c.tarjetaId);
+    _cargoBancoSel   = c.banco || '';
+    _cargoTarjetaSel = c.tarjetaId || null;
+    document.getElementById('cargo-banco-txt').textContent = c.banco || 'Seleccionar banco...';
+    document.getElementById('cargo-banco-btn').style.color = c.banco ? '#111' : '#999';
+    document.getElementById('cargo-tarjeta-txt').textContent = t ? (t.apodo||t.nombre) : 'Seleccionar tarjeta...';
+    document.getElementById('cargo-tarjeta-btn').style.color = t ? '#111' : '#999';
+    document.getElementById('cargo-tarjeta-wrap').style.display = t ? '' : 'none';
+  }
+
+  document.getElementById('modal-cargo-recurrente').classList.add('open');
 };
 window.resaltarCargo = function(el){
   const lista = document.getElementById('cargos-lista');
@@ -5897,6 +5998,7 @@ window.resaltarCargo = function(el){
 };
 window.abrirModalCargoRecurrente = function(){
   try{
+    _cargoEditId=null;
     _cargoBancoSel=null; _cargoTarjetaSel=null; _cargoBancoDebSel=null; _cargoCuentaSel=null;
     document.getElementById('cargo-nombre').value='';
     document.getElementById('cargo-monto').value='';
@@ -5925,6 +6027,7 @@ window.abrirModalCargoRecurrente = function(){
 window.cerrarCargoRecurrente = function(e){
   if(!e || e.target===document.getElementById('modal-cargo-recurrente')){
     cerrarScrollsCargo();
+    _cargoEditId = null;
     document.getElementById('modal-cargo-recurrente').classList.remove('open');
   }
 };
@@ -5932,7 +6035,7 @@ window.cerrarCargoRecurrente = function(e){
 
 window.eliminarCargoRecurrente = async function(id){
   if(!id) return;
-  document.getElementById('modal-cargo-accion').classList.remove('open');
+  document.getElementById('modal-detalle-cargo').classList.remove('open');
   try{
     await deleteDoc(doc(db,'usuarios', currentUser.uid, 'cargosRecurrentes', id));
     cargosRecurrentesCache = cargosRecurrentesCache.filter(c=>c.id!==id);
@@ -5961,13 +6064,24 @@ window.guardarCargoRecurrente = async function(){
     if(!cuentaId){ showToast('Selecciona la cuenta'); return; }
   }
   try{
-    const datos = { nombre, monto, dia, tipo, banco, tarjetaId, cuentaId, creadoEn: Date.now(), activo: true };
-    const docRef = await addDoc(collection(db,'usuarios', currentUser.uid, 'cargosRecurrentes'), datos);
-    cargosRecurrentesCache = [...cargosRecurrentesCache, {...datos, id: docRef.id}];
-    cerrarCargoRecurrente();
-    cargosRecurrentesCache = [...cargosRecurrentesCache, {...datos, id: docRef.id}];
-    renderCargosRecurrentes();
-    window.showSuccess('Cargo recurrente guardado', '');
+    if(_cargoEditId){
+      // Modo edición — actualizar documento existente
+      const datos = { nombre, monto, dia, tipo, banco, tarjetaId, cuentaId, activo: true };
+      await updateDoc(doc(db,'usuarios', currentUser.uid, 'cargosRecurrentes', _cargoEditId), datos);
+      cargosRecurrentesCache = cargosRecurrentesCache.map(c=>c.id===_cargoEditId ? {...c,...datos} : c);
+      _cargoEditId = null;
+      cerrarCargoRecurrente();
+      renderCargosRecurrentes();
+      window.showSuccess('Cargo actualizado', '');
+    } else {
+      // Modo nuevo
+      const datos = { nombre, monto, dia, tipo, banco, tarjetaId, cuentaId, creadoEn: Date.now(), activo: true };
+      const docRef = await addDoc(collection(db,'usuarios', currentUser.uid, 'cargosRecurrentes'), datos);
+      cargosRecurrentesCache = [...cargosRecurrentesCache, {...datos, id: docRef.id}];
+      cerrarCargoRecurrente();
+      renderCargosRecurrentes();
+      window.showSuccess('Cargo recurrente guardado', '');
+    }
   }catch(e){ showToast('❌ Error al guardar'); }
 };
 
@@ -6833,25 +6947,13 @@ window.confirmarBusquedaHistorial = function(){
     const tPV = (perfil?.tarjetas||[]).find(x=>x.id===p.tarjetaId);
     const cPV = tPV ? tPV.corte : 1;
     const mesPagoEnCorte = getMesPagoPromo(cPV, p.creadoEn, periodoFin);
-    if(p.mesesPagados !== undefined){
-      return mesPagoEnCorte >= 1 && mesPagoEnCorte <= p.mesesPagados && p.mesesPagados <= p.meses;
-    }
     return mesPagoEnCorte >= 1 && mesPagoEnCorte <= p.meses;
   });
-  const recPromos = document.getElementById('recuadro-promos-historial');
-  if(promosVigentes.length){
-    const finFmt = periodoFin.toLocaleDateString('es-MX',{day:'numeric',month:'long',year:'numeric'});
-    window._promosHistorialVigentes = promosVigentes;
-    window._promosHistorialFecha = finFmt;
-    window._promosHistorialPeriodoFin = periodoFin;
-    recPromos.style.display = 'none';
-  } else {
-    recPromos.style.display = 'none';
-    window._promosHistorialVigentes = [];
-  }
+  window._promosHistorialVigentes = promosVigentes;
+  window._promosHistorialPeriodoFin = periodoFin;
+  document.getElementById('recuadro-promos-historial').style.display = 'none';
 
-  // Ocultar botón de promociones (ahora se integran como movimientos)
-  if(recPromos) recPromos.style.display = 'none';
+
 
   // Renderizar movimientos + promos integradas
   const el = document.getElementById('movimientos-full');
@@ -6957,33 +7059,17 @@ window.aceptarConfirmHist = function(){
   const data = movsPorCorte(tarjetaId, corte, periodoFin);
   const rec = document.getElementById('recuadro-movimientos');
   rec.style.display = 'block';
-  // Mostrar promociones vigentes de esta tarjeta en este corte
+  // Mostrar promociones vigentes de esta tarjeta en este corte (independiente de si hay gastos)
   const promosVigentes = promocionesCache.filter(p=>{
     if(p.tarjetaId !== tarjetaId) return false;
     const tPV = (perfil?.tarjetas||[]).find(x=>x.id===p.tarjetaId);
     const cPV = tPV ? tPV.corte : 1;
     const mesPagoEnCorte = getMesPagoPromo(cPV, p.creadoEn, periodoFin);
-    if(p.mesesPagados !== undefined){
-      // Mostrar en este corte si el pago de este corte YA fue realizado
-      // y es un pago válido (dentro del total de meses)
-      // mesPagoEnCorte = número de cobro que corresponde a este corte
-      // Aparece si: el cobro de este corte fue pagado (mesPagoEnCorte <= mesesPagados)
-      // y es un cobro válido (mesPagoEnCorte >= 1 y mesesPagados <= meses)
-      return mesPagoEnCorte >= 1 && mesPagoEnCorte <= p.mesesPagados && p.mesesPagados <= p.meses;
-    }
     return mesPagoEnCorte >= 1 && mesPagoEnCorte <= p.meses;
   });
-  const recPromos = document.getElementById('recuadro-promos-historial');
-  if(promosVigentes.length){
-    const finFmt = periodoFin.toLocaleDateString('es-MX',{day:'numeric',month:'long',year:'numeric'});
-    window._promosHistorialVigentes = promosVigentes;
-    window._promosHistorialFecha = finFmt;
-    window._promosHistorialPeriodoFin = periodoFin;
-    recPromos.style.display = 'none';
-  } else {
-    recPromos.style.display = 'none';
-    window._promosHistorialVigentes = [];
-  }
+  window._promosHistorialVigentes = promosVigentes;
+  window._promosHistorialPeriodoFin = periodoFin;
+  document.getElementById('recuadro-promos-historial').style.display = 'none';
   // Ocultar todos los selectores al mostrar resultados
   const selectorIds = ['dd-bancos','paso-apodo','paso-anio','paso-corte'];
   selectorIds.forEach(id=>{
@@ -7424,7 +7510,7 @@ function _renderDebMovimientos(){
     .slice(0, 10);
 
   if(!movC.length){
-    el.innerHTML = `<div class="empty-mov">Sin movimientos registrados</div>`;
+    el.innerHTML = `<div class="empty-mov">Sin cortes disponibles</div>`;
     return;
   }
 
@@ -7475,6 +7561,7 @@ function _renderDebMovimientos(){
   document.addEventListener('touchstart', function(e){
     if(document.querySelector('.modal-overlay.open')) return;
     if(e.target.closest('.modal-overlay')) return;
+    if(e.target.closest('#cards-outer, #cuentas-carrusel-wrap')) return;
     const touch = e.touches[0];
     touchStartX = touch.clientX;
     touchStartY = touch.clientY;
@@ -7486,7 +7573,8 @@ function _renderDebMovimientos(){
     if(document.querySelector('.modal-overlay.open, .modal-overlay.open *')) return;
     // No swipe si el toque viene de dentro de un modal
     if(e.target.closest('.modal-overlay')) return;
-    // No swipe si se está en un scroll horizontal (carrusel)
+    // No swipe si el toque viene del carrusel de tarjetas
+    if(e.target.closest('#cards-outer, #cuentas-carrusel-wrap')) return;
     const touch = e.changedTouches[0];
     const dx = touch.clientX - touchStartX;
     const dy = touch.clientY - touchStartY;
@@ -8644,10 +8732,8 @@ window._ejecutarGuardarExtDB = async function(){
 
   try{
     const { addDoc, collection } = await import('https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js');
-    const docRefExt = await addDoc(collection(window.db, 'usuarios', window.currentUser.uid, 'movimientos'), datos);
-    if(Array.isArray(window.movimientos)) window.movimientos.push({ id: docRefExt.id, ...datos });
-    if(typeof updateCards === 'function') updateCards();
-    if(typeof renderMovimientos === 'function') renderMovimientos();
+    await addDoc(collection(window.db, 'usuarios', window.currentUser.uid, 'movimientos'), datos);
+    // onSnapshot actualizará el array y la UI automáticamente
     document.getElementById('inp-monto-ext').value    = '';
     document.getElementById('inp-fecha-ext').value    = '';
     document.getElementById('inp-comercio-ext').value = '';
@@ -8858,7 +8944,7 @@ window.confirmarEliminarPerfil = async function(){
       <div class="section-card" id="deb-recuadro-movimientos" style="display:none;margin:0 0 12px">
         <div class="section-card-title">Movimientos</div>
         <div id="deb-movimientos-lista" style="max-height:504px;overflow-y:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none">
-          <div class="empty-mov">Sin movimientos registrados</div>
+          <div class="empty-mov">Sin cortes disponibles</div>
         </div>
       </div>
 
@@ -10391,14 +10477,23 @@ document.addEventListener('DOMContentLoaded', function(){
   </div>
 </div>
 
+<!-- ══ MODAL DETALLE CARGO RECURRENTE ══ -->
+<div class="modal-overlay" id="modal-detalle-cargo" onclick="if(event.target===this)this.classList.remove('open')">
+  <div class="modal" onclick="event.stopPropagation()">
+    <div class="modal-handle"></div>
+    <div id="detalle-cargo-content"></div>
+  </div>
+</div>
+
 <!-- ══ MODAL ACCIÓN CARGO RECURRENTE ══ -->
 <div class="modal-overlay" id="modal-cargo-accion" onclick="if(event.target===this)this.classList.remove('open')">
   <div class="modal" onclick="event.stopPropagation()" style="padding-bottom:28px">
     <div class="modal-handle"></div>
     <div style="font-size:17px;font-weight:700;color:#111;text-align:center;margin-bottom:20px">Cargo recurrente</div>
-    <div style="display:flex;flex-direction:column;gap:10px">
-      <button onclick="eliminarCargoRecurrente(window._cargoAccionId)" style="padding:14px;border-radius:12px;background:#fff1f1;color:#e53e3e;border:none;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit">Eliminar</button>
-      <button onclick="document.getElementById('modal-cargo-accion').classList.remove('open')" style="padding:14px;border-radius:12px;border:1.5px solid #e0e0e0;background:#fff;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit;color:#666">Cancelar</button>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px">
+      <button onclick="eliminarCargoRecurrente(window._cargoAccionId)" style="padding:13px 6px;border-radius:12px;background:linear-gradient(180deg,#333,#666);color:#fff;border:none;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit">Eliminar</button>
+      <button onclick="editarCargoRecurrente(window._cargoAccionId)" style="padding:13px 6px;border-radius:12px;background:linear-gradient(180deg,#111,#444);color:#fff;border:none;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit">Editar</button>
+      <button onclick="document.getElementById('modal-cargo-accion').classList.remove('open')" style="padding:13px 6px;border-radius:12px;border:1.5px solid #e0e0e0;background:#fff;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;color:#666">Cancelar</button>
     </div>
   </div>
 </div>
