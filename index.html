@@ -10000,16 +10000,19 @@ window._ejecutarGuardarDebitoDB = async function() {
 
     if (typeof db !== 'undefined' && typeof currentUser !== 'undefined' && currentUser) {
       const { addDoc, collection } = await import('https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js');
-      await addDoc(collection(db, 'usuarios', currentUser.uid, 'movimientosDebito'), datos);
+      const _docRef = await addDoc(collection(db, 'usuarios', currentUser.uid, 'movimientosDebito'), datos);
+      // Agregar al array local inmediatamente para que aparezca sin esperar Firestore
+      _debMovimientos.unshift({ id: _docRef.id, ...datos });
+      window._debMovsCache = _debMovimientos;
     }
 
     document.getElementById('modal-debito-overlay').classList.remove('open');
     document.getElementById('debito-cuenta-scroll-wrap').style.display = 'none';
     window.showSuccess('Movimiento registrado', '');
 
-    if (typeof _cargarMovDebito === 'function') {
-      _cargarMovDebito();
-    }
+    // Actualizar UI inmediatamente con el array local ya actualizado
+    _updateDebCards();
+    _renderDebMovimientos();
 
   } catch(err) {
     errEl.textContent = 'Error al guardar: ' + (err.message || err);
