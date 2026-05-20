@@ -7461,11 +7461,18 @@ function buildCarruselDebito(){
         <span>Ingresos: <strong id="deb-ing-${i}">$0.00</strong></span>
         <span>Egresos: <strong id="deb-egr-${i}">$0.00</strong></span>
       </div>
+      <div class="card-use-bar"><div class="card-use-fill" id="deb-bar-${i}" style="width:0%"></div></div>
+      <div class="card-use-pct" id="deb-pct-${i}">0% del mes gastado</div>
+      <div id="deb-cargos-${i}" style="font-size:12px;color:rgba(255,255,255,0.8);margin-bottom:8px;display:none"></div>
       <div class="card-divider"></div>
-      <div class="card-corte-row" style="justify-content:center">
-        <div style="display:flex;align-items:center;gap:8px">
-          <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/><line x1="5" y1="15" x2="9" y2="15"/></svg>
-          <strong>Cuenta de Débito</strong>
+      <div class="card-corte-row" style="justify-content:space-between">
+        <div style="display:flex;align-items:center;gap:6px">
+          <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+          <strong>Fecha de corte: Día 1</strong>
+        </div>
+        <div style="display:flex;align-items:center;gap:6px">
+          <span style="font-weight:700;font-size:15px">$</span>
+          <strong>Gasto por día: <span id="deb-xdia-${i}">$0.00</span></strong>
         </div>
       </div>`;
     outer.appendChild(card);
@@ -7539,20 +7546,70 @@ async function _cargarMovDebito(){
     const snap = await getDocs(query(collection(db,'usuarios',currentUser.uid,'movimientosDebito'), orderBy('creadoEn','desc')));
     _debMovimientos = snap.docs.map(d=>({id:d.id,...d.data()}));
   } catch(e){ _debMovimientos = []; }
+  // Asegurarse de tener cargos recurrentes cargados
+  if(!cargosRecurrentesCache.length){
+    try{
+      const { getDocs: gd2, collection: col2, query: q2, orderBy: ob2 } = await import('https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js');
+      const snapC = await gd2(q2(col2(db,'usuarios',currentUser.uid,'cargosRecurrentes'),ob2('creadoEn','desc')));
+      cargosRecurrentesCache = snapC.docs.map(d=>({id:d.id,...d.data()}));
+    } catch(e){}
+  }
   _updateDebCards();
   _renderDebMovimientos();
 }
 
 function _updateDebCards(){
   const cuentas = (perfil && perfil.cuentasDebito) ? perfil.cuentasDebito : [];
+  // Mes actual para filtrar ingresos/egresos del mes
+  const _hoy   = new Date();
+  const _mesP  = String(_hoy.getMonth()+1).padStart(2,'0');
+  const _anioP = String(_hoy.getFullYear());
+  const _preP  = _anioP + '-' + _mesP; // "2026-05"
   cuentas.forEach((c, i) => {
-    const movC = _debMovimientos.filter(m => m.cuentaId === c.id || (!m.cuentaId && i === 0));
-    const ing  = movC.filter(m=>m.tipo==='ingreso').reduce((s,m)=>s+(m.monto||0), 0);
-    const egr  = movC.filter(m=>m.tipo==='egreso').reduce((s,m)=>s+(m.monto||0), 0);
-    const ingEl = document.getElementById(`deb-ing-${i}`);
-    const egrEl = document.getElementById(`deb-egr-${i}`);
-    if(ingEl) ingEl.textContent = '$'+ing.toLocaleString('es-MX',{minimumFractionDigits:2});
-    if(egrEl) egrEl.textContent = '$'+egr.toLocaleString('es-MX',{minimumFractionDigits:2});
+    const movC    = _debMovimientos.filter(m => m.cuentaId === c.id || (!m.cuentaId && i === 0));
+    // Saldo: acumulado total (todos los movimientos históricos)
+    const ingTotal = movC.filter(m=>m.tipo==='ingreso').reduce((s,m)=>s+(m.monto||0), 0);
+    const egrTotal = movC.filter(m=>m.tipo==='egreso').reduce((s,m)=>s+(m.monto||0), 0);
+    const saldo    = ingTotal - egrTotal;
+    // Ingresos/egresos: solo del mes actual
+    const movMes   = movC.filter(m => m.fecha && m.fecha.startsWith(_preP));
+    const ingMes   = movMes.filter(m=>m.tipo==='ingreso').reduce((s,m)=>s+(m.monto||0), 0);
+    const egrMes   = movMes.filter(m=>m.tipo==='egreso').reduce((s,m)=>s+(m.monto||0), 0);
+    const fmt2 = n => n.toLocaleString('es-MX',{minimumFractionDigits:2,maximumFractionDigits:2});
+    const ingEl  = document.getElementById('deb-ing-'  + i);
+    const egrEl  = document.getElementById('deb-egr-'  + i);
+    const dispEl = document.getElementById('deb-disp-' + i);
+    if(ingEl)  ingEl.textContent  = '$' + fmt2(ingMes);
+    if(egrEl)  egrEl.textContent  = '$' + fmt2(egrMes);
+    if(dispEl) dispEl.textContent = '$' + fmt2(saldo);
+    // Barra: egresos vs ingresos del mes
+    const barEl = document.getElementById('deb-bar-' + i);
+    const pctEl = document.getElementById('deb-pct-' + i);
+    if(barEl && pctEl){
+      const pct = ingMes > 0 ? Math.min(100, Math.round((egrMes / ingMes) * 100)) : (egrMes > 0 ? 100 : 0);
+      barEl.style.width = pct + '%';
+      const balance = ingMes - egrMes;
+      const signo = balance >= 0 ? '+' : '-';
+      pctEl.textContent = pct + '% gastado · ' + signo + '$' + fmt2(Math.abs(balance));
+    }
+    // Cargos recurrentes de esta cuenta
+    const cargosEl = document.getElementById('deb-cargos-' + i);
+    if(cargosEl){
+      const _cargosDebC = cargosRecurrentesCache.filter(cr => cr.cuentaId === c.id && cr.tipo === 'debito');
+      if(_cargosDebC.length){
+        const _totalCargos = _cargosDebC.reduce((s,cr)=>s+(cr.monto||0), 0);
+        cargosEl.innerHTML = 'Cargos recurrentes: <strong style="color:#fff">$' + fmt2(_totalCargos) + ' /mes</strong>';
+        cargosEl.style.display = '';
+      } else {
+        cargosEl.style.display = 'none';
+      }
+    }
+    // Gasto por día
+    const xdiaEl = document.getElementById('deb-xdia-' + i);
+    if(xdiaEl){
+      const _xdia = _hoy.getDate() > 0 ? egrMes / _hoy.getDate() : 0;
+      xdiaEl.textContent = '$' + fmt2(_xdia);
+    }
   });
 }
 
