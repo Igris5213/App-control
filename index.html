@@ -10008,11 +10008,11 @@ window._ejecutarGuardarDebitoDB = async function() {
 
     document.getElementById('modal-debito-overlay').classList.remove('open');
     document.getElementById('debito-cuenta-scroll-wrap').style.display = 'none';
-    window.showSuccess('Movimiento registrado', '');
 
     // Actualizar UI inmediatamente con el array local ya actualizado
     _updateDebCards();
     _renderDebMovimientos();
+    window.showSuccess('Movimiento registrado', '');
 
   } catch(err) {
     errEl.textContent = 'Error al guardar: ' + (err.message || err);
