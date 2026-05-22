@@ -2,21 +2,20 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>Control de Gastos</title>
 
 <!-- PWA -->
 <link rel="manifest" href="manifest.json">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="Gastos">
 <meta name="theme-color" content="#f5f5f5">
 <link rel="apple-touch-icon" href="icon-192.png">
 <style>
-*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;outline:none;-webkit-user-select:none;-moz-user-select:none;-ms-user-select:none;user-select:none;-webkit-touch-callout:none}
-input,textarea{-webkit-user-select:text;-moz-user-select:text;user-select:text}
-body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f5f5f5;min-height:100vh;display:flex;justify-content:center;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;-webkit-text-size-adjust:none;overscroll-behavior:none}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;outline:none}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f5f5f5;min-height:100vh;display:flex;justify-content:center;padding-top:env(safe-area-inset-top,0px)}
 .app{width:100%;max-width:430px;background:#f5f5f5;min-height:100vh;display:flex;flex-direction:column;position:relative}
 
 /* ── PANTALLAS DE ONBOARDING ── */
@@ -322,8 +321,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
   display:flex;
   flex-direction:column;
   align-items:center;
-  overscroll-behavior-y:none;
-  touch-action:pan-y;
 }
 
 /* FIX MODAL VS NAVBAR */
@@ -1947,7 +1944,9 @@ window.finalizarOnboarding = async function(){
   perfil.cuentasDebito = tarjetasDebOb;
   try{
     if(pendingUser){
-      await guardarUsuarioFirestore(pendingUser);
+      const lista = getUsuarios();
+      lista.push(pendingUser);
+      guardarUsuarios(lista);
       pendingUser = null;
     }
     await setDoc(doc(db,'usuarios', currentUser.uid, 'perfil','datos'), perfil);
@@ -2947,49 +2946,18 @@ function showToast(msg){
 const AUTH_KEY = 'cg_auth_users';
 let loginUsuarioActivo = null;
 
-// Colección compartida en Firestore donde viven TODOS los usuarios del grupo
-const GRUPO_ID = 'principal';
-
 function hashSimple(str){
   let h = 0;
   for(let i=0;i<str.length;i++) h = (Math.imul(31,h)+str.charCodeAt(i))|0;
   return h.toString(36);
 }
 
-// Lee cache local (rápido, para no bloquear UI)
 function getUsuarios(){
   try{ return JSON.parse(localStorage.getItem(AUTH_KEY)) || []; } catch{ return []; }
 }
 
-// Guarda en localStorage Y en Firestore
 function guardarUsuarios(lista){
   localStorage.setItem(AUTH_KEY, JSON.stringify(lista));
-  // Sync a Firestore en background
-  lista.forEach(u => {
-    setDoc(doc(db, 'grupo', GRUPO_ID, 'usuarios', u.user), u).catch(console.warn);
-  });
-}
-
-// Guarda un único usuario nuevo en Firestore
-async function guardarUsuarioFirestore(u){
-  await setDoc(doc(db, 'grupo', GRUPO_ID, 'usuarios', u.user), u);
-  const lista = getUsuarios();
-  if(!lista.find(x=>x.user===u.user)) lista.push(u);
-  localStorage.setItem(AUTH_KEY, JSON.stringify(lista));
-}
-
-// Migra usuarios locales a Firestore si es la primera vez
-async function migrarUsuariosLocalesAFirestore(){
-  try{
-    const locales = getUsuarios();
-    if(locales.length === 0) return;
-    const remotos = await getDocs(collection(db, 'grupo', GRUPO_ID, 'usuarios'));
-    if(remotos.size === 0){
-      for(const u of locales){
-        await setDoc(doc(db, 'grupo', GRUPO_ID, 'usuarios', u.user), u);
-      }
-    }
-  } catch(e){ console.warn('No se pudo migrar usuarios locales:', e); }
 }
 
 // Compatibilidad con formato antiguo (un solo usuario)
@@ -3001,16 +2969,17 @@ function migrarFormatoAntiguo(){
       const lista = getUsuarios();
       if(!lista.find(u=>u.user===v.user)){
         lista.push(v);
-        localStorage.setItem(AUTH_KEY, JSON.stringify(lista));
+        guardarUsuarios(lista);
       }
       localStorage.removeItem('cg_auth_creds');
     } catch{}
   }
 }
 
-function _renderizarUsuariosDesde(lista){
+function renderizarUsuarios(){
+  migrarFormatoAntiguo();
+  const lista = getUsuarios();
   const container = document.getElementById('login-users-list');
-  if(!container) return;
   container.innerHTML = '';
   if(lista.length === 0){
     document.getElementById('login-sub').textContent = 'Crea tu primer usuario para comenzar';
@@ -3029,21 +2998,6 @@ function _renderizarUsuariosDesde(lista){
       container.appendChild(btn);
     });
   }
-}
-
-async function renderizarUsuarios(){
-  migrarFormatoAntiguo();
-  // Renderiza inmediato con cache local
-  _renderizarUsuariosDesde(getUsuarios());
-  // Migra si hay datos locales sin subir
-  await migrarUsuariosLocalesAFirestore();
-  // Actualiza desde Firestore (fuente de verdad compartida)
-  try{
-    const snap = await getDocs(collection(db, 'grupo', GRUPO_ID, 'usuarios'));
-    const remotos = snap.docs.map(d => d.data());
-    localStorage.setItem(AUTH_KEY, JSON.stringify(remotos));
-    _renderizarUsuariosDesde(remotos);
-  } catch(e){ console.warn('Usando usuarios locales (sin conexión)'); }
 }
 
 function iniciarFlujoAuth(){
@@ -4870,7 +4824,7 @@ window.debSelTarjeta = async function(id){
 
   // Cargar todos los movimientos de esta tarjeta y derivar años con datos
   try {
-    const { getDocs, collection, query, orderBy } = await import('https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js');
+    // Firebase ya importado
     const snap = await getDocs(query(
       collection(db, 'usuarios', currentUser.uid, 'movimientosDebito'),
       orderBy('creadoEn', 'desc')
@@ -4989,7 +4943,7 @@ window.debSelMes = async function(mes){
     let movs = _debMovsCache;
     // Si el caché está vacío (ej. recarga), volver a cargar
     if(!movs.length && _debTarjetaId){
-      const { getDocs, collection, query, orderBy } = await import('https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js');
+      // Firebase ya importado
       const snap = await getDocs(query(
         collection(db, 'usuarios', currentUser.uid, 'movimientosDebito'),
         orderBy('creadoEn', 'desc')
@@ -5765,7 +5719,7 @@ window._ejecutarGuardarEditDeb = async function(){
   const detalle  = document.getElementById('deb-edit-detalle').value.trim();
   const fecha    = document.getElementById('deb-edit-fecha').value;
   try{
-    const { updateDoc, doc: _doc } = await import('https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js');
+    // updateDoc ya importado
     const upd = { monto };
     if(concepto) upd.concepto = concepto;
     if(detalle)  upd.detalle  = detalle;
@@ -5835,7 +5789,7 @@ window.confirmarEliminarMovDeb = async function(){
   const btn = document.getElementById('confirm-deb-btn');
   btn.disabled = true;
   try{
-    const { deleteDoc, doc: _doc } = await import('https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js');
+    // deleteDoc ya importado
     await deleteDoc(_doc(db,'usuarios',currentUser.uid,'movimientosDebito',_deletingDebId));
     _debMovimientos = _debMovimientos.filter(m=>m.id!==_deletingDebId);
     _updateDebCards();
@@ -7681,15 +7635,14 @@ function _setupDebSwipe(){
 async function _cargarMovDebito(){
   if(!currentUser) return;
   try{
-    const { getDocs, collection, query, orderBy } = await import('https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js');
+    // Firebase ya importado
     const snap = await getDocs(query(collection(db,'usuarios',currentUser.uid,'movimientosDebito'), orderBy('creadoEn','desc')));
     _debMovimientos = snap.docs.map(d=>({id:d.id,...d.data()}));
   } catch(e){ _debMovimientos = []; }
   // Asegurarse de tener cargos recurrentes cargados
   if(!cargosRecurrentesCache.length){
     try{
-      const { getDocs: gd2, collection: col2, query: q2, orderBy: ob2 } = await import('https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js');
-      const snapC = await gd2(q2(col2(db,'usuarios',currentUser.uid,'cargosRecurrentes'),ob2('creadoEn','desc')));
+      const snapC = await getDocs(query(collection(db,'usuarios',currentUser.uid,'cargosRecurrentes'),orderBy('creadoEn','desc')));
       cargosRecurrentesCache = snapC.docs.map(d=>({id:d.id,...d.data()}));
     } catch(e){}
   }
@@ -8988,7 +8941,7 @@ window._ejecutarGuardarExtDB = async function(){
   };
 
   try{
-    const { addDoc, collection } = await import('https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js');
+    // Firebase ya importado
     await addDoc(collection(window.db, 'usuarios', window.currentUser.uid, 'movimientos'), datos);
     // onSnapshot actualizará el array y la UI automáticamente
     document.getElementById('inp-monto-ext').value    = '';
@@ -10133,7 +10086,6 @@ window._ejecutarGuardarDebitoDB = async function() {
     };
 
     if (typeof db !== 'undefined' && typeof currentUser !== 'undefined' && currentUser) {
-      const { addDoc, collection } = await import('https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js');
       const _docRef = await addDoc(collection(db, 'usuarios', currentUser.uid, 'movimientosDebito'), datos);
       // Agregar al array local inmediatamente para que aparezca sin esperar Firestore
       _debMovimientos.unshift({ id: _docRef.id, ...datos });
@@ -10834,31 +10786,5 @@ document.addEventListener('DOMContentLoaded', function(){
   </div>
 </div>
 
-
-<script>
-// Bloquear pull-to-refresh del navegador en PWA
-document.documentElement.style.overscrollBehavior = 'none';
-document.body.style.overscrollBehavior = 'none';
-let _lastY = 0;
-document.addEventListener('touchstart', e => { _lastY = e.touches[0].clientY; }, { passive: true });
-document.addEventListener('touchmove', e => {
-  const y = e.touches[0].clientY;
-  const el = e.target.closest('.main-app, .screen, .modal, .banco-popup-list');
-  if (!el) { e.preventDefault(); return; }
-  const atTop = el.scrollTop <= 0;
-  const goingDown = y > _lastY;
-  if (atTop && goingDown) e.preventDefault();
-}, { passive: false });
-</script>
-
-<script>
-if ('serviceWorker' in navigator) {
-  window.addEventListener('load', () => {
-    navigator.serviceWorker.register('/sw.js')
-      .then(r => console.log('SW registrado', r.scope))
-      .catch(e => console.warn('SW error', e));
-  });
-}
-</script>
 </body>
 </html>
