@@ -378,6 +378,20 @@ input, textarea, [contenteditable]{-webkit-user-select:text;user-select:text;-we
   </div>
 </div>
 
+<!-- ══ MODAL SESIÓN ACTIVA ══ -->
+<div class="modal-overlay" id="modal-sesion-activa" onclick="if(event.target===this)this.classList.remove('open')">
+  <div class="modal" onclick="event.stopPropagation()" style="text-align:center;padding-bottom:28px">
+    <div class="modal-handle"></div>
+    <div style="width:56px;height:56px;border-radius:50%;background:#fff3e0;display:flex;align-items:center;justify-content:center;margin:0 auto 16px">
+      <svg width="28" height="28" fill="none" stroke="#f57c00" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+    </div>
+    <div style="font-size:17px;font-weight:700;color:#111;margin-bottom:8px">Sesión activa</div>
+    <div style="font-size:14px;color:#888;line-height:1.5;margin-bottom:24px">Este usuario ya tiene una sesión abierta en otro dispositivo. Cierra esa sesión antes de ingresar aquí.</div>
+    <button onclick="document.getElementById('modal-sesion-activa').classList.remove('open')"
+      style="width:100%;padding:14px;border-radius:12px;background:linear-gradient(180deg,#111,#444);color:#fff;border:none;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit">Entendido</button>
+  </div>
+</div>
+
 <!-- ══ MODAL YA TENGO CUENTA ══ -->
 <div class="modal-overlay" id="modal-ya-tengo-cuenta" onclick="if(event.target===this)this.classList.remove('open')">
   <div class="modal" onclick="event.stopPropagation()">
@@ -1538,6 +1552,8 @@ let onAfterEdit = null; // callback tras editar/eliminar en ventana movimientos
 let movVisible = true;
 let tarjetasOb = [];       // tarjetas durante onboarding
 let _unsubMovimientos = null; // referencia al listener activo de movimientos
+let _sessionToken = null;      // token de sesión activa
+let _unsubSession = null;      // listener de sesión
 let pendingUser = null;       // usuario pendiente de confirmar (hasta finalizar onboarding)
 const today = new Date();
 const COLORS = ['card-color-0','card-color-1','card-color-2','card-color-3','card-color-4','card-color-5'];
@@ -2184,6 +2200,78 @@ function _syncWindowVars(){
   window.onAfterEdit        = onAfterEdit;
 }
 
+// ── Control de sesión única ──────────────────────────────────────
+function generarToken(){
+  return Date.now().toString(36) + Math.random().toString(36).substr(2,9);
+}
+
+const SESSION_TIMEOUT_MS = 30000; // 30 seg sin heartbeat = sesión expirada
+
+async function verificarYRegistrarSesion(){
+  const sesionRef = doc(db,'usuarios', loginUsuarioActivo, 'auth','sesion');
+  const snap = await getDoc(sesionRef);
+  if(snap.exists()){
+    const data = snap.data();
+    const edad = Date.now() - (data.ts || 0);
+    // Si hay sesión activa reciente (menos de 30 seg sin heartbeat), bloquear
+    if(data.token && edad < SESSION_TIMEOUT_MS){
+      return false; // sesión activa en otro dispositivo
+    }
+  }
+  // Sin sesión activa — registrar la nuestra
+  _sessionToken = generarToken();
+  await setDoc(sesionRef, {
+    token: _sessionToken,
+    ts: Date.now(),
+    device: navigator.userAgent.substring(0,80)
+  });
+  return true;
+}
+
+function iniciarHeartbeat(){
+  // Actualizar timestamp cada 15 seg para mantener sesión "viva"
+  if(window._heartbeatInterval) clearInterval(window._heartbeatInterval);
+  window._heartbeatInterval = setInterval(async ()=>{
+    if(!_sessionToken || !loginUsuarioActivo) return;
+    const sesionRef = doc(db,'usuarios', loginUsuarioActivo, 'auth','sesion');
+    const snap = await getDoc(sesionRef).catch(()=>null);
+    if(!snap || !snap.exists() || snap.data().token !== _sessionToken){
+      // Nuestro token fue reemplazado — no hacer nada (ya cerró sesion forzado)
+      clearInterval(window._heartbeatInterval);
+      return;
+    }
+    setDoc(sesionRef, { token: _sessionToken, ts: Date.now() }, { merge: true }).catch(()=>{});
+  }, 15000);
+}
+
+function monitorearSesion(){
+  if(_unsubSession){ _unsubSession(); _unsubSession = null; }
+  _unsubSession = onSnapshot(doc(db,'usuarios', loginUsuarioActivo, 'auth','sesion'), snap=>{
+    if(!snap.exists() || !_sessionToken) return;
+    const tokenRemoto = snap.data().token;
+    if(tokenRemoto && tokenRemoto !== _sessionToken){
+      cerrarSesionForzado();
+    }
+  });
+}
+
+function cerrarSesionForzado(){
+  if(_unsubSession){ _unsubSession(); _unsubSession = null; }
+  if(window._heartbeatInterval){ clearInterval(window._heartbeatInterval); }
+  if(_unsubMovimientos){ _unsubMovimientos(); _unsubMovimientos = null; }
+  _sessionToken = null;
+  showToast('⚠️ Sesión cerrada por inactividad o cierre remoto');
+  setTimeout(()=>{
+    perfil = null; movimientos = []; tarjetasOb = []; tarjetasDebOb = [];
+    loginUsuarioActivo = null;
+    currentUser = { uid: 'usuario' };
+    document.getElementById('main-app').style.display = 'none';
+    document.getElementById('main-app').classList.remove('visible');
+    document.getElementById('bottom-nav').style.display = 'none';
+    iniciarFlujoAuth();
+  }, 2000);
+}
+
 async function iniciarApp(){
   // Sincronizar nombre del usuario actual a la lista pública si no está
   if(loginUsuarioActivo){
@@ -2195,6 +2283,21 @@ async function iniciarApp(){
       }
     }).catch(()=>{});
   }
+  // Verificar si hay sesión activa en otro dispositivo
+  const sesionLibre = await verificarYRegistrarSesion();
+  if(!sesionLibre){
+    // Hay sesión activa — bloquear entrada y volver al login
+    document.querySelectorAll('.screen').forEach(s=>{ s.classList.remove('hidden'); });
+    showScreen('screen-login');
+    setTimeout(()=>{
+      // Mostrar modal de aviso
+      const modal = document.getElementById('modal-sesion-activa');
+      if(modal) modal.classList.add('open');
+    }, 300);
+    return;
+  }
+  monitorearSesion();
+  iniciarHeartbeat();
   _syncWindowVars(); // exponer estado inicial
   // Ocultar todas las pantallas
   document.querySelectorAll('.screen').forEach(s=>{
@@ -3270,6 +3373,13 @@ window.cerrarSesion = function(){
 window.ejecutarCerrarSesion = function(){
   document.getElementById('modal-confirm-logout').classList.remove('show');
   const nombre = currentUser?.uid || '';
+  if(_unsubSession){ _unsubSession(); _unsubSession = null; }
+  if(window._heartbeatInterval){ clearInterval(window._heartbeatInterval); }
+  // Limpiar token de sesión en Firestore al cerrar sesión voluntariamente
+  if(_sessionToken && loginUsuarioActivo){
+    deleteDoc(doc(db,'usuarios', loginUsuarioActivo, 'auth','sesion')).catch(()=>{});
+  }
+  _sessionToken = null;
   perfil = null; movimientos = []; tarjetasOb = []; tarjetasDebOb = []; pendingUser = null;
   if(_unsubMovimientos){ _unsubMovimientos(); _unsubMovimientos = null; }
   document.querySelectorAll('.modal-overlay').forEach(m=>m.classList.remove('open'));
