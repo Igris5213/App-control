@@ -1944,9 +1944,7 @@ window.finalizarOnboarding = async function(){
   perfil.cuentasDebito = tarjetasDebOb;
   try{
     if(pendingUser){
-      const lista = getUsuarios();
-      lista.push(pendingUser);
-      guardarUsuarios(lista);
+      await guardarUsuarioFirestore(pendingUser);
       pendingUser = null;
     }
     await setDoc(doc(db,'usuarios', currentUser.uid, 'perfil','datos'), perfil);
@@ -2946,18 +2944,49 @@ function showToast(msg){
 const AUTH_KEY = 'cg_auth_users';
 let loginUsuarioActivo = null;
 
+// Colección compartida en Firestore donde viven TODOS los usuarios del grupo
+const GRUPO_ID = 'principal';
+
 function hashSimple(str){
   let h = 0;
   for(let i=0;i<str.length;i++) h = (Math.imul(31,h)+str.charCodeAt(i))|0;
   return h.toString(36);
 }
 
+// Lee cache local (rápido, para no bloquear UI)
 function getUsuarios(){
   try{ return JSON.parse(localStorage.getItem(AUTH_KEY)) || []; } catch{ return []; }
 }
 
+// Guarda en localStorage Y en Firestore
 function guardarUsuarios(lista){
   localStorage.setItem(AUTH_KEY, JSON.stringify(lista));
+  // Sync a Firestore en background
+  lista.forEach(u => {
+    setDoc(doc(db, 'grupo', GRUPO_ID, 'usuarios', u.user), u).catch(console.warn);
+  });
+}
+
+// Guarda un único usuario nuevo en Firestore
+async function guardarUsuarioFirestore(u){
+  await setDoc(doc(db, 'grupo', GRUPO_ID, 'usuarios', u.user), u);
+  const lista = getUsuarios();
+  if(!lista.find(x=>x.user===u.user)) lista.push(u);
+  localStorage.setItem(AUTH_KEY, JSON.stringify(lista));
+}
+
+// Migra usuarios locales a Firestore si es la primera vez
+async function migrarUsuariosLocalesAFirestore(){
+  try{
+    const locales = getUsuarios();
+    if(locales.length === 0) return;
+    const remotos = await getDocs(collection(db, 'grupo', GRUPO_ID, 'usuarios'));
+    if(remotos.size === 0){
+      for(const u of locales){
+        await setDoc(doc(db, 'grupo', GRUPO_ID, 'usuarios', u.user), u);
+      }
+    }
+  } catch(e){ console.warn('No se pudo migrar usuarios locales:', e); }
 }
 
 // Compatibilidad con formato antiguo (un solo usuario)
@@ -2969,17 +2998,16 @@ function migrarFormatoAntiguo(){
       const lista = getUsuarios();
       if(!lista.find(u=>u.user===v.user)){
         lista.push(v);
-        guardarUsuarios(lista);
+        localStorage.setItem(AUTH_KEY, JSON.stringify(lista));
       }
       localStorage.removeItem('cg_auth_creds');
     } catch{}
   }
 }
 
-function renderizarUsuarios(){
-  migrarFormatoAntiguo();
-  const lista = getUsuarios();
+function _renderizarUsuariosDesde(lista){
   const container = document.getElementById('login-users-list');
+  if(!container) return;
   container.innerHTML = '';
   if(lista.length === 0){
     document.getElementById('login-sub').textContent = 'Crea tu primer usuario para comenzar';
@@ -2998,6 +3026,21 @@ function renderizarUsuarios(){
       container.appendChild(btn);
     });
   }
+}
+
+async function renderizarUsuarios(){
+  migrarFormatoAntiguo();
+  // Renderiza inmediato con cache local
+  _renderizarUsuariosDesde(getUsuarios());
+  // Migra si hay datos locales sin subir
+  await migrarUsuariosLocalesAFirestore();
+  // Actualiza desde Firestore (fuente de verdad compartida)
+  try{
+    const snap = await getDocs(collection(db, 'grupo', GRUPO_ID, 'usuarios'));
+    const remotos = snap.docs.map(d => d.data());
+    localStorage.setItem(AUTH_KEY, JSON.stringify(remotos));
+    _renderizarUsuariosDesde(remotos);
+  } catch(e){ console.warn('Usando usuarios locales (sin conexión)'); }
 }
 
 function iniciarFlujoAuth(){
@@ -10788,5 +10831,15 @@ document.addEventListener('DOMContentLoaded', function(){
   </div>
 </div>
 
+
+<script>
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/sw.js')
+      .then(r => console.log('SW registrado', r.scope))
+      .catch(e => console.warn('SW error', e));
+  });
+}
+</script>
 </body>
 </html>
