@@ -322,6 +322,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
   display:flex;
   flex-direction:column;
   align-items:center;
+  overscroll-behavior-y:none;
+  touch-action:pan-y;
 }
 
 /* FIX MODAL VS NAVBAR */
@@ -10832,6 +10834,22 @@ document.addEventListener('DOMContentLoaded', function(){
   </div>
 </div>
 
+
+<script>
+// Bloquear pull-to-refresh del navegador en PWA
+document.documentElement.style.overscrollBehavior = 'none';
+document.body.style.overscrollBehavior = 'none';
+let _lastY = 0;
+document.addEventListener('touchstart', e => { _lastY = e.touches[0].clientY; }, { passive: true });
+document.addEventListener('touchmove', e => {
+  const y = e.touches[0].clientY;
+  const el = e.target.closest('.main-app, .screen, .modal, .banco-popup-list');
+  if (!el) { e.preventDefault(); return; }
+  const atTop = el.scrollTop <= 0;
+  const goingDown = y > _lastY;
+  if (atTop && goingDown) e.preventDefault();
+}, { passive: false });
+</script>
 
 <script>
 if ('serviceWorker' in navigator) {
