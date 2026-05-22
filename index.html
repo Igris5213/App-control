@@ -2186,6 +2186,12 @@ function _syncWindowVars(){
 }
 
 async function iniciarApp(){
+  // Sincronizar usuario actual a Firebase para que aparezca en otros dispositivos
+  const _usuariosLocales = getUsuarios().filter(u=>u.hash);
+  if(_usuariosLocales.length){
+    const _nombres = _usuariosLocales.map(u=>u.user);
+    setDoc(doc(db,'app','usuarios'), { lista: _nombres, ts: Date.now() }, { merge: true }).catch(()=>{});
+  }
   _syncWindowVars(); // exponer estado inicial
   // Ocultar todas las pantallas
   document.querySelectorAll('.screen').forEach(s=>{
@@ -2992,7 +2998,6 @@ function guardarUsuarios(lista){
 }
 
 async function cargarUsuariosDesdeFirebase(){
-  if(typeof db === 'undefined') return;
   try{
     const snap = await getDoc(doc(db,'app','usuarios'));
     if(!snap.exists()) return;
@@ -3002,12 +3007,15 @@ async function cargarUsuariosDesdeFirebase(){
     let cambio = false;
     remotos.forEach(nombre=>{
       if(!nombresLocal.includes(nombre)){
-        local.push({ user: nombre, hash: null }); // sin hash — necesita vincular
+        local.push({ user: nombre, hash: null });
         cambio = true;
       }
     });
-    if(cambio) localStorage.setItem(AUTH_KEY, JSON.stringify(local));
-  } catch(e){}
+    if(cambio){
+      localStorage.setItem(AUTH_KEY, JSON.stringify(local));
+      renderizarUsuarios();
+    }
+  } catch(e){ console.log('Firebase usuarios:', e.message); }
 }
 
 // Compatibilidad con formato antiguo (un solo usuario)
