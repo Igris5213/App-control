@@ -3105,6 +3105,10 @@ function guardarUsuarioLocal(user){
   localStorage.setItem(AUTH_KEY, JSON.stringify(lista));
 }
 
+function guardarUsuarios(lista){
+  localStorage.setItem(AUTH_KEY, JSON.stringify(lista));
+}
+
 async function cargarUsuariosDesdeFirebase(){
   try{
     const snap = await getDoc(doc(db,'app','usuarios'));
@@ -3155,7 +3159,7 @@ function migrarFormatoAntiguo(){
       const lista = getUsuarios();
       if(!lista.find(u=>u.user===v.user)){
         lista.push(v);
-        guardarUsuarios(lista);
+        localStorage.setItem(AUTH_KEY, JSON.stringify(lista));
       }
       localStorage.removeItem('cg_auth_creds');
     } catch{}
@@ -3646,14 +3650,21 @@ window.confirmarEdicion = function(){
   const { nuevoNombre, nuevaPass, nombreCambio, passCambio } = adminEditTemp;
   const lista = getUsuarios();
 
+  const viejoNombre = lista[adminEditIndex].user;
   lista[adminEditIndex].user = nuevoNombre;
-  if(passCambio){
-    lista[adminEditIndex].hash = hashSimple(nuevoNombre + nuevaPass);
-  } else if(nombreCambio){
-    lista[adminEditIndex].hash = hashSimple(nuevoNombre + nuevoNombre);
-  }
-
   guardarUsuarios(lista);
+  // Actualizar en Firebase
+  if(passCambio){
+    guardarUsuarioFirebase(nuevoNombre, nuevaPass).catch(()=>{});
+  } else if(nombreCambio){
+    // Cambio de nombre: mover entrada en app/usuarios
+    getDoc(doc(db,'app','usuarios')).then(snap=>{
+      if(!snap.exists()) return;
+      const fbLista = (snap.data().lista||[]).filter(n=>n!==viejoNombre);
+      if(!fbLista.includes(nuevoNombre)) fbLista.push(nuevoNombre);
+      setDoc(doc(db,'app','usuarios'), { lista: fbLista, ts: Date.now() }).catch(()=>{});
+    }).catch(()=>{});
+  }
   document.getElementById('modal-admin-confirm-edit').classList.remove('show');
   document.getElementById('modal-admin-editar').classList.remove('open');
 
@@ -3701,6 +3712,15 @@ window.confirmarEliminarUsuario = async function(){
   // Quitar de la lista local
   lista.splice(adminDeleteIndex, 1);
   guardarUsuarios(lista);
+  // Quitar de la lista pública en Firebase
+  getDoc(doc(db,'app','usuarios')).then(snap=>{
+    if(!snap.exists()) return;
+    const fbLista = (snap.data().lista||[]).filter(n=>n!==nombre);
+    setDoc(doc(db,'app','usuarios'), { lista: fbLista, ts: Date.now() }).catch(()=>{});
+  }).catch(()=>{});
+  // Quitar sesión y auth de Firebase
+  deleteDoc(doc(db,'usuarios', uid, 'auth','datos')).catch(()=>{});
+  deleteDoc(doc(db,'usuarios', uid, 'auth','sesion')).catch(()=>{});
   document.getElementById('modal-admin-confirm').classList.remove('show');
   window.showSuccess('Usuario eliminado', '');
 
