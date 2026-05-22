@@ -483,7 +483,7 @@ input, textarea, [contenteditable]{-webkit-user-select:text;user-select:text;-we
     <div id="modal-login-error" style="font-size:13px;color:#e53935;min-height:18px;margin-bottom:10px;text-align:center"></div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:4px">
       <button onclick="cerrarModalLoginPass()" style="padding:13px;border-radius:12px;border:1.5px solid #e0e0e0;background:#fff;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit;color:#111">Cancelar</button>
-      <button onclick="confirmarLoginPass()" style="padding:13px;border-radius:12px;background:linear-gradient(180deg,#111,#444);color:#fff;border:none;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit">Entrar</button>
+      <button id="modal-login-ok-btn" onclick="confirmarLoginPass()" style="padding:13px;border-radius:12px;background:linear-gradient(180deg,#111,#444);color:#fff;border:none;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit">Entrar</button>
     </div>
   </div>
 </div>
@@ -1971,9 +1971,7 @@ window.finalizarOnboarding = async function(){
   perfil.cuentasDebito = tarjetasDebOb;
   try{
     if(pendingUser){
-      const lista = getUsuarios();
-      lista.push(pendingUser);
-      guardarUsuarios(lista);
+      await guardarUsuarioFirebase(pendingUser.user, pendingUser.pass);
       pendingUser = null;
     }
     await setDoc(doc(db,'usuarios', currentUser.uid, 'perfil','datos'), perfil);
@@ -2187,11 +2185,15 @@ function _syncWindowVars(){
 }
 
 async function iniciarApp(){
-  // Sincronizar usuario actual a Firebase para que aparezca en otros dispositivos
-  const _usuariosLocales = getUsuarios().filter(u=>u.hash);
-  if(_usuariosLocales.length){
-    const _nombres = _usuariosLocales.map(u=>u.user);
-    setDoc(doc(db,'app','usuarios'), { lista: _nombres, ts: Date.now() }, { merge: true }).catch(()=>{});
+  // Sincronizar nombre del usuario actual a la lista pública si no está
+  if(loginUsuarioActivo){
+    getDoc(doc(db,'app','usuarios')).then(snap=>{
+      const lista = snap.exists() ? (snap.data().lista||[]) : [];
+      if(!lista.includes(loginUsuarioActivo)){
+        lista.push(loginUsuarioActivo);
+        setDoc(doc(db,'app','usuarios'), { lista, ts: Date.now() }).catch(()=>{});
+      }
+    }).catch(()=>{});
   }
   _syncWindowVars(); // exponer estado inicial
   // Ocultar todas las pantallas
@@ -2985,17 +2987,18 @@ function hashSimple(str){
   return h.toString(36);
 }
 
-function getUsuarios(){
+// ── Auth en Firestore (fuente de verdad) ──
+// localStorage solo como caché de nombres para mostrar rápido
+
+function getUsuariosLocal(){
   try{ return JSON.parse(localStorage.getItem(AUTH_KEY)) || []; } catch{ return []; }
 }
+function getUsuarios(){ return getUsuariosLocal(); }
 
-function guardarUsuarios(lista){
+function guardarUsuarioLocal(user){
+  const lista = getUsuariosLocal().filter(u=>u.user!==user);
+  lista.push({ user });
   localStorage.setItem(AUTH_KEY, JSON.stringify(lista));
-  // Sincronizar nombres a Firebase (sin contraseñas)
-  if(typeof db !== 'undefined' && typeof setDoc !== 'undefined'){
-    const nombres = lista.filter(u=>u.hash).map(u=>u.user);
-    setDoc(doc(db,'app','usuarios'), { lista: nombres, ts: Date.now() }, { merge: true }).catch(()=>{});
-  }
 }
 
 async function cargarUsuariosDesdeFirebase(){
@@ -3003,20 +3006,40 @@ async function cargarUsuariosDesdeFirebase(){
     const snap = await getDoc(doc(db,'app','usuarios'));
     if(!snap.exists()) return;
     const remotos = snap.data().lista || [];
-    const local = getUsuarios();
-    const nombresLocal = local.map(u=>u.user);
+    const local = getUsuariosLocal().map(u=>u.user);
     let cambio = false;
     remotos.forEach(nombre=>{
-      if(!nombresLocal.includes(nombre)){
-        local.push({ user: nombre, hash: null });
+      if(!local.includes(nombre)){
+        const lista = getUsuariosLocal();
+        lista.push({ user: nombre });
+        localStorage.setItem(AUTH_KEY, JSON.stringify(lista));
         cambio = true;
       }
     });
-    if(cambio){
-      localStorage.setItem(AUTH_KEY, JSON.stringify(local));
-      renderizarUsuarios();
-    }
+    if(cambio) renderizarUsuarios();
   } catch(e){ console.log('Firebase usuarios:', e.message); }
+}
+
+async function guardarUsuarioFirebase(user, pass){
+  const hash = hashSimple(user+pass);
+  // Guardar hash en Firestore
+  await setDoc(doc(db,'usuarios', user, 'auth','datos'), { hash, ts: Date.now() });
+  // Actualizar lista pública de nombres
+  const snap = await getDoc(doc(db,'app','usuarios'));
+  const lista = snap.exists() ? (snap.data().lista||[]) : [];
+  if(!lista.includes(user)){
+    lista.push(user);
+    await setDoc(doc(db,'app','usuarios'), { lista, ts: Date.now() });
+  }
+  guardarUsuarioLocal(user);
+}
+
+async function verificarPassFirebase(user, pass){
+  try{
+    const snap = await getDoc(doc(db,'usuarios', user, 'auth','datos'));
+    if(!snap.exists()) return false;
+    return snap.data().hash === hashSimple(user+pass);
+  } catch(e){ return false; }
 }
 
 // Compatibilidad con formato antiguo (un solo usuario)
@@ -3067,17 +3090,6 @@ function iniciarFlujoAuth(){
 
 // Modal contraseña al seleccionar usuario
 window.abrirLoginPass = function(user){
-  const lista = getUsuarios();
-  const u = lista.find(x=>x.user===user);
-  // Usuario de otro dispositivo (sin contraseña local) — pedir vincular
-  if(u && u.hash === null){
-    document.getElementById('ytc-user').value = user;
-    document.getElementById('ytc-pass').value = '';
-    document.getElementById('ytc-error').textContent = 'Primera vez en este dispositivo — ingresa tu contraseña';
-    document.getElementById('modal-ya-tengo-cuenta').classList.add('open');
-    setTimeout(()=>document.getElementById('ytc-pass').focus(), 300);
-    return;
-  }
   loginUsuarioActivo = user;
   document.getElementById('modal-login-title').textContent = user;
   document.getElementById('modal-login-sub').textContent = 'Ingresa tu contraseña para continuar';
@@ -3094,13 +3106,17 @@ window.cerrarModalLoginPass = function(e){
     document.getElementById('modal-login-pass').classList.remove('open');
 }
 
-window.confirmarLoginPass = function(){
+window.confirmarLoginPass = async function(){
   const pass = document.getElementById('modal-auth-pass').value;
   const errEl = document.getElementById('modal-login-error');
+  const btn   = document.getElementById('modal-login-ok-btn');
   errEl.textContent = '';
-  const lista = getUsuarios();
-  const u = lista.find(x=>x.user===loginUsuarioActivo);
-  if(!u || u.hash !== hashSimple(u.user+pass)){
+  if(!pass){ errEl.textContent = 'Ingresa tu contraseña'; return; }
+  if(btn) btn.disabled = true;
+  errEl.textContent = 'Verificando...';
+  const ok = await verificarPassFirebase(loginUsuarioActivo, pass);
+  if(btn) btn.disabled = false;
+  if(!ok){
     errEl.textContent = 'Contraseña incorrecta';
     return;
   }
@@ -3129,31 +3145,25 @@ window.vincularCuentaExistente = async function(){
   errEl.textContent = '';
   if(!user || !pass){ errEl.textContent = 'Completa todos los campos'; return; }
 
-  // Verificar que el perfil existe en Firebase con ese uid
   errEl.textContent = 'Verificando...';
   try{
+    // Verificar que el perfil existe en Firebase
     const snap = await getDoc(doc(db,'usuarios', user, 'perfil','datos'));
     if(!snap.exists()){
       errEl.textContent = 'No se encontró una cuenta con ese nombre';
       return;
     }
-    // Perfil existe — guardar usuario en localStorage de este dispositivo
-    const lista = getUsuarios();
-    if(!lista.find(u=>u.user.toLowerCase()===user.toLowerCase())){
-      lista.push({ user, hash: hashSimple(user+pass) });
-      guardarUsuarios(lista);
+    // Verificar contraseña contra Firestore
+    const passOk = await verificarPassFirebase(user, pass);
+    if(!passOk){
+      errEl.textContent = 'Contraseña incorrecta';
+      return;
     }
+    // Contraseña correcta — guardar en caché local y entrar
+    guardarUsuarioLocal(user);
     loginUsuarioActivo = user;
     currentUser = { uid: user };
     document.getElementById('modal-ya-tengo-cuenta').classList.remove('open');
-    // Verificar contraseña localmente
-    const u = getUsuarios().find(x=>x.user===user);
-    if(u && u.hash !== hashSimple(user+pass)){
-      errEl.textContent = 'Contraseña incorrecta';
-      // Quitar usuario recién agregado si la pass no coincide
-      guardarUsuarios(getUsuarios().filter(x=>x.user!==user));
-      return;
-    }
     entrarApp();
   } catch(e){
     errEl.textContent = 'Error de conexión. Intenta de nuevo.';
@@ -3188,8 +3198,8 @@ window.guardarNuevoUsuario = function(){
   const lista = getUsuarios();
   if(lista.find(u=>u.user.toLowerCase()===user.toLowerCase())){ errEl.textContent = 'Ese usuario ya existe'; return; }
 
-  // Guardar temporalmente — NO guardar en localStorage todavía
-  pendingUser = { user, hash: hashSimple(user+pass) };
+  // Guardar temporalmente — se confirma al finalizar onboarding
+  pendingUser = { user, pass };
   loginUsuarioActivo = user;
   currentUser = { uid: user };
 
@@ -3371,8 +3381,8 @@ window.guardarNuevaPass = function(){
   if(nueva.length < 4){ errEl.textContent = 'La nueva contraseña debe tener al menos 4 caracteres'; return; }
   if(nueva !== nueva2){ errEl.textContent = 'Las contraseñas no coinciden'; return; }
 
-  lista[idx].hash = hashSimple(lista[idx].user + nueva);
-  guardarUsuarios(lista);
+  // Actualizar hash en Firestore
+  guardarUsuarioFirebase(lista[idx].user, nueva).catch(()=>{});
   document.getElementById('modal-cambiar-pass').classList.remove('open');
   window.showSuccess('Contraseña actualizada', 'Tu contraseña fue cambiada correctamente');
 }
