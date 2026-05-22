@@ -2258,6 +2258,7 @@ function monitorearSesion(){
 function cerrarSesionForzado(){
   if(_unsubSession){ _unsubSession(); _unsubSession = null; }
   if(window._heartbeatInterval){ clearInterval(window._heartbeatInterval); }
+  if(_bgTimer){ clearTimeout(_bgTimer); _bgTimer = null; }
   if(_unsubMovimientos){ _unsubMovimientos(); _unsubMovimientos = null; }
   _sessionToken = null;
   showToast('⚠️ Sesión cerrada por inactividad o cierre remoto');
@@ -3902,6 +3903,36 @@ async function init(){
 })();
 // Suprimir menú contextual del navegador en PWA
 document.addEventListener('contextmenu', e => e.preventDefault());
+
+// ── Cierre de sesión al minimizar ──────────────────────────────
+let _bgTimer = null;
+document.addEventListener('visibilitychange', function(){
+  if(document.hidden){
+    // App minimizada — iniciar cuenta regresiva de 1 minuto
+    if(_sessionToken && loginUsuarioActivo){
+      _bgTimer = setTimeout(async ()=>{
+        if(!_sessionToken || !loginUsuarioActivo) return;
+        // Eliminar sesión en Firestore
+        await deleteDoc(doc(db,'usuarios', loginUsuarioActivo, 'auth','sesion')).catch(()=>{});
+        cerrarSesionForzado();
+      }, 60000); // 1 minuto
+    }
+  } else {
+    // App restaurada — cancelar cuenta regresiva si no expiró
+    if(_bgTimer){
+      clearTimeout(_bgTimer);
+      _bgTimer = null;
+    }
+    // Verificar que nuestra sesión sigue activa (otro dispositivo pudo haberla tomado)
+    if(_sessionToken && loginUsuarioActivo){
+      getDoc(doc(db,'usuarios', loginUsuarioActivo, 'auth','sesion')).then(snap=>{
+        if(!snap.exists() || snap.data().token !== _sessionToken){
+          cerrarSesionForzado();
+        }
+      }).catch(()=>{});
+    }
+  }
+});
 
 init();
 
