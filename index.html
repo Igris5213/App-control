@@ -371,8 +371,34 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
         <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
         Agregar usuario
       </button>
+
     </div>
 
+  </div>
+</div>
+
+<!-- ══ MODAL YA TENGO CUENTA ══ -->
+<div class="modal-overlay" id="modal-ya-tengo-cuenta" onclick="if(event.target===this)this.classList.remove('open')">
+  <div class="modal" onclick="event.stopPropagation()">
+    <div class="modal-handle"></div>
+    <div class="modal-title">Iniciar sesión</div>
+    <div style="font-size:13px;color:#888;margin-bottom:16px;text-align:center">Ingresa tus datos para vincular tu cuenta en este dispositivo</div>
+    <input id="ytc-user" type="text" placeholder="Nombre de usuario"
+      style="width:100%;padding:13px 14px;border-radius:12px;border:1.5px solid #e0e0e0;font-size:15px;font-family:inherit;color:#111;background:#fff;outline:none;box-sizing:border-box;margin-bottom:10px"
+      onfocus="this.style.borderColor='#111'" onblur="this.style.borderColor='#e0e0e0'"/>
+    <div style="position:relative;margin-bottom:6px">
+      <input id="ytc-pass" type="password" placeholder="Contraseña"
+        style="width:100%;padding:13px 44px 13px 14px;border-radius:12px;border:1.5px solid #e0e0e0;font-size:15px;font-family:inherit;color:#111;background:#fff;outline:none;box-sizing:border-box"
+        onfocus="this.style.borderColor='#111'" onblur="this.style.borderColor='#e0e0e0'"
+        onkeydown="if(event.key==='Enter') vincularCuentaExistente()"/>
+    </div>
+    <div id="ytc-error" style="font-size:13px;color:#e53935;min-height:18px;margin-bottom:10px;text-align:center"></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:4px">
+      <button onclick="document.getElementById('modal-ya-tengo-cuenta').classList.remove('open')"
+        style="padding:13px;border-radius:12px;border:1.5px solid #e0e0e0;background:#fff;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit;color:#111">Cancelar</button>
+      <button onclick="vincularCuentaExistente()" class="hold-btn"
+        style="padding:13px;border-radius:12px;background:linear-gradient(180deg,#111,#444);color:#fff;border:none;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit">Entrar</button>
+    </div>
   </div>
 </div>
 
@@ -2958,6 +2984,30 @@ function getUsuarios(){
 
 function guardarUsuarios(lista){
   localStorage.setItem(AUTH_KEY, JSON.stringify(lista));
+  // Sincronizar nombres a Firebase (sin contraseñas)
+  if(typeof db !== 'undefined' && typeof setDoc !== 'undefined'){
+    const nombres = lista.filter(u=>u.hash).map(u=>u.user);
+    setDoc(doc(db,'app','usuarios'), { lista: nombres, ts: Date.now() }, { merge: true }).catch(()=>{});
+  }
+}
+
+async function cargarUsuariosDesdeFirebase(){
+  if(typeof db === 'undefined') return;
+  try{
+    const snap = await getDoc(doc(db,'app','usuarios'));
+    if(!snap.exists()) return;
+    const remotos = snap.data().lista || [];
+    const local = getUsuarios();
+    const nombresLocal = local.map(u=>u.user);
+    let cambio = false;
+    remotos.forEach(nombre=>{
+      if(!nombresLocal.includes(nombre)){
+        local.push({ user: nombre, hash: null }); // sin hash — necesita vincular
+        cambio = true;
+      }
+    });
+    if(cambio) localStorage.setItem(AUTH_KEY, JSON.stringify(local));
+  } catch(e){}
 }
 
 // Compatibilidad con formato antiguo (un solo usuario)
@@ -3008,6 +3058,17 @@ function iniciarFlujoAuth(){
 
 // Modal contraseña al seleccionar usuario
 window.abrirLoginPass = function(user){
+  const lista = getUsuarios();
+  const u = lista.find(x=>x.user===user);
+  // Usuario de otro dispositivo (sin contraseña local) — pedir vincular
+  if(u && u.hash === null){
+    document.getElementById('ytc-user').value = user;
+    document.getElementById('ytc-pass').value = '';
+    document.getElementById('ytc-error').textContent = 'Primera vez en este dispositivo — ingresa tu contraseña';
+    document.getElementById('modal-ya-tengo-cuenta').classList.add('open');
+    setTimeout(()=>document.getElementById('ytc-pass').focus(), 300);
+    return;
+  }
   loginUsuarioActivo = user;
   document.getElementById('modal-login-title').textContent = user;
   document.getElementById('modal-login-sub').textContent = 'Ingresa tu contraseña para continuar';
@@ -3044,6 +3105,52 @@ window.togglePassVisModal = function(){
 }
 
 // Modal nuevo usuario
+window.mostrarFormYaTengoUsuario = function(){
+  document.getElementById('ytc-user').value = '';
+  document.getElementById('ytc-pass').value = '';
+  document.getElementById('ytc-error').textContent = '';
+  document.getElementById('modal-ya-tengo-cuenta').classList.add('open');
+  setTimeout(()=>document.getElementById('ytc-user').focus(), 300);
+};
+
+window.vincularCuentaExistente = async function(){
+  const user = document.getElementById('ytc-user').value.trim();
+  const pass  = document.getElementById('ytc-pass').value;
+  const errEl = document.getElementById('ytc-error');
+  errEl.textContent = '';
+  if(!user || !pass){ errEl.textContent = 'Completa todos los campos'; return; }
+
+  // Verificar que el perfil existe en Firebase con ese uid
+  errEl.textContent = 'Verificando...';
+  try{
+    const snap = await getDoc(doc(db,'usuarios', user, 'perfil','datos'));
+    if(!snap.exists()){
+      errEl.textContent = 'No se encontró una cuenta con ese nombre';
+      return;
+    }
+    // Perfil existe — guardar usuario en localStorage de este dispositivo
+    const lista = getUsuarios();
+    if(!lista.find(u=>u.user.toLowerCase()===user.toLowerCase())){
+      lista.push({ user, hash: hashSimple(user+pass) });
+      guardarUsuarios(lista);
+    }
+    loginUsuarioActivo = user;
+    currentUser = { uid: user };
+    document.getElementById('modal-ya-tengo-cuenta').classList.remove('open');
+    // Verificar contraseña localmente
+    const u = getUsuarios().find(x=>x.user===user);
+    if(u && u.hash !== hashSimple(user+pass)){
+      errEl.textContent = 'Contraseña incorrecta';
+      // Quitar usuario recién agregado si la pass no coincide
+      guardarUsuarios(getUsuarios().filter(x=>x.user!==user));
+      return;
+    }
+    entrarApp();
+  } catch(e){
+    errEl.textContent = 'Error de conexión. Intenta de nuevo.';
+  }
+};
+
 window.mostrarFormNuevoUsuario = function(){
   document.getElementById('nuevo-user-name').value = '';
   document.getElementById('nuevo-user-pass').value = '';
@@ -3570,7 +3677,9 @@ document.addEventListener('click', function(e){
 
 // ── Arranque ─────────────────────────────────────
 async function init(){
-  renderizarUsuarios();
+  renderizarUsuarios(); // render inmediato con usuarios locales
+  // Cargar usuarios desde Firebase y re-renderizar
+  cargarUsuariosDesdeFirebase().then(()=>renderizarUsuarios());
   // Primero: mostrar novedades si hay versión nueva, luego continuar al login
   if(checkVersion()) return;
   iniciarFlujoAuth();
