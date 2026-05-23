@@ -3433,6 +3433,7 @@ window.guardarEdicionUsuario = function(){
 
 window.cancelarConfirmEdicion = function(){
   document.getElementById('modal-admin-confirm-edit').classList.remove('open');
+  setTimeout(()=>document.getElementById('modal-admin-editar').classList.add('open'), 250);
 }
 
 window.confirmarEdicion = function(){
