@@ -1,11 +1,10 @@
-const CACHE_NAME = 'control-gastos-v6';
+const CACHE_NAME = 'control-gastos-v7';
 const STATIC_ASSETS = [
   './icon-192.png',
   './icon-512.png',
   './manifest.json'
 ];
 
-// Instalar — cachear solo assets estáticos (íconos, manifest)
 self.addEventListener('install', event => {
   event.waitUntil(
     caches.open(CACHE_NAME).then(cache => cache.addAll(STATIC_ASSETS))
@@ -13,7 +12,6 @@ self.addEventListener('install', event => {
   self.skipWaiting();
 });
 
-// Activar — limpiar caches viejos
 self.addEventListener('activate', event => {
   event.waitUntil(
     caches.keys().then(keys =>
@@ -28,13 +26,11 @@ self.addEventListener('fetch', event => {
   const isHTML = url.pathname.endsWith('.html') || url.pathname.endsWith('/');
   const isFirebase = url.hostname.includes('firebase') || url.hostname.includes('google');
 
-  // HTML e index: siempre red primero, sin cache
   if(isHTML || isFirebase){
     event.respondWith(fetch(event.request));
     return;
   }
 
-  // Assets estáticos: red primero, cache como fallback offline
   event.respondWith(
     fetch(event.request)
       .then(response => {
