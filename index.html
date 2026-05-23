@@ -2473,14 +2473,16 @@ function getAniosDisponibles(tarjetaId, corte){
     const p = getPeriodo(corte, new Date(m.fecha+'T12:00:00'));
     aniosSet.add(p.fin.getFullYear());
   });
-  // Años desde cortes YA PASADOS donde haya una mensualidad de promo
-  const promos = (window.promocionesCache||[]).filter(p=>p.tarjetaId===tarjetaId);
-  promos.forEach(p=>{
-    const inicio = new Date(p.creadoEn);
+  // Años donde haya una mensualidad de promo
+  const promos2 = (window.promocionesCache||[]).filter(p=>p.tarjetaId===tarjetaId);
+  promos2.forEach(p=>{
+    const creado2 = new Date(p.creadoEn);
+    const primerPagoRef2 = new Date(creado2.getTime() + 86400000);
+    const primerPeriodoFin2 = getPeriodo(corte, primerPagoRef2).fin;
     for(let mes=0; mes<p.meses; mes++){
-      const fechaRef = new Date(inicio.getFullYear(), inicio.getMonth()+mes+1, parseInt(corte)+1);
-      const periodo = getPeriodo(corte, fechaRef);
-      if(periodo.inicio <= hoy) aniosSet.add(periodo.fin.getFullYear());
+      const periodoFinMes2 = new Date(primerPeriodoFin2.getFullYear(), primerPeriodoFin2.getMonth()+mes, corte);
+      const periodo2 = getPeriodo(corte, periodoFinMes2);
+      if(periodo2.inicio <= hoy) aniosSet.add(periodo2.fin.getFullYear());
     }
   });
   return [...aniosSet].sort((a,b)=>a-b);
@@ -2502,16 +2504,22 @@ function getCortesDisponibles(tarjetaId, corte, anio){
     const key = p.fin.toISOString().split('T')[0];
     if(!cortesMap[key]) cortesMap[key] = { inicio:p.inicio, fin:p.fin, nombre: nombreCorte(corte, fecha), key };
   });
-  // Cortes YA PASADOS donde haya una mensualidad de promo
+  // Cortes donde haya una mensualidad de promo
   const promos = (window.promocionesCache||[]).filter(p=>p.tarjetaId===tarjetaId);
   promos.forEach(p=>{
-    const inicio = new Date(p.creadoEn);
+    // El primer pago cae en el primer corte DESPUÉS de creadoEn
+    const creado = new Date(p.creadoEn);
+    // Encontrar el periodoFin del primer pago
+    const primerPeriodo = getPeriodo(corte, new Date(creado.getFullYear(), creado.getMonth(), corte+1 > creado.getDate() ? corte : corte));
+    // Usar getPeriodo con una fecha justo después de creadoEn para obtener el primer período
+    const primerPagoRef = new Date(creado.getTime() + 86400000); // día siguiente a creadoEn
+    const primerPeriodoFin = getPeriodo(corte, primerPagoRef).fin;
     for(let mes=0; mes<p.meses; mes++){
-      // Usar corte+1 como referencia para que getPeriodo resuelva al periodo correcto
-      const fechaRef = new Date(inicio.getFullYear(), inicio.getMonth()+mes+1, parseInt(corte)+1);
-      const periodo = getPeriodo(corte, fechaRef);
+      // Avanzar mes meses desde el primer período
+      const periodoFinMes = new Date(primerPeriodoFin.getFullYear(), primerPeriodoFin.getMonth()+mes, corte);
+      const periodo = getPeriodo(corte, periodoFinMes);
       if(periodo.fin.getFullYear() !== anio) continue;
-      if(periodo.inicio > hoy) continue; // excluir cortes que aún no han empezado
+      if(periodo.inicio > hoy) continue;
       const key = periodo.fin.toISOString().split('T')[0];
       if(!cortesMap[key]) cortesMap[key] = { inicio:periodo.inicio, fin:periodo.fin, nombre: nombreCorte(corte, periodo.fin), key };
     }
