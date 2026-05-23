@@ -1523,7 +1523,7 @@ input, textarea, [contenteditable]{-webkit-user-select:text;user-select:text;-we
       <div class="dots" id="dots"></div>
       <div style="margin-top:18px">
         <div class="section-card-title">Últimos movimientos</div>
-        <div id="mov-list" style="max-height:504px;overflow-y:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none"></div>
+        <div id="mov-list" style="max-height:504px;overflow-y:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;overscroll-behavior:contain"></div>
       </div>
     </div>
   </div>
@@ -3935,9 +3935,11 @@ document.addEventListener('contextmenu', e => e.preventDefault());
 // Deshabilitar pull-to-refresh del navegador
 document.addEventListener('touchmove', function(e){
   if(e.touches.length > 1) return; // permitir pinch-zoom
-  const el = e.target.closest('[style*="overflow-y:auto"],[style*="overflow-y: auto"],.screen,.main-app');
-  if(el && el.scrollTop > 0) return; // permitir scroll normal dentro de contenedores
-  if(el && el.scrollTop === 0) e.preventDefault(); // bloquear solo al inicio
+  // Solo bloquear pull-to-refresh en el body/screen cuando está en el tope
+  const scrollable = e.target.closest('[style*="overflow-y:auto"],[style*="overflow-y: auto"],#mov-list,#deb-mov-list,#deb-movimientos-lista,#movimientos-full');
+  if(scrollable) return; // permitir scroll en contenedores con overflow
+  const screen = e.target.closest('.screen,.main-app');
+  if(screen && screen.scrollTop === 0) e.preventDefault();
 }, { passive: false });
 
 // ── Cierre de sesión al minimizar ──────────────────────────────
@@ -8379,7 +8381,7 @@ window.confirmarEliminarPerfil = async function(){
       <div class="dots" id="deb-dots"></div>
       <div style="margin-top:18px">
         <div class="section-card-title">Últimos movimientos</div>
-        <div id="deb-mov-list" style="max-height:504px;overflow-y:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none"></div>
+        <div id="deb-mov-list" style="max-height:504px;overflow-y:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;overscroll-behavior:contain"></div>
       </div>
     </div>
 
@@ -9461,7 +9463,7 @@ window.confirmarEliminarPerfil = async function(){
       <!-- Movimientos débito -->
       <div class="section-card" id="deb-recuadro-movimientos" style="display:none;margin:0 0 12px">
         <div class="section-card-title">Movimientos</div>
-        <div id="deb-movimientos-lista" style="max-height:504px;overflow-y:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none">
+        <div id="deb-movimientos-lista" style="max-height:504px;overflow-y:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;overscroll-behavior:contain">
           <div class="empty-mov">Sin cortes disponibles</div>
         </div>
       </div>
