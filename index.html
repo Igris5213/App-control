@@ -6487,14 +6487,42 @@ window.guardarPromo = async function(){
 
   const t = (perfil?.tarjetas||[]).find(x=>x.id===promoTarjetaSel);
   const comercio = document.getElementById('promo-comercio').value.trim();
+  const mensualidad = importe / meses;
+  const fmt$ = v=>'$'+Number(v).toLocaleString('es-MX',{minimumFractionDigits:2});
 
-  // Calcular creadoEn para que pago 1 = corte actual
-  // primerCorte = periodoFin del corte actual de esta tarjeta
-  // creadoEn = 1 día antes del primerCorte
+  // Guardar datos pendientes
+  window._pendingPromoNueva = { nombre, importe, meses, comercio, tarjeta: t };
+
+  // Mostrar resumen en modal
+  document.getElementById('confirm-promo-nueva-banco').textContent = promoBancoSel;
+  document.getElementById('confirm-promo-nueva-tarjeta').textContent = t?.apodo||t?.nombre||'—';
+  document.getElementById('confirm-promo-nueva-nombre').textContent = nombre;
+  document.getElementById('confirm-promo-nueva-importe').textContent = fmt$(importe);
+  document.getElementById('confirm-promo-nueva-meses').textContent = meses + ' meses · ' + fmt$(mensualidad) + ' /mes';
+  if(comercio){
+    document.getElementById('confirm-promo-nueva-row-comercio').style.display = 'flex';
+    document.getElementById('confirm-promo-nueva-comercio').textContent = comercio;
+  } else {
+    document.getElementById('confirm-promo-nueva-row-comercio').style.display = 'none';
+  }
+  document.getElementById('modal-promo-overlay').classList.remove('open');
+  setTimeout(()=>document.getElementById('modal-confirm-promo-nueva').classList.add('open'), 250);
+}
+
+window._corregirPromoNueva = function(){
+  document.getElementById('modal-confirm-promo-nueva').classList.remove('open');
+  setTimeout(()=>document.getElementById('modal-promo-overlay').classList.add('open'), 250);
+}
+
+window._confirmarPromoNueva = async function(){
+  document.getElementById('modal-confirm-promo-nueva').classList.remove('open');
+  const { nombre, importe, meses, comercio, tarjeta: t } = window._pendingPromoNueva || {};
+  if(!nombre) return;
+  window._pendingPromoNueva = null;
+
   const corteNum = t ? parseInt(t.corte) : 1;
   const periodoActual = getPeriodo(corteNum, new Date());
-  const primerCorte = periodoActual.fin;
-  const creadoEnCalc = primerCorte.getTime() - 86400000;
+  const creadoEnCalc = periodoActual.fin.getTime() - 86400000;
 
   const datos = {
     tarjetaId: promoTarjetaSel,
@@ -6508,12 +6536,9 @@ window.guardarPromo = async function(){
 
   try{
     const docRef = await addDoc(collection(db,'usuarios', currentUser.uid, 'promociones'), datos);
-    // Agregar al cache local inmediatamente con el id real
     const nuevaPromo = {...datos, id: docRef.id};
     promocionesCache = [...promocionesCache, nuevaPromo];
     window.promocionesCache = promocionesCache;
-    document.getElementById('modal-promo-overlay').classList.remove('open');
-    // Actualizar historial si está visible
     setTimeout(()=>{
       if(typeof window._renderHistorialActivo === 'function') window._renderHistorialActivo();
     }, 300);
@@ -8278,6 +8303,44 @@ window.confirmarEliminarPerfil = async function(){
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:8px">
       <button onclick="guardarPromo()" class="modal-save" style="margin-top:0">Guardar</button>
       <button onclick="cerrarModalPromo()" style="padding:13px;border-radius:12px;border:1.5px solid #e0e0e0;background:#fff;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit;color:#111">Cancelar</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ MODAL CONFIRMAR PROMO NUEVA ══ -->
+<div class="modal-overlay" id="modal-confirm-promo-nueva" onclick="if(event.target===this)this.classList.remove('open')">
+  <div class="modal" onclick="event.stopPropagation()" style="padding-bottom:28px">
+    <div class="modal-handle"></div>
+    <div style="font-size:17px;font-weight:700;color:#111;text-align:center;margin-bottom:20px">Confirmar promoción</div>
+    <div style="background:#f5f5f5;border-radius:16px;padding:16px;margin-bottom:16px;display:flex;flex-direction:column;gap:10px">
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <span style="font-size:13px;color:#aaa;font-weight:600;text-transform:uppercase;letter-spacing:0.04em">Banco</span>
+        <span id="confirm-promo-nueva-banco" style="font-size:14px;font-weight:700;color:#111"></span>
+      </div>
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <span style="font-size:13px;color:#aaa;font-weight:600;text-transform:uppercase;letter-spacing:0.04em">Tarjeta</span>
+        <span id="confirm-promo-nueva-tarjeta" style="font-size:14px;font-weight:700;color:#111"></span>
+      </div>
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <span style="font-size:13px;color:#aaa;font-weight:600;text-transform:uppercase;letter-spacing:0.04em">Compra</span>
+        <span id="confirm-promo-nueva-nombre" style="font-size:14px;font-weight:700;color:#111"></span>
+      </div>
+      <div id="confirm-promo-nueva-row-comercio" style="display:flex;justify-content:space-between;align-items:center">
+        <span style="font-size:13px;color:#aaa;font-weight:600;text-transform:uppercase;letter-spacing:0.04em">Comercio</span>
+        <span id="confirm-promo-nueva-comercio" style="font-size:14px;font-weight:700;color:#111"></span>
+      </div>
+      <div style="border-top:1px solid #e8e8e8;padding-top:10px;display:flex;justify-content:space-between;align-items:center">
+        <span style="font-size:13px;color:#aaa;font-weight:600;text-transform:uppercase;letter-spacing:0.04em">Importe</span>
+        <span id="confirm-promo-nueva-importe" style="font-size:18px;font-weight:800;color:#111"></span>
+      </div>
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <span style="font-size:13px;color:#aaa;font-weight:600;text-transform:uppercase;letter-spacing:0.04em">Plan</span>
+        <span id="confirm-promo-nueva-meses" style="font-size:14px;font-weight:700;color:#111"></span>
+      </div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+      <button onclick="_corregirPromoNueva()" style="padding:13px;border-radius:12px;border:1.5px solid #e0e0e0;background:#fff;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit;color:#111">Corregir</button>
+      <button onclick="_confirmarPromoNueva()" class="hold-btn" style="padding:13px;border-radius:12px;background:linear-gradient(180deg,#111,#444);color:#fff;border:none;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit"><span class="hold-label">Confirmar</span></button>
     </div>
   </div>
 </div>
