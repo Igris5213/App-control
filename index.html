@@ -6773,14 +6773,21 @@ async function _ejecutarGuardadoPromo(id, importe, meses, mesesPagados){
       const tarjetaPromo = (perfil?.tarjetas||[]).find(t=>t.id===promoActual?.tarjetaId);
       const corteNum = tarjetaPromo ? parseInt(tarjetaPromo.corte) : 0;
       if(corteNum){
-        // Usar el periodo actual de la tarjeta como referencia (el corte más reciente)
-        const periodoActual = getPeriodo(corteNum, new Date());
-        const pfinRef = periodoActual.fin;
-        // El primer pago fue hace (mesesPagados-1) meses del período actual
-        // creadoEn debe ser justo antes del inicio del primer período de pago
-        const primerPeriodoFin = new Date(pfinRef.getFullYear(), pfinRef.getMonth() - (mesesPagados - 1), corteNum);
+        // Si estamos en historial usar ese periodoFin como referencia del pago actual (mes N)
+        // Si estamos en promociones usar el período actual de la tarjeta
+        const pfinRef = window._pendingPeriodoFin
+          ? new Date(window._pendingPeriodoFin)
+          : getPeriodo(corteNum, new Date()).fin;
+
+        // pfinRef = fin del período donde cae el pago mesesPagados
+        // Retroceder (mesesPagados-1) períodos para encontrar el primer pago
+        const primerPeriodoFin = new Date(
+          pfinRef.getFullYear(),
+          pfinRef.getMonth() - (mesesPagados - 1),
+          corteNum
+        );
         const primerPeriodoInicio = getPeriodo(corteNum, primerPeriodoFin).inicio;
-        // creadoEn = un día antes del inicio del primer período
+        // creadoEn = un día antes del inicio del primer período de pago
         creadoEnAjustado = primerPeriodoInicio.getTime() - 86400000;
       }
     }
