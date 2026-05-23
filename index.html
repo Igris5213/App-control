@@ -2,29 +2,25 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Control de Gastos</title>
 
 <!-- PWA -->
 <link rel="manifest" href="manifest.json">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Gastos">
-<meta name="theme-color" content="#f5f5f5">
+<meta name="theme-color" content="#111111">
 <link rel="apple-touch-icon" href="icon-192.png">
 <style>
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;outline:none}
-body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f5f5f5;min-height:100vh;display:flex;justify-content:center;padding-top:env(safe-area-inset-top,0px);-webkit-touch-callout:none;-webkit-user-select:none;user-select:none;overscroll-behavior-y:none}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f5f5f5;min-height:100vh;display:flex;justify-content:center}
 .app{width:100%;max-width:430px;background:#f5f5f5;min-height:100vh;display:flex;flex-direction:column;position:relative}
 
 /* ── PANTALLAS DE ONBOARDING ── */
-.screen{position:fixed;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;z-index:200;padding:24px 50px 90px;background:#f5f5f5;overflow-y:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;overscroll-behavior-y:none}
+.screen{position:fixed;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;z-index:200;padding:24px 50px 90px;background:#f5f5f5;overflow-y:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none}
 .screen::-webkit-scrollbar{display:none}
-#update-toast{position:fixed;bottom:100px;left:50%;transform:translateX(-50%) translateY(20px);background:#111;color:#fff;border-radius:20px;padding:10px 18px;display:flex;align-items:center;gap:10px;font-size:13px;font-weight:600;opacity:0;transition:opacity 0.3s,transform 0.3s;pointer-events:none;z-index:9999;white-space:nowrap}
-#update-toast.visible{opacity:1;transform:translateX(-50%) translateY(0)}
-#update-toast .upd-spinner{width:16px;height:16px;border:2px solid rgba(255,255,255,0.3);border-top-color:#fff;border-radius:50%;animation:upd-spin 0.7s linear infinite;flex-shrink:0}
-@keyframes upd-spin{to{transform:rotate(360deg)}}
 #screen-cuentas{padding-top:16px}
 .screen.hidden{display:none}
 
@@ -155,8 +151,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 /* RECUADROS */
 .section-card{background:#fff;border-radius:16px;margin:0 50px 12px;padding:16px;box-shadow:0 1px 6px rgba(0,0,0,0.06)}
 .section-card-title{font-size:13px;font-weight:700;color:#aaa;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:12px}
-.btn-registro{transition:opacity 0.15s,transform 0.15s}
-.btn-registro:active{opacity:0.75;transform:scale(0.98)}
 
 /* BOTÓN */
 .save-wrap{padding:0}
@@ -342,15 +336,10 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .save-btn-main + .save-btn-main{
   margin-top:10px;
 }
-input, textarea, [contenteditable]{-webkit-user-select:text;user-select:text;-webkit-touch-callout:default}
 </style>
 </head>
 <body>
 <div class="toast" id="toast"></div>
-<div id="update-toast">
-  <div class="upd-spinner"></div>
-  Actualizando app...
-</div>
 
 <!-- ══ PANTALLA 1: BIENVENIDA ══ -->
 <div class="screen hidden" id="screen-welcome">
@@ -382,48 +371,8 @@ input, textarea, [contenteditable]{-webkit-user-select:text;user-select:text;-we
         <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
         Agregar usuario
       </button>
-
     </div>
 
-  </div>
-</div>
-
-<!-- ══ MODAL SESIÓN ACTIVA ══ -->
-<div class="modal-overlay" id="modal-sesion-activa" onclick="if(event.target===this)this.classList.remove('open')">
-  <div class="modal" onclick="event.stopPropagation()" style="text-align:center;padding-bottom:28px">
-    <div class="modal-handle"></div>
-    <div style="width:56px;height:56px;border-radius:50%;background:#fff3e0;display:flex;align-items:center;justify-content:center;margin:0 auto 16px">
-      <svg width="28" height="28" fill="none" stroke="#f57c00" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-    </div>
-    <div style="font-size:17px;font-weight:700;color:#111;margin-bottom:8px">Sesión activa</div>
-    <div style="font-size:14px;color:#888;line-height:1.5;margin-bottom:24px">Este usuario ya tiene una sesión abierta en otro dispositivo. Cierra esa sesión antes de ingresar aquí.</div>
-    <button onclick="document.getElementById('modal-sesion-activa').classList.remove('open')"
-      style="width:100%;padding:14px;border-radius:12px;background:linear-gradient(180deg,#111,#444);color:#fff;border:none;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit">Entendido</button>
-  </div>
-</div>
-
-<!-- ══ MODAL YA TENGO CUENTA ══ -->
-<div class="modal-overlay" id="modal-ya-tengo-cuenta" onclick="if(event.target===this)this.classList.remove('open')">
-  <div class="modal" onclick="event.stopPropagation()">
-    <div class="modal-handle"></div>
-    <div class="modal-title">Iniciar sesión</div>
-    <div style="font-size:13px;color:#888;margin-bottom:16px;text-align:center">Ingresa tus datos para vincular tu cuenta en este dispositivo</div>
-    <input id="ytc-user" type="text" placeholder="Nombre de usuario"
-      style="width:100%;padding:13px 14px;border-radius:12px;border:1.5px solid #e0e0e0;font-size:15px;font-family:inherit;color:#111;background:#fff;outline:none;box-sizing:border-box;margin-bottom:10px"
-      onfocus="this.style.borderColor='#111'" onblur="this.style.borderColor='#e0e0e0'"/>
-    <div style="position:relative;margin-bottom:6px">
-      <input id="ytc-pass" type="password" placeholder="Contraseña"
-        style="width:100%;padding:13px 44px 13px 14px;border-radius:12px;border:1.5px solid #e0e0e0;font-size:15px;font-family:inherit;color:#111;background:#fff;outline:none;box-sizing:border-box"
-        onfocus="this.style.borderColor='#111'" onblur="this.style.borderColor='#e0e0e0'"
-        onkeydown="if(event.key==='Enter') vincularCuentaExistente()"/>
-    </div>
-    <div id="ytc-error" style="font-size:13px;color:#e53935;min-height:18px;margin-bottom:10px;text-align:center"></div>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:4px">
-      <button onclick="document.getElementById('modal-ya-tengo-cuenta').classList.remove('open')"
-        style="padding:13px;border-radius:12px;border:1.5px solid #e0e0e0;background:#fff;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit;color:#111">Cancelar</button>
-      <button onclick="vincularCuentaExistente()"
-        style="padding:13px;border-radius:12px;background:linear-gradient(180deg,#111,#444);color:#fff;border:none;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit">Entrar</button>
-    </div>
   </div>
 </div>
 
@@ -507,7 +456,7 @@ input, textarea, [contenteditable]{-webkit-user-select:text;user-select:text;-we
     <div id="modal-login-error" style="font-size:13px;color:#e53935;min-height:18px;margin-bottom:10px;text-align:center"></div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:4px">
       <button onclick="cerrarModalLoginPass()" style="padding:13px;border-radius:12px;border:1.5px solid #e0e0e0;background:#fff;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit;color:#111">Cancelar</button>
-      <button id="modal-login-ok-btn" onclick="confirmarLoginPass()" style="padding:13px;border-radius:12px;background:linear-gradient(180deg,#111,#444);color:#fff;border:none;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit">Entrar</button>
+      <button onclick="confirmarLoginPass()" style="padding:13px;border-radius:12px;background:linear-gradient(180deg,#111,#444);color:#fff;border:none;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit">Entrar</button>
     </div>
   </div>
 </div>
@@ -1382,7 +1331,7 @@ input, textarea, [contenteditable]{-webkit-user-select:text;user-select:text;-we
       </div>
     </div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px">
-      <button class="modal-save" onclick="guardarEdicionTarjeta()">Guardar cambios</button>
+      <button class="modal-save hold-btn" onclick="guardarEdicionTarjeta()">Guardar cambios</button>
       <button onclick="document.getElementById('edit-tarjeta-overlay').classList.remove('open')" style="padding:14px;border-radius:12px;border:1.5px solid #e0e0e0;background:#fff;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit;color:#666">Cancelar</button>
     </div>
   </div>
@@ -1400,7 +1349,7 @@ input, textarea, [contenteditable]{-webkit-user-select:text;user-select:text;-we
     </div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:8px">
       <button onclick="closeConfirm()" style="padding:13px;border-radius:12px;padding:13px;border-radius:12px;border:1.5px solid #e0e0e0;background:#fff;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit;color:#666">Cancelar</button>
-      <button id="confirm-del-btn" onclick="confirmarEliminar()" class="hold-btn" style="padding:13px;border-radius:12px;border:none;background:linear-gradient(180deg,#333,#666);color:#fff;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit"><span class="hold-label">Eliminar</span></button>
+      <button id="confirm-del-btn" onclick="confirmarEliminar()" class="hold-btn" style="padding:13px;border-radius:12px;border:none;background:linear-gradient(180deg,#333,#666);color:#fff;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit">Eliminar</button>
     </div>
   </div>
 </div>
@@ -1500,7 +1449,7 @@ input, textarea, [contenteditable]{-webkit-user-select:text;user-select:text;-we
       <input type="hidden" id="inp-fecha-modal"/>
     </div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:4px">
-      <button class="modal-save" id="modal-save-btn" onclick="guardar()" style="margin-top:0">Guardar</button>
+      <button class="modal-save hold-btn" id="modal-save-btn" onclick="guardar()" style="margin-top:0">Guardar</button>
       <button onclick="document.getElementById('modal-overlay').classList.remove('open')" style="padding:13px;border-radius:12px;border:1.5px solid #e0e0e0;background:#fff;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit;color:#111">Cancelar</button>
     </div>
   </div>
@@ -1525,7 +1474,7 @@ input, textarea, [contenteditable]{-webkit-user-select:text;user-select:text;-we
       <div class="dots" id="dots"></div>
       <div style="margin-top:18px">
         <div class="section-card-title">Últimos movimientos</div>
-        <div id="mov-list" style="max-height:504px;overflow-y:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;overscroll-behavior:contain"></div>
+        <div id="mov-list" style="max-height:504px;overflow-y:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none"></div>
       </div>
     </div>
   </div>
@@ -1562,8 +1511,6 @@ let onAfterEdit = null; // callback tras editar/eliminar en ventana movimientos
 let movVisible = true;
 let tarjetasOb = [];       // tarjetas durante onboarding
 let _unsubMovimientos = null; // referencia al listener activo de movimientos
-let _sessionToken = null;      // token de sesión activa
-let _unsubSession = null;      // listener de sesión
 let pendingUser = null;       // usuario pendiente de confirmar (hasta finalizar onboarding)
 const today = new Date();
 const COLORS = ['card-color-0','card-color-1','card-color-2','card-color-3','card-color-4','card-color-5'];
@@ -1997,7 +1944,9 @@ window.finalizarOnboarding = async function(){
   perfil.cuentasDebito = tarjetasDebOb;
   try{
     if(pendingUser){
-      await guardarUsuarioFirebase(pendingUser.user, pendingUser.pass);
+      const lista = getUsuarios();
+      lista.push(pendingUser);
+      guardarUsuarios(lista);
       pendingUser = null;
     }
     await setDoc(doc(db,'usuarios', currentUser.uid, 'perfil','datos'), perfil);
@@ -2210,105 +2159,7 @@ function _syncWindowVars(){
   window.onAfterEdit        = onAfterEdit;
 }
 
-// ── Control de sesión única ──────────────────────────────────────
-function generarToken(){
-  return Date.now().toString(36) + Math.random().toString(36).substr(2,9);
-}
-
-const SESSION_TIMEOUT_MS = 30000; // 30 seg sin heartbeat = sesión expirada
-
-async function verificarYRegistrarSesion(){
-  const sesionRef = doc(db,'usuarios', loginUsuarioActivo, 'auth','sesion');
-  const snap = await getDoc(sesionRef);
-  if(snap.exists()){
-    const data = snap.data();
-    const edad = Date.now() - (data.ts || 0);
-    // Si hay sesión activa reciente (menos de 30 seg sin heartbeat), bloquear
-    if(data.token && edad < SESSION_TIMEOUT_MS){
-      return false; // sesión activa en otro dispositivo
-    }
-  }
-  // Sin sesión activa — registrar la nuestra
-  _sessionToken = generarToken();
-  await setDoc(sesionRef, {
-    token: _sessionToken,
-    ts: Date.now(),
-    device: navigator.userAgent.substring(0,80)
-  });
-  return true;
-}
-
-function iniciarHeartbeat(){
-  // Actualizar timestamp cada 15 seg para mantener sesión "viva"
-  if(window._heartbeatInterval) clearInterval(window._heartbeatInterval);
-  window._heartbeatInterval = setInterval(async ()=>{
-    if(!_sessionToken || !loginUsuarioActivo) return;
-    const sesionRef = doc(db,'usuarios', loginUsuarioActivo, 'auth','sesion');
-    const snap = await getDoc(sesionRef).catch(()=>null);
-    if(!snap || !snap.exists() || snap.data().token !== _sessionToken){
-      // Nuestro token fue reemplazado — no hacer nada (ya cerró sesion forzado)
-      clearInterval(window._heartbeatInterval);
-      return;
-    }
-    setDoc(sesionRef, { token: _sessionToken, ts: Date.now() }, { merge: true }).catch(()=>{});
-  }, 15000);
-}
-
-function monitorearSesion(){
-  if(_unsubSession){ _unsubSession(); _unsubSession = null; }
-  _unsubSession = onSnapshot(doc(db,'usuarios', loginUsuarioActivo, 'auth','sesion'), snap=>{
-    if(!snap.exists() || !_sessionToken) return;
-    const tokenRemoto = snap.data().token;
-    if(tokenRemoto && tokenRemoto !== _sessionToken){
-      cerrarSesionForzado();
-    }
-  });
-}
-
-function cerrarSesionForzado(){
-  if(_unsubSession){ _unsubSession(); _unsubSession = null; }
-  if(window._heartbeatInterval){ clearInterval(window._heartbeatInterval); }
-  if(_bgTimer){ clearTimeout(_bgTimer); _bgTimer = null; }
-  if(_unsubMovimientos){ _unsubMovimientos(); _unsubMovimientos = null; }
-  _sessionToken = null;
-  showToast('⚠️ Sesión cerrada por inactividad o cierre remoto');
-  setTimeout(()=>{
-    perfil = null; movimientos = []; tarjetasOb = []; tarjetasDebOb = [];
-    loginUsuarioActivo = null;
-    currentUser = { uid: 'usuario' };
-    document.getElementById('main-app').style.display = 'none';
-    document.getElementById('main-app').classList.remove('visible');
-    document.getElementById('bottom-nav').style.display = 'none';
-    iniciarFlujoAuth();
-  }, 2000);
-}
-
 async function iniciarApp(){
-  // Sincronizar nombre del usuario actual a la lista pública si no está
-  if(loginUsuarioActivo){
-    getDoc(doc(db,'app','usuarios')).then(snap=>{
-      const lista = snap.exists() ? (snap.data().lista||[]) : [];
-      if(!lista.includes(loginUsuarioActivo)){
-        lista.push(loginUsuarioActivo);
-        setDoc(doc(db,'app','usuarios'), { lista, ts: Date.now() }).catch(()=>{});
-      }
-    }).catch(()=>{});
-  }
-  // Verificar si hay sesión activa en otro dispositivo
-  const sesionLibre = await verificarYRegistrarSesion();
-  if(!sesionLibre){
-    // Hay sesión activa — bloquear entrada y volver al login
-    document.querySelectorAll('.screen').forEach(s=>{ s.classList.remove('hidden'); });
-    showScreen('screen-login');
-    setTimeout(()=>{
-      // Mostrar modal de aviso
-      const modal = document.getElementById('modal-sesion-activa');
-      if(modal) modal.classList.add('open');
-    }, 300);
-    return;
-  }
-  monitorearSesion();
-  iniciarHeartbeat();
   _syncWindowVars(); // exponer estado inicial
   // Ocultar todas las pantallas
   document.querySelectorAll('.screen').forEach(s=>{
@@ -2344,32 +2195,6 @@ async function iniciarApp(){
     // Refrescar ventana de movimientos si está abierta
     if(typeof window.onAfterEdit === 'function'){
       window.onAfterEdit();
-    }
-    // Refrescar lista de años/cortes si el historial está abierto con una tarjeta seleccionada
-    if(window._movTarjetaId && document.getElementById('paso-anio') && 
-       document.getElementById('paso-anio').style.display !== 'none'){
-      const _t2 = perfil?.tarjetas?.find(x=>x.id===window._movTarjetaId);
-      if(_t2){
-        const _anios2 = getAniosDisponibles(window._movTarjetaId, _t2.corte);
-        const _anioActual = document.getElementById('anio-seleccionado-txt')?.textContent;
-        document.getElementById('lista-anios-btns').innerHTML = _anios2.map(a=>`
-          <div data-anio="${a}" onclick="seleccionarAnioMov(${a})"
-            style="padding:14px 16px;border-bottom:1px solid #e8e8e8;cursor:pointer;display:flex;align-items:center;justify-content:space-between;background:${_anioActual==a?'#111':'#fff'};color:${_anioActual==a?'#fff':'#111'};font-weight:500;font-size:14px">
-            <span>${a}</span>
-            <svg width="16" height="16" fill="none" stroke="${_anioActual==a?'#fff':'#aaa'}" stroke-width="2" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
-          </div>`).join('');
-        // Si hay un año y corte seleccionados, refrescar también la lista de cortes
-        if(_anioActual && _anios2.includes(parseInt(_anioActual)) && 
-           document.getElementById('paso-corte').style.display !== 'none'){
-          const _cortes2 = getCortesDisponibles(window._movTarjetaId, _t2.corte, parseInt(_anioActual));
-          document.getElementById('lista-cortes-btns').innerHTML = _cortes2.map(c=>`
-            <div data-key="${c.key}" onclick="seleccionarCorteMov('${window._movTarjetaId}',${_t2.corte},'${c.key}')"
-              style="padding:14px 16px;border-bottom:1px solid #e8e8e8;cursor:pointer;display:flex;align-items:center;justify-content:space-between;background:#fff;color:#111;font-weight:500;font-size:14px">
-              <span style="text-transform:capitalize">${c.nombre}</span>
-              <svg width="16" height="16" fill="none" stroke="#aaa" stroke-width="2" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
-            </div>`).join('');
-        }
-      }
     }
   });
 }
@@ -2533,7 +2358,7 @@ function getMesPagoPromo(corte, creadoEn, periodoFin){
 }
 
 function getPeriodo(corte, ref=today){
-  corte = parseInt(corte); // asegurar que sea número entero
+  corte = parseInt(corte);
   const r = ref instanceof Date ? ref : today;
   const d=r.getDate(), m=r.getMonth(), y=r.getFullYear();
   let inicioRaw, finRaw;
@@ -2662,6 +2487,7 @@ function getAniosDisponibles(tarjetaId, corte){
 
 // Obtener cortes de un año específico para una tarjeta
 function getCortesDisponibles(tarjetaId, corte, anio){
+  corte = parseInt(corte);
   const seen = new Map();
   movimientos.filter(m=>m.tarjetaId===tarjetaId).forEach(m=>seen.set(m.id,m));
   const movsTarjeta = [...seen.values()];
@@ -2694,6 +2520,7 @@ function getCortesDisponibles(tarjetaId, corte, anio){
 
 // Filtrar movimientos por período de corte
 function movsPorCorte(tarjetaId, corte, periodoFin){
+  corte = parseInt(corte);
   const p = getPeriodo(corte, periodoFin);
   return movimientos
     .filter(m=>m.tarjetaId===tarjetaId)
@@ -2724,7 +2551,7 @@ function renderMovimientos(){
       if(fb !== fa) return fb.localeCompare(fa);
       return (b.creadoEn||0) - (a.creadoEn||0);
     })
-    .slice(0, 20);
+    .slice(0, 10);
 
   if(!filtrados.length){ el.innerHTML=`<div class="empty-mov">Sin movimientos en el corte actual</div>`; return; }
   el.innerHTML = filtrados.map((m,idx)=>{
@@ -3012,7 +2839,6 @@ window._ejecutarGuardarMov = async function(){
     window.showSuccess('Movimiento registrado', '');
   } else if(window._confirmMovCtx === 'ext'){
     await _ejecutarGuardarExtDB();
-    window.showSuccess('Movimiento registrado', '');
   }
 
   btn.disabled = false;
@@ -3129,63 +2955,12 @@ function hashSimple(str){
   return h.toString(36);
 }
 
-// ── Auth en Firestore (fuente de verdad) ──
-// localStorage solo como caché de nombres para mostrar rápido
-
-function getUsuariosLocal(){
+function getUsuarios(){
   try{ return JSON.parse(localStorage.getItem(AUTH_KEY)) || []; } catch{ return []; }
-}
-function getUsuarios(){ return getUsuariosLocal(); }
-
-function guardarUsuarioLocal(user){
-  const lista = getUsuariosLocal().filter(u=>u.user!==user);
-  lista.push({ user });
-  localStorage.setItem(AUTH_KEY, JSON.stringify(lista));
 }
 
 function guardarUsuarios(lista){
   localStorage.setItem(AUTH_KEY, JSON.stringify(lista));
-}
-
-async function cargarUsuariosDesdeFirebase(){
-  try{
-    const snap = await getDoc(doc(db,'app','usuarios'));
-    if(!snap.exists()) return;
-    const remotos = snap.data().lista || [];
-    const local = getUsuariosLocal().map(u=>u.user);
-    let cambio = false;
-    remotos.forEach(nombre=>{
-      if(!local.includes(nombre)){
-        const lista = getUsuariosLocal();
-        lista.push({ user: nombre });
-        localStorage.setItem(AUTH_KEY, JSON.stringify(lista));
-        cambio = true;
-      }
-    });
-    if(cambio) renderizarUsuarios();
-  } catch(e){ console.log('Firebase usuarios:', e.message); }
-}
-
-async function guardarUsuarioFirebase(user, pass){
-  const hash = hashSimple(user+pass);
-  // Guardar hash en Firestore
-  await setDoc(doc(db,'usuarios', user, 'auth','datos'), { hash, ts: Date.now() });
-  // Actualizar lista pública de nombres
-  const snap = await getDoc(doc(db,'app','usuarios'));
-  const lista = snap.exists() ? (snap.data().lista||[]) : [];
-  if(!lista.includes(user)){
-    lista.push(user);
-    await setDoc(doc(db,'app','usuarios'), { lista, ts: Date.now() });
-  }
-  guardarUsuarioLocal(user);
-}
-
-async function verificarPassFirebase(user, pass){
-  try{
-    const snap = await getDoc(doc(db,'usuarios', user, 'auth','datos'));
-    if(!snap.exists()) return false;
-    return snap.data().hash === hashSimple(user+pass);
-  } catch(e){ return false; }
 }
 
 // Compatibilidad con formato antiguo (un solo usuario)
@@ -3197,7 +2972,7 @@ function migrarFormatoAntiguo(){
       const lista = getUsuarios();
       if(!lista.find(u=>u.user===v.user)){
         lista.push(v);
-        localStorage.setItem(AUTH_KEY, JSON.stringify(lista));
+        guardarUsuarios(lista);
       }
       localStorage.removeItem('cg_auth_creds');
     } catch{}
@@ -3222,7 +2997,7 @@ function renderizarUsuarios(){
           <svg width="20" height="20" fill="none" stroke="#fff" stroke-width="2" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
         </div>
         <span>${u.user}</span>
-        <svg style="margin-left:auto" width="16" height="16" fill="none" stroke="rgba(255,255,255,0.4)" stroke-width="2" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>`;
+        <svg style="margin-left:auto" width="16" height="16" fill="none" stroke="#ccc" stroke-width="2" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>`;
       container.appendChild(btn);
     });
   }
@@ -3252,17 +3027,13 @@ window.cerrarModalLoginPass = function(e){
     document.getElementById('modal-login-pass').classList.remove('open');
 }
 
-window.confirmarLoginPass = async function(){
+window.confirmarLoginPass = function(){
   const pass = document.getElementById('modal-auth-pass').value;
   const errEl = document.getElementById('modal-login-error');
-  const btn   = document.getElementById('modal-login-ok-btn');
   errEl.textContent = '';
-  if(!pass){ errEl.textContent = 'Ingresa tu contraseña'; return; }
-  if(btn) btn.disabled = true;
-  errEl.textContent = 'Verificando...';
-  const ok = await verificarPassFirebase(loginUsuarioActivo, pass);
-  if(btn) btn.disabled = false;
-  if(!ok){
+  const lista = getUsuarios();
+  const u = lista.find(x=>x.user===loginUsuarioActivo);
+  if(!u || u.hash !== hashSimple(u.user+pass)){
     errEl.textContent = 'Contraseña incorrecta';
     return;
   }
@@ -3276,46 +3047,6 @@ window.togglePassVisModal = function(){
 }
 
 // Modal nuevo usuario
-window.mostrarFormYaTengoUsuario = function(){
-  document.getElementById('ytc-user').value = '';
-  document.getElementById('ytc-pass').value = '';
-  document.getElementById('ytc-error').textContent = '';
-  document.getElementById('modal-ya-tengo-cuenta').classList.add('open');
-  setTimeout(()=>document.getElementById('ytc-user').focus(), 300);
-};
-
-window.vincularCuentaExistente = async function(){
-  const user = document.getElementById('ytc-user').value.trim();
-  const pass  = document.getElementById('ytc-pass').value;
-  const errEl = document.getElementById('ytc-error');
-  errEl.textContent = '';
-  if(!user || !pass){ errEl.textContent = 'Completa todos los campos'; return; }
-
-  errEl.textContent = 'Verificando...';
-  try{
-    // Verificar que el perfil existe en Firebase
-    const snap = await getDoc(doc(db,'usuarios', user, 'perfil','datos'));
-    if(!snap.exists()){
-      errEl.textContent = 'No se encontró una cuenta con ese nombre';
-      return;
-    }
-    // Verificar contraseña contra Firestore
-    const passOk = await verificarPassFirebase(user, pass);
-    if(!passOk){
-      errEl.textContent = 'Contraseña incorrecta';
-      return;
-    }
-    // Contraseña correcta — guardar en caché local y entrar
-    guardarUsuarioLocal(user);
-    loginUsuarioActivo = user;
-    currentUser = { uid: user };
-    document.getElementById('modal-ya-tengo-cuenta').classList.remove('open');
-    entrarApp();
-  } catch(e){
-    errEl.textContent = 'Error de conexión. Intenta de nuevo.';
-  }
-};
-
 window.mostrarFormNuevoUsuario = function(){
   document.getElementById('nuevo-user-name').value = '';
   document.getElementById('nuevo-user-pass').value = '';
@@ -3344,8 +3075,8 @@ window.guardarNuevoUsuario = function(){
   const lista = getUsuarios();
   if(lista.find(u=>u.user.toLowerCase()===user.toLowerCase())){ errEl.textContent = 'Ese usuario ya existe'; return; }
 
-  // Guardar temporalmente — se confirma al finalizar onboarding
-  pendingUser = { user, pass };
+  // Guardar temporalmente — NO guardar en localStorage todavía
+  pendingUser = { user, hash: hashSimple(user+pass) };
   loginUsuarioActivo = user;
   currentUser = { uid: user };
 
@@ -3416,13 +3147,6 @@ window.cerrarSesion = function(){
 window.ejecutarCerrarSesion = function(){
   document.getElementById('modal-confirm-logout').classList.remove('show');
   const nombre = currentUser?.uid || '';
-  if(_unsubSession){ _unsubSession(); _unsubSession = null; }
-  if(window._heartbeatInterval){ clearInterval(window._heartbeatInterval); }
-  // Limpiar token de sesión en Firestore al cerrar sesión voluntariamente
-  if(_sessionToken && loginUsuarioActivo){
-    deleteDoc(doc(db,'usuarios', loginUsuarioActivo, 'auth','sesion')).catch(()=>{});
-  }
-  _sessionToken = null;
   perfil = null; movimientos = []; tarjetasOb = []; tarjetasDebOb = []; pendingUser = null;
   if(_unsubMovimientos){ _unsubMovimientos(); _unsubMovimientos = null; }
   document.querySelectorAll('.modal-overlay').forEach(m=>m.classList.remove('open'));
@@ -3534,8 +3258,8 @@ window.guardarNuevaPass = function(){
   if(nueva.length < 4){ errEl.textContent = 'La nueva contraseña debe tener al menos 4 caracteres'; return; }
   if(nueva !== nueva2){ errEl.textContent = 'Las contraseñas no coinciden'; return; }
 
-  // Actualizar hash en Firestore
-  guardarUsuarioFirebase(lista[idx].user, nueva).catch(()=>{});
+  lista[idx].hash = hashSimple(lista[idx].user + nueva);
+  guardarUsuarios(lista);
   document.getElementById('modal-cambiar-pass').classList.remove('open');
   window.showSuccess('Contraseña actualizada', 'Tu contraseña fue cambiada correctamente');
 }
@@ -3688,21 +3412,14 @@ window.confirmarEdicion = function(){
   const { nuevoNombre, nuevaPass, nombreCambio, passCambio } = adminEditTemp;
   const lista = getUsuarios();
 
-  const viejoNombre = lista[adminEditIndex].user;
   lista[adminEditIndex].user = nuevoNombre;
-  guardarUsuarios(lista);
-  // Actualizar en Firebase
   if(passCambio){
-    guardarUsuarioFirebase(nuevoNombre, nuevaPass).catch(()=>{});
+    lista[adminEditIndex].hash = hashSimple(nuevoNombre + nuevaPass);
   } else if(nombreCambio){
-    // Cambio de nombre: mover entrada en app/usuarios
-    getDoc(doc(db,'app','usuarios')).then(snap=>{
-      if(!snap.exists()) return;
-      const fbLista = (snap.data().lista||[]).filter(n=>n!==viejoNombre);
-      if(!fbLista.includes(nuevoNombre)) fbLista.push(nuevoNombre);
-      setDoc(doc(db,'app','usuarios'), { lista: fbLista, ts: Date.now() }).catch(()=>{});
-    }).catch(()=>{});
+    lista[adminEditIndex].hash = hashSimple(nuevoNombre + nuevoNombre);
   }
+
+  guardarUsuarios(lista);
   document.getElementById('modal-admin-confirm-edit').classList.remove('show');
   document.getElementById('modal-admin-editar').classList.remove('open');
 
@@ -3750,15 +3467,6 @@ window.confirmarEliminarUsuario = async function(){
   // Quitar de la lista local
   lista.splice(adminDeleteIndex, 1);
   guardarUsuarios(lista);
-  // Quitar de la lista pública en Firebase
-  getDoc(doc(db,'app','usuarios')).then(snap=>{
-    if(!snap.exists()) return;
-    const fbLista = (snap.data().lista||[]).filter(n=>n!==nombre);
-    setDoc(doc(db,'app','usuarios'), { lista: fbLista, ts: Date.now() }).catch(()=>{});
-  }).catch(()=>{});
-  // Quitar sesión y auth de Firebase
-  deleteDoc(doc(db,'usuarios', uid, 'auth','datos')).catch(()=>{});
-  deleteDoc(doc(db,'usuarios', uid, 'auth','sesion')).catch(()=>{});
   document.getElementById('modal-admin-confirm').classList.remove('show');
   window.showSuccess('Usuario eliminado', '');
 
@@ -3865,9 +3573,7 @@ document.addEventListener('click', function(e){
 
 // ── Arranque ─────────────────────────────────────
 async function init(){
-  renderizarUsuarios(); // render inmediato con usuarios locales
-  // Cargar usuarios desde Firebase y re-renderizar
-  cargarUsuariosDesdeFirebase().then(()=>renderizarUsuarios());
+  renderizarUsuarios();
   // Primero: mostrar novedades si hay versión nueva, luego continuar al login
   if(checkVersion()) return;
   iniciarFlujoAuth();
@@ -3902,17 +3608,12 @@ async function init(){
       btn.insertBefore(bar, btn.firstChild);
     }
     if(!btn.querySelector('.hold-label')){
-      // Only wrap if button has direct text content (no child elements)
-      if(btn.childNodes.length === 1 && btn.childNodes[0].nodeType === 3){
-        const span = document.createElement('span');
-        span.className = 'hold-label';
-        span.textContent = btn.childNodes[0].textContent.trim();
-        btn.childNodes[0].remove();
-        btn.appendChild(bar);
-        btn.appendChild(span);
-      } else {
-        btn.insertBefore(bar, btn.firstChild);
-      }
+      const span = document.createElement('span');
+      span.className = 'hold-label';
+      span.textContent = btn.textContent.trim();
+      btn.textContent = '';
+      btn.appendChild(bar);
+      btn.appendChild(span);
     }
     bar.style.width = '0%';
     _holdBtn = btn; _holdBar = bar;
@@ -3964,49 +3665,6 @@ async function init(){
   document.addEventListener('touchend',   cancelHold);
   document.addEventListener('touchcancel',cancelHold);
 })();
-// Suprimir menú contextual del navegador en PWA
-document.addEventListener('contextmenu', e => e.preventDefault());
-
-// Deshabilitar pull-to-refresh del navegador
-document.addEventListener('touchmove', function(e){
-  if(e.touches.length > 1) return; // permitir pinch-zoom
-  // Solo bloquear pull-to-refresh en el body/screen cuando está en el tope
-  const scrollable = e.target.closest('[style*="overflow-y:auto"],[style*="overflow-y: auto"],#mov-list,#deb-mov-list,#deb-movimientos-lista,#movimientos-full');
-  if(scrollable) return; // permitir scroll en contenedores con overflow
-  const screen = e.target.closest('.screen,.main-app');
-  if(screen && screen.scrollTop === 0) e.preventDefault();
-}, { passive: false });
-
-// ── Cierre de sesión al minimizar ──────────────────────────────
-let _bgTimer = null;
-document.addEventListener('visibilitychange', function(){
-  if(document.hidden){
-    // App minimizada — iniciar cuenta regresiva de 1 minuto
-    if(_sessionToken && loginUsuarioActivo){
-      _bgTimer = setTimeout(async ()=>{
-        if(!_sessionToken || !loginUsuarioActivo) return;
-        // Eliminar sesión en Firestore
-        await deleteDoc(doc(db,'usuarios', loginUsuarioActivo, 'auth','sesion')).catch(()=>{});
-        cerrarSesionForzado();
-      }, 60000); // 1 minuto
-    }
-  } else {
-    // App restaurada — cancelar cuenta regresiva si no expiró
-    if(_bgTimer){
-      clearTimeout(_bgTimer);
-      _bgTimer = null;
-    }
-    // Verificar que nuestra sesión sigue activa (otro dispositivo pudo haberla tomado)
-    if(_sessionToken && loginUsuarioActivo){
-      getDoc(doc(db,'usuarios', loginUsuarioActivo, 'auth','sesion')).then(snap=>{
-        if(!snap.exists() || snap.data().token !== _sessionToken){
-          cerrarSesionForzado();
-        }
-      }).catch(()=>{});
-    }
-  }
-});
-
 init();
 
 // ── NAVBAR FUNCIONAL ──
@@ -4410,7 +4068,7 @@ window.renderPerfiles = function(){
               style="width:100%;padding:12px 14px 12px 28px;border-radius:10px;border:1.5px solid #e5e7eb;font-size:15px;font-family:inherit;outline:none;background:#fff"/>
           </div>
           <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
-            <button onclick="guardarNuevaTarjeta()" style="padding:11px;border-radius:10px;background:linear-gradient(180deg,#111,#444);color:#fff;border:none;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit">Guardar</button>
+            <button onclick="guardarNuevaTarjeta()" class="hold-btn" style="padding:11px;border-radius:10px;background:linear-gradient(180deg,#111,#444);color:#fff;border:none;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit">Guardar</button>
             <button onclick="ocultarFormAgregarTarjeta()" style="padding:11px;border-radius:10px;border:1.5px solid #e0e0e0;background:#fff;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;color:#666">Cancelar</button>
           </div>
         </div>` : ''}
@@ -4486,7 +4144,7 @@ window.renderPerfiles = function(){
               style="width:100%;padding:12px 14px 12px 28px;border-radius:10px;border:1.5px solid #e5e7eb;font-size:15px;font-family:inherit;outline:none;background:#fff;color:#111"/>
           </div>
           <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
-            <button onclick="guardarNuevaDebito()" style="padding:11px;border-radius:10px;background:linear-gradient(180deg,#111,#444);color:#fff;border:none;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit">Guardar</button>
+            <button onclick="guardarNuevaDebito()" class="hold-btn" style="padding:11px;border-radius:10px;background:linear-gradient(180deg,#111,#444);color:#fff;border:none;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit">Guardar</button>
             <button onclick="ocultarFormAgregarDebito()" style="padding:11px;border-radius:10px;border:1.5px solid #e0e0e0;background:#fff;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;color:#666">Cancelar</button>
           </div>
         </div>` : ''}
@@ -5169,7 +4827,7 @@ window.debSelTarjeta = async function(id){
 
   // Cargar todos los movimientos de esta tarjeta y derivar años con datos
   try {
-    // Firebase ya importado
+    const { getDocs, collection, query, orderBy } = await import('https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js');
     const snap = await getDocs(query(
       collection(db, 'usuarios', currentUser.uid, 'movimientosDebito'),
       orderBy('creadoEn', 'desc')
@@ -5288,7 +4946,7 @@ window.debSelMes = async function(mes){
     let movs = _debMovsCache;
     // Si el caché está vacío (ej. recarga), volver a cargar
     if(!movs.length && _debTarjetaId){
-      // Firebase ya importado
+      const { getDocs, collection, query, orderBy } = await import('https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js');
       const snap = await getDocs(query(
         collection(db, 'usuarios', currentUser.uid, 'movimientosDebito'),
         orderBy('creadoEn', 'desc')
@@ -5912,7 +5570,7 @@ window.verDetalleDebito = function(id){
     + '</div>'
     + '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px">'
     + '<button onclick="cerrarDetalleGasto();setTimeout(()=>pedirConfirmEditar(\'' + m.id + '\'),300)" style="padding:13px;border-radius:12px;border:1.5px solid #e0e0e0;background:#fff;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit;color:#111;display:flex;align-items:center;justify-content:center;gap:8px"><svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>Editar</button>'
-    + '<button onclick="cerrarDetalleGasto();setTimeout(()=>pedirConfirmEliminar(\'' + m.id + '\'),300)" style="padding:13px;border-radius:12px;border:none;background:linear-gradient(180deg,#333,#666);color:#fff;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:8px"><svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/></svg>Eliminar</button>'
+    + '<button class="hold-btn" onclick="cerrarDetalleGasto();setTimeout(()=>pedirConfirmEliminar(\'' + m.id + '\'),300)" style="padding:13px;border-radius:12px;border:none;background:linear-gradient(180deg,#333,#666);color:#fff;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:8px"><svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/></svg>Eliminar</button>'
     + '</div>'
     + '<button onclick="cerrarDetalleGasto()" style="width:100%;padding:13px;border-radius:12px;background:#fff;border:1.5px solid #e0e0e0;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit;color:#111">Cerrar</button>';
   document.getElementById('modal-detalle-gasto').classList.add('open');
@@ -6065,7 +5723,7 @@ window._ejecutarGuardarEditDeb = async function(){
   const detalle  = document.getElementById('deb-edit-detalle').value.trim();
   const fecha    = document.getElementById('deb-edit-fecha').value;
   try{
-    // updateDoc ya importado
+    const { updateDoc, doc: _doc } = await import('https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js');
     const upd = { monto };
     if(concepto) upd.concepto = concepto;
     if(detalle)  upd.detalle  = detalle;
@@ -6135,7 +5793,7 @@ window.confirmarEliminarMovDeb = async function(){
   const btn = document.getElementById('confirm-deb-btn');
   btn.disabled = true;
   try{
-    // deleteDoc ya importado
+    const { deleteDoc, doc: _doc } = await import('https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js');
     await deleteDoc(_doc(db,'usuarios',currentUser.uid,'movimientosDebito',_deletingDebId));
     _debMovimientos = _debMovimientos.filter(m=>m.id!==_deletingDebId);
     _updateDebCards();
@@ -6395,7 +6053,7 @@ window.verDetalleCargo = function(id){
       </div>
     </div>
     <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px">
-      <button onclick="eliminarCargoRecurrente(window._cargoAccionId)"
+      <button onclick="eliminarCargoRecurrente(window._cargoAccionId)" class="hold-btn"
         style="padding:13px 6px;border-radius:12px;background:linear-gradient(180deg,#333,#666);color:#fff;border:none;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit">Eliminar</button>
       <button onclick="document.getElementById('modal-detalle-cargo').classList.remove('open');editarCargoRecurrente(window._cargoAccionId)"
         style="padding:13px 6px;border-radius:12px;background:linear-gradient(180deg,#111,#444);color:#fff;border:none;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit">Editar</button>
@@ -7257,7 +6915,7 @@ window.verPromo = async function(id){
 
       <!-- Botones acción -->
       <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-top:4px">
-        <button onclick="pedirConfirmEliminarPromo('${p.id}')"
+        <button class="hold-btn" onclick="pedirConfirmEliminarPromo('${p.id}')"
           style="padding:11px 6px;border-radius:12px;background:linear-gradient(180deg,#333,#666);color:#fff;border:none;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit">
           Eliminar
         </button>
@@ -7340,7 +6998,7 @@ window.verDetalleGasto = function(id){
     + '</div>'
     + '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px">'
     + '<button onclick="cerrarDetalleGasto();setTimeout(()=>openEdit(\'' + m.id + '\'),300)" style="padding:13px;border-radius:12px;border:1.5px solid #e0e0e0;background:#fff;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit;color:#111;display:flex;align-items:center;justify-content:center;gap:8px"><svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>Editar</button>'
-    + '<button onclick="cerrarDetalleGasto();setTimeout(()=>eliminar(\'' + m.id + '\'),300)" style="padding:13px;border-radius:12px;border:none;background:linear-gradient(180deg,#333,#666);color:#fff;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:8px"><svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/></svg>Eliminar</button>'
+    + '<button class="hold-btn" onclick="cerrarDetalleGasto();setTimeout(()=>eliminar(\'' + m.id + '\'),300)" style="padding:13px;border-radius:12px;border:none;background:linear-gradient(180deg,#333,#666);color:#fff;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:8px"><svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/></svg>Eliminar</button>'
     + '</div>'
     + '<button onclick="cerrarDetalleGasto()" style="width:100%;padding:13px;border-radius:12px;background:#fff;border:1.5px solid #e0e0e0;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit;color:#111">Cerrar</button>';
   document.getElementById('modal-detalle-gasto').classList.add('open');
@@ -7981,14 +7639,15 @@ function _setupDebSwipe(){
 async function _cargarMovDebito(){
   if(!currentUser) return;
   try{
-    // Firebase ya importado
+    const { getDocs, collection, query, orderBy } = await import('https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js');
     const snap = await getDocs(query(collection(db,'usuarios',currentUser.uid,'movimientosDebito'), orderBy('creadoEn','desc')));
     _debMovimientos = snap.docs.map(d=>({id:d.id,...d.data()}));
   } catch(e){ _debMovimientos = []; }
   // Asegurarse de tener cargos recurrentes cargados
   if(!cargosRecurrentesCache.length){
     try{
-      const snapC = await getDocs(query(collection(db,'usuarios',currentUser.uid,'cargosRecurrentes'),orderBy('creadoEn','desc')));
+      const { getDocs: gd2, collection: col2, query: q2, orderBy: ob2 } = await import('https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js');
+      const snapC = await gd2(q2(col2(db,'usuarios',currentUser.uid,'cargosRecurrentes'),ob2('creadoEn','desc')));
       cargosRecurrentesCache = snapC.docs.map(d=>({id:d.id,...d.data()}));
     } catch(e){}
   }
@@ -8344,52 +8003,52 @@ window.confirmarEliminarPerfil = async function(){
     <!-- Panel Crédito -->
     <div id="nuevo-vista-credito">
       <!-- Nuevo -->
-      <button onclick="openModal()" class="btn-registro" style="width:100%;padding:20px 24px;border-radius:20px;background:linear-gradient(180deg,#111,#444);color:#fff;border:none;font-size:16px;font-weight:700;cursor:pointer;font-family:inherit;display:flex;align-items:center;gap:16px;margin-bottom:14px;box-shadow:0 4px 16px rgba(0,0,0,0.25);text-align:left">
-        <div style="width:48px;height:48px;border-radius:14px;background:rgba(255,255,255,0.15);display:flex;align-items:center;justify-content:center;flex-shrink:0">
-          <svg width="24" height="24" fill="none" stroke="#fff" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
+      <button onclick="var b=this;b.style.background='linear-gradient(180deg,#111,#444)';b.style.color='#fff';b.style.borderColor='#111';setTimeout(function(){openModal();b.style.background='#fff';b.style.color='#111';b.style.borderColor='#e0e0e0'},200)" style="width:100%;padding:20px 24px;border-radius:20px;background:#fff;color:#111;border:1.5px solid #e0e0e0;font-size:16px;font-weight:700;cursor:pointer;font-family:inherit;display:flex;align-items:center;gap:16px;margin-bottom:14px;box-shadow:0 4px 16px rgba(0,0,0,0.08);text-align:left">
+        <div style="width:48px;height:48px;border-radius:14px;background:#f5f5f5;display:flex;align-items:center;justify-content:center;flex-shrink:0">
+          <svg width="24" height="24" fill="none" stroke="#111" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
         </div>
         <div>
           <div style="font-size:17px;font-weight:700;margin-bottom:3px">Nuevo</div>
-          <div style="font-size:13px;color:rgba(255,255,255,0.6);font-weight:400">Registra un movimiento del período actual</div>
+          <div style="font-size:13px;color:#aaa;font-weight:400">Registra un movimiento del período actual</div>
         </div>
-        <svg style="margin-left:auto;flex-shrink:0" width="18" height="18" fill="none" stroke="rgba(255,255,255,0.4)" stroke-width="2" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
+        <svg style="margin-left:auto;flex-shrink:0" width="18" height="18" fill="none" stroke="#ccc" stroke-width="2" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
       </button>
       <!-- Extemporáneo -->
-      <button onclick="openModalExt()" class="btn-registro" style="width:100%;padding:20px 24px;border-radius:20px;background:linear-gradient(180deg,#111,#444);color:#fff;border:none;font-size:16px;font-weight:700;cursor:pointer;font-family:inherit;display:flex;align-items:center;gap:16px;box-shadow:0 4px 16px rgba(0,0,0,0.25);text-align:left">
-        <div style="width:48px;height:48px;border-radius:14px;background:rgba(255,255,255,0.15);display:flex;align-items:center;justify-content:center;flex-shrink:0">
-          <svg width="24" height="24" fill="none" stroke="#fff" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+      <button onclick="var b=this;b.style.background='linear-gradient(180deg,#111,#444)';b.style.color='#fff';b.style.borderColor='#111';setTimeout(function(){openModalExt();b.style.background='#fff';b.style.color='#111';b.style.borderColor='#e0e0e0'},200)" style="width:100%;padding:20px 24px;border-radius:20px;background:#fff;color:#111;border:1.5px solid #e0e0e0;font-size:16px;font-weight:700;cursor:pointer;font-family:inherit;display:flex;align-items:center;gap:16px;box-shadow:0 4px 16px rgba(0,0,0,0.08);text-align:left">
+        <div style="width:48px;height:48px;border-radius:14px;background:#f5f5f5;display:flex;align-items:center;justify-content:center;flex-shrink:0">
+          <svg width="24" height="24" fill="none" stroke="#111" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
         </div>
         <div>
           <div style="font-size:17px;font-weight:700;margin-bottom:3px">Extemporáneo</div>
-          <div style="font-size:13px;color:rgba(255,255,255,0.6);font-weight:400">Registra un movimiento fuera del período</div>
+          <div style="font-size:13px;color:#aaa;font-weight:400">Registra un movimiento fuera del período</div>
         </div>
-        <svg style="margin-left:auto;flex-shrink:0" width="18" height="18" fill="none" stroke="rgba(255,255,255,0.4)" stroke-width="2" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
+        <svg style="margin-left:auto;flex-shrink:0" width="18" height="18" fill="none" stroke="#ccc" stroke-width="2" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
       </button>
     </div>
 
     <!-- Panel Débito -->
     <div id="nuevo-vista-debito" style="display:none">
       <!-- Ingreso -->
-      <button onclick="openModalDebitoIngreso()" class="btn-registro" style="width:100%;padding:20px 24px;border-radius:20px;background:linear-gradient(180deg,#111,#444);color:#fff;border:none;font-size:16px;font-weight:700;cursor:pointer;font-family:inherit;display:flex;align-items:center;gap:16px;margin-bottom:14px;box-shadow:0 4px 16px rgba(0,0,0,0.25);text-align:left">
-        <div style="width:48px;height:48px;border-radius:14px;background:rgba(255,255,255,0.15);display:flex;align-items:center;justify-content:center;flex-shrink:0">
-          <svg width="24" height="24" fill="none" stroke="#fff" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
+      <button onclick="var b=this;b.style.background='linear-gradient(180deg,#111,#444)';b.style.color='#fff';b.style.borderColor='#111';setTimeout(function(){openModalDebitoIngreso();b.style.background='#fff';b.style.color='#111';b.style.borderColor='#e0e0e0'},200)" style="width:100%;padding:20px 24px;border-radius:20px;background:#fff;color:#111;border:1.5px solid #e0e0e0;font-size:16px;font-weight:700;cursor:pointer;font-family:inherit;display:flex;align-items:center;gap:16px;margin-bottom:14px;box-shadow:0 4px 16px rgba(0,0,0,0.08);text-align:left">
+        <div style="width:48px;height:48px;border-radius:14px;background:#f5f5f5;display:flex;align-items:center;justify-content:center;flex-shrink:0">
+          <svg width="24" height="24" fill="none" stroke="#111" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
         </div>
         <div>
           <div style="font-size:17px;font-weight:700;margin-bottom:3px">Nuevo</div>
-          <div style="font-size:13px;color:rgba(255,255,255,0.6);font-weight:400">Registra un egreso o ingreso del período actual</div>
+          <div style="font-size:13px;color:#aaa;font-weight:400">Registra un egreso o ingreso del período actual</div>
         </div>
-        <svg style="margin-left:auto;flex-shrink:0" width="18" height="18" fill="none" stroke="rgba(255,255,255,0.4)" stroke-width="2" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
+        <svg style="margin-left:auto;flex-shrink:0" width="18" height="18" fill="none" stroke="#ccc" stroke-width="2" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
       </button>
       <!-- Extemporáneo -->
-      <button onclick="openModalDebitoExtemporaneo()" class="btn-registro" style="width:100%;padding:20px 24px;border-radius:20px;background:linear-gradient(180deg,#111,#444);color:#fff;border:none;font-size:16px;font-weight:700;cursor:pointer;font-family:inherit;display:flex;align-items:center;gap:16px;box-shadow:0 4px 16px rgba(0,0,0,0.25);text-align:left">
-        <div style="width:48px;height:48px;border-radius:14px;background:rgba(255,255,255,0.15);display:flex;align-items:center;justify-content:center;flex-shrink:0">
-          <svg width="24" height="24" fill="none" stroke="#fff" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+      <button onclick="var b=this;b.style.background='linear-gradient(180deg,#111,#444)';b.style.color='#fff';b.style.borderColor='#111';setTimeout(function(){openModalDebitoExtemporaneo();b.style.background='#fff';b.style.color='#111';b.style.borderColor='#e0e0e0'},200)" style="width:100%;padding:20px 24px;border-radius:20px;background:#fff;color:#111;border:1.5px solid #e0e0e0;font-size:16px;font-weight:700;cursor:pointer;font-family:inherit;display:flex;align-items:center;gap:16px;box-shadow:0 4px 16px rgba(0,0,0,0.08);text-align:left">
+        <div style="width:48px;height:48px;border-radius:14px;background:#f5f5f5;display:flex;align-items:center;justify-content:center;flex-shrink:0">
+          <svg width="24" height="24" fill="none" stroke="#111" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
         </div>
         <div>
           <div style="font-size:17px;font-weight:700;margin-bottom:3px">Extemporáneo</div>
-          <div style="font-size:13px;color:rgba(255,255,255,0.6);font-weight:400">Registra un egreso o ingreso fuera del período</div>
+          <div style="font-size:13px;color:#aaa;font-weight:400">Registra un egreso o ingreso fuera del período</div>
         </div>
-        <svg style="margin-left:auto;flex-shrink:0" width="18" height="18" fill="none" stroke="rgba(255,255,255,0.4)" stroke-width="2" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
+        <svg style="margin-left:auto;flex-shrink:0" width="18" height="18" fill="none" stroke="#ccc" stroke-width="2" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
       </button>
     </div>
 
@@ -8417,7 +8076,7 @@ window.confirmarEliminarPerfil = async function(){
       <div class="dots" id="deb-dots"></div>
       <div style="margin-top:18px">
         <div class="section-card-title">Últimos movimientos</div>
-        <div id="deb-mov-list" style="max-height:504px;overflow-y:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;overscroll-behavior:contain"></div>
+        <div id="deb-mov-list" style="max-height:504px;overflow-y:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none"></div>
       </div>
     </div>
 
@@ -8564,7 +8223,7 @@ window.confirmarEliminarPerfil = async function(){
 
     <!-- Botones -->
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:8px">
-      <button onclick="guardarPromo()" class="modal-save" style="margin-top:0">Guardar</button>
+      <button onclick="guardarPromo()" class="modal-save hold-btn" style="margin-top:0">Guardar</button>
       <button onclick="cerrarModalPromo()" style="padding:13px;border-radius:12px;border:1.5px solid #e0e0e0;background:#fff;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit;color:#111">Cancelar</button>
     </div>
   </div>
@@ -8695,7 +8354,7 @@ window.confirmarEliminarPerfil = async function(){
       <input type="hidden" id="inp-fecha-ext" />
     </div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:4px">
-      <button class="modal-save" onclick="guardarExt()" style="margin-top:0">Guardar</button>
+      <button class="modal-save hold-btn" onclick="guardarExt()" style="margin-top:0">Guardar</button>
       <button onclick="document.getElementById('modal-ext-overlay').classList.remove('open')" style="padding:13px;border-radius:12px;border:1.5px solid #e0e0e0;background:#fff;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit;color:#111">Cancelar</button>
     </div>
   </div>
@@ -9251,15 +8910,11 @@ window.guardarExt = async function(){
   const t = window._tarjetaExtSel || window.perfil?.tarjetas?.[window.current || 0];
   if(!t){ if(typeof showToast==='function') showToast('Selecciona una tarjeta'); return; }
 
-  const comercio = document.getElementById('inp-comercio-ext').value.trim();
-  const concepto = document.getElementById('inp-concepto-ext').value.trim();
-
-  // Guardar datos en variables temporales para que _ejecutarGuardarExtDB los lea después de cerrar el modal
-  window._extPendingData = { monto, fecha, comercio, concepto, tarjeta: t };
-
   const MESES_ESP3 = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
   const [anioE, mesE, diaE] = fecha.split('-');
   const fechaLegibleE = `${parseInt(diaE)} de ${MESES_ESP3[parseInt(mesE)-1]} ${anioE}`;
+  const comercio = document.getElementById('inp-comercio-ext').value.trim();
+  const concepto = document.getElementById('inp-concepto-ext').value.trim();
 
   window._confirmMovCtx = 'ext';
 
@@ -9277,32 +8932,28 @@ window.guardarExt = async function(){
 };
 
 window._ejecutarGuardarExtDB = async function(){
-  // Leer datos guardados antes de que el modal cerrara los campos
-  const pending = window._extPendingData || {};
-  const monto   = pending.monto   || parseFloat(document.getElementById('inp-monto-ext').value);
-  const fecha   = pending.fecha   || document.getElementById('inp-fecha-ext').value;
-  const comercio= pending.comercio|| document.getElementById('inp-comercio-ext').value.trim();
-  const concepto= pending.concepto|| document.getElementById('inp-concepto-ext').value.trim();
-  const t       = pending.tarjeta || window._tarjetaExtSel || window.perfil?.tarjetas?.[window.current || 0];
-  window._extPendingData = null; // limpiar
+  const monto = parseFloat(document.getElementById('inp-monto-ext').value);
+  const fecha  = document.getElementById('inp-fecha-ext').value;
+  const t = window._tarjetaExtSel || window.perfil?.tarjetas?.[window.current || 0];
 
+  const now = new Date();
+  const fechaConHora = new Date(fecha + 'T' + String(now.getHours()).padStart(2,'0') + ':' + String(now.getMinutes()).padStart(2,'0') + ':' + String(now.getSeconds()).padStart(2,'0'));
   const datos = {
     tipo:'egreso', tarjetaId: t.id, banco: t.nombre, monto, fecha,
-    creadoEn: Date.now(),
-    comercio, concepto
+    creadoEn: fechaConHora.getTime(),
+    comercio: document.getElementById('inp-comercio-ext').value.trim(),
+    concepto: document.getElementById('inp-concepto-ext').value.trim()
   };
 
   try{
-    const _docRefExt = await addDoc(collection(window.db, 'usuarios', window.currentUser.uid, 'movimientos'), datos);
-    // Agregar al array local inmediatamente para que historial lo vea sin esperar onSnapshot
-    const _movNuevo = { id: _docRefExt.id, ...datos };
-    movimientos = [_movNuevo, ...movimientos];
-    window.movimientos = movimientos;
-    renderMovimientos();
+    const { addDoc, collection } = await import('https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js');
+    await addDoc(collection(window.db, 'usuarios', window.currentUser.uid, 'movimientos'), datos);
+    // onSnapshot actualizará el array y la UI automáticamente
     document.getElementById('inp-monto-ext').value    = '';
     document.getElementById('inp-fecha-ext').value    = '';
     document.getElementById('inp-comercio-ext').value = '';
     document.getElementById('inp-concepto-ext').value = '';
+    window.showSuccess('Movimiento registrado', '');
 
     setTimeout(()=>{
       try{
@@ -9507,7 +9158,7 @@ window.confirmarEliminarPerfil = async function(){
       <!-- Movimientos débito -->
       <div class="section-card" id="deb-recuadro-movimientos" style="display:none;margin:0 0 12px">
         <div class="section-card-title">Movimientos</div>
-        <div id="deb-movimientos-lista" style="max-height:504px;overflow-y:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;overscroll-behavior:contain">
+        <div id="deb-movimientos-lista" style="max-height:504px;overflow-y:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none">
           <div class="empty-mov">Sin cortes disponibles</div>
         </div>
       </div>
@@ -9653,7 +9304,7 @@ window.confirmarEliminarPerfil = async function(){
       </div>
     </div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:4px">
-      <button class="modal-save" onclick="guardarEdicionDebito()" style="margin-top:0">Guardar cambios</button>
+      <button class="modal-save hold-btn" onclick="guardarEdicionDebito()" style="margin-top:0">Guardar cambios</button>
       <button onclick="cerrarEditDebito()" style="padding:14px;border-radius:12px;border:1.5px solid #e0e0e0;background:#fff;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit;color:#666">Cancelar</button>
     </div>
   </div>
@@ -9734,7 +9385,7 @@ window.confirmarEliminarPerfil = async function(){
           </div>
           <span style="font-size:15px;font-weight:500;color:#111">Cambiar contraseña</span>
         </div>
-        <svg width="16" height="16" fill="none" stroke="rgba(255,255,255,0.4)" stroke-width="2" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
+        <svg width="16" height="16" fill="none" stroke="#ccc" stroke-width="2" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
       </div>
 
       <!-- Cerrar sesión -->
@@ -9769,7 +9420,7 @@ window.confirmarEliminarPerfil = async function(){
           </div>
           <span style="font-size:15px;font-weight:500;color:#111">Historial de cambios</span>
         </div>
-        <svg width="16" height="16" fill="none" stroke="rgba(255,255,255,0.4)" stroke-width="2" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
+        <svg width="16" height="16" fill="none" stroke="#ccc" stroke-width="2" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
       </div>
     </div>
 
@@ -9796,7 +9447,7 @@ window.confirmarEliminarPerfil = async function(){
     </div>
     <div id="pass-change-error" style="font-size:13px;color:#e53935;margin-bottom:10px;min-height:16px;text-align:center"></div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:4px">
-      <button onclick="guardarNuevaPass()" style="padding:13px;border-radius:12px;background:linear-gradient(180deg,#111,#444);color:#fff;border:none;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit">Guardar</button>
+      <button onclick="guardarNuevaPass()" class="hold-btn" style="padding:13px;border-radius:12px;background:linear-gradient(180deg,#111,#444);color:#fff;border:none;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit">Guardar</button>
       <button onclick="cerrarCambiarPass()" style="padding:13px;border-radius:12px;border:1.5px solid #e0e0e0;background:#fff;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit;color:#111">Cancelar</button>
     </div>
   </div>
@@ -9954,7 +9605,7 @@ window.confirmarEliminarPerfil = async function(){
 
     <!-- Botones -->
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:8px">
-      <button onclick="guardarEditPromo()" class="modal-save" style="margin-top:0">Guardar</button>
+      <button onclick="guardarEditPromo()" class="modal-save hold-btn" style="margin-top:0">Guardar</button>
       <button onclick="cerrarEditPromo()" style="padding:13px;border-radius:12px;border:1.5px solid #e0e0e0;background:#fff;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit;color:#111">Cancelar</button>
     </div>
   </div>
@@ -10096,7 +9747,7 @@ window.confirmarEliminarPerfil = async function(){
     <input type="hidden" id="debito-inp-hora"/>
     <div id="debito-error" style="font-size:13px;color:#e53935;min-height:18px;margin-bottom:6px;text-align:center"></div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:4px">
-      <button id="debito-save-btn" onclick="guardarDebito()" class="modal-save" style="margin-top:0">Guardar</button>
+      <button id="debito-save-btn" onclick="guardarDebito()" class="modal-save hold-btn" style="margin-top:0">Guardar</button>
       <button onclick="cerrarModalDebito()" style="padding:13px;border-radius:12px;border:1.5px solid #e0e0e0;background:#fff;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit;color:#111">Cancelar</button>
     </div>
   </div>
@@ -10146,28 +9797,27 @@ window.confirmarEliminarPerfil = async function(){
   if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
       navigator.serviceWorker.register('./sw.js').then(reg => {
+        // Detectar nueva versión disponible
         reg.addEventListener('updatefound', () => {
           const newWorker = reg.installing;
           newWorker.addEventListener('statechange', () => {
             if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-              // Mostrar indicador de actualización
-              mostrarToastActualizacion();
-              setTimeout(() => newWorker.postMessage('skipWaiting'), 1800);
+              // Hay una nueva versión — recargar automáticamente
+              newWorker.postMessage('skipWaiting');
             }
           });
         });
       }).catch(err => console.log('SW error:', err));
 
+      // Recargar cuando el nuevo SW tome control
       let refreshing = false;
       navigator.serviceWorker.addEventListener('controllerchange', () => {
-        if (!refreshing) { refreshing = true; window.location.reload(); }
+        if (!refreshing) {
+          refreshing = true;
+          window.location.reload();
+        }
       });
     });
-  }
-
-  function mostrarToastActualizacion(){
-    const el = document.getElementById('update-toast');
-    if(el) el.classList.add('visible');
   }
 </script>
 
@@ -10441,6 +10091,7 @@ window._ejecutarGuardarDebitoDB = async function() {
     };
 
     if (typeof db !== 'undefined' && typeof currentUser !== 'undefined' && currentUser) {
+      const { addDoc, collection } = await import('https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js');
       const _docRef = await addDoc(collection(db, 'usuarios', currentUser.uid, 'movimientosDebito'), datos);
       // Agregar al array local inmediatamente para que aparezca sin esperar Firestore
       _debMovimientos.unshift({ id: _docRef.id, ...datos });
@@ -10617,7 +10268,7 @@ function _actualizarFechaDebito() {
       <input type="hidden" id="deb-edit-fecha"/>
     </div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:4px">
-      <button class="modal-save" id="deb-edit-save-btn" onclick="guardarEditDeb()" style="margin-top:0">Guardar</button>
+      <button class="modal-save hold-btn" id="deb-edit-save-btn" onclick="guardarEditDeb()" style="margin-top:0">Guardar</button>
       <button onclick="cerrarEditDeb()" style="padding:13px;border-radius:12px;border:1.5px solid #e0e0e0;background:#fff;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit;color:#111">Cancelar</button>
     </div>
   </div>
@@ -10638,7 +10289,7 @@ function _actualizarFechaDebito() {
     <div style="background:#f5f5f5;border-radius:16px;padding:16px 18px;margin-bottom:20px;display:flex;flex-direction:column;gap:10px" id="deb-resumen-rows"></div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
       <button onclick="document.getElementById('modal-deb-resumen').classList.remove('open')" style="padding:14px;border-radius:12px;border:1.5px solid #e0e0e0;background:#fff;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit;color:#111">Corregir</button>
-      <button id="deb-resumen-confirmar-btn" class="hold-btn" style="padding:14px;border-radius:12px;border:none;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit;color:#fff"></button>
+      <button id="deb-resumen-confirmar-btn" style="padding:14px;border-radius:12px;border:none;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit;color:#fff"></button>
     </div>
   </div>
 </div>
@@ -10655,7 +10306,7 @@ function _actualizarFechaDebito() {
     </div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:8px">
       <button onclick="cerrarConfirmDeb()" style="padding:13px;border-radius:12px;border:1.5px solid #e0e0e0;background:#fff;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit;color:#666">Cancelar</button>
-      <button id="confirm-deb-btn" onclick="confirmarEliminarMovDeb()" class="hold-btn" style="padding:13px;border-radius:12px;border:none;background:linear-gradient(180deg,#333,#666);color:#fff;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit"><span class="hold-label">Eliminar</span></button>
+      <button id="confirm-deb-btn" onclick="confirmarEliminarMovDeb()" class="hold-btn" style="padding:13px;border-radius:12px;border:none;background:linear-gradient(180deg,#333,#666);color:#fff;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit">Eliminar</button>
     </div>
   </div>
 </div>
@@ -10700,7 +10351,7 @@ function _actualizarFechaDebito() {
     </div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
       <button onclick="_cancelarConfirmMov()" style="padding:14px;border-radius:12px;border:1.5px solid #e0e0e0;background:#fff;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit;color:#111">Corregir</button>
-      <button id="confirm-mov-ok-btn" class="hold-btn" onclick="_ejecutarGuardarMov()" style="padding:14px;border-radius:12px;background:linear-gradient(180deg,#111,#444);color:#fff;border:none;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit"><span class="hold-label">Confirmar</span></button>
+      <button id="confirm-mov-ok-btn" class="hold-btn" onclick="_ejecutarGuardarMov()" style="padding:14px;border-radius:12px;background:linear-gradient(180deg,#111,#444);color:#fff;border:none;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit">Confirmar</button>
     </div>
   </div>
 </div>
@@ -10742,7 +10393,7 @@ function _actualizarFechaDebito() {
     </div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:8px">
       <button onclick="_cancelarCambioBanco()" style="padding:13px;border-radius:12px;border:1.5px solid #e0e0e0;background:#fff;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit;color:#111">Cancelar</button>
-      <button onclick="_confirmarCambioBanco()" class="hold-btn" style="padding:13px;border-radius:12px;background:linear-gradient(180deg,#111,#444);color:#fff;border:none;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit">Confirmar</button>
+      <button onclick="_confirmarCambioBanco()" style="padding:13px;border-radius:12px;background:linear-gradient(180deg,#111,#444);color:#fff;border:none;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit">Confirmar</button>
     </div>
   </div>
 </div>
@@ -10931,7 +10582,7 @@ document.addEventListener('DOMContentLoaded', function(){
     </div>
 
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:8px">
-      <button class="modal-save" onclick="guardarCargoRecurrente()" style="margin-top:0">Guardar</button>
+      <button class="modal-save hold-btn" onclick="guardarCargoRecurrente()" style="margin-top:0">Guardar</button>
       <button onclick="cerrarCargoRecurrente()" style="padding:14px;border-radius:12px;border:1.5px solid #e0e0e0;background:#fff;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit;color:#666">Cancelar</button>
     </div>
   </div>
@@ -10993,7 +10644,7 @@ document.addEventListener('DOMContentLoaded', function(){
       </div>
     </div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:4px">
-      <button class="modal-save" onclick="guardarNuevaTarjetaModal()" style="margin-top:0">Guardar</button>
+      <button class="modal-save hold-btn" onclick="guardarNuevaTarjetaModal()" style="margin-top:0">Guardar</button>
       <button onclick="cerrarModalNuevaTarjeta()" style="padding:14px;border-radius:12px;border:1.5px solid #e0e0e0;background:#fff;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit;color:#666">Cancelar</button>
     </div>
   </div>
@@ -11037,7 +10688,7 @@ document.addEventListener('DOMContentLoaded', function(){
       </div>
     </div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:4px">
-      <button class="modal-save" onclick="guardarNuevaCuentaModal()" style="margin-top:0">Guardar</button>
+      <button class="modal-save hold-btn" onclick="guardarNuevaCuentaModal()" class="hold-btn" style="margin-top:0">Guardar</button>
       <button onclick="cerrarModalNuevaCuenta()" style="padding:14px;border-radius:12px;border:1.5px solid #e0e0e0;background:#fff;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit;color:#666">Cancelar</button>
     </div>
   </div>
