@@ -419,7 +419,7 @@ input, textarea, [contenteditable]{-webkit-user-select:text;user-select:text;-we
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:4px">
       <button onclick="document.getElementById('modal-ya-tengo-cuenta').classList.remove('open')"
         style="padding:13px;border-radius:12px;border:1.5px solid #e0e0e0;background:#fff;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit;color:#111">Cancelar</button>
-      <button onclick="vincularCuentaExistente()" class="hold-btn"
+      <button onclick="vincularCuentaExistente()"
         style="padding:13px;border-radius:12px;background:linear-gradient(180deg,#111,#444);color:#fff;border:none;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit">Entrar</button>
     </div>
   </div>
@@ -1380,7 +1380,7 @@ input, textarea, [contenteditable]{-webkit-user-select:text;user-select:text;-we
       </div>
     </div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px">
-      <button class="modal-save hold-btn" onclick="guardarEdicionTarjeta()">Guardar cambios</button>
+      <button class="modal-save" onclick="guardarEdicionTarjeta()">Guardar cambios</button>
       <button onclick="document.getElementById('edit-tarjeta-overlay').classList.remove('open')" style="padding:14px;border-radius:12px;border:1.5px solid #e0e0e0;background:#fff;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit;color:#666">Cancelar</button>
     </div>
   </div>
@@ -1498,7 +1498,7 @@ input, textarea, [contenteditable]{-webkit-user-select:text;user-select:text;-we
       <input type="hidden" id="inp-fecha-modal"/>
     </div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:4px">
-      <button class="modal-save hold-btn" id="modal-save-btn" onclick="guardar()" style="margin-top:0">Guardar</button>
+      <button class="modal-save" id="modal-save-btn" onclick="guardar()" style="margin-top:0">Guardar</button>
       <button onclick="document.getElementById('modal-overlay').classList.remove('open')" style="padding:13px;border-radius:12px;border:1.5px solid #e0e0e0;background:#fff;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit;color:#111">Cancelar</button>
     </div>
   </div>
@@ -4373,7 +4373,7 @@ window.renderPerfiles = function(){
               style="width:100%;padding:12px 14px 12px 28px;border-radius:10px;border:1.5px solid #e5e7eb;font-size:15px;font-family:inherit;outline:none;background:#fff"/>
           </div>
           <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
-            <button onclick="guardarNuevaTarjeta()" class="hold-btn" style="padding:11px;border-radius:10px;background:linear-gradient(180deg,#111,#444);color:#fff;border:none;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit">Guardar</button>
+            <button onclick="guardarNuevaTarjeta()" style="padding:11px;border-radius:10px;background:linear-gradient(180deg,#111,#444);color:#fff;border:none;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit">Guardar</button>
             <button onclick="ocultarFormAgregarTarjeta()" style="padding:11px;border-radius:10px;border:1.5px solid #e0e0e0;background:#fff;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;color:#666">Cancelar</button>
           </div>
         </div>` : ''}
@@ -4449,7 +4449,7 @@ window.renderPerfiles = function(){
               style="width:100%;padding:12px 14px 12px 28px;border-radius:10px;border:1.5px solid #e5e7eb;font-size:15px;font-family:inherit;outline:none;background:#fff;color:#111"/>
           </div>
           <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
-            <button onclick="guardarNuevaDebito()" class="hold-btn" style="padding:11px;border-radius:10px;background:linear-gradient(180deg,#111,#444);color:#fff;border:none;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit">Guardar</button>
+            <button onclick="guardarNuevaDebito()" style="padding:11px;border-radius:10px;background:linear-gradient(180deg,#111,#444);color:#fff;border:none;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit">Guardar</button>
             <button onclick="ocultarFormAgregarDebito()" style="padding:11px;border-radius:10px;border:1.5px solid #e0e0e0;background:#fff;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;color:#666">Cancelar</button>
           </div>
         </div>` : ''}
@@ -8526,7 +8526,7 @@ window.confirmarEliminarPerfil = async function(){
 
     <!-- Botones -->
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:8px">
-      <button onclick="guardarPromo()" class="modal-save hold-btn" style="margin-top:0">Guardar</button>
+      <button onclick="guardarPromo()" class="modal-save" style="margin-top:0">Guardar</button>
       <button onclick="cerrarModalPromo()" style="padding:13px;border-radius:12px;border:1.5px solid #e0e0e0;background:#fff;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit;color:#111">Cancelar</button>
     </div>
   </div>
@@ -8657,7 +8657,7 @@ window.confirmarEliminarPerfil = async function(){
       <input type="hidden" id="inp-fecha-ext" />
     </div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:4px">
-      <button class="modal-save hold-btn" onclick="guardarExt()" style="margin-top:0">Guardar</button>
+      <button class="modal-save" onclick="guardarExt()" style="margin-top:0">Guardar</button>
       <button onclick="document.getElementById('modal-ext-overlay').classList.remove('open')" style="padding:13px;border-radius:12px;border:1.5px solid #e0e0e0;background:#fff;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit;color:#111">Cancelar</button>
     </div>
   </div>
@@ -8699,7 +8699,7 @@ window.confirmarEliminarPerfil = async function(){
       <div style="height:8px"></div>
     </div>
     <div style="position:relative;margin:0 12px 16px">
-      <button onclick="confirmarFechaExt()" style="width:100%;padding:13px;border-radius:12px;background:linear-gradient(180deg,#111,#444);color:#fff;border:none;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit">Confirmar</button>
+      <button onclick="confirmarFechaExt()" class="hold-btn" style="width:100%;padding:13px;border-radius:12px;background:linear-gradient(180deg,#111,#444);color:#fff;border:none;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit">Confirmar</button>
     </div>
   </div>
 </div>
@@ -9607,7 +9607,7 @@ window.confirmarEliminarPerfil = async function(){
       </div>
     </div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:4px">
-      <button class="modal-save hold-btn" onclick="guardarEdicionDebito()" style="margin-top:0">Guardar cambios</button>
+      <button class="modal-save" onclick="guardarEdicionDebito()" style="margin-top:0">Guardar cambios</button>
       <button onclick="cerrarEditDebito()" style="padding:14px;border-radius:12px;border:1.5px solid #e0e0e0;background:#fff;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit;color:#666">Cancelar</button>
     </div>
   </div>
@@ -9750,7 +9750,7 @@ window.confirmarEliminarPerfil = async function(){
     </div>
     <div id="pass-change-error" style="font-size:13px;color:#e53935;margin-bottom:10px;min-height:16px;text-align:center"></div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:4px">
-      <button onclick="guardarNuevaPass()" class="hold-btn" style="padding:13px;border-radius:12px;background:linear-gradient(180deg,#111,#444);color:#fff;border:none;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit">Guardar</button>
+      <button onclick="guardarNuevaPass()" style="padding:13px;border-radius:12px;background:linear-gradient(180deg,#111,#444);color:#fff;border:none;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit">Guardar</button>
       <button onclick="cerrarCambiarPass()" style="padding:13px;border-radius:12px;border:1.5px solid #e0e0e0;background:#fff;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit;color:#111">Cancelar</button>
     </div>
   </div>
@@ -9908,7 +9908,7 @@ window.confirmarEliminarPerfil = async function(){
 
     <!-- Botones -->
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:8px">
-      <button onclick="guardarEditPromo()" class="modal-save hold-btn" style="margin-top:0">Guardar</button>
+      <button onclick="guardarEditPromo()" class="modal-save" style="margin-top:0">Guardar</button>
       <button onclick="cerrarEditPromo()" style="padding:13px;border-radius:12px;border:1.5px solid #e0e0e0;background:#fff;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit;color:#111">Cancelar</button>
     </div>
   </div>
@@ -10050,7 +10050,7 @@ window.confirmarEliminarPerfil = async function(){
     <input type="hidden" id="debito-inp-hora"/>
     <div id="debito-error" style="font-size:13px;color:#e53935;min-height:18px;margin-bottom:6px;text-align:center"></div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:4px">
-      <button id="debito-save-btn" onclick="guardarDebito()" class="modal-save hold-btn" style="margin-top:0">Guardar</button>
+      <button id="debito-save-btn" onclick="guardarDebito()" class="modal-save" style="margin-top:0">Guardar</button>
       <button onclick="cerrarModalDebito()" style="padding:13px;border-radius:12px;border:1.5px solid #e0e0e0;background:#fff;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit;color:#111">Cancelar</button>
     </div>
   </div>
@@ -10149,7 +10149,7 @@ window.confirmarEliminarPerfil = async function(){
     <div class="success-title" id="admin-edit-confirm-titulo">Confirmar cambios</div>
     <div id="admin-edit-confirm-detalle" style="font-size:13px;color:#888;margin-top:6px;display:none"></div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:20px">
-      <button onclick="confirmarEdicion()" style="padding:12px;border-radius:12px;background:linear-gradient(180deg,#111,#444);color:#fff;border:none;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit">Confirmar</button>
+      <button onclick="confirmarEdicion()" class="hold-btn" style="padding:12px;border-radius:12px;background:linear-gradient(180deg,#111,#444);color:#fff;border:none;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit">Confirmar</button>
       <button onclick="cancelarConfirmEdicion()" style="padding:12px;border-radius:12px;border:1.5px solid #e0e0e0;background:#fff;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;color:#111">Cancelar</button>
     </div>
   </div>
@@ -10571,7 +10571,7 @@ function _actualizarFechaDebito() {
       <input type="hidden" id="deb-edit-fecha"/>
     </div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:4px">
-      <button class="modal-save hold-btn" id="deb-edit-save-btn" onclick="guardarEditDeb()" style="margin-top:0">Guardar</button>
+      <button class="modal-save" id="deb-edit-save-btn" onclick="guardarEditDeb()" style="margin-top:0">Guardar</button>
       <button onclick="cerrarEditDeb()" style="padding:13px;border-radius:12px;border:1.5px solid #e0e0e0;background:#fff;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit;color:#111">Cancelar</button>
     </div>
   </div>
@@ -10592,7 +10592,7 @@ function _actualizarFechaDebito() {
     <div style="background:#f5f5f5;border-radius:16px;padding:16px 18px;margin-bottom:20px;display:flex;flex-direction:column;gap:10px" id="deb-resumen-rows"></div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
       <button onclick="document.getElementById('modal-deb-resumen').classList.remove('open')" style="padding:14px;border-radius:12px;border:1.5px solid #e0e0e0;background:#fff;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit;color:#111">Corregir</button>
-      <button id="deb-resumen-confirmar-btn" style="padding:14px;border-radius:12px;border:none;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit;color:#fff"></button>
+      <button id="deb-resumen-confirmar-btn" class="hold-btn" style="padding:14px;border-radius:12px;border:none;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit;color:#fff"></button>
     </div>
   </div>
 </div>
@@ -10696,7 +10696,7 @@ function _actualizarFechaDebito() {
     </div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:8px">
       <button onclick="_cancelarCambioBanco()" style="padding:13px;border-radius:12px;border:1.5px solid #e0e0e0;background:#fff;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit;color:#111">Cancelar</button>
-      <button onclick="_confirmarCambioBanco()" style="padding:13px;border-radius:12px;background:linear-gradient(180deg,#111,#444);color:#fff;border:none;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit">Confirmar</button>
+      <button onclick="_confirmarCambioBanco()" class="hold-btn" style="padding:13px;border-radius:12px;background:linear-gradient(180deg,#111,#444);color:#fff;border:none;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit">Confirmar</button>
     </div>
   </div>
 </div>
@@ -10885,7 +10885,7 @@ document.addEventListener('DOMContentLoaded', function(){
     </div>
 
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:8px">
-      <button class="modal-save hold-btn" onclick="guardarCargoRecurrente()" style="margin-top:0">Guardar</button>
+      <button class="modal-save" onclick="guardarCargoRecurrente()" style="margin-top:0">Guardar</button>
       <button onclick="cerrarCargoRecurrente()" style="padding:14px;border-radius:12px;border:1.5px solid #e0e0e0;background:#fff;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit;color:#666">Cancelar</button>
     </div>
   </div>
@@ -10947,7 +10947,7 @@ document.addEventListener('DOMContentLoaded', function(){
       </div>
     </div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:4px">
-      <button class="modal-save hold-btn" onclick="guardarNuevaTarjetaModal()" style="margin-top:0">Guardar</button>
+      <button class="modal-save" onclick="guardarNuevaTarjetaModal()" style="margin-top:0">Guardar</button>
       <button onclick="cerrarModalNuevaTarjeta()" style="padding:14px;border-radius:12px;border:1.5px solid #e0e0e0;background:#fff;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit;color:#666">Cancelar</button>
     </div>
   </div>
@@ -10991,7 +10991,7 @@ document.addEventListener('DOMContentLoaded', function(){
       </div>
     </div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:4px">
-      <button class="modal-save hold-btn" onclick="guardarNuevaCuentaModal()" class="hold-btn" style="margin-top:0">Guardar</button>
+      <button class="modal-save" onclick="guardarNuevaCuentaModal()" style="margin-top:0">Guardar</button>
       <button onclick="cerrarModalNuevaCuenta()" style="padding:14px;border-radius:12px;border:1.5px solid #e0e0e0;background:#fff;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit;color:#666">Cancelar</button>
     </div>
   </div>
