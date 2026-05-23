@@ -1400,7 +1400,7 @@ input, textarea, [contenteditable]{-webkit-user-select:text;user-select:text;-we
     </div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:8px">
       <button onclick="closeConfirm()" style="padding:13px;border-radius:12px;padding:13px;border-radius:12px;border:1.5px solid #e0e0e0;background:#fff;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit;color:#666">Cancelar</button>
-      <button id="confirm-del-btn" onclick="confirmarEliminar()" class="hold-btn" style="padding:13px;border-radius:12px;border:none;background:linear-gradient(180deg,#333,#666);color:#fff;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit">Eliminar</button>
+      <button id="confirm-del-btn" onclick="confirmarEliminar()" class="hold-btn" style="padding:13px;border-radius:12px;border:none;background:linear-gradient(180deg,#333,#666);color:#fff;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit"><span class="hold-label">Eliminar</span></button>
     </div>
   </div>
 </div>
@@ -2345,6 +2345,32 @@ async function iniciarApp(){
     if(typeof window.onAfterEdit === 'function'){
       window.onAfterEdit();
     }
+    // Refrescar lista de años/cortes si el historial está abierto con una tarjeta seleccionada
+    if(window._movTarjetaId && document.getElementById('paso-anio') && 
+       document.getElementById('paso-anio').style.display !== 'none'){
+      const _t2 = perfil?.tarjetas?.find(x=>x.id===window._movTarjetaId);
+      if(_t2){
+        const _anios2 = getAniosDisponibles(window._movTarjetaId, _t2.corte);
+        const _anioActual = document.getElementById('anio-seleccionado-txt')?.textContent;
+        document.getElementById('lista-anios-btns').innerHTML = _anios2.map(a=>`
+          <div data-anio="${a}" onclick="seleccionarAnioMov(${a})"
+            style="padding:14px 16px;border-bottom:1px solid #e8e8e8;cursor:pointer;display:flex;align-items:center;justify-content:space-between;background:${_anioActual==a?'#111':'#fff'};color:${_anioActual==a?'#fff':'#111'};font-weight:500;font-size:14px">
+            <span>${a}</span>
+            <svg width="16" height="16" fill="none" stroke="${_anioActual==a?'#fff':'#aaa'}" stroke-width="2" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
+          </div>`).join('');
+        // Si hay un año y corte seleccionados, refrescar también la lista de cortes
+        if(_anioActual && _anios2.includes(parseInt(_anioActual)) && 
+           document.getElementById('paso-corte').style.display !== 'none'){
+          const _cortes2 = getCortesDisponibles(window._movTarjetaId, _t2.corte, parseInt(_anioActual));
+          document.getElementById('lista-cortes-btns').innerHTML = _cortes2.map(c=>`
+            <div data-key="${c.key}" onclick="seleccionarCorteMov('${window._movTarjetaId}',${_t2.corte},'${c.key}')"
+              style="padding:14px 16px;border-bottom:1px solid #e8e8e8;cursor:pointer;display:flex;align-items:center;justify-content:space-between;background:#fff;color:#111;font-weight:500;font-size:14px">
+              <span style="text-transform:capitalize">${c.nombre}</span>
+              <svg width="16" height="16" fill="none" stroke="#aaa" stroke-width="2" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
+            </div>`).join('');
+        }
+      }
+    }
   });
 }
 
@@ -2507,6 +2533,7 @@ function getMesPagoPromo(corte, creadoEn, periodoFin){
 }
 
 function getPeriodo(corte, ref=today){
+  corte = parseInt(corte); // asegurar que sea número entero
   const r = ref instanceof Date ? ref : today;
   const d=r.getDate(), m=r.getMonth(), y=r.getFullYear();
   let inicioRaw, finRaw;
@@ -3875,12 +3902,17 @@ async function init(){
       btn.insertBefore(bar, btn.firstChild);
     }
     if(!btn.querySelector('.hold-label')){
-      const span = document.createElement('span');
-      span.className = 'hold-label';
-      span.textContent = btn.textContent.trim();
-      btn.textContent = '';
-      btn.appendChild(bar);
-      btn.appendChild(span);
+      // Only wrap if button has direct text content (no child elements)
+      if(btn.childNodes.length === 1 && btn.childNodes[0].nodeType === 3){
+        const span = document.createElement('span');
+        span.className = 'hold-label';
+        span.textContent = btn.childNodes[0].textContent.trim();
+        btn.childNodes[0].remove();
+        btn.appendChild(bar);
+        btn.appendChild(span);
+      } else {
+        btn.insertBefore(bar, btn.firstChild);
+      }
     }
     bar.style.width = '0%';
     _holdBtn = btn; _holdBar = bar;
@@ -5604,6 +5636,7 @@ window.seleccionarBancoMov = function(nombre){
 }
 
 window.seleccionarApodoMov = function(tarjetaId, apodo, corte){
+  corte = parseInt(corte);
   document.getElementById('tarjeta-seleccionada-txt').textContent = apodo;
   document.getElementById('dd-tarjetas').style.display = 'none';
   document.getElementById('dd-tarjetas-icon').style.transform = '';
@@ -9260,8 +9293,12 @@ window._ejecutarGuardarExtDB = async function(){
   };
 
   try{
-    await addDoc(collection(window.db, 'usuarios', window.currentUser.uid, 'movimientos'), datos);
-    // onSnapshot actualizará el array y la UI automáticamente
+    const _docRefExt = await addDoc(collection(window.db, 'usuarios', window.currentUser.uid, 'movimientos'), datos);
+    // Agregar al array local inmediatamente para que historial lo vea sin esperar onSnapshot
+    const _movNuevo = { id: _docRefExt.id, ...datos };
+    movimientos = [_movNuevo, ...movimientos];
+    window.movimientos = movimientos;
+    renderMovimientos();
     document.getElementById('inp-monto-ext').value    = '';
     document.getElementById('inp-fecha-ext').value    = '';
     document.getElementById('inp-comercio-ext').value = '';
@@ -10618,7 +10655,7 @@ function _actualizarFechaDebito() {
     </div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:8px">
       <button onclick="cerrarConfirmDeb()" style="padding:13px;border-radius:12px;border:1.5px solid #e0e0e0;background:#fff;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit;color:#666">Cancelar</button>
-      <button id="confirm-deb-btn" onclick="confirmarEliminarMovDeb()" class="hold-btn" style="padding:13px;border-radius:12px;border:none;background:linear-gradient(180deg,#333,#666);color:#fff;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit">Eliminar</button>
+      <button id="confirm-deb-btn" onclick="confirmarEliminarMovDeb()" class="hold-btn" style="padding:13px;border-radius:12px;border:none;background:linear-gradient(180deg,#333,#666);color:#fff;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit"><span class="hold-label">Eliminar</span></button>
     </div>
   </div>
 </div>
@@ -10663,7 +10700,7 @@ function _actualizarFechaDebito() {
     </div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
       <button onclick="_cancelarConfirmMov()" style="padding:14px;border-radius:12px;border:1.5px solid #e0e0e0;background:#fff;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit;color:#111">Corregir</button>
-      <button id="confirm-mov-ok-btn" class="hold-btn" onclick="_ejecutarGuardarMov()" style="padding:14px;border-radius:12px;background:linear-gradient(180deg,#111,#444);color:#fff;border:none;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit">Confirmar</button>
+      <button id="confirm-mov-ok-btn" class="hold-btn" onclick="_ejecutarGuardarMov()" style="padding:14px;border-radius:12px;background:linear-gradient(180deg,#111,#444);color:#fff;border:none;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit"><span class="hold-label">Confirmar</span></button>
     </div>
   </div>
 </div>
