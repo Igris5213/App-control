@@ -3404,17 +3404,35 @@ window.guardarEdicionUsuario = function(){
     detalle = '';
   }
 
-  document.getElementById('admin-edit-confirm-titulo').textContent = titulo;
-  document.getElementById('admin-edit-confirm-detalle').textContent = detalle;
-  document.getElementById('admin-edit-confirm-detalle').style.display = detalle ? 'block' : 'none';
+  // Construir resumen de cambios
+  const cambiosHTML = [];
+  if(nombreCambio) cambiosHTML.push(`
+    <div style="margin-bottom:12px">
+      <div style="font-size:11px;font-weight:700;color:#aaa;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:6px">Usuario</div>
+      <div style="display:flex;align-items:center;gap:8px">
+        <div style="flex:1;background:#f5f5f5;border-radius:8px;padding:8px 10px;font-size:13px;color:#888">${nombreAnterior}</div>
+        <svg width="14" height="14" fill="none" stroke="#111" stroke-width="2" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
+        <div style="flex:1;background:linear-gradient(180deg,#111,#444);border-radius:8px;padding:8px 10px;font-size:13px;color:#fff;font-weight:600">${nuevoNombre}</div>
+      </div>
+    </div>`);
+  if(passCambio) cambiosHTML.push(`
+    <div style="margin-bottom:12px">
+      <div style="font-size:11px;font-weight:700;color:#aaa;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:6px">Contraseña</div>
+      <div style="display:flex;align-items:center;gap:8px">
+        <div style="flex:1;background:#f5f5f5;border-radius:8px;padding:8px 10px;font-size:13px;color:#888">••••••</div>
+        <svg width="14" height="14" fill="none" stroke="#111" stroke-width="2" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
+        <div style="flex:1;background:linear-gradient(180deg,#111,#444);border-radius:8px;padding:8px 10px;font-size:13px;color:#fff;font-weight:600">Nueva contraseña</div>
+      </div>
+    </div>`);
+  document.getElementById('admin-edit-confirm-cambios').innerHTML = cambiosHTML.join('');
 
   // Cerrar modal de edición primero, luego abrir confirmación
   document.getElementById('modal-admin-editar').classList.remove('open');
-  setTimeout(()=>{ document.getElementById('modal-admin-confirm-edit').classList.add('show'); }, 200);
+  setTimeout(()=>{ document.getElementById('modal-admin-confirm-edit').classList.add('open'); }, 200);
 }
 
 window.cancelarConfirmEdicion = function(){
-  document.getElementById('modal-admin-confirm-edit').classList.remove('show');
+  document.getElementById('modal-admin-confirm-edit').classList.remove('open');
 }
 
 window.confirmarEdicion = function(){
@@ -3429,7 +3447,7 @@ window.confirmarEdicion = function(){
   }
 
   guardarUsuarios(lista);
-  document.getElementById('modal-admin-confirm-edit').classList.remove('show');
+  document.getElementById('modal-admin-confirm-edit').classList.remove('open');
   document.getElementById('modal-admin-editar').classList.remove('open');
 
   if(nombreCambio && passCambio){
@@ -9981,16 +9999,14 @@ window.confirmarEliminarPerfil = async function(){
 </div>
 
 <!-- ══ MODAL CONFIRMAR EDICIÓN ADMIN ══ -->
-<div class="success-overlay" id="modal-admin-confirm-edit" onclick="cancelarConfirmEdicion()" style="z-index:1000">
-  <div class="success-box" style="max-width:300px;width:90%" onclick="event.stopPropagation()">
-    <div class="success-icon" style="background:linear-gradient(180deg,#111,#444)">
-      <svg width="28" height="28" fill="none" stroke="#fff" stroke-width="2.5" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
-    </div>
-    <div class="success-title" id="admin-edit-confirm-titulo">Confirmar cambios</div>
-    <div id="admin-edit-confirm-detalle" style="font-size:13px;color:#888;margin-top:6px;display:none"></div>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:20px">
-      <button onclick="confirmarEdicion()" class="hold-btn" style="padding:12px;border-radius:12px;background:linear-gradient(180deg,#111,#444);color:#fff;border:none;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit">Confirmar</button>
-      <button onclick="cancelarConfirmEdicion()" style="padding:12px;border-radius:12px;border:1.5px solid #e0e0e0;background:#fff;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;color:#111">Cancelar</button>
+<div class="modal-overlay" id="modal-admin-confirm-edit" onclick="if(event.target===this)cancelarConfirmEdicion()" style="z-index:1000">
+  <div class="modal" onclick="event.stopPropagation()" style="padding-bottom:28px">
+    <div class="modal-handle"></div>
+    <div style="font-size:17px;font-weight:700;color:#111;text-align:center;margin-bottom:20px">Confirmar cambios</div>
+    <div id="admin-edit-confirm-cambios" style="margin-bottom:16px"></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+      <button onclick="cancelarConfirmEdicion()" style="padding:13px;border-radius:12px;border:1.5px solid #e0e0e0;background:#fff;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit;color:#111">Cancelar</button>
+      <button onclick="confirmarEdicion()" class="hold-btn" style="padding:13px;border-radius:12px;background:linear-gradient(180deg,#111,#444);color:#fff;border:none;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit"><span class="hold-label">Confirmar</span></button>
     </div>
   </div>
 </div>
