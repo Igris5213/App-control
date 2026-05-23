@@ -2697,7 +2697,7 @@ function renderMovimientos(){
       if(fb !== fa) return fb.localeCompare(fa);
       return (b.creadoEn||0) - (a.creadoEn||0);
     })
-    .slice(0, 10);
+    .slice(0, 20);
 
   if(!filtrados.length){ el.innerHTML=`<div class="empty-mov">Sin movimientos en el corte actual</div>`; return; }
   el.innerHTML = filtrados.map((m,idx)=>{
@@ -9243,11 +9243,9 @@ window._ejecutarGuardarExtDB = async function(){
   const fecha  = document.getElementById('inp-fecha-ext').value;
   const t = window._tarjetaExtSel || window.perfil?.tarjetas?.[window.current || 0];
 
-  const now = new Date();
-  const fechaConHora = new Date(fecha + 'T' + String(now.getHours()).padStart(2,'0') + ':' + String(now.getMinutes()).padStart(2,'0') + ':' + String(now.getSeconds()).padStart(2,'0'));
   const datos = {
     tipo:'egreso', tarjetaId: t.id, banco: t.nombre, monto, fecha,
-    creadoEn: fechaConHora.getTime(),
+    creadoEn: Date.now(),
     comercio: document.getElementById('inp-comercio-ext').value.trim(),
     concepto: document.getElementById('inp-concepto-ext').value.trim()
   };
