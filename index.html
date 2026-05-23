@@ -6195,10 +6195,39 @@ window.guardarCargoRecurrente = async function(){
     if(!banco){ showToast('Selecciona el banco'); return; }
     if(!cuentaId){ showToast('Selecciona la cuenta'); return; }
   }
+
+  // Guardar datos pendientes y mostrar resumen
+  const cuentaNombre = _cargoTipo === 'credito'
+    ? ((perfil?.tarjetas||[]).find(x=>x.id===tarjetaId)?.apodo || (perfil?.tarjetas||[]).find(x=>x.id===tarjetaId)?.nombre || '—')
+    : ((perfil?.cuentasDebito||[]).find(x=>x.id===cuentaId)?.apodo || (perfil?.cuentasDebito||[]).find(x=>x.id===cuentaId)?.nombre || '—');
+
+  window._pendingCargoData = { nombre, monto, dia, tipo, banco, tarjetaId, cuentaId };
+
+  const fmt$ = v=>'$'+Number(v).toLocaleString('es-MX',{minimumFractionDigits:2});
+  document.getElementById('confirm-cargo-nombre').textContent  = nombre;
+  document.getElementById('confirm-cargo-banco').textContent   = banco;
+  document.getElementById('confirm-cargo-cuenta').textContent  = cuentaNombre;
+  document.getElementById('confirm-cargo-tipo').textContent    = tipo === 'credito' ? 'Crédito' : 'Débito';
+  document.getElementById('confirm-cargo-dia').textContent     = 'Día ' + dia + ' de cada mes';
+  document.getElementById('confirm-cargo-monto').textContent   = fmt$(monto);
+
+  document.getElementById('modal-cargo-recurrente').classList.remove('open');
+  setTimeout(()=>document.getElementById('modal-confirm-cargo-nueva').classList.add('open'), 250);
+};
+
+window._corregirCargoNuevo = function(){
+  document.getElementById('modal-confirm-cargo-nueva').classList.remove('open');
+  setTimeout(()=>document.getElementById('modal-cargo-recurrente').classList.add('open'), 250);
+};
+
+window._confirmarCargoNuevo = async function(){
+  document.getElementById('modal-confirm-cargo-nueva').classList.remove('open');
+  const d = window._pendingCargoData;
+  if(!d) return;
+  window._pendingCargoData = null;
   try{
     if(_cargoEditId){
-      // Modo edición — actualizar documento existente
-      const datos = { nombre, monto, dia, tipo, banco, tarjetaId, cuentaId, activo: true };
+      const datos = { nombre:d.nombre, monto:d.monto, dia:d.dia, tipo:d.tipo, banco:d.banco, tarjetaId:d.tarjetaId, cuentaId:d.cuentaId, activo: true };
       await updateDoc(doc(db,'usuarios', currentUser.uid, 'cargosRecurrentes', _cargoEditId), datos);
       cargosRecurrentesCache = cargosRecurrentesCache.map(c=>c.id===_cargoEditId ? {...c,...datos} : c);
       _cargoEditId = null;
@@ -6206,8 +6235,7 @@ window.guardarCargoRecurrente = async function(){
       renderCargosRecurrentes();
       window.showSuccess('Cargo actualizado', '');
     } else {
-      // Modo nuevo
-      const datos = { nombre, monto, dia, tipo, banco, tarjetaId, cuentaId, creadoEn: Date.now(), activo: true };
+      const datos = { nombre:d.nombre, monto:d.monto, dia:d.dia, tipo:d.tipo, banco:d.banco, tarjetaId:d.tarjetaId, cuentaId:d.cuentaId, creadoEn: Date.now(), activo: true };
       const docRef = await addDoc(collection(db,'usuarios', currentUser.uid, 'cargosRecurrentes'), datos);
       cargosRecurrentesCache = [...cargosRecurrentesCache, {...datos, id: docRef.id}];
       cerrarCargoRecurrente();
@@ -10815,6 +10843,44 @@ document.addEventListener('DOMContentLoaded', function(){
   <div class="modal" onclick="event.stopPropagation()">
     <div class="modal-handle"></div>
     <div id="detalle-cargo-content"></div>
+  </div>
+</div>
+
+<!-- ══ MODAL CONFIRMAR CARGO RECURRENTE ══ -->
+<div class="modal-overlay" id="modal-confirm-cargo-nueva" onclick="if(event.target===this)this.classList.remove('open')">
+  <div class="modal" onclick="event.stopPropagation()" style="padding-bottom:28px">
+    <div class="modal-handle"></div>
+    <div style="font-size:17px;font-weight:700;color:#111;text-align:center;margin-bottom:20px">Confirmar cargo recurrente</div>
+    <div style="background:#f5f5f5;border-radius:16px;padding:16px;margin-bottom:16px;display:flex;flex-direction:column;gap:10px">
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <span style="font-size:13px;color:#aaa;font-weight:600;text-transform:uppercase;letter-spacing:0.04em">Nombre</span>
+        <span id="confirm-cargo-nombre" style="font-size:14px;font-weight:700;color:#111"></span>
+      </div>
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <span style="font-size:13px;color:#aaa;font-weight:600;text-transform:uppercase;letter-spacing:0.04em">Tipo</span>
+        <span id="confirm-cargo-tipo" style="font-size:14px;font-weight:700;color:#111"></span>
+      </div>
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <span style="font-size:13px;color:#aaa;font-weight:600;text-transform:uppercase;letter-spacing:0.04em">Banco</span>
+        <span id="confirm-cargo-banco" style="font-size:14px;font-weight:700;color:#111"></span>
+      </div>
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <span style="font-size:13px;color:#aaa;font-weight:600;text-transform:uppercase;letter-spacing:0.04em">Cuenta / Tarjeta</span>
+        <span id="confirm-cargo-cuenta" style="font-size:14px;font-weight:700;color:#111"></span>
+      </div>
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <span style="font-size:13px;color:#aaa;font-weight:600;text-transform:uppercase;letter-spacing:0.04em">Día de cargo</span>
+        <span id="confirm-cargo-dia" style="font-size:14px;font-weight:700;color:#111"></span>
+      </div>
+      <div style="border-top:1px solid #e8e8e8;padding-top:10px;display:flex;justify-content:space-between;align-items:center">
+        <span style="font-size:13px;color:#aaa;font-weight:600;text-transform:uppercase;letter-spacing:0.04em">Monto mensual</span>
+        <span id="confirm-cargo-monto" style="font-size:18px;font-weight:800;color:#111"></span>
+      </div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+      <button onclick="_corregirCargoNuevo()" style="padding:13px;border-radius:12px;border:1.5px solid #e0e0e0;background:#fff;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit;color:#111">Corregir</button>
+      <button onclick="_confirmarCargoNuevo()" class="hold-btn" style="padding:13px;border-radius:12px;background:linear-gradient(180deg,#111,#444);color:#fff;border:none;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit"><span class="hold-label">Confirmar</span></button>
+    </div>
   </div>
 </div>
 
