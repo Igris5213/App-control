@@ -2985,6 +2985,7 @@ window._ejecutarGuardarMov = async function(){
     window.showSuccess('Movimiento registrado', '');
   } else if(window._confirmMovCtx === 'ext'){
     await _ejecutarGuardarExtDB();
+    window.showSuccess('Movimiento registrado', '');
   }
 
   btn.disabled = false;
@@ -9217,11 +9218,15 @@ window.guardarExt = async function(){
   const t = window._tarjetaExtSel || window.perfil?.tarjetas?.[window.current || 0];
   if(!t){ if(typeof showToast==='function') showToast('Selecciona una tarjeta'); return; }
 
+  const comercio = document.getElementById('inp-comercio-ext').value.trim();
+  const concepto = document.getElementById('inp-concepto-ext').value.trim();
+
+  // Guardar datos en variables temporales para que _ejecutarGuardarExtDB los lea después de cerrar el modal
+  window._extPendingData = { monto, fecha, comercio, concepto, tarjeta: t };
+
   const MESES_ESP3 = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
   const [anioE, mesE, diaE] = fecha.split('-');
   const fechaLegibleE = `${parseInt(diaE)} de ${MESES_ESP3[parseInt(mesE)-1]} ${anioE}`;
-  const comercio = document.getElementById('inp-comercio-ext').value.trim();
-  const concepto = document.getElementById('inp-concepto-ext').value.trim();
 
   window._confirmMovCtx = 'ext';
 
@@ -9239,26 +9244,28 @@ window.guardarExt = async function(){
 };
 
 window._ejecutarGuardarExtDB = async function(){
-  const monto = parseFloat(document.getElementById('inp-monto-ext').value);
-  const fecha  = document.getElementById('inp-fecha-ext').value;
-  const t = window._tarjetaExtSel || window.perfil?.tarjetas?.[window.current || 0];
+  // Leer datos guardados antes de que el modal cerrara los campos
+  const pending = window._extPendingData || {};
+  const monto   = pending.monto   || parseFloat(document.getElementById('inp-monto-ext').value);
+  const fecha   = pending.fecha   || document.getElementById('inp-fecha-ext').value;
+  const comercio= pending.comercio|| document.getElementById('inp-comercio-ext').value.trim();
+  const concepto= pending.concepto|| document.getElementById('inp-concepto-ext').value.trim();
+  const t       = pending.tarjeta || window._tarjetaExtSel || window.perfil?.tarjetas?.[window.current || 0];
+  window._extPendingData = null; // limpiar
 
   const datos = {
     tipo:'egreso', tarjetaId: t.id, banco: t.nombre, monto, fecha,
     creadoEn: Date.now(),
-    comercio: document.getElementById('inp-comercio-ext').value.trim(),
-    concepto: document.getElementById('inp-concepto-ext').value.trim()
+    comercio, concepto
   };
 
   try{
-    // Firebase ya importado
     await addDoc(collection(window.db, 'usuarios', window.currentUser.uid, 'movimientos'), datos);
     // onSnapshot actualizará el array y la UI automáticamente
     document.getElementById('inp-monto-ext').value    = '';
     document.getElementById('inp-fecha-ext').value    = '';
     document.getElementById('inp-comercio-ext').value = '';
     document.getElementById('inp-concepto-ext').value = '';
-    window.showSuccess('Movimiento registrado', '');
 
     setTimeout(()=>{
       try{
