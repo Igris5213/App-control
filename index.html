@@ -6766,21 +6766,22 @@ window._confirmarResumenPromo = async function(){
 
 async function _ejecutarGuardadoPromo(id, importe, meses, mesesPagados){
   try{
-    // Calcular creadoEn ajustado: mesesPagados = número de pago en el corte actualmente consultado
-    // Si no hay corte activo, usar el corte de la tarjeta de esta promo con getPeriodo(hoy)
+    // Calcular creadoEn ajustado para que la promo aparezca en los cortes correctos
     let creadoEnAjustado = undefined;
     if(mesesPagados >= 1){
       const promoActual = promocionesCache.find(p=>p.id===id);
       const tarjetaPromo = (perfil?.tarjetas||[]).find(t=>t.id===promoActual?.tarjetaId);
-      const corteNum = window._pendingCorte || (tarjetaPromo ? parseInt(tarjetaPromo.corte) : 0);
-      let pfin = window._pendingPeriodoFin ? new Date(window._pendingPeriodoFin) : null;
-      if(!pfin && corteNum){
-        pfin = getPeriodo(corteNum, new Date()).fin;
-      }
-      if(pfin && corteNum){
-        // primerCorte = día de corte, (mesesPagados-1) meses antes del periodoFin actual
-        const primerCorte = new Date(pfin.getFullYear(), pfin.getMonth() - (mesesPagados - 1), corteNum);
-        creadoEnAjustado = primerCorte.getTime() - 86400000;
+      const corteNum = tarjetaPromo ? parseInt(tarjetaPromo.corte) : 0;
+      if(corteNum){
+        // Usar el periodo actual de la tarjeta como referencia (el corte más reciente)
+        const periodoActual = getPeriodo(corteNum, new Date());
+        const pfinRef = periodoActual.fin;
+        // El primer pago fue hace (mesesPagados-1) meses del período actual
+        // creadoEn debe ser justo antes del inicio del primer período de pago
+        const primerPeriodoFin = new Date(pfinRef.getFullYear(), pfinRef.getMonth() - (mesesPagados - 1), corteNum);
+        const primerPeriodoInicio = getPeriodo(corteNum, primerPeriodoFin).inicio;
+        // creadoEn = un día antes del inicio del primer período
+        creadoEnAjustado = primerPeriodoInicio.getTime() - 86400000;
       }
     }
     const updData = { importe, meses, mensualidad: importe/meses, mesesPagados };
@@ -6796,6 +6797,31 @@ async function _ejecutarGuardadoPromo(id, importe, meses, mesesPagados){
       window._renderHistorialActivo();
     } else if(typeof window.onAfterEdit === 'function'){
       window.onAfterEdit();
+    }
+    // Refrescar lista de cortes en historial si está abierto — pueden aparecer cortes nuevos
+    if(window._movTarjetaId){
+      const _tPromo = (perfil?.tarjetas||[]).find(x=>x.id===window._movTarjetaId);
+      if(_tPromo && document.getElementById('paso-anio')?.style.display !== 'none'){
+        const _anioTxt = document.getElementById('anio-seleccionado-txt')?.textContent;
+        const _anioNum = parseInt(_anioTxt);
+        if(_anioNum){
+          const _cortesNew = getCortesDisponibles(window._movTarjetaId, _tPromo.corte, _anioNum);
+          document.getElementById('lista-cortes-btns').innerHTML = _cortesNew.map(c=>`
+            <div data-key="${c.key}" onclick="seleccionarCorteMov('${window._movTarjetaId}',${_tPromo.corte},'${c.key}')"
+              style="padding:14px 16px;border-bottom:1px solid #e8e8e8;cursor:pointer;display:flex;align-items:center;justify-content:space-between;background:#fff;color:#111;font-weight:500;font-size:14px">
+              <span style="text-transform:capitalize">${c.nombre}</span>
+              <svg width="16" height="16" fill="none" stroke="#aaa" stroke-width="2" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
+            </div>`).join('');
+          // También actualizar años
+          const _aniosNew = getAniosDisponibles(window._movTarjetaId, _tPromo.corte);
+          document.getElementById('lista-anios-btns').innerHTML = _aniosNew.map(a=>`
+            <div data-anio="${a}" onclick="seleccionarAnioMov(${a})"
+              style="padding:14px 16px;border-bottom:1px solid #e8e8e8;cursor:pointer;display:flex;align-items:center;justify-content:space-between;background:${a===_anioNum?'#111':'#fff'};color:${a===_anioNum?'#fff':'#111'};font-weight:500;font-size:14px">
+              <span>${a}</span>
+              <svg width="16" height="16" fill="none" stroke="${a===_anioNum?'#fff':'#aaa'}" stroke-width="2" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
+            </div>`).join('');
+        }
+      }
     }
     // Cerrar todos los modales después
     setTimeout(()=>{
