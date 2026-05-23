@@ -7105,7 +7105,15 @@ window.confirmarBusquedaHistorial = function(){
     if(p.tarjetaId !== tarjetaId) return false;
     const tPV = (perfil?.tarjetas||[]).find(x=>x.id===p.tarjetaId);
     const cPV = tPV ? tPV.corte : 1;
+    // Si mesesPagados está definido, la promo sigue vigente si no está liquidada
+    // y el corte coincide con getMesPagoPromo (para ubicarla en el corte correcto)
     const mesPagoEnCorte = getMesPagoPromo(cPV, p.creadoEn, periodoFin);
+    if(p.mesesPagados !== undefined){
+      // Promo vigente: el corte calculado debe estar entre 1 y meses
+      // pero solo mostrar cortes que aún no están pagados (>= mesesPagados actual)
+      // O mostrar todos los cortes pasados donde hubo pago (<= mesesPagados)
+      return mesPagoEnCorte >= 1 && mesPagoEnCorte <= p.meses;
+    }
     return mesPagoEnCorte >= 1 && mesPagoEnCorte <= p.meses;
   });
   window._promosHistorialVigentes = promosVigentes;
@@ -7125,7 +7133,10 @@ window.confirmarBusquedaHistorial = function(){
   const promoItems = promosVigentes.map(p=>{
     const tP = (perfil?.tarjetas||[]).find(x=>x.id===p.tarjetaId);
     const cP = tP ? tP.corte : 1;
-    const mesPago = getMesPagoPromo(cP, p.creadoEn, periodoFin);
+    // Usar mesesPagados si está definido (editado manualmente), sino calcular dinámicamente
+    const mesPago = p.mesesPagados !== undefined
+      ? p.mesesPagados
+      : getMesPagoPromo(cP, p.creadoEn, periodoFin);
     return `<div class="mov-item" style="border:1.5px solid #e0e0e0"
         onmousedown="startLongPressPromoHist(this,'${p.id}')" onmouseup="cancelLongPress()" onmouseleave="cancelLongPress()"
         ontouchstart="startLongPressPromoHist(this,'${p.id}')" ontouchend="cancelLongPress()" ontouchmove="cancelLongPress()"
