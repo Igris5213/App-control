@@ -3738,7 +3738,7 @@ window.mostrarPantallaPerfiles = function(){
   scr.classList.remove('hidden');
   scr.style.display = 'flex';
   renderPerfiles();
-    setTimeout(function(){ if(window._buildCarruselStack){ requestAnimationFrame(()=>requestAnimationFrame(()=>{ window._buildCarruselStack('perfil-credito-stack',0); window._buildCarruselStack('perfil-debito-stack',0); window._initStackSwipe('perfil-credito-stack'); window._initStackSwipe('perfil-debito-stack'); })); } }, 60);
+    setTimeout(function(){ if(window._buildCarruselStack){ requestAnimationFrame(()=>requestAnimationFrame(()=>{ _animateStack('perfil-credito-stack',0); _animateStack('perfil-debito-stack',0); window._initStackSwipe('perfil-credito-stack'); window._initStackSwipe('perfil-debito-stack'); })); } }, 60);
 }
 
 let modoEdicion = false;        // legacy — kept for compat
@@ -3749,7 +3749,7 @@ let _perfilTabActivo   = "credito"; // tab activo en perfil: "credito" | "debito
 window.perfilSwitchTab = function(tab) {
   _perfilTabActivo = tab;
   renderPerfiles();
-    setTimeout(function(){ if(window._buildCarruselStack){ requestAnimationFrame(()=>requestAnimationFrame(()=>{ window._buildCarruselStack('perfil-credito-stack',0); window._buildCarruselStack('perfil-debito-stack',0); window._initStackSwipe('perfil-credito-stack'); window._initStackSwipe('perfil-debito-stack'); })); } }, 60);
+    setTimeout(function(){ if(window._buildCarruselStack){ requestAnimationFrame(()=>requestAnimationFrame(()=>{ _animateStack('perfil-credito-stack',0); _animateStack('perfil-debito-stack',0); window._initStackSwipe('perfil-credito-stack'); window._initStackSwipe('perfil-debito-stack'); })); } }, 60);
 };
 
 function _resetEdicionPerfiles() {
@@ -3892,7 +3892,7 @@ window.guardarNuevaTarjetaModal = async function(){
     window.showSuccess('Tarjeta agregada', banco + (apodo ? ' · ' + apodo : ''));
     buildCarrusel();
     renderPerfiles();
-    setTimeout(function(){ if(window._buildCarruselStack){ requestAnimationFrame(()=>requestAnimationFrame(()=>{ window._buildCarruselStack('perfil-credito-stack',0); window._buildCarruselStack('perfil-debito-stack',0); window._initStackSwipe('perfil-credito-stack'); window._initStackSwipe('perfil-debito-stack'); })); } }, 60);
+    setTimeout(function(){ if(window._buildCarruselStack){ requestAnimationFrame(()=>requestAnimationFrame(()=>{ _animateStack('perfil-credito-stack',0); _animateStack('perfil-debito-stack',0); window._initStackSwipe('perfil-credito-stack'); window._initStackSwipe('perfil-debito-stack'); })); } }, 60);
   } catch(e){ showToast('❌ Error al guardar'); }
 };
 
@@ -3963,7 +3963,7 @@ window.guardarNuevaCuentaModal = async function(){
     window.showSuccess('Cuenta agregada', nombre + (apodo ? ' · ' + apodo : ''));
     buildCarruselDebito();
     renderPerfiles();
-    setTimeout(function(){ if(window._buildCarruselStack){ requestAnimationFrame(()=>requestAnimationFrame(()=>{ window._buildCarruselStack('perfil-credito-stack',0); window._buildCarruselStack('perfil-debito-stack',0); window._initStackSwipe('perfil-credito-stack'); window._initStackSwipe('perfil-debito-stack'); })); } }, 60);
+    setTimeout(function(){ if(window._buildCarruselStack){ requestAnimationFrame(()=>requestAnimationFrame(()=>{ _animateStack('perfil-credito-stack',0); _animateStack('perfil-debito-stack',0); window._initStackSwipe('perfil-credito-stack'); window._initStackSwipe('perfil-debito-stack'); })); } }, 60);
   } catch(e){ showToast('❌ Error al guardar'); }
 };
 
@@ -3983,7 +3983,7 @@ window.toggleEdicionCredito = function(){
     }, 50);
   }
   renderPerfiles();
-    setTimeout(function(){ if(window._buildCarruselStack){ requestAnimationFrame(()=>requestAnimationFrame(()=>{ window._buildCarruselStack('perfil-credito-stack',0); window._buildCarruselStack('perfil-debito-stack',0); window._initStackSwipe('perfil-credito-stack'); window._initStackSwipe('perfil-debito-stack'); })); } }, 60);
+    setTimeout(function(){ if(window._buildCarruselStack){ requestAnimationFrame(()=>requestAnimationFrame(()=>{ _animateStack('perfil-credito-stack',0); _animateStack('perfil-debito-stack',0); window._initStackSwipe('perfil-credito-stack'); window._initStackSwipe('perfil-debito-stack'); })); } }, 60);
 }
 
 window.toggleEdicionDebito = function(){
@@ -3999,7 +3999,7 @@ window.toggleEdicionDebito = function(){
     }, 50);
   }
   renderPerfiles();
-    setTimeout(function(){ if(window._buildCarruselStack){ requestAnimationFrame(()=>requestAnimationFrame(()=>{ window._buildCarruselStack('perfil-credito-stack',0); window._buildCarruselStack('perfil-debito-stack',0); window._initStackSwipe('perfil-credito-stack'); window._initStackSwipe('perfil-debito-stack'); })); } }, 60);
+    setTimeout(function(){ if(window._buildCarruselStack){ requestAnimationFrame(()=>requestAnimationFrame(()=>{ _animateStack('perfil-credito-stack',0); _animateStack('perfil-debito-stack',0); window._initStackSwipe('perfil-credito-stack'); window._initStackSwipe('perfil-debito-stack'); })); } }, 60);
 }
 
 // Keep old toggleEdicion pointing to credit toggle for any legacy call
@@ -4008,109 +4008,92 @@ window.toggleEdicion = window.toggleEdicionCredito;
 window._buildCarruselStack = function(stackId, indexActual){
   const stack = document.getElementById(stackId);
   if(!stack) return;
-  const cards = Array.from(stack.children);
-  if(!cards.length) return;
-  const idx = (indexActual !== undefined) ? indexActual : (stack._currentIdx || 0);
-  // Clamp idx to valid range
-  const safeIdx = Math.max(0, Math.min(idx, cards.length - 1));
-  stack._currentIdx = safeIdx;
-  const peek = 10;
-
-  cards.forEach((card, i)=>{
-    // La tarjeta activa es relative para dar altura al stack, resto absolute
-    card.style.position = i === safeIdx ? 'relative' : 'absolute';
-    card.style.top = '0';
-    card.style.left = '0';
-    card.style.right = '0';
-    card.style.transition = 'transform 0.35s cubic-bezier(0.4,0,0.2,1), opacity 0.35s';
-
-    const diff = i - safeIdx;
-    if(diff < 0){
-      // tarjetas pasadas — ocultar completamente, fuera del flujo
-      card.style.transform = 'translateY(-110%) scale(0.92)';
-      card.style.opacity = '0';
-      card.style.zIndex = '0';
-      card.style.pointerEvents = 'none';
-      card.style.visibility = 'hidden';
-    } else if(diff === 0){
-      // tarjeta activa — al frente
-      card.style.transform = 'translateY(0) scale(1)';
-      card.style.opacity = '1';
-      card.style.zIndex = '2';
-      card.style.pointerEvents = 'auto';
-      card.style.visibility = 'visible';
-    } else if(diff === 1){
-      // tarjeta de atrás — sube hasta que solo peek px son visibles debajo de la frontal
-      const h = cards[safeIdx].getBoundingClientRect().height || cards[safeIdx].offsetHeight || 170;
-      const ch = card.getBoundingClientRect().height || card.offsetHeight || 170;
-      card.style.transform = `translateY(${h - ch + peek}px) scale(0.97)`;
-      card.style.opacity = '0.85';
-      card.style.zIndex = '1';
-      card.style.pointerEvents = 'none';
-      card.style.visibility = 'visible';
-    } else {
-      const h = cards[safeIdx].getBoundingClientRect().height || cards[safeIdx].offsetHeight || 170;
-      const ch = card.getBoundingClientRect().height || card.offsetHeight || 170;
-      card.style.transform = `translateY(${h - ch + peek}px) scale(0.97)`;
-      card.style.opacity = '0';
-      card.style.zIndex = '0';
-      card.style.pointerEvents = 'none';
-      card.style.visibility = 'hidden';
-    }
-  });
-
-  // Altura = tarjeta activa + pequeño peek de la siguiente
-  const activeCard = cards[safeIdx];
-  if(activeCard){
-    // Force layout recalculation
-    const h = activeCard.getBoundingClientRect().height || activeCard.offsetHeight || 170;
-    const hasNext = safeIdx < cards.length - 1;
-    stack.style.height = (h + (hasNext ? peek : 0)) + 'px';
-    stack.style.minHeight = h + 'px';
-    stack.style.overflow = 'visible';
-  }
+  // Just scroll to the card at indexActual
+  const idx = Math.max(0, Math.min(indexActual||0, stack.children.length-1));
+  stack._currentIdx = idx;
 };
 
-// Swipe vertical en stack
 window._initStackSwipe = function(stackId){
   const stack = document.getElementById(stackId);
   if(!stack) return;
-  // Always reinit since DOM is recreated on renderPerfiles
-  stack._swipeInit = true;
-  let startY = 0, startTime = 0, moved = false;
+  stack._currentIdx = stack._currentIdx || 0;
+  let startY = 0, moved = false;
 
   stack.addEventListener('touchstart', e=>{
     startY = e.touches[0].clientY;
-    startTime = Date.now();
     moved = false;
   }, {passive:true});
 
   stack.addEventListener('touchmove', e=>{
-    const dy = Math.abs(startY - e.touches[0].clientY);
-    if(dy > 8){
-      moved = true;
-      cancelLongPressPerfil(); // cancel long press when swipe detected
-    }
+    if(Math.abs(e.touches[0].clientY - startY) > 8) moved = true;
   }, {passive:true});
 
   stack.addEventListener('touchend', e=>{
-    if(!moved) return; // no swipe — was tap or long press
+    if(!moved) return;
     const dy = startY - e.changedTouches[0].clientY;
-    const idx = stack._currentIdx || 0;
+    cancelLongPressPerfil();
     const total = stack.children.length;
-    if(dy > 40){
-      if(idx < total - 1){
-        window._buildCarruselStack(stackId, idx + 1);
-      }
-      // ya en la última — no hacer nada (tope)
-    } else if(dy < -40){
-      if(idx > 0){
-        window._buildCarruselStack(stackId, idx - 1);
-      }
-      // ya en la primera — no hacer nada (tope)
-    }
+    const idx = stack._currentIdx || 0;
+    let newIdx = idx;
+    if(dy > 40 && idx < total - 1) newIdx = idx + 1;
+    else if(dy < -40 && idx > 0) newIdx = idx - 1;
+    if(newIdx !== idx) _animateStack(stackId, newIdx);
   }, {passive:true});
 };
+
+function _animateStack(stackId, newIdx){
+  const stack = document.getElementById(stackId);
+  if(!stack) return;
+  const cards = Array.from(stack.children);
+  const total = cards.length;
+  newIdx = Math.max(0, Math.min(newIdx, total-1));
+  stack._currentIdx = newIdx;
+  const peek = 10;
+
+  cards.forEach((card, i)=>{
+    card.style.transition = 'transform 0.32s cubic-bezier(0.4,0,0.2,1), opacity 0.32s';
+    card.style.position = 'absolute';
+    card.style.top = '0'; card.style.left = '0'; card.style.right = '0';
+    const diff = i - newIdx;
+    if(diff < 0){
+      card.style.transform = 'translateY(-105%)';
+      card.style.opacity = '0';
+      card.style.zIndex = '0';
+      card.style.visibility = 'hidden';
+      card.style.pointerEvents = 'none';
+    } else if(diff === 0){
+      card.style.transform = 'translateY(0)';
+      card.style.opacity = '1';
+      card.style.zIndex = '3';
+      card.style.visibility = 'visible';
+      card.style.pointerEvents = 'auto';
+    } else if(diff === 1){
+      const h = card.getBoundingClientRect().height || card.offsetHeight || 170;
+      card.style.transform = `translateY(calc(100% - ${peek}px))`;
+      card.style.opacity = '0.8';
+      card.style.zIndex = '2';
+      card.style.visibility = 'visible';
+      card.style.pointerEvents = 'none';
+    } else {
+      const h = card.getBoundingClientRect().height || card.offsetHeight || 170;
+      card.style.transform = `translateY(calc(100% - ${peek-2}px))`;
+      card.style.opacity = '0';
+      card.style.zIndex = '1';
+      card.style.visibility = 'hidden';
+      card.style.pointerEvents = 'none';
+    }
+  });
+
+  // Set stack height to active card height + peek
+  const active = cards[newIdx];
+  if(active){
+    const h = active.getBoundingClientRect().height || active.offsetHeight || 170;
+    const hasNext = newIdx < total - 1;
+    stack.style.height = (h + (hasNext ? peek : 0)) + 'px';
+    stack.style.position = 'relative';
+  }
+}
+
 
 window.renderPerfiles = function(){
   const lista = document.getElementById('perfiles-lista');
@@ -4409,7 +4392,7 @@ async function _ejecutarGuardadoTarjeta(nombre, corte, limite, apodoEdit, isCamb
     editandoTarjetaId = null;
     window._editMode = null;
     renderPerfiles();
-    setTimeout(function(){ if(window._buildCarruselStack){ requestAnimationFrame(()=>requestAnimationFrame(()=>{ window._buildCarruselStack('perfil-credito-stack',0); window._buildCarruselStack('perfil-debito-stack',0); window._initStackSwipe('perfil-credito-stack'); window._initStackSwipe('perfil-debito-stack'); })); } }, 60);
+    setTimeout(function(){ if(window._buildCarruselStack){ requestAnimationFrame(()=>requestAnimationFrame(()=>{ _animateStack('perfil-credito-stack',0); _animateStack('perfil-debito-stack',0); window._initStackSwipe('perfil-credito-stack'); window._initStackSwipe('perfil-debito-stack'); })); } }, 60);
 
     // Construir resumen antes/después
     const titulo = nombre + (apodoEdit ? ' · ' + apodoEdit : '');
@@ -4445,7 +4428,7 @@ window._listoResumenDebito = async function(){
       window.perfil = perfil;
       buildCarruselDebito();
       renderPerfiles();
-    setTimeout(function(){ if(window._buildCarruselStack){ requestAnimationFrame(()=>requestAnimationFrame(()=>{ window._buildCarruselStack('perfil-credito-stack',0); window._buildCarruselStack('perfil-debito-stack',0); window._initStackSwipe('perfil-credito-stack'); window._initStackSwipe('perfil-debito-stack'); })); } }, 60);
+    setTimeout(function(){ if(window._buildCarruselStack){ requestAnimationFrame(()=>requestAnimationFrame(()=>{ _animateStack('perfil-credito-stack',0); _animateStack('perfil-debito-stack',0); window._initStackSwipe('perfil-credito-stack'); window._initStackSwipe('perfil-debito-stack'); })); } }, 60);
     } catch(e){ showToast('\u274c Error al guardar'); return; }
     window._pendienteDebitoId = null;
   }
@@ -4598,7 +4581,7 @@ window.eliminarTarjetaPerfil = async function(id){
     buildCarrusel();
     showToast('Tarjeta eliminada');
     renderPerfiles();
-    setTimeout(function(){ if(window._buildCarruselStack){ requestAnimationFrame(()=>requestAnimationFrame(()=>{ window._buildCarruselStack('perfil-credito-stack',0); window._buildCarruselStack('perfil-debito-stack',0); window._initStackSwipe('perfil-credito-stack'); window._initStackSwipe('perfil-debito-stack'); })); } }, 60);
+    setTimeout(function(){ if(window._buildCarruselStack){ requestAnimationFrame(()=>requestAnimationFrame(()=>{ _animateStack('perfil-credito-stack',0); _animateStack('perfil-debito-stack',0); window._initStackSwipe('perfil-credito-stack'); window._initStackSwipe('perfil-debito-stack'); })); } }, 60);
   }catch(e){ showToast('❌ Error al eliminar'); }
 }
 
@@ -4625,7 +4608,7 @@ window.guardarNuevaTarjeta = async function(){
     selectedCorteEdit = null;
     window.showSuccess('Tarjeta agregada', `${nombre}${apodoNueva ? ' · ' + apodoNueva : ''} — Corte día ${corte}`);
     renderPerfiles();
-    setTimeout(function(){ if(window._buildCarruselStack){ requestAnimationFrame(()=>requestAnimationFrame(()=>{ window._buildCarruselStack('perfil-credito-stack',0); window._buildCarruselStack('perfil-debito-stack',0); window._initStackSwipe('perfil-credito-stack'); window._initStackSwipe('perfil-debito-stack'); })); } }, 60);
+    setTimeout(function(){ if(window._buildCarruselStack){ requestAnimationFrame(()=>requestAnimationFrame(()=>{ _animateStack('perfil-credito-stack',0); _animateStack('perfil-debito-stack',0); window._initStackSwipe('perfil-credito-stack'); window._initStackSwipe('perfil-debito-stack'); })); } }, 60);
   }catch(e){ showToast('❌ Error al guardar'); }
 }
 
@@ -4679,7 +4662,7 @@ window.guardarNuevaDebito = async function(){
     window.showSuccess('Cuenta agregada', `${nombre}${apodo ? ' · ' + apodo : ''}`);
     buildCarruselDebito();
     renderPerfiles();
-    setTimeout(function(){ if(window._buildCarruselStack){ requestAnimationFrame(()=>requestAnimationFrame(()=>{ window._buildCarruselStack('perfil-credito-stack',0); window._buildCarruselStack('perfil-debito-stack',0); window._initStackSwipe('perfil-credito-stack'); window._initStackSwipe('perfil-debito-stack'); })); } }, 60);
+    setTimeout(function(){ if(window._buildCarruselStack){ requestAnimationFrame(()=>requestAnimationFrame(()=>{ _animateStack('perfil-credito-stack',0); _animateStack('perfil-debito-stack',0); window._initStackSwipe('perfil-credito-stack'); window._initStackSwipe('perfil-debito-stack'); })); } }, 60);
   } catch(e){ showToast('❌ Error al guardar'); }
 }
 
@@ -4703,7 +4686,7 @@ window.eliminarDebitoPerfil = async function(id){
     showToast('Cuenta eliminada');
     buildCarruselDebito();
     renderPerfiles();
-    setTimeout(function(){ if(window._buildCarruselStack){ requestAnimationFrame(()=>requestAnimationFrame(()=>{ window._buildCarruselStack('perfil-credito-stack',0); window._buildCarruselStack('perfil-debito-stack',0); window._initStackSwipe('perfil-credito-stack'); window._initStackSwipe('perfil-debito-stack'); })); } }, 60);
+    setTimeout(function(){ if(window._buildCarruselStack){ requestAnimationFrame(()=>requestAnimationFrame(()=>{ _animateStack('perfil-credito-stack',0); _animateStack('perfil-debito-stack',0); window._initStackSwipe('perfil-credito-stack'); window._initStackSwipe('perfil-debito-stack'); })); } }, 60);
   } catch(e){ showToast('❌ Error al eliminar'); }
 }
 
@@ -4765,7 +4748,7 @@ window.guardarEdicionDebito = async function(){
       window.perfil = perfil;
       buildCarruselDebito();
       renderPerfiles();
-    setTimeout(function(){ if(window._buildCarruselStack){ requestAnimationFrame(()=>requestAnimationFrame(()=>{ window._buildCarruselStack('perfil-credito-stack',0); window._buildCarruselStack('perfil-debito-stack',0); window._initStackSwipe('perfil-credito-stack'); window._initStackSwipe('perfil-debito-stack'); })); } }, 60);
+    setTimeout(function(){ if(window._buildCarruselStack){ requestAnimationFrame(()=>requestAnimationFrame(()=>{ _animateStack('perfil-credito-stack',0); _animateStack('perfil-debito-stack',0); window._initStackSwipe('perfil-credito-stack'); window._initStackSwipe('perfil-debito-stack'); })); } }, 60);
       window.showSuccess('Cuenta actualizada', '');
     } catch(e){ showToast('\u274c Error al guardar'); }
   }
@@ -8149,7 +8132,7 @@ window.confirmarEliminarBanco = function(){
   setDoc(doc(db,'usuarios', currentUser.uid, 'perfil','datos'), perfil)
     .then(()=>{
       buildCarrusel(); renderPerfiles();
-    setTimeout(function(){ if(window._buildCarruselStack){ requestAnimationFrame(()=>requestAnimationFrame(()=>{ window._buildCarruselStack('perfil-credito-stack',0); window._buildCarruselStack('perfil-debito-stack',0); window._initStackSwipe('perfil-credito-stack'); window._initStackSwipe('perfil-debito-stack'); })); } }, 60);
+    setTimeout(function(){ if(window._buildCarruselStack){ requestAnimationFrame(()=>requestAnimationFrame(()=>{ _animateStack('perfil-credito-stack',0); _animateStack('perfil-debito-stack',0); window._initStackSwipe('perfil-credito-stack'); window._initStackSwipe('perfil-debito-stack'); })); } }, 60);
       const nombre  = eliminada ? eliminada.nombre : 'Tarjeta';
       const apodo   = eliminada?.apodo ? ` · ${eliminada.apodo}` : '';
       const limite  = eliminada ? `$${eliminada.limite.toLocaleString('es-MX')}` : '';
@@ -9316,7 +9299,7 @@ window.confirmarEliminarBanco = function(){
   setDoc(doc(db,'usuarios', currentUser.uid, 'perfil','datos'), perfil)
     .then(()=>{
       buildCarrusel(); renderPerfiles();
-    setTimeout(function(){ if(window._buildCarruselStack){ requestAnimationFrame(()=>requestAnimationFrame(()=>{ window._buildCarruselStack('perfil-credito-stack',0); window._buildCarruselStack('perfil-debito-stack',0); window._initStackSwipe('perfil-credito-stack'); window._initStackSwipe('perfil-debito-stack'); })); } }, 60);
+    setTimeout(function(){ if(window._buildCarruselStack){ requestAnimationFrame(()=>requestAnimationFrame(()=>{ _animateStack('perfil-credito-stack',0); _animateStack('perfil-debito-stack',0); window._initStackSwipe('perfil-credito-stack'); window._initStackSwipe('perfil-debito-stack'); })); } }, 60);
       const nombre  = eliminada ? eliminada.nombre : 'Tarjeta';
       const apodo   = eliminada?.apodo ? ` · ${eliminada.apodo}` : '';
       const limite  = eliminada ? `$${eliminada.limite.toLocaleString('es-MX')}` : '';
