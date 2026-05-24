@@ -2732,7 +2732,14 @@ window.guardar = async function(){
     document.getElementById('modal-overlay').classList.remove('open');
     setTimeout(()=>{
       _mostrarResumenMovimiento(titulo2 || 'Movimiento', 'Revisa los cambios', cambios2.length ? cambios2 : [{campo:'Importe', antes:'—', despues:fmt$(monto)}], async function(){
-        const updEdit = { monto, ...(comercioEdit?{comercio:comercioEdit}:{}), ...(conceptoEdit?{concepto:conceptoEdit}:{}), ...(fechaEdit?{fecha:fechaEdit}:{}) };
+        // Si cambia la fecha, actualizar creadoEn para que el orden en el historial sea correcto
+        let creadoEnEdit = {};
+        if(fechaEdit){
+          const fechaDate = new Date(fechaEdit + 'T12:00:00');
+          // Preservar la hora actual pero con la nueva fecha base
+          creadoEnEdit = { creadoEn: fechaDate.getTime() };
+        }
+        const updEdit = { monto, ...creadoEnEdit, ...(comercioEdit?{comercio:comercioEdit}:{}), ...(conceptoEdit?{concepto:conceptoEdit}:{}), ...(fechaEdit?{fecha:fechaEdit}:{}) };
         try{
           await updateDoc(doc(db,'usuarios', currentUser.uid, 'movimientos',editingId), updEdit);
           movimientos = movimientos.map(m=>m.id===editingId?{...m,...updEdit}:m);
@@ -2742,9 +2749,25 @@ window.guardar = async function(){
           updateCards();
           renderMovimientos();
           // Actualizar historial si está visible
-          const movFull = document.getElementById('movimientos-full');
-          if(movFull && window._pendingTarjetaId){
-            renderMovimientosFull(window._pendingTarjetaId);
+          if(typeof window._renderHistorialActivo === 'function'){
+            window._renderHistorialActivo();
+          }
+          // Si se cambió la fecha, refrescar lista de cortes para que aparezca el nuevo corte
+          if(updEdit.fecha && window._movTarjetaId){
+            const _tEdit = (perfil?.tarjetas||[]).find(x=>x.id===window._movTarjetaId);
+            if(_tEdit){
+              const _anioTxt = document.getElementById('anio-seleccionado-txt')?.textContent;
+              if(_anioTxt){
+                const _cortesUpd = getCortesDisponibles(window._movTarjetaId, _tEdit.corte, parseInt(_anioTxt));
+                const listaCortesEl = document.getElementById('lista-cortes-btns');
+                if(listaCortesEl) listaCortesEl.innerHTML = _cortesUpd.map(c=>`
+                  <div data-key="${c.key}" onclick="seleccionarCorteMov('${window._movTarjetaId}',${_tEdit.corte},'${c.key}')"
+                    style="padding:14px 16px;border-bottom:1px solid #e8e8e8;cursor:pointer;display:flex;align-items:center;justify-content:space-between;background:#fff;color:#111;font-weight:500;font-size:14px">
+                    <span style="text-transform:capitalize">${c.nombre}</span>
+                    <svg width="16" height="16" fill="none" stroke="#aaa" stroke-width="2" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
+                  </div>`).join('');
+              }
+            }
           }
           editingId = null;
           // showSuccess se muestra desde _confirmarResumenMovimiento
