@@ -4015,7 +4015,8 @@ window._buildCarruselStack = function(stackId, indexActual){
   const peek = 10;
 
   cards.forEach((card, i)=>{
-    card.style.position = i === 0 ? 'relative' : 'absolute';
+    // La tarjeta activa es relative para dar altura al stack, resto absolute
+    card.style.position = i === idx ? 'relative' : 'absolute';
     card.style.top = '0';
     card.style.left = '0';
     card.style.right = '0';
