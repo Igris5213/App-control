@@ -150,7 +150,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 
 /* RECUADROS */
 .section-card{background:#fff;border-radius:16px;margin:0 50px 12px;padding:16px;box-shadow:0 1px 6px rgba(0,0,0,0.06)}
-.btn-registro{transition:opacity 0.15s,transform 0.15s}.btn-registro:active{opacity:0.75;transform:scale(0.98)}
 .section-card-title{font-size:13px;font-weight:700;color:#aaa;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:12px}
 
 /* BOTÓN */
@@ -1332,7 +1331,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
       </div>
     </div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px">
-      <button class="modal-save" onclick="guardarEdicionTarjeta()">Guardar cambios</button>
+      <button class="modal-save hold-btn" onclick="guardarEdicionTarjeta()">Guardar cambios</button>
       <button onclick="document.getElementById('edit-tarjeta-overlay').classList.remove('open')" style="padding:14px;border-radius:12px;border:1.5px solid #e0e0e0;background:#fff;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit;color:#666">Cancelar</button>
     </div>
   </div>
@@ -1450,7 +1449,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
       <input type="hidden" id="inp-fecha-modal"/>
     </div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:4px">
-      <button class="modal-save" id="modal-save-btn" onclick="guardar()" style="margin-top:0">Guardar</button>
+      <button class="modal-save hold-btn" id="modal-save-btn" onclick="guardar()" style="margin-top:0">Guardar</button>
       <button onclick="document.getElementById('modal-overlay').classList.remove('open')" style="padding:13px;border-radius:12px;border:1.5px solid #e0e0e0;background:#fff;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit;color:#111">Cancelar</button>
     </div>
   </div>
@@ -2473,16 +2472,14 @@ function getAniosDisponibles(tarjetaId, corte){
     const p = getPeriodo(corte, new Date(m.fecha+'T12:00:00'));
     aniosSet.add(p.fin.getFullYear());
   });
-  // Años donde haya una mensualidad de promo
-  const promos2 = (window.promocionesCache||[]).filter(p=>p.tarjetaId===tarjetaId);
-  promos2.forEach(p=>{
-    const creado2 = new Date(p.creadoEn);
-    const primerPagoRef2 = new Date(creado2.getTime() + 86400000);
-    const primerPeriodoFin2 = getPeriodo(corte, primerPagoRef2).fin;
+  // Años desde cortes YA PASADOS donde haya una mensualidad de promo
+  const promos = (window.promocionesCache||[]).filter(p=>p.tarjetaId===tarjetaId);
+  promos.forEach(p=>{
+    const inicio = new Date(p.creadoEn);
     for(let mes=0; mes<p.meses; mes++){
-      const periodoFinMes2 = new Date(primerPeriodoFin2.getFullYear(), primerPeriodoFin2.getMonth()+mes, corte);
-      const periodo2 = getPeriodo(corte, periodoFinMes2);
-      if(periodo2.inicio <= hoy) aniosSet.add(periodo2.fin.getFullYear());
+      const fechaRef = new Date(inicio.getFullYear(), inicio.getMonth()+mes+1, parseInt(corte)+1);
+      const periodo = getPeriodo(corte, fechaRef);
+      if(periodo.inicio <= hoy) aniosSet.add(periodo.fin.getFullYear());
     }
   });
   return [...aniosSet].sort((a,b)=>a-b);
@@ -2504,22 +2501,16 @@ function getCortesDisponibles(tarjetaId, corte, anio){
     const key = p.fin.toISOString().split('T')[0];
     if(!cortesMap[key]) cortesMap[key] = { inicio:p.inicio, fin:p.fin, nombre: nombreCorte(corte, fecha), key };
   });
-  // Cortes donde haya una mensualidad de promo
+  // Cortes YA PASADOS donde haya una mensualidad de promo
   const promos = (window.promocionesCache||[]).filter(p=>p.tarjetaId===tarjetaId);
   promos.forEach(p=>{
-    // El primer pago cae en el primer corte DESPUÉS de creadoEn
-    const creado = new Date(p.creadoEn);
-    // Encontrar el periodoFin del primer pago
-    const primerPeriodo = getPeriodo(corte, new Date(creado.getFullYear(), creado.getMonth(), corte+1 > creado.getDate() ? corte : corte));
-    // Usar getPeriodo con una fecha justo después de creadoEn para obtener el primer período
-    const primerPagoRef = new Date(creado.getTime() + 86400000); // día siguiente a creadoEn
-    const primerPeriodoFin = getPeriodo(corte, primerPagoRef).fin;
+    const inicio = new Date(p.creadoEn);
     for(let mes=0; mes<p.meses; mes++){
-      // Avanzar mes meses desde el primer período
-      const periodoFinMes = new Date(primerPeriodoFin.getFullYear(), primerPeriodoFin.getMonth()+mes, corte);
-      const periodo = getPeriodo(corte, periodoFinMes);
+      // Usar corte+1 como referencia para que getPeriodo resuelva al periodo correcto
+      const fechaRef = new Date(inicio.getFullYear(), inicio.getMonth()+mes+1, parseInt(corte)+1);
+      const periodo = getPeriodo(corte, fechaRef);
       if(periodo.fin.getFullYear() !== anio) continue;
-      if(periodo.inicio > hoy) continue;
+      if(periodo.inicio > hoy) continue; // excluir cortes que aún no han empezado
       const key = periodo.fin.toISOString().split('T')[0];
       if(!cortesMap[key]) cortesMap[key] = { inicio:periodo.inicio, fin:periodo.fin, nombre: nombreCorte(corte, periodo.fin), key };
     }
@@ -2732,14 +2723,7 @@ window.guardar = async function(){
     document.getElementById('modal-overlay').classList.remove('open');
     setTimeout(()=>{
       _mostrarResumenMovimiento(titulo2 || 'Movimiento', 'Revisa los cambios', cambios2.length ? cambios2 : [{campo:'Importe', antes:'—', despues:fmt$(monto)}], async function(){
-        // Si cambia la fecha, actualizar creadoEn para que el orden en el historial sea correcto
-        let creadoEnEdit = {};
-        if(fechaEdit){
-          const fechaDate = new Date(fechaEdit + 'T12:00:00');
-          // Preservar la hora actual pero con la nueva fecha base
-          creadoEnEdit = { creadoEn: fechaDate.getTime() };
-        }
-        const updEdit = { monto, ...creadoEnEdit, ...(comercioEdit?{comercio:comercioEdit}:{}), ...(conceptoEdit?{concepto:conceptoEdit}:{}), ...(fechaEdit?{fecha:fechaEdit}:{}) };
+        const updEdit = { monto, ...(comercioEdit?{comercio:comercioEdit}:{}), ...(conceptoEdit?{concepto:conceptoEdit}:{}), ...(fechaEdit?{fecha:fechaEdit}:{}) };
         try{
           await updateDoc(doc(db,'usuarios', currentUser.uid, 'movimientos',editingId), updEdit);
           movimientos = movimientos.map(m=>m.id===editingId?{...m,...updEdit}:m);
@@ -2749,25 +2733,9 @@ window.guardar = async function(){
           updateCards();
           renderMovimientos();
           // Actualizar historial si está visible
-          if(typeof window._renderHistorialActivo === 'function'){
-            window._renderHistorialActivo();
-          }
-          // Si se cambió la fecha, refrescar lista de cortes para que aparezca el nuevo corte
-          if(updEdit.fecha && window._movTarjetaId){
-            const _tEdit = (perfil?.tarjetas||[]).find(x=>x.id===window._movTarjetaId);
-            if(_tEdit){
-              const _anioTxt = document.getElementById('anio-seleccionado-txt')?.textContent;
-              if(_anioTxt){
-                const _cortesUpd = getCortesDisponibles(window._movTarjetaId, _tEdit.corte, parseInt(_anioTxt));
-                const listaCortesEl = document.getElementById('lista-cortes-btns');
-                if(listaCortesEl) listaCortesEl.innerHTML = _cortesUpd.map(c=>`
-                  <div data-key="${c.key}" onclick="seleccionarCorteMov('${window._movTarjetaId}',${_tEdit.corte},'${c.key}')"
-                    style="padding:14px 16px;border-bottom:1px solid #e8e8e8;cursor:pointer;display:flex;align-items:center;justify-content:space-between;background:#fff;color:#111;font-weight:500;font-size:14px">
-                    <span style="text-transform:capitalize">${c.nombre}</span>
-                    <svg width="16" height="16" fill="none" stroke="#aaa" stroke-width="2" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
-                  </div>`).join('');
-              }
-            }
+          const movFull = document.getElementById('movimientos-full');
+          if(movFull && window._pendingTarjetaId){
+            renderMovimientosFull(window._pendingTarjetaId);
           }
           editingId = null;
           // showSuccess se muestra desde _confirmarResumenMovimiento
@@ -3029,7 +2997,7 @@ function renderizarUsuarios(){
           <svg width="20" height="20" fill="none" stroke="#fff" stroke-width="2" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
         </div>
         <span>${u.user}</span>
-        <svg style="margin-left:auto" width="16" height="16" fill="none" stroke="rgba(255,255,255,0.4)" stroke-width="2" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>`;
+        <svg style="margin-left:auto" width="16" height="16" fill="none" stroke="#ccc" stroke-width="2" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>`;
       container.appendChild(btn);
     });
   }
@@ -3427,36 +3395,17 @@ window.guardarEdicionUsuario = function(){
     detalle = '';
   }
 
-  // Construir resumen de cambios
-  const cambiosHTML = [];
-  if(nombreCambio) cambiosHTML.push(`
-    <div style="margin-bottom:12px">
-      <div style="font-size:11px;font-weight:700;color:#aaa;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:6px">Usuario</div>
-      <div style="display:flex;align-items:center;gap:8px">
-        <div style="flex:1;background:#f5f5f5;border-radius:8px;padding:8px 10px;font-size:13px;color:#888">${nombreAnterior}</div>
-        <svg width="14" height="14" fill="none" stroke="#111" stroke-width="2" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
-        <div style="flex:1;background:linear-gradient(180deg,#111,#444);border-radius:8px;padding:8px 10px;font-size:13px;color:#fff;font-weight:600">${nuevoNombre}</div>
-      </div>
-    </div>`);
-  if(passCambio) cambiosHTML.push(`
-    <div style="margin-bottom:12px">
-      <div style="font-size:11px;font-weight:700;color:#aaa;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:6px">Contraseña</div>
-      <div style="display:flex;align-items:center;gap:8px">
-        <div style="flex:1;background:#f5f5f5;border-radius:8px;padding:8px 10px;font-size:13px;color:#888">••••••</div>
-        <svg width="14" height="14" fill="none" stroke="#111" stroke-width="2" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
-        <div style="flex:1;background:linear-gradient(180deg,#111,#444);border-radius:8px;padding:8px 10px;font-size:13px;color:#fff;font-weight:600">Nueva contraseña</div>
-      </div>
-    </div>`);
-  document.getElementById('admin-edit-confirm-cambios').innerHTML = cambiosHTML.join('');
+  document.getElementById('admin-edit-confirm-titulo').textContent = titulo;
+  document.getElementById('admin-edit-confirm-detalle').textContent = detalle;
+  document.getElementById('admin-edit-confirm-detalle').style.display = detalle ? 'block' : 'none';
 
   // Cerrar modal de edición primero, luego abrir confirmación
   document.getElementById('modal-admin-editar').classList.remove('open');
-  setTimeout(()=>{ document.getElementById('modal-admin-confirm-edit').classList.add('open'); }, 200);
+  setTimeout(()=>{ document.getElementById('modal-admin-confirm-edit').classList.add('show'); }, 200);
 }
 
 window.cancelarConfirmEdicion = function(){
-  document.getElementById('modal-admin-confirm-edit').classList.remove('open');
-  setTimeout(()=>document.getElementById('modal-admin-editar').classList.add('open'), 250);
+  document.getElementById('modal-admin-confirm-edit').classList.remove('show');
 }
 
 window.confirmarEdicion = function(){
@@ -3471,7 +3420,7 @@ window.confirmarEdicion = function(){
   }
 
   guardarUsuarios(lista);
-  document.getElementById('modal-admin-confirm-edit').classList.remove('open');
+  document.getElementById('modal-admin-confirm-edit').classList.remove('show');
   document.getElementById('modal-admin-editar').classList.remove('open');
 
   if(nombreCambio && passCambio){
@@ -3738,7 +3687,6 @@ window.mostrarPantallaPerfiles = function(){
   scr.classList.remove('hidden');
   scr.style.display = 'flex';
   renderPerfiles();
-    setTimeout(function(){ if(window._buildCarruselStack){ requestAnimationFrame(()=>requestAnimationFrame(()=>{ _animateStack('perfil-credito-stack',0); _animateStack('perfil-debito-stack',0); window._initStackSwipe('perfil-credito-stack'); window._initStackSwipe('perfil-debito-stack'); })); } }, 60);
 }
 
 let modoEdicion = false;        // legacy — kept for compat
@@ -3749,7 +3697,6 @@ let _perfilTabActivo   = "credito"; // tab activo en perfil: "credito" | "debito
 window.perfilSwitchTab = function(tab) {
   _perfilTabActivo = tab;
   renderPerfiles();
-    setTimeout(function(){ if(window._buildCarruselStack){ requestAnimationFrame(()=>requestAnimationFrame(()=>{ _animateStack('perfil-credito-stack',0); _animateStack('perfil-debito-stack',0); window._initStackSwipe('perfil-credito-stack'); window._initStackSwipe('perfil-debito-stack'); })); } }, 60);
 };
 
 function _resetEdicionPerfiles() {
@@ -3762,11 +3709,7 @@ function _resetEdicionPerfiles() {
 
 // ── Long Press en tarjetas de perfil ──────────────────────
 let _longPressPerfilTimer = null;
-window.cancelLongPressPerfil = function(){
-  if(_longPressPerfilTimer){ clearTimeout(_longPressPerfilTimer); _longPressPerfilTimer = null; }
-};
 window.startLongPressPerfil = function(el, tipo, id){
-  cancelLongPressPerfil();
   _longPressPerfilTimer = setTimeout(()=>{
     _longPressPerfilTimer = null;
     abrirAccionesPerfil(tipo, id);
@@ -3892,7 +3835,6 @@ window.guardarNuevaTarjetaModal = async function(){
     window.showSuccess('Tarjeta agregada', banco + (apodo ? ' · ' + apodo : ''));
     buildCarrusel();
     renderPerfiles();
-    setTimeout(function(){ if(window._buildCarruselStack){ requestAnimationFrame(()=>requestAnimationFrame(()=>{ _animateStack('perfil-credito-stack',0); _animateStack('perfil-debito-stack',0); window._initStackSwipe('perfil-credito-stack'); window._initStackSwipe('perfil-debito-stack'); })); } }, 60);
   } catch(e){ showToast('❌ Error al guardar'); }
 };
 
@@ -3963,7 +3905,6 @@ window.guardarNuevaCuentaModal = async function(){
     window.showSuccess('Cuenta agregada', nombre + (apodo ? ' · ' + apodo : ''));
     buildCarruselDebito();
     renderPerfiles();
-    setTimeout(function(){ if(window._buildCarruselStack){ requestAnimationFrame(()=>requestAnimationFrame(()=>{ _animateStack('perfil-credito-stack',0); _animateStack('perfil-debito-stack',0); window._initStackSwipe('perfil-credito-stack'); window._initStackSwipe('perfil-debito-stack'); })); } }, 60);
   } catch(e){ showToast('❌ Error al guardar'); }
 };
 
@@ -3983,7 +3924,6 @@ window.toggleEdicionCredito = function(){
     }, 50);
   }
   renderPerfiles();
-    setTimeout(function(){ if(window._buildCarruselStack){ requestAnimationFrame(()=>requestAnimationFrame(()=>{ _animateStack('perfil-credito-stack',0); _animateStack('perfil-debito-stack',0); window._initStackSwipe('perfil-credito-stack'); window._initStackSwipe('perfil-debito-stack'); })); } }, 60);
 }
 
 window.toggleEdicionDebito = function(){
@@ -3999,101 +3939,10 @@ window.toggleEdicionDebito = function(){
     }, 50);
   }
   renderPerfiles();
-    setTimeout(function(){ if(window._buildCarruselStack){ requestAnimationFrame(()=>requestAnimationFrame(()=>{ _animateStack('perfil-credito-stack',0); _animateStack('perfil-debito-stack',0); window._initStackSwipe('perfil-credito-stack'); window._initStackSwipe('perfil-debito-stack'); })); } }, 60);
 }
 
 // Keep old toggleEdicion pointing to credit toggle for any legacy call
 window.toggleEdicion = window.toggleEdicionCredito;
-
-window._buildCarruselStack = function(stackId, indexActual){
-  const stack = document.getElementById(stackId);
-  if(!stack) return;
-  // Just scroll to the card at indexActual
-  const idx = Math.max(0, Math.min(indexActual||0, stack.children.length-1));
-  stack._currentIdx = idx;
-};
-
-window._initStackSwipe = function(stackId){
-  const stack = document.getElementById(stackId);
-  if(!stack) return;
-  stack._currentIdx = stack._currentIdx || 0;
-  let startY = 0, moved = false;
-
-  stack.addEventListener('touchstart', e=>{
-    startY = e.touches[0].clientY;
-    moved = false;
-  }, {passive:true});
-
-  stack.addEventListener('touchmove', e=>{
-    if(Math.abs(e.touches[0].clientY - startY) > 8) moved = true;
-  }, {passive:true});
-
-  stack.addEventListener('touchend', e=>{
-    if(!moved) return;
-    const dy = startY - e.changedTouches[0].clientY;
-    cancelLongPressPerfil();
-    const total = stack.children.length;
-    const idx = stack._currentIdx || 0;
-    let newIdx = idx;
-    if(dy > 40 && idx < total - 1) newIdx = idx + 1;
-    else if(dy < -40 && idx > 0) newIdx = idx - 1;
-    if(newIdx !== idx) _animateStack(stackId, newIdx);
-  }, {passive:true});
-};
-
-function _animateStack(stackId, newIdx){
-  const stack = document.getElementById(stackId);
-  if(!stack) return;
-  const cards = Array.from(stack.children);
-  const total = cards.length;
-  newIdx = Math.max(0, Math.min(newIdx, total-1));
-  stack._currentIdx = newIdx;
-  const peek = 10;
-
-  cards.forEach((card, i)=>{
-    card.style.transition = 'transform 0.32s cubic-bezier(0.4,0,0.2,1), opacity 0.32s';
-    card.style.position = 'absolute';
-    card.style.top = '0'; card.style.left = '0'; card.style.right = '0';
-    const diff = i - newIdx;
-    if(diff < 0){
-      card.style.transform = 'translateY(-105%)';
-      card.style.opacity = '0';
-      card.style.zIndex = '0';
-      card.style.visibility = 'hidden';
-      card.style.pointerEvents = 'none';
-    } else if(diff === 0){
-      card.style.transform = 'translateY(0)';
-      card.style.opacity = '1';
-      card.style.zIndex = '3';
-      card.style.visibility = 'visible';
-      card.style.pointerEvents = 'auto';
-    } else if(diff === 1){
-      const h = card.getBoundingClientRect().height || card.offsetHeight || 170;
-      card.style.transform = `translateY(calc(100% - ${peek}px))`;
-      card.style.opacity = '0.8';
-      card.style.zIndex = '2';
-      card.style.visibility = 'visible';
-      card.style.pointerEvents = 'none';
-    } else {
-      const h = card.getBoundingClientRect().height || card.offsetHeight || 170;
-      card.style.transform = `translateY(calc(100% - ${peek-2}px))`;
-      card.style.opacity = '0';
-      card.style.zIndex = '1';
-      card.style.visibility = 'hidden';
-      card.style.pointerEvents = 'none';
-    }
-  });
-
-  // Set stack height to active card height + peek
-  const active = cards[newIdx];
-  if(active){
-    const h = active.getBoundingClientRect().height || active.offsetHeight || 170;
-    const hasNext = newIdx < total - 1;
-    stack.style.height = (h + (hasNext ? peek : 0)) + 'px';
-    stack.style.position = 'relative';
-  }
-}
-
 
 window.renderPerfiles = function(){
   const lista = document.getElementById('perfiles-lista');
@@ -4136,10 +3985,10 @@ window.renderPerfiles = function(){
       <!-- ── Panel Crédito ── -->
       <div id="perfil-panel-credito" style="display:${_perfilTabActivo==='credito'?'block':'none'}">
 
-        <!-- Lista tarjetas crédito — stack con peek -->
-        <div style="position:relative" id="perfil-credito-stack">
+        <!-- Lista tarjetas crédito como tarjetas visuales -->
+        <div style="display:flex;flex-direction:column;gap:12px">
           ${(perfil.tarjetas||[]).map((t,i)=>`
-            <div onmousedown="startLongPressPerfil(this,'credito','${t.id}')" onmouseup="cancelLongPressPerfil()" onmouseleave="cancelLongPressPerfil()" ontouchstart="startLongPressPerfil(this,'credito','${t.id}')" ontouchend="cancelLongPressPerfil()" ontouchmove="" style="position:relative;border-radius:18px;padding:18px 18px 16px;background:linear-gradient(135deg,#1a1a1a 0%,#3a3a3a 60%,#555 100%);color:#fff;box-shadow:0 6px 24px rgba(0,0,0,0.22);overflow:hidden;cursor:pointer;scroll-snap-align:start;flex-shrink:0">
+            <div onmousedown="startLongPressPerfil(this,'credito','${t.id}')" onmouseup="cancelLongPress()" onmouseleave="cancelLongPress()" ontouchstart="startLongPressPerfil(this,'credito','${t.id}')" ontouchend="cancelLongPress()" ontouchmove="cancelLongPress()" style="position:relative;border-radius:18px;padding:18px 18px 16px;background:linear-gradient(135deg,#1a1a1a 0%,#3a3a3a 60%,#555 100%);color:#fff;box-shadow:0 6px 24px rgba(0,0,0,0.22);overflow:hidden;cursor:pointer">
               <div style="position:absolute;top:-28px;right:-28px;width:110px;height:110px;border-radius:50%;background:rgba(255,255,255,0.06);pointer-events:none"></div>
               <div style="position:absolute;bottom:-18px;left:40px;width:70px;height:70px;border-radius:50%;background:rgba(255,255,255,0.04);pointer-events:none"></div>
               <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:4px">
@@ -4219,7 +4068,7 @@ window.renderPerfiles = function(){
               style="width:100%;padding:12px 14px 12px 28px;border-radius:10px;border:1.5px solid #e5e7eb;font-size:15px;font-family:inherit;outline:none;background:#fff"/>
           </div>
           <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
-            <button onclick="guardarNuevaTarjeta()" style="padding:11px;border-radius:10px;background:linear-gradient(180deg,#111,#444);color:#fff;border:none;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit">Guardar</button>
+            <button onclick="guardarNuevaTarjeta()" class="hold-btn" style="padding:11px;border-radius:10px;background:linear-gradient(180deg,#111,#444);color:#fff;border:none;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit">Guardar</button>
             <button onclick="ocultarFormAgregarTarjeta()" style="padding:11px;border-radius:10px;border:1.5px solid #e0e0e0;background:#fff;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;color:#666">Cancelar</button>
           </div>
         </div>` : ''}
@@ -4229,10 +4078,10 @@ window.renderPerfiles = function(){
       <!-- ── Panel Débito ── -->
       <div id="perfil-panel-debito" style="display:${_perfilTabActivo==='debito'?'block':'none'}">
 
-        <!-- Lista cuentas débito — stack con peek -->
-        <div style="position:relative" id="perfil-debito-stack">
+        <!-- Lista cuentas débito como tarjetas -->
+        <div style="display:flex;flex-direction:column;gap:12px">
           ${(perfil.cuentasDebito && perfil.cuentasDebito.length) ? perfil.cuentasDebito.map((c,i)=>`
-            <div onmousedown="startLongPressPerfil(this,'debito','${c.id}')" onmouseup="cancelLongPressPerfil()" onmouseleave="cancelLongPressPerfil()" ontouchstart="startLongPressPerfil(this,'debito','${c.id}')" ontouchend="cancelLongPressPerfil()" ontouchmove="" style="position:relative;border-radius:18px;padding:18px 18px 16px;background:linear-gradient(135deg,#1a1a1a 0%,#3a3a3a 60%,#555 100%);color:#fff;box-shadow:0 6px 24px rgba(0,0,0,0.22);overflow:hidden;cursor:pointer;scroll-snap-align:start;flex-shrink:0">
+            <div onmousedown="startLongPressPerfil(this,'debito','${c.id}')" onmouseup="cancelLongPress()" onmouseleave="cancelLongPress()" ontouchstart="startLongPressPerfil(this,'debito','${c.id}')" ontouchend="cancelLongPress()" ontouchmove="cancelLongPress()" style="position:relative;border-radius:18px;padding:18px 18px 16px;background:linear-gradient(135deg,#1a1a1a 0%,#3a3a3a 60%,#555 100%);color:#fff;box-shadow:0 6px 24px rgba(0,0,0,0.22);overflow:hidden;cursor:pointer">
               <div style="position:absolute;top:-28px;right:-28px;width:110px;height:110px;border-radius:50%;background:rgba(255,255,255,0.06);pointer-events:none"></div>
               <div style="position:absolute;bottom:-18px;left:40px;width:70px;height:70px;border-radius:50%;background:rgba(255,255,255,0.04);pointer-events:none"></div>
               <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:4px">
@@ -4295,7 +4144,7 @@ window.renderPerfiles = function(){
               style="width:100%;padding:12px 14px 12px 28px;border-radius:10px;border:1.5px solid #e5e7eb;font-size:15px;font-family:inherit;outline:none;background:#fff;color:#111"/>
           </div>
           <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
-            <button onclick="guardarNuevaDebito()" style="padding:11px;border-radius:10px;background:linear-gradient(180deg,#111,#444);color:#fff;border:none;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit">Guardar</button>
+            <button onclick="guardarNuevaDebito()" class="hold-btn" style="padding:11px;border-radius:10px;background:linear-gradient(180deg,#111,#444);color:#fff;border:none;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit">Guardar</button>
             <button onclick="ocultarFormAgregarDebito()" style="padding:11px;border-radius:10px;border:1.5px solid #e0e0e0;background:#fff;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;color:#666">Cancelar</button>
           </div>
         </div>` : ''}
@@ -4392,7 +4241,6 @@ async function _ejecutarGuardadoTarjeta(nombre, corte, limite, apodoEdit, isCamb
     editandoTarjetaId = null;
     window._editMode = null;
     renderPerfiles();
-    setTimeout(function(){ if(window._buildCarruselStack){ requestAnimationFrame(()=>requestAnimationFrame(()=>{ _animateStack('perfil-credito-stack',0); _animateStack('perfil-debito-stack',0); window._initStackSwipe('perfil-credito-stack'); window._initStackSwipe('perfil-debito-stack'); })); } }, 60);
 
     // Construir resumen antes/después
     const titulo = nombre + (apodoEdit ? ' · ' + apodoEdit : '');
@@ -4428,7 +4276,6 @@ window._listoResumenDebito = async function(){
       window.perfil = perfil;
       buildCarruselDebito();
       renderPerfiles();
-    setTimeout(function(){ if(window._buildCarruselStack){ requestAnimationFrame(()=>requestAnimationFrame(()=>{ _animateStack('perfil-credito-stack',0); _animateStack('perfil-debito-stack',0); window._initStackSwipe('perfil-credito-stack'); window._initStackSwipe('perfil-debito-stack'); })); } }, 60);
     } catch(e){ showToast('\u274c Error al guardar'); return; }
     window._pendienteDebitoId = null;
   }
@@ -4581,7 +4428,6 @@ window.eliminarTarjetaPerfil = async function(id){
     buildCarrusel();
     showToast('Tarjeta eliminada');
     renderPerfiles();
-    setTimeout(function(){ if(window._buildCarruselStack){ requestAnimationFrame(()=>requestAnimationFrame(()=>{ _animateStack('perfil-credito-stack',0); _animateStack('perfil-debito-stack',0); window._initStackSwipe('perfil-credito-stack'); window._initStackSwipe('perfil-debito-stack'); })); } }, 60);
   }catch(e){ showToast('❌ Error al eliminar'); }
 }
 
@@ -4608,7 +4454,6 @@ window.guardarNuevaTarjeta = async function(){
     selectedCorteEdit = null;
     window.showSuccess('Tarjeta agregada', `${nombre}${apodoNueva ? ' · ' + apodoNueva : ''} — Corte día ${corte}`);
     renderPerfiles();
-    setTimeout(function(){ if(window._buildCarruselStack){ requestAnimationFrame(()=>requestAnimationFrame(()=>{ _animateStack('perfil-credito-stack',0); _animateStack('perfil-debito-stack',0); window._initStackSwipe('perfil-credito-stack'); window._initStackSwipe('perfil-debito-stack'); })); } }, 60);
   }catch(e){ showToast('❌ Error al guardar'); }
 }
 
@@ -4662,7 +4507,6 @@ window.guardarNuevaDebito = async function(){
     window.showSuccess('Cuenta agregada', `${nombre}${apodo ? ' · ' + apodo : ''}`);
     buildCarruselDebito();
     renderPerfiles();
-    setTimeout(function(){ if(window._buildCarruselStack){ requestAnimationFrame(()=>requestAnimationFrame(()=>{ _animateStack('perfil-credito-stack',0); _animateStack('perfil-debito-stack',0); window._initStackSwipe('perfil-credito-stack'); window._initStackSwipe('perfil-debito-stack'); })); } }, 60);
   } catch(e){ showToast('❌ Error al guardar'); }
 }
 
@@ -4686,7 +4530,6 @@ window.eliminarDebitoPerfil = async function(id){
     showToast('Cuenta eliminada');
     buildCarruselDebito();
     renderPerfiles();
-    setTimeout(function(){ if(window._buildCarruselStack){ requestAnimationFrame(()=>requestAnimationFrame(()=>{ _animateStack('perfil-credito-stack',0); _animateStack('perfil-debito-stack',0); window._initStackSwipe('perfil-credito-stack'); window._initStackSwipe('perfil-debito-stack'); })); } }, 60);
   } catch(e){ showToast('❌ Error al eliminar'); }
 }
 
@@ -4748,7 +4591,6 @@ window.guardarEdicionDebito = async function(){
       window.perfil = perfil;
       buildCarruselDebito();
       renderPerfiles();
-    setTimeout(function(){ if(window._buildCarruselStack){ requestAnimationFrame(()=>requestAnimationFrame(()=>{ _animateStack('perfil-credito-stack',0); _animateStack('perfil-debito-stack',0); window._initStackSwipe('perfil-credito-stack'); window._initStackSwipe('perfil-debito-stack'); })); } }, 60);
       window.showSuccess('Cuenta actualizada', '');
     } catch(e){ showToast('\u274c Error al guardar'); }
   }
@@ -5728,7 +5570,7 @@ window.verDetalleDebito = function(id){
     + '</div>'
     + '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px">'
     + '<button onclick="cerrarDetalleGasto();setTimeout(()=>pedirConfirmEditar(\'' + m.id + '\'),300)" style="padding:13px;border-radius:12px;border:1.5px solid #e0e0e0;background:#fff;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit;color:#111;display:flex;align-items:center;justify-content:center;gap:8px"><svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>Editar</button>'
-    + '<button onclick="cerrarDetalleGasto();setTimeout(()=>pedirConfirmEliminar(\'' + m.id + '\'),300)" style="padding:13px;border-radius:12px;border:none;background:linear-gradient(180deg,#333,#666);color:#fff;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:8px"><svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/></svg>Eliminar</button>'
+    + '<button class="hold-btn" onclick="cerrarDetalleGasto();setTimeout(()=>pedirConfirmEliminar(\'' + m.id + '\'),300)" style="padding:13px;border-radius:12px;border:none;background:linear-gradient(180deg,#333,#666);color:#fff;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:8px"><svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/></svg>Eliminar</button>'
     + '</div>'
     + '<button onclick="cerrarDetalleGasto()" style="width:100%;padding:13px;border-radius:12px;background:#fff;border:1.5px solid #e0e0e0;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit;color:#111">Cerrar</button>';
   document.getElementById('modal-detalle-gasto').classList.add('open');
@@ -6211,7 +6053,7 @@ window.verDetalleCargo = function(id){
       </div>
     </div>
     <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px">
-      <button onclick="eliminarCargoRecurrente(window._cargoAccionId)"
+      <button onclick="eliminarCargoRecurrente(window._cargoAccionId)" class="hold-btn"
         style="padding:13px 6px;border-radius:12px;background:linear-gradient(180deg,#333,#666);color:#fff;border:none;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit">Eliminar</button>
       <button onclick="document.getElementById('modal-detalle-cargo').classList.remove('open');editarCargoRecurrente(window._cargoAccionId)"
         style="padding:13px 6px;border-radius:12px;background:linear-gradient(180deg,#111,#444);color:#fff;border:none;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit">Editar</button>
@@ -6344,39 +6186,10 @@ window.guardarCargoRecurrente = async function(){
     if(!banco){ showToast('Selecciona el banco'); return; }
     if(!cuentaId){ showToast('Selecciona la cuenta'); return; }
   }
-
-  // Guardar datos pendientes y mostrar resumen
-  const cuentaNombre = _cargoTipo === 'credito'
-    ? ((perfil?.tarjetas||[]).find(x=>x.id===tarjetaId)?.apodo || (perfil?.tarjetas||[]).find(x=>x.id===tarjetaId)?.nombre || '—')
-    : ((perfil?.cuentasDebito||[]).find(x=>x.id===cuentaId)?.apodo || (perfil?.cuentasDebito||[]).find(x=>x.id===cuentaId)?.nombre || '—');
-
-  window._pendingCargoData = { nombre, monto, dia, tipo, banco, tarjetaId, cuentaId };
-
-  const fmt$ = v=>'$'+Number(v).toLocaleString('es-MX',{minimumFractionDigits:2});
-  document.getElementById('confirm-cargo-nombre').textContent  = nombre;
-  document.getElementById('confirm-cargo-banco').textContent   = banco;
-  document.getElementById('confirm-cargo-cuenta').textContent  = cuentaNombre;
-  document.getElementById('confirm-cargo-tipo').textContent    = tipo === 'credito' ? 'Crédito' : 'Débito';
-  document.getElementById('confirm-cargo-dia').textContent     = 'Día ' + dia + ' de cada mes';
-  document.getElementById('confirm-cargo-monto').textContent   = fmt$(monto);
-
-  document.getElementById('modal-cargo-recurrente').classList.remove('open');
-  setTimeout(()=>document.getElementById('modal-confirm-cargo-nueva').classList.add('open'), 250);
-};
-
-window._corregirCargoNuevo = function(){
-  document.getElementById('modal-confirm-cargo-nueva').classList.remove('open');
-  setTimeout(()=>document.getElementById('modal-cargo-recurrente').classList.add('open'), 250);
-};
-
-window._confirmarCargoNuevo = async function(){
-  document.getElementById('modal-confirm-cargo-nueva').classList.remove('open');
-  const d = window._pendingCargoData;
-  if(!d) return;
-  window._pendingCargoData = null;
   try{
     if(_cargoEditId){
-      const datos = { nombre:d.nombre, monto:d.monto, dia:d.dia, tipo:d.tipo, banco:d.banco, tarjetaId:d.tarjetaId, cuentaId:d.cuentaId, activo: true };
+      // Modo edición — actualizar documento existente
+      const datos = { nombre, monto, dia, tipo, banco, tarjetaId, cuentaId, activo: true };
       await updateDoc(doc(db,'usuarios', currentUser.uid, 'cargosRecurrentes', _cargoEditId), datos);
       cargosRecurrentesCache = cargosRecurrentesCache.map(c=>c.id===_cargoEditId ? {...c,...datos} : c);
       _cargoEditId = null;
@@ -6384,7 +6197,8 @@ window._confirmarCargoNuevo = async function(){
       renderCargosRecurrentes();
       window.showSuccess('Cargo actualizado', '');
     } else {
-      const datos = { nombre:d.nombre, monto:d.monto, dia:d.dia, tipo:d.tipo, banco:d.banco, tarjetaId:d.tarjetaId, cuentaId:d.cuentaId, creadoEn: Date.now(), activo: true };
+      // Modo nuevo
+      const datos = { nombre, monto, dia, tipo, banco, tarjetaId, cuentaId, creadoEn: Date.now(), activo: true };
       const docRef = await addDoc(collection(db,'usuarios', currentUser.uid, 'cargosRecurrentes'), datos);
       cargosRecurrentesCache = [...cargosRecurrentesCache, {...datos, id: docRef.id}];
       cerrarCargoRecurrente();
@@ -6420,7 +6234,7 @@ async function renderCargosRecurrentes(){
           + ' onclick="resaltarCargo(this)"'
           + ' onmousedown="startLongPressCargo(this,\'' + c.id + '\')" onmouseup="cancelLongPress()" onmouseleave="cancelLongPress()"'
           + ' ontouchstart="startLongPressCargo(this,\'' + c.id + '\')" ontouchend="cancelLongPress()" ontouchmove="cancelLongPress()">';
-        html += '<div style="width:40px;height:40px;border-radius:12px;background:rgba(255,255,255,0.15);display:flex;align-items:center;justify-content:center;flex-shrink:0">' + tipoIcon + '</div>';
+        html += '<div style="width:40px;height:40px;border-radius:12px;background:#f5f5f5;display:flex;align-items:center;justify-content:center;flex-shrink:0">' + tipoIcon + '</div>';
         html += '<div style="flex:1;min-width:0">';
         html += '<div style="font-size:15px;font-weight:700;color:#111;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">' + c.nombre + '</div>';
         html += '<div style="font-size:12px;color:#aaa;margin-top:1px">Día ' + c.dia + ' · ' + cuentaNombre + '</div>';
@@ -6664,42 +6478,14 @@ window.guardarPromo = async function(){
 
   const t = (perfil?.tarjetas||[]).find(x=>x.id===promoTarjetaSel);
   const comercio = document.getElementById('promo-comercio').value.trim();
-  const mensualidad = importe / meses;
-  const fmt$ = v=>'$'+Number(v).toLocaleString('es-MX',{minimumFractionDigits:2});
 
-  // Guardar datos pendientes
-  window._pendingPromoNueva = { nombre, importe, meses, comercio, tarjeta: t };
-
-  // Mostrar resumen en modal
-  document.getElementById('confirm-promo-nueva-banco').textContent = promoBancoSel;
-  document.getElementById('confirm-promo-nueva-tarjeta').textContent = t?.apodo||t?.nombre||'—';
-  document.getElementById('confirm-promo-nueva-nombre').textContent = nombre;
-  document.getElementById('confirm-promo-nueva-importe').textContent = fmt$(importe);
-  document.getElementById('confirm-promo-nueva-meses').textContent = meses + ' meses · ' + fmt$(mensualidad) + ' /mes';
-  if(comercio){
-    document.getElementById('confirm-promo-nueva-row-comercio').style.display = 'flex';
-    document.getElementById('confirm-promo-nueva-comercio').textContent = comercio;
-  } else {
-    document.getElementById('confirm-promo-nueva-row-comercio').style.display = 'none';
-  }
-  document.getElementById('modal-promo-overlay').classList.remove('open');
-  setTimeout(()=>document.getElementById('modal-confirm-promo-nueva').classList.add('open'), 250);
-}
-
-window._corregirPromoNueva = function(){
-  document.getElementById('modal-confirm-promo-nueva').classList.remove('open');
-  setTimeout(()=>document.getElementById('modal-promo-overlay').classList.add('open'), 250);
-}
-
-window._confirmarPromoNueva = async function(){
-  document.getElementById('modal-confirm-promo-nueva').classList.remove('open');
-  const { nombre, importe, meses, comercio, tarjeta: t } = window._pendingPromoNueva || {};
-  if(!nombre) return;
-  window._pendingPromoNueva = null;
-
+  // Calcular creadoEn para que pago 1 = corte actual
+  // primerCorte = periodoFin del corte actual de esta tarjeta
+  // creadoEn = 1 día antes del primerCorte
   const corteNum = t ? parseInt(t.corte) : 1;
   const periodoActual = getPeriodo(corteNum, new Date());
-  const creadoEnCalc = periodoActual.fin.getTime() - 86400000;
+  const primerCorte = periodoActual.fin;
+  const creadoEnCalc = primerCorte.getTime() - 86400000;
 
   const datos = {
     tarjetaId: promoTarjetaSel,
@@ -6713,9 +6499,12 @@ window._confirmarPromoNueva = async function(){
 
   try{
     const docRef = await addDoc(collection(db,'usuarios', currentUser.uid, 'promociones'), datos);
+    // Agregar al cache local inmediatamente con el id real
     const nuevaPromo = {...datos, id: docRef.id};
     promocionesCache = [...promocionesCache, nuevaPromo];
     window.promocionesCache = promocionesCache;
+    document.getElementById('modal-promo-overlay').classList.remove('open');
+    // Actualizar historial si está visible
     setTimeout(()=>{
       if(typeof window._renderHistorialActivo === 'function') window._renderHistorialActivo();
     }, 300);
@@ -6770,7 +6559,7 @@ async function renderPromociones(useCache=false){
         var liquidado = mesesTranscurridos >= p.meses;
         var subtitulo = banco + (p.tarjeta ? ' \u00b7 ' + p.tarjeta : '');
         html += '<div data-promo-id="' + p.id + '" class="promo-item" style="background:#fff;border-radius:16px;padding:16px;margin-bottom:10px;box-shadow:0 1px 6px rgba(0,0,0,0.06);display:flex;align-items:center;gap:12px;cursor:pointer" onmousedown="startLongPressPromoItem(event,\''  + p.id + '\')" onmouseup="cancelLongPress()" onmouseleave="cancelLongPress()" ontouchstart="startLongPressPromoItem(event,\''  + p.id + '\')" ontouchend="cancelLongPress()" ontouchmove="cancelLongPress()">';
-        html += '<div style="width:40px;height:40px;border-radius:12px;background:rgba(255,255,255,0.15);display:flex;align-items:center;justify-content:center;flex-shrink:0"><svg width="18" height="18" fill="none" stroke="#111" stroke-width="2" viewBox="0 0 24 24"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg></div>';
+        html += '<div style="width:40px;height:40px;border-radius:12px;background:#f5f5f5;display:flex;align-items:center;justify-content:center;flex-shrink:0"><svg width="18" height="18" fill="none" stroke="#111" stroke-width="2" viewBox="0 0 24 24"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg></div>';
         html += '<div style="flex:1;min-width:0">';
         html += '<div style="font-size:15px;font-weight:700;color:#111;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">' + (p.comercio ? p.comercio + (p.nombre ? ' \u00b7 ' + p.nombre : '') : (p.nombre || '\u2014')) + '</div>';
         html += '<div style="font-size:12px;color:#aaa;margin-top:1px">' + subtitulo + '</div>';
@@ -6976,29 +6765,21 @@ window._confirmarResumenPromo = async function(){
 
 async function _ejecutarGuardadoPromo(id, importe, meses, mesesPagados){
   try{
-    // Calcular creadoEn ajustado para que la promo aparezca en los cortes correctos
+    // Calcular creadoEn ajustado: mesesPagados = número de pago en el corte actualmente consultado
+    // Si no hay corte activo, usar el corte de la tarjeta de esta promo con getPeriodo(hoy)
     let creadoEnAjustado = undefined;
     if(mesesPagados >= 1){
       const promoActual = promocionesCache.find(p=>p.id===id);
       const tarjetaPromo = (perfil?.tarjetas||[]).find(t=>t.id===promoActual?.tarjetaId);
-      const corteNum = tarjetaPromo ? parseInt(tarjetaPromo.corte) : 0;
-      if(corteNum){
-        // Si estamos en historial usar ese periodoFin como referencia del pago actual (mes N)
-        // Si estamos en promociones usar el período actual de la tarjeta
-        const pfinRef = window._pendingPeriodoFin
-          ? new Date(window._pendingPeriodoFin)
-          : getPeriodo(corteNum, new Date()).fin;
-
-        // pfinRef = fin del período donde cae el pago mesesPagados
-        // Retroceder (mesesPagados-1) períodos para encontrar el primer pago
-        const primerPeriodoFin = new Date(
-          pfinRef.getFullYear(),
-          pfinRef.getMonth() - (mesesPagados - 1),
-          corteNum
-        );
-        const primerPeriodoInicio = getPeriodo(corteNum, primerPeriodoFin).inicio;
-        // creadoEn = un día antes del inicio del primer período de pago
-        creadoEnAjustado = primerPeriodoInicio.getTime() - 86400000;
+      const corteNum = window._pendingCorte || (tarjetaPromo ? parseInt(tarjetaPromo.corte) : 0);
+      let pfin = window._pendingPeriodoFin ? new Date(window._pendingPeriodoFin) : null;
+      if(!pfin && corteNum){
+        pfin = getPeriodo(corteNum, new Date()).fin;
+      }
+      if(pfin && corteNum){
+        // primerCorte = día de corte, (mesesPagados-1) meses antes del periodoFin actual
+        const primerCorte = new Date(pfin.getFullYear(), pfin.getMonth() - (mesesPagados - 1), corteNum);
+        creadoEnAjustado = primerCorte.getTime() - 86400000;
       }
     }
     const updData = { importe, meses, mensualidad: importe/meses, mesesPagados };
@@ -7014,31 +6795,6 @@ async function _ejecutarGuardadoPromo(id, importe, meses, mesesPagados){
       window._renderHistorialActivo();
     } else if(typeof window.onAfterEdit === 'function'){
       window.onAfterEdit();
-    }
-    // Refrescar lista de cortes en historial si está abierto — pueden aparecer cortes nuevos
-    if(window._movTarjetaId){
-      const _tPromo = (perfil?.tarjetas||[]).find(x=>x.id===window._movTarjetaId);
-      if(_tPromo && document.getElementById('paso-anio')?.style.display !== 'none'){
-        const _anioTxt = document.getElementById('anio-seleccionado-txt')?.textContent;
-        const _anioNum = parseInt(_anioTxt);
-        if(_anioNum){
-          const _cortesNew = getCortesDisponibles(window._movTarjetaId, _tPromo.corte, _anioNum);
-          document.getElementById('lista-cortes-btns').innerHTML = _cortesNew.map(c=>`
-            <div data-key="${c.key}" onclick="seleccionarCorteMov('${window._movTarjetaId}',${_tPromo.corte},'${c.key}')"
-              style="padding:14px 16px;border-bottom:1px solid #e8e8e8;cursor:pointer;display:flex;align-items:center;justify-content:space-between;background:#fff;color:#111;font-weight:500;font-size:14px">
-              <span style="text-transform:capitalize">${c.nombre}</span>
-              <svg width="16" height="16" fill="none" stroke="#aaa" stroke-width="2" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
-            </div>`).join('');
-          // También actualizar años
-          const _aniosNew = getAniosDisponibles(window._movTarjetaId, _tPromo.corte);
-          document.getElementById('lista-anios-btns').innerHTML = _aniosNew.map(a=>`
-            <div data-anio="${a}" onclick="seleccionarAnioMov(${a})"
-              style="padding:14px 16px;border-bottom:1px solid #e8e8e8;cursor:pointer;display:flex;align-items:center;justify-content:space-between;background:${a===_anioNum?'#111':'#fff'};color:${a===_anioNum?'#fff':'#111'};font-weight:500;font-size:14px">
-              <span>${a}</span>
-              <svg width="16" height="16" fill="none" stroke="${a===_anioNum?'#fff':'#aaa'}" stroke-width="2" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
-            </div>`).join('');
-        }
-      }
     }
     // Cerrar todos los modales después
     setTimeout(()=>{
@@ -7159,7 +6915,7 @@ window.verPromo = async function(id){
 
       <!-- Botones acción -->
       <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-top:4px">
-        <button onclick="pedirConfirmEliminarPromo('${p.id}')"
+        <button class="hold-btn" onclick="pedirConfirmEliminarPromo('${p.id}')"
           style="padding:11px 6px;border-radius:12px;background:linear-gradient(180deg,#333,#666);color:#fff;border:none;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit">
           Eliminar
         </button>
@@ -7242,7 +6998,7 @@ window.verDetalleGasto = function(id){
     + '</div>'
     + '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px">'
     + '<button onclick="cerrarDetalleGasto();setTimeout(()=>openEdit(\'' + m.id + '\'),300)" style="padding:13px;border-radius:12px;border:1.5px solid #e0e0e0;background:#fff;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit;color:#111;display:flex;align-items:center;justify-content:center;gap:8px"><svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>Editar</button>'
-    + '<button onclick="cerrarDetalleGasto();setTimeout(()=>eliminar(\'' + m.id + '\'),300)" style="padding:13px;border-radius:12px;border:none;background:linear-gradient(180deg,#333,#666);color:#fff;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:8px"><svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/></svg>Eliminar</button>'
+    + '<button class="hold-btn" onclick="cerrarDetalleGasto();setTimeout(()=>eliminar(\'' + m.id + '\'),300)" style="padding:13px;border-radius:12px;border:none;background:linear-gradient(180deg,#333,#666);color:#fff;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:8px"><svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/></svg>Eliminar</button>'
     + '</div>'
     + '<button onclick="cerrarDetalleGasto()" style="width:100%;padding:13px;border-radius:12px;background:#fff;border:1.5px solid #e0e0e0;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit;color:#111">Cerrar</button>';
   document.getElementById('modal-detalle-gasto').classList.add('open');
@@ -7315,15 +7071,7 @@ window.confirmarBusquedaHistorial = function(){
     if(p.tarjetaId !== tarjetaId) return false;
     const tPV = (perfil?.tarjetas||[]).find(x=>x.id===p.tarjetaId);
     const cPV = tPV ? tPV.corte : 1;
-    // Si mesesPagados está definido, la promo sigue vigente si no está liquidada
-    // y el corte coincide con getMesPagoPromo (para ubicarla en el corte correcto)
     const mesPagoEnCorte = getMesPagoPromo(cPV, p.creadoEn, periodoFin);
-    if(p.mesesPagados !== undefined){
-      // Promo vigente: el corte calculado debe estar entre 1 y meses
-      // pero solo mostrar cortes que aún no están pagados (>= mesesPagados actual)
-      // O mostrar todos los cortes pasados donde hubo pago (<= mesesPagados)
-      return mesPagoEnCorte >= 1 && mesPagoEnCorte <= p.meses;
-    }
     return mesPagoEnCorte >= 1 && mesPagoEnCorte <= p.meses;
   });
   window._promosHistorialVigentes = promosVigentes;
@@ -7343,10 +7091,7 @@ window.confirmarBusquedaHistorial = function(){
   const promoItems = promosVigentes.map(p=>{
     const tP = (perfil?.tarjetas||[]).find(x=>x.id===p.tarjetaId);
     const cP = tP ? tP.corte : 1;
-    // Usar mesesPagados si está definido (editado manualmente), sino calcular dinámicamente
-    const mesPago = p.mesesPagados !== undefined
-      ? p.mesesPagados
-      : getMesPagoPromo(cP, p.creadoEn, periodoFin);
+    const mesPago = getMesPagoPromo(cP, p.creadoEn, periodoFin);
     return `<div class="mov-item" style="border:1.5px solid #e0e0e0"
         onmousedown="startLongPressPromoHist(this,'${p.id}')" onmouseup="cancelLongPress()" onmouseleave="cancelLongPress()"
         ontouchstart="startLongPressPromoHist(this,'${p.id}')" ontouchend="cancelLongPress()" ontouchmove="cancelLongPress()"
@@ -8132,7 +7877,6 @@ window.confirmarEliminarBanco = function(){
   setDoc(doc(db,'usuarios', currentUser.uid, 'perfil','datos'), perfil)
     .then(()=>{
       buildCarrusel(); renderPerfiles();
-    setTimeout(function(){ if(window._buildCarruselStack){ requestAnimationFrame(()=>requestAnimationFrame(()=>{ _animateStack('perfil-credito-stack',0); _animateStack('perfil-debito-stack',0); window._initStackSwipe('perfil-credito-stack'); window._initStackSwipe('perfil-debito-stack'); })); } }, 60);
       const nombre  = eliminada ? eliminada.nombre : 'Tarjeta';
       const apodo   = eliminada?.apodo ? ` · ${eliminada.apodo}` : '';
       const limite  = eliminada ? `$${eliminada.limite.toLocaleString('es-MX')}` : '';
@@ -8259,52 +8003,52 @@ window.confirmarEliminarPerfil = async function(){
     <!-- Panel Crédito -->
     <div id="nuevo-vista-credito">
       <!-- Nuevo -->
-      <button onclick="openModal()" class="btn-registro" style="width:100%;padding:20px 24px;border-radius:20px;background:linear-gradient(180deg,#111,#444);color:#fff;border:none;font-size:16px;font-weight:700;cursor:pointer;font-family:inherit;display:flex;align-items:center;gap:16px;margin-bottom:14px;box-shadow:0 4px 16px rgba(0,0,0,0.25);text-align:left">
-        <div style="width:48px;height:48px;border-radius:14px;background:rgba(255,255,255,0.15);display:flex;align-items:center;justify-content:center;flex-shrink:0">
+      <button onclick="var b=this;b.style.background='linear-gradient(180deg,#111,#444)';b.style.color='#fff';b.style.borderColor='#111';setTimeout(function(){openModal();b.style.background='#fff';b.style.color='#111';b.style.borderColor='#e0e0e0'},200)" style="width:100%;padding:20px 24px;border-radius:20px;background:#fff;color:#111;border:1.5px solid #e0e0e0;font-size:16px;font-weight:700;cursor:pointer;font-family:inherit;display:flex;align-items:center;gap:16px;margin-bottom:14px;box-shadow:0 4px 16px rgba(0,0,0,0.08);text-align:left">
+        <div style="width:48px;height:48px;border-radius:14px;background:#f5f5f5;display:flex;align-items:center;justify-content:center;flex-shrink:0">
           <svg width="24" height="24" fill="none" stroke="#111" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
         </div>
         <div>
           <div style="font-size:17px;font-weight:700;margin-bottom:3px">Nuevo</div>
-          <div style="font-size:13px;color:rgba(255,255,255,0.6);font-weight:400">Registra un movimiento del período actual</div>
+          <div style="font-size:13px;color:#aaa;font-weight:400">Registra un movimiento del período actual</div>
         </div>
-        <svg style="margin-left:auto;flex-shrink:0" width="18" height="18" fill="none" stroke="rgba(255,255,255,0.4)" stroke-width="2" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
+        <svg style="margin-left:auto;flex-shrink:0" width="18" height="18" fill="none" stroke="#ccc" stroke-width="2" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
       </button>
       <!-- Extemporáneo -->
-      <button onclick="openModalExt()" class="btn-registro" style="width:100%;padding:20px 24px;border-radius:20px;background:linear-gradient(180deg,#111,#444);color:#fff;border:none;font-size:16px;font-weight:700;cursor:pointer;font-family:inherit;display:flex;align-items:center;gap:16px;box-shadow:0 4px 16px rgba(0,0,0,0.25);text-align:left">
-        <div style="width:48px;height:48px;border-radius:14px;background:rgba(255,255,255,0.15);display:flex;align-items:center;justify-content:center;flex-shrink:0">
+      <button onclick="var b=this;b.style.background='linear-gradient(180deg,#111,#444)';b.style.color='#fff';b.style.borderColor='#111';setTimeout(function(){openModalExt();b.style.background='#fff';b.style.color='#111';b.style.borderColor='#e0e0e0'},200)" style="width:100%;padding:20px 24px;border-radius:20px;background:#fff;color:#111;border:1.5px solid #e0e0e0;font-size:16px;font-weight:700;cursor:pointer;font-family:inherit;display:flex;align-items:center;gap:16px;box-shadow:0 4px 16px rgba(0,0,0,0.08);text-align:left">
+        <div style="width:48px;height:48px;border-radius:14px;background:#f5f5f5;display:flex;align-items:center;justify-content:center;flex-shrink:0">
           <svg width="24" height="24" fill="none" stroke="#111" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
         </div>
         <div>
           <div style="font-size:17px;font-weight:700;margin-bottom:3px">Extemporáneo</div>
-          <div style="font-size:13px;color:rgba(255,255,255,0.6);font-weight:400">Registra un movimiento fuera del período</div>
+          <div style="font-size:13px;color:#aaa;font-weight:400">Registra un movimiento fuera del período</div>
         </div>
-        <svg style="margin-left:auto;flex-shrink:0" width="18" height="18" fill="none" stroke="rgba(255,255,255,0.4)" stroke-width="2" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
+        <svg style="margin-left:auto;flex-shrink:0" width="18" height="18" fill="none" stroke="#ccc" stroke-width="2" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
       </button>
     </div>
 
     <!-- Panel Débito -->
     <div id="nuevo-vista-debito" style="display:none">
       <!-- Ingreso -->
-      <button onclick="openModalDebitoIngreso()" class="btn-registro" style="width:100%;padding:20px 24px;border-radius:20px;background:linear-gradient(180deg,#111,#444);color:#fff;border:none;font-size:16px;font-weight:700;cursor:pointer;font-family:inherit;display:flex;align-items:center;gap:16px;margin-bottom:14px;box-shadow:0 4px 16px rgba(0,0,0,0.25);text-align:left">
-        <div style="width:48px;height:48px;border-radius:14px;background:rgba(255,255,255,0.15);display:flex;align-items:center;justify-content:center;flex-shrink:0">
+      <button onclick="var b=this;b.style.background='linear-gradient(180deg,#111,#444)';b.style.color='#fff';b.style.borderColor='#111';setTimeout(function(){openModalDebitoIngreso();b.style.background='#fff';b.style.color='#111';b.style.borderColor='#e0e0e0'},200)" style="width:100%;padding:20px 24px;border-radius:20px;background:#fff;color:#111;border:1.5px solid #e0e0e0;font-size:16px;font-weight:700;cursor:pointer;font-family:inherit;display:flex;align-items:center;gap:16px;margin-bottom:14px;box-shadow:0 4px 16px rgba(0,0,0,0.08);text-align:left">
+        <div style="width:48px;height:48px;border-radius:14px;background:#f5f5f5;display:flex;align-items:center;justify-content:center;flex-shrink:0">
           <svg width="24" height="24" fill="none" stroke="#111" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
         </div>
         <div>
           <div style="font-size:17px;font-weight:700;margin-bottom:3px">Nuevo</div>
-          <div style="font-size:13px;color:rgba(255,255,255,0.6);font-weight:400">Registra un egreso o ingreso del período actual</div>
+          <div style="font-size:13px;color:#aaa;font-weight:400">Registra un egreso o ingreso del período actual</div>
         </div>
-        <svg style="margin-left:auto;flex-shrink:0" width="18" height="18" fill="none" stroke="rgba(255,255,255,0.4)" stroke-width="2" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
+        <svg style="margin-left:auto;flex-shrink:0" width="18" height="18" fill="none" stroke="#ccc" stroke-width="2" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
       </button>
       <!-- Extemporáneo -->
-      <button onclick="openModalDebitoExtemporaneo()" class="btn-registro" style="width:100%;padding:20px 24px;border-radius:20px;background:linear-gradient(180deg,#111,#444);color:#fff;border:none;font-size:16px;font-weight:700;cursor:pointer;font-family:inherit;display:flex;align-items:center;gap:16px;box-shadow:0 4px 16px rgba(0,0,0,0.25);text-align:left">
-        <div style="width:48px;height:48px;border-radius:14px;background:rgba(255,255,255,0.15);display:flex;align-items:center;justify-content:center;flex-shrink:0">
+      <button onclick="var b=this;b.style.background='linear-gradient(180deg,#111,#444)';b.style.color='#fff';b.style.borderColor='#111';setTimeout(function(){openModalDebitoExtemporaneo();b.style.background='#fff';b.style.color='#111';b.style.borderColor='#e0e0e0'},200)" style="width:100%;padding:20px 24px;border-radius:20px;background:#fff;color:#111;border:1.5px solid #e0e0e0;font-size:16px;font-weight:700;cursor:pointer;font-family:inherit;display:flex;align-items:center;gap:16px;box-shadow:0 4px 16px rgba(0,0,0,0.08);text-align:left">
+        <div style="width:48px;height:48px;border-radius:14px;background:#f5f5f5;display:flex;align-items:center;justify-content:center;flex-shrink:0">
           <svg width="24" height="24" fill="none" stroke="#111" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
         </div>
         <div>
           <div style="font-size:17px;font-weight:700;margin-bottom:3px">Extemporáneo</div>
-          <div style="font-size:13px;color:rgba(255,255,255,0.6);font-weight:400">Registra un egreso o ingreso fuera del período</div>
+          <div style="font-size:13px;color:#aaa;font-weight:400">Registra un egreso o ingreso fuera del período</div>
         </div>
-        <svg style="margin-left:auto;flex-shrink:0" width="18" height="18" fill="none" stroke="rgba(255,255,255,0.4)" stroke-width="2" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
+        <svg style="margin-left:auto;flex-shrink:0" width="18" height="18" fill="none" stroke="#ccc" stroke-width="2" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
       </button>
     </div>
 
@@ -8479,46 +8223,8 @@ window.confirmarEliminarPerfil = async function(){
 
     <!-- Botones -->
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:8px">
-      <button onclick="guardarPromo()" class="modal-save" style="margin-top:0">Guardar</button>
+      <button onclick="guardarPromo()" class="modal-save hold-btn" style="margin-top:0">Guardar</button>
       <button onclick="cerrarModalPromo()" style="padding:13px;border-radius:12px;border:1.5px solid #e0e0e0;background:#fff;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit;color:#111">Cancelar</button>
-    </div>
-  </div>
-</div>
-
-<!-- ══ MODAL CONFIRMAR PROMO NUEVA ══ -->
-<div class="modal-overlay" id="modal-confirm-promo-nueva" onclick="if(event.target===this)this.classList.remove('open')">
-  <div class="modal" onclick="event.stopPropagation()" style="padding-bottom:28px">
-    <div class="modal-handle"></div>
-    <div style="font-size:17px;font-weight:700;color:#111;text-align:center;margin-bottom:20px">Confirmar promoción</div>
-    <div style="background:#f5f5f5;border-radius:16px;padding:16px;margin-bottom:16px;display:flex;flex-direction:column;gap:10px">
-      <div style="display:flex;justify-content:space-between;align-items:center">
-        <span style="font-size:13px;color:#aaa;font-weight:600;text-transform:uppercase;letter-spacing:0.04em">Banco</span>
-        <span id="confirm-promo-nueva-banco" style="font-size:14px;font-weight:700;color:#111"></span>
-      </div>
-      <div style="display:flex;justify-content:space-between;align-items:center">
-        <span style="font-size:13px;color:#aaa;font-weight:600;text-transform:uppercase;letter-spacing:0.04em">Tarjeta</span>
-        <span id="confirm-promo-nueva-tarjeta" style="font-size:14px;font-weight:700;color:#111"></span>
-      </div>
-      <div style="display:flex;justify-content:space-between;align-items:center">
-        <span style="font-size:13px;color:#aaa;font-weight:600;text-transform:uppercase;letter-spacing:0.04em">Compra</span>
-        <span id="confirm-promo-nueva-nombre" style="font-size:14px;font-weight:700;color:#111"></span>
-      </div>
-      <div id="confirm-promo-nueva-row-comercio" style="display:flex;justify-content:space-between;align-items:center">
-        <span style="font-size:13px;color:#aaa;font-weight:600;text-transform:uppercase;letter-spacing:0.04em">Comercio</span>
-        <span id="confirm-promo-nueva-comercio" style="font-size:14px;font-weight:700;color:#111"></span>
-      </div>
-      <div style="border-top:1px solid #e8e8e8;padding-top:10px;display:flex;justify-content:space-between;align-items:center">
-        <span style="font-size:13px;color:#aaa;font-weight:600;text-transform:uppercase;letter-spacing:0.04em">Importe</span>
-        <span id="confirm-promo-nueva-importe" style="font-size:18px;font-weight:800;color:#111"></span>
-      </div>
-      <div style="display:flex;justify-content:space-between;align-items:center">
-        <span style="font-size:13px;color:#aaa;font-weight:600;text-transform:uppercase;letter-spacing:0.04em">Plan</span>
-        <span id="confirm-promo-nueva-meses" style="font-size:14px;font-weight:700;color:#111"></span>
-      </div>
-    </div>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
-      <button onclick="_corregirPromoNueva()" style="padding:13px;border-radius:12px;border:1.5px solid #e0e0e0;background:#fff;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit;color:#111">Corregir</button>
-      <button onclick="_confirmarPromoNueva()" class="hold-btn" style="padding:13px;border-radius:12px;background:linear-gradient(180deg,#111,#444);color:#fff;border:none;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit"><span class="hold-label">Confirmar</span></button>
     </div>
   </div>
 </div>
@@ -8648,7 +8354,7 @@ window.confirmarEliminarPerfil = async function(){
       <input type="hidden" id="inp-fecha-ext" />
     </div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:4px">
-      <button class="modal-save" onclick="guardarExt()" style="margin-top:0">Guardar</button>
+      <button class="modal-save hold-btn" onclick="guardarExt()" style="margin-top:0">Guardar</button>
       <button onclick="document.getElementById('modal-ext-overlay').classList.remove('open')" style="padding:13px;border-radius:12px;border:1.5px solid #e0e0e0;background:#fff;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit;color:#111">Cancelar</button>
     </div>
   </div>
@@ -9299,7 +9005,6 @@ window.confirmarEliminarBanco = function(){
   setDoc(doc(db,'usuarios', currentUser.uid, 'perfil','datos'), perfil)
     .then(()=>{
       buildCarrusel(); renderPerfiles();
-    setTimeout(function(){ if(window._buildCarruselStack){ requestAnimationFrame(()=>requestAnimationFrame(()=>{ _animateStack('perfil-credito-stack',0); _animateStack('perfil-debito-stack',0); window._initStackSwipe('perfil-credito-stack'); window._initStackSwipe('perfil-debito-stack'); })); } }, 60);
       const nombre  = eliminada ? eliminada.nombre : 'Tarjeta';
       const apodo   = eliminada?.apodo ? ` · ${eliminada.apodo}` : '';
       const limite  = eliminada ? `$${eliminada.limite.toLocaleString('es-MX')}` : '';
@@ -9599,7 +9304,7 @@ window.confirmarEliminarPerfil = async function(){
       </div>
     </div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:4px">
-      <button class="modal-save" onclick="guardarEdicionDebito()" style="margin-top:0">Guardar cambios</button>
+      <button class="modal-save hold-btn" onclick="guardarEdicionDebito()" style="margin-top:0">Guardar cambios</button>
       <button onclick="cerrarEditDebito()" style="padding:14px;border-radius:12px;border:1.5px solid #e0e0e0;background:#fff;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit;color:#666">Cancelar</button>
     </div>
   </div>
@@ -9680,7 +9385,7 @@ window.confirmarEliminarPerfil = async function(){
           </div>
           <span style="font-size:15px;font-weight:500;color:#111">Cambiar contraseña</span>
         </div>
-        <svg width="16" height="16" fill="none" stroke="rgba(255,255,255,0.4)" stroke-width="2" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
+        <svg width="16" height="16" fill="none" stroke="#ccc" stroke-width="2" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
       </div>
 
       <!-- Cerrar sesión -->
@@ -9715,7 +9420,7 @@ window.confirmarEliminarPerfil = async function(){
           </div>
           <span style="font-size:15px;font-weight:500;color:#111">Historial de cambios</span>
         </div>
-        <svg width="16" height="16" fill="none" stroke="rgba(255,255,255,0.4)" stroke-width="2" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
+        <svg width="16" height="16" fill="none" stroke="#ccc" stroke-width="2" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
       </div>
     </div>
 
@@ -9742,7 +9447,7 @@ window.confirmarEliminarPerfil = async function(){
     </div>
     <div id="pass-change-error" style="font-size:13px;color:#e53935;margin-bottom:10px;min-height:16px;text-align:center"></div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:4px">
-      <button onclick="guardarNuevaPass()" style="padding:13px;border-radius:12px;background:linear-gradient(180deg,#111,#444);color:#fff;border:none;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit">Guardar</button>
+      <button onclick="guardarNuevaPass()" class="hold-btn" style="padding:13px;border-radius:12px;background:linear-gradient(180deg,#111,#444);color:#fff;border:none;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit">Guardar</button>
       <button onclick="cerrarCambiarPass()" style="padding:13px;border-radius:12px;border:1.5px solid #e0e0e0;background:#fff;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit;color:#111">Cancelar</button>
     </div>
   </div>
@@ -9900,7 +9605,7 @@ window.confirmarEliminarPerfil = async function(){
 
     <!-- Botones -->
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:8px">
-      <button onclick="guardarEditPromo()" class="modal-save" style="margin-top:0">Guardar</button>
+      <button onclick="guardarEditPromo()" class="modal-save hold-btn" style="margin-top:0">Guardar</button>
       <button onclick="cerrarEditPromo()" style="padding:13px;border-radius:12px;border:1.5px solid #e0e0e0;background:#fff;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit;color:#111">Cancelar</button>
     </div>
   </div>
@@ -10042,7 +9747,7 @@ window.confirmarEliminarPerfil = async function(){
     <input type="hidden" id="debito-inp-hora"/>
     <div id="debito-error" style="font-size:13px;color:#e53935;min-height:18px;margin-bottom:6px;text-align:center"></div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:4px">
-      <button id="debito-save-btn" onclick="guardarDebito()" class="modal-save" style="margin-top:0">Guardar</button>
+      <button id="debito-save-btn" onclick="guardarDebito()" class="modal-save hold-btn" style="margin-top:0">Guardar</button>
       <button onclick="cerrarModalDebito()" style="padding:13px;border-radius:12px;border:1.5px solid #e0e0e0;background:#fff;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit;color:#111">Cancelar</button>
     </div>
   </div>
@@ -10132,14 +9837,16 @@ window.confirmarEliminarPerfil = async function(){
 </div>
 
 <!-- ══ MODAL CONFIRMAR EDICIÓN ADMIN ══ -->
-<div class="modal-overlay" id="modal-admin-confirm-edit" onclick="if(event.target===this)cancelarConfirmEdicion()" style="z-index:1000">
-  <div class="modal" onclick="event.stopPropagation()" style="padding-bottom:28px">
-    <div class="modal-handle"></div>
-    <div style="font-size:17px;font-weight:700;color:#111;text-align:center;margin-bottom:20px">Confirmar cambios</div>
-    <div id="admin-edit-confirm-cambios" style="margin-bottom:16px"></div>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
-      <button onclick="cancelarConfirmEdicion()" style="padding:13px;border-radius:12px;border:1.5px solid #e0e0e0;background:#fff;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit;color:#111">Cancelar</button>
-      <button onclick="confirmarEdicion()" class="hold-btn" style="padding:13px;border-radius:12px;background:linear-gradient(180deg,#111,#444);color:#fff;border:none;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit"><span class="hold-label">Confirmar</span></button>
+<div class="success-overlay" id="modal-admin-confirm-edit" onclick="cancelarConfirmEdicion()" style="z-index:1000">
+  <div class="success-box" style="max-width:300px;width:90%" onclick="event.stopPropagation()">
+    <div class="success-icon" style="background:linear-gradient(180deg,#111,#444)">
+      <svg width="28" height="28" fill="none" stroke="#fff" stroke-width="2.5" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+    </div>
+    <div class="success-title" id="admin-edit-confirm-titulo">Confirmar cambios</div>
+    <div id="admin-edit-confirm-detalle" style="font-size:13px;color:#888;margin-top:6px;display:none"></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:20px">
+      <button onclick="confirmarEdicion()" class="hold-btn" style="padding:12px;border-radius:12px;background:linear-gradient(180deg,#111,#444);color:#fff;border:none;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit">Confirmar</button>
+      <button onclick="cancelarConfirmEdicion()" style="padding:12px;border-radius:12px;border:1.5px solid #e0e0e0;background:#fff;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;color:#111">Cancelar</button>
     </div>
   </div>
 </div>
@@ -10561,7 +10268,7 @@ function _actualizarFechaDebito() {
       <input type="hidden" id="deb-edit-fecha"/>
     </div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:4px">
-      <button class="modal-save" id="deb-edit-save-btn" onclick="guardarEditDeb()" style="margin-top:0">Guardar</button>
+      <button class="modal-save hold-btn" id="deb-edit-save-btn" onclick="guardarEditDeb()" style="margin-top:0">Guardar</button>
       <button onclick="cerrarEditDeb()" style="padding:13px;border-radius:12px;border:1.5px solid #e0e0e0;background:#fff;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit;color:#111">Cancelar</button>
     </div>
   </div>
@@ -10875,7 +10582,7 @@ document.addEventListener('DOMContentLoaded', function(){
     </div>
 
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:8px">
-      <button class="modal-save" onclick="guardarCargoRecurrente()" style="margin-top:0">Guardar</button>
+      <button class="modal-save hold-btn" onclick="guardarCargoRecurrente()" style="margin-top:0">Guardar</button>
       <button onclick="cerrarCargoRecurrente()" style="padding:14px;border-radius:12px;border:1.5px solid #e0e0e0;background:#fff;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit;color:#666">Cancelar</button>
     </div>
   </div>
@@ -10937,7 +10644,7 @@ document.addEventListener('DOMContentLoaded', function(){
       </div>
     </div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:4px">
-      <button class="modal-save" onclick="guardarNuevaTarjetaModal()" style="margin-top:0">Guardar</button>
+      <button class="modal-save hold-btn" onclick="guardarNuevaTarjetaModal()" style="margin-top:0">Guardar</button>
       <button onclick="cerrarModalNuevaTarjeta()" style="padding:14px;border-radius:12px;border:1.5px solid #e0e0e0;background:#fff;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit;color:#666">Cancelar</button>
     </div>
   </div>
@@ -10981,7 +10688,7 @@ document.addEventListener('DOMContentLoaded', function(){
       </div>
     </div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:4px">
-      <button class="modal-save" onclick="guardarNuevaCuentaModal()" style="margin-top:0">Guardar</button>
+      <button class="modal-save hold-btn" onclick="guardarNuevaCuentaModal()" class="hold-btn" style="margin-top:0">Guardar</button>
       <button onclick="cerrarModalNuevaCuenta()" style="padding:14px;border-radius:12px;border:1.5px solid #e0e0e0;background:#fff;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit;color:#666">Cancelar</button>
     </div>
   </div>
@@ -10992,44 +10699,6 @@ document.addEventListener('DOMContentLoaded', function(){
   <div class="modal" onclick="event.stopPropagation()">
     <div class="modal-handle"></div>
     <div id="detalle-cargo-content"></div>
-  </div>
-</div>
-
-<!-- ══ MODAL CONFIRMAR CARGO RECURRENTE ══ -->
-<div class="modal-overlay" id="modal-confirm-cargo-nueva" onclick="if(event.target===this)this.classList.remove('open')">
-  <div class="modal" onclick="event.stopPropagation()" style="padding-bottom:28px">
-    <div class="modal-handle"></div>
-    <div style="font-size:17px;font-weight:700;color:#111;text-align:center;margin-bottom:20px">Confirmar cargo recurrente</div>
-    <div style="background:#f5f5f5;border-radius:16px;padding:16px;margin-bottom:16px;display:flex;flex-direction:column;gap:10px">
-      <div style="display:flex;justify-content:space-between;align-items:center">
-        <span style="font-size:13px;color:#aaa;font-weight:600;text-transform:uppercase;letter-spacing:0.04em">Nombre</span>
-        <span id="confirm-cargo-nombre" style="font-size:14px;font-weight:700;color:#111"></span>
-      </div>
-      <div style="display:flex;justify-content:space-between;align-items:center">
-        <span style="font-size:13px;color:#aaa;font-weight:600;text-transform:uppercase;letter-spacing:0.04em">Tipo</span>
-        <span id="confirm-cargo-tipo" style="font-size:14px;font-weight:700;color:#111"></span>
-      </div>
-      <div style="display:flex;justify-content:space-between;align-items:center">
-        <span style="font-size:13px;color:#aaa;font-weight:600;text-transform:uppercase;letter-spacing:0.04em">Banco</span>
-        <span id="confirm-cargo-banco" style="font-size:14px;font-weight:700;color:#111"></span>
-      </div>
-      <div style="display:flex;justify-content:space-between;align-items:center">
-        <span style="font-size:13px;color:#aaa;font-weight:600;text-transform:uppercase;letter-spacing:0.04em">Cuenta / Tarjeta</span>
-        <span id="confirm-cargo-cuenta" style="font-size:14px;font-weight:700;color:#111"></span>
-      </div>
-      <div style="display:flex;justify-content:space-between;align-items:center">
-        <span style="font-size:13px;color:#aaa;font-weight:600;text-transform:uppercase;letter-spacing:0.04em">Día de cargo</span>
-        <span id="confirm-cargo-dia" style="font-size:14px;font-weight:700;color:#111"></span>
-      </div>
-      <div style="border-top:1px solid #e8e8e8;padding-top:10px;display:flex;justify-content:space-between;align-items:center">
-        <span style="font-size:13px;color:#aaa;font-weight:600;text-transform:uppercase;letter-spacing:0.04em">Monto mensual</span>
-        <span id="confirm-cargo-monto" style="font-size:18px;font-weight:800;color:#111"></span>
-      </div>
-    </div>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
-      <button onclick="_corregirCargoNuevo()" style="padding:13px;border-radius:12px;border:1.5px solid #e0e0e0;background:#fff;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit;color:#111">Corregir</button>
-      <button onclick="_confirmarCargoNuevo()" class="hold-btn" style="padding:13px;border-radius:12px;background:linear-gradient(180deg,#111,#444);color:#fff;border:none;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit"><span class="hold-label">Confirmar</span></button>
-    </div>
   </div>
 </div>
 
