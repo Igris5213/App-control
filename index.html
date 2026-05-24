@@ -4008,7 +4008,7 @@ window._buildCarruselStack = function(stackId, indexActual){
   if(!cards.length) return;
   const idx = indexActual || stack._currentIdx || 0;
   stack._currentIdx = idx;
-  const peek = 18; // px visibles de la tarjeta de atrás
+  const peek = 10; // px visibles de la tarjeta de atrás
 
   cards.forEach((card, i)=>{
     card.style.position = i === 0 ? 'relative' : 'absolute';
