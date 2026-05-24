@@ -4026,40 +4026,48 @@ window._buildCarruselStack = function(stackId, indexActual){
 
     const diff = i - safeIdx;
     if(diff < 0){
-      // tarjetas pasadas — ocultar arriba
+      // tarjetas pasadas — ocultar completamente, fuera del flujo
       card.style.transform = 'translateY(-110%) scale(0.92)';
       card.style.opacity = '0';
       card.style.zIndex = '0';
       card.style.pointerEvents = 'none';
+      card.style.visibility = 'hidden';
     } else if(diff === 0){
       // tarjeta activa — al frente
       card.style.transform = 'translateY(0) scale(1)';
       card.style.opacity = '1';
       card.style.zIndex = '2';
       card.style.pointerEvents = 'auto';
+      card.style.visibility = 'visible';
     } else if(diff === 1){
       // tarjeta de atrás — sube hasta que solo peek px son visibles debajo de la frontal
-      const h = cards[safeIdx].offsetHeight || 170;
-      card.style.transform = `translateY(${h - card.offsetHeight + peek}px) scale(0.97)`;
+      const h = cards[safeIdx].getBoundingClientRect().height || cards[safeIdx].offsetHeight || 170;
+      const ch = card.getBoundingClientRect().height || card.offsetHeight || 170;
+      card.style.transform = `translateY(${h - ch + peek}px) scale(0.97)`;
       card.style.opacity = '0.85';
       card.style.zIndex = '1';
       card.style.pointerEvents = 'none';
+      card.style.visibility = 'visible';
     } else {
-      const h = cards[safeIdx].offsetHeight || 170;
-      card.style.transform = `translateY(${h - card.offsetHeight + peek}px) scale(0.97)`;
+      const h = cards[safeIdx].getBoundingClientRect().height || cards[safeIdx].offsetHeight || 170;
+      const ch = card.getBoundingClientRect().height || card.offsetHeight || 170;
+      card.style.transform = `translateY(${h - ch + peek}px) scale(0.97)`;
       card.style.opacity = '0';
       card.style.zIndex = '0';
       card.style.pointerEvents = 'none';
+      card.style.visibility = 'hidden';
     }
   });
 
   // Altura = tarjeta activa + pequeño peek de la siguiente
   const activeCard = cards[safeIdx];
   if(activeCard){
-    const h = activeCard.offsetHeight || 170;
+    // Force layout recalculation
+    const h = activeCard.getBoundingClientRect().height || activeCard.offsetHeight || 170;
     const hasNext = safeIdx < cards.length - 1;
     stack.style.height = (h + (hasNext ? peek : 0)) + 'px';
-    stack.style.overflow = 'visible'; // dejar que asomen
+    stack.style.minHeight = h + 'px';
+    stack.style.overflow = 'visible';
   }
 };
 
