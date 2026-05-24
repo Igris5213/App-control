@@ -4036,10 +4036,10 @@ window.renderPerfiles = function(){
       <!-- ── Panel Crédito ── -->
       <div id="perfil-panel-credito" style="display:${_perfilTabActivo==='credito'?'block':'none'}">
 
-        <!-- Lista tarjetas crédito como tarjetas visuales -->
-        <div style="display:flex;flex-direction:column;gap:12px;max-height:420px;overflow-y:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;padding-right:2px;overscroll-behavior:contain">
+        <!-- Lista tarjetas crédito — carrusel vertical con snap -->
+        <div style="display:flex;flex-direction:column;gap:16px;max-height:280px;overflow-y:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;scroll-snap-type:y mandatory;overscroll-behavior:contain;padding:4px 2px">
           ${(perfil.tarjetas||[]).map((t,i)=>`
-            <div onmousedown="startLongPressPerfil(this,'credito','${t.id}')" onmouseup="cancelLongPress()" onmouseleave="cancelLongPress()" ontouchstart="startLongPressPerfil(this,'credito','${t.id}')" ontouchend="cancelLongPress()" ontouchmove="cancelLongPress()" style="position:relative;border-radius:18px;padding:18px 18px 16px;background:linear-gradient(135deg,#1a1a1a 0%,#3a3a3a 60%,#555 100%);color:#fff;box-shadow:0 6px 24px rgba(0,0,0,0.22);overflow:hidden;cursor:pointer">
+            <div onmousedown="startLongPressPerfil(this,'credito','${t.id}')" onmouseup="cancelLongPress()" onmouseleave="cancelLongPress()" ontouchstart="startLongPressPerfil(this,'credito','${t.id}')" ontouchend="cancelLongPress()" ontouchmove="cancelLongPress()" style="position:relative;border-radius:18px;padding:18px 18px 16px;background:linear-gradient(135deg,#1a1a1a 0%,#3a3a3a 60%,#555 100%);color:#fff;box-shadow:0 6px 24px rgba(0,0,0,0.22);overflow:hidden;cursor:pointer;scroll-snap-align:start;flex-shrink:0">
               <div style="position:absolute;top:-28px;right:-28px;width:110px;height:110px;border-radius:50%;background:rgba(255,255,255,0.06);pointer-events:none"></div>
               <div style="position:absolute;bottom:-18px;left:40px;width:70px;height:70px;border-radius:50%;background:rgba(255,255,255,0.04);pointer-events:none"></div>
               <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:4px">
@@ -4129,10 +4129,10 @@ window.renderPerfiles = function(){
       <!-- ── Panel Débito ── -->
       <div id="perfil-panel-debito" style="display:${_perfilTabActivo==='debito'?'block':'none'}">
 
-        <!-- Lista cuentas débito como tarjetas -->
-        <div style="display:flex;flex-direction:column;gap:12px;max-height:420px;overflow-y:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;padding-right:2px;overscroll-behavior:contain">
+        <!-- Lista cuentas débito — carrusel vertical con snap -->
+        <div style="display:flex;flex-direction:column;gap:16px;max-height:280px;overflow-y:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;scroll-snap-type:y mandatory;overscroll-behavior:contain;padding:4px 2px">
           ${(perfil.cuentasDebito && perfil.cuentasDebito.length) ? perfil.cuentasDebito.map((c,i)=>`
-            <div onmousedown="startLongPressPerfil(this,'debito','${c.id}')" onmouseup="cancelLongPress()" onmouseleave="cancelLongPress()" ontouchstart="startLongPressPerfil(this,'debito','${c.id}')" ontouchend="cancelLongPress()" ontouchmove="cancelLongPress()" style="position:relative;border-radius:18px;padding:18px 18px 16px;background:linear-gradient(135deg,#1a1a1a 0%,#3a3a3a 60%,#555 100%);color:#fff;box-shadow:0 6px 24px rgba(0,0,0,0.22);overflow:hidden;cursor:pointer">
+            <div onmousedown="startLongPressPerfil(this,'debito','${c.id}')" onmouseup="cancelLongPress()" onmouseleave="cancelLongPress()" ontouchstart="startLongPressPerfil(this,'debito','${c.id}')" ontouchend="cancelLongPress()" ontouchmove="cancelLongPress()" style="position:relative;border-radius:18px;padding:18px 18px 16px;background:linear-gradient(135deg,#1a1a1a 0%,#3a3a3a 60%,#555 100%);color:#fff;box-shadow:0 6px 24px rgba(0,0,0,0.22);overflow:hidden;cursor:pointer;scroll-snap-align:start;flex-shrink:0">
               <div style="position:absolute;top:-28px;right:-28px;width:110px;height:110px;border-radius:50%;background:rgba(255,255,255,0.06);pointer-events:none"></div>
               <div style="position:absolute;bottom:-18px;left:40px;width:70px;height:70px;border-radius:50%;background:rgba(255,255,255,0.04);pointer-events:none"></div>
               <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:4px">
