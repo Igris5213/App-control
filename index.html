@@ -3738,6 +3738,7 @@ window.mostrarPantallaPerfiles = function(){
   scr.classList.remove('hidden');
   scr.style.display = 'flex';
   renderPerfiles();
+    setTimeout(function(){ if(window._ajustarCarruselPerfil) window._ajustarCarruselPerfil(); }, 60);
 }
 
 let modoEdicion = false;        // legacy — kept for compat
@@ -3748,6 +3749,7 @@ let _perfilTabActivo   = "credito"; // tab activo en perfil: "credito" | "debito
 window.perfilSwitchTab = function(tab) {
   _perfilTabActivo = tab;
   renderPerfiles();
+    setTimeout(function(){ if(window._ajustarCarruselPerfil) window._ajustarCarruselPerfil(); }, 60);
 };
 
 function _resetEdicionPerfiles() {
@@ -3886,6 +3888,7 @@ window.guardarNuevaTarjetaModal = async function(){
     window.showSuccess('Tarjeta agregada', banco + (apodo ? ' · ' + apodo : ''));
     buildCarrusel();
     renderPerfiles();
+    setTimeout(function(){ if(window._ajustarCarruselPerfil) window._ajustarCarruselPerfil(); }, 60);
   } catch(e){ showToast('❌ Error al guardar'); }
 };
 
@@ -3956,6 +3959,7 @@ window.guardarNuevaCuentaModal = async function(){
     window.showSuccess('Cuenta agregada', nombre + (apodo ? ' · ' + apodo : ''));
     buildCarruselDebito();
     renderPerfiles();
+    setTimeout(function(){ if(window._ajustarCarruselPerfil) window._ajustarCarruselPerfil(); }, 60);
   } catch(e){ showToast('❌ Error al guardar'); }
 };
 
@@ -3975,6 +3979,7 @@ window.toggleEdicionCredito = function(){
     }, 50);
   }
   renderPerfiles();
+    setTimeout(function(){ if(window._ajustarCarruselPerfil) window._ajustarCarruselPerfil(); }, 60);
 }
 
 window.toggleEdicionDebito = function(){
@@ -3990,10 +3995,24 @@ window.toggleEdicionDebito = function(){
     }, 50);
   }
   renderPerfiles();
+    setTimeout(function(){ if(window._ajustarCarruselPerfil) window._ajustarCarruselPerfil(); }, 60);
 }
 
 // Keep old toggleEdicion pointing to credit toggle for any legacy call
 window.toggleEdicion = window.toggleEdicionCredito;
+
+window._ajustarCarruselPerfil = function(){
+  ['perfil-credito-carousel','perfil-debito-carousel'].forEach(id=>{
+    const el = document.getElementById(id);
+    if(!el) return;
+    const firstCard = el.querySelector('[style*="scroll-snap-align"]');
+    if(!firstCard) return;
+    const h = firstCard.offsetHeight;
+    if(!h) return;
+    // Show full first card + 28px peek of second
+    el.style.maxHeight = (h + 28) + 'px';
+  });
+};
 
 window.renderPerfiles = function(){
   const lista = document.getElementById('perfiles-lista');
@@ -4037,9 +4056,9 @@ window.renderPerfiles = function(){
       <div id="perfil-panel-credito" style="display:${_perfilTabActivo==='credito'?'block':'none'}">
 
         <!-- Lista tarjetas crédito — carrusel vertical con snap -->
-        <div style="display:flex;flex-direction:column;gap:16px;max-height:280px;overflow-y:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;scroll-snap-type:y mandatory;overscroll-behavior:contain;padding:4px 2px">
+        <div style="display:flex;flex-direction:column;gap:12px;max-height:calc(var(--card-h, 170px) + 28px);overflow-y:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;scroll-snap-type:y mandatory;overscroll-behavior:contain;padding-bottom:4px" id="perfil-credito-carousel">
           ${(perfil.tarjetas||[]).map((t,i)=>`
-            <div onmousedown="startLongPressPerfil(this,'credito','${t.id}')" onmouseup="cancelLongPress()" onmouseleave="cancelLongPress()" ontouchstart="startLongPressPerfil(this,'credito','${t.id}')" ontouchend="cancelLongPress()" ontouchmove="cancelLongPress()" style="position:relative;border-radius:18px;padding:18px 18px 16px;background:linear-gradient(135deg,#1a1a1a 0%,#3a3a3a 60%,#555 100%);color:#fff;box-shadow:0 6px 24px rgba(0,0,0,0.22);overflow:hidden;cursor:pointer;scroll-snap-align:start;flex-shrink:0">
+            <div onmousedown="startLongPressPerfil(this,'credito','${t.id}')" onmouseup="cancelLongPress()" onmouseleave="cancelLongPress()" ontouchstart="startLongPressPerfil(this,'credito','${t.id}')" ontouchend="cancelLongPress()" ontouchmove="cancelLongPress()" style="position:relative;border-radius:18px;padding:18px 18px 16px;background:linear-gradient(135deg,#1a1a1a 0%,#3a3a3a 60%,#555 100%);color:#fff;box-shadow:0 6px 24px rgba(0,0,0,0.22);overflow:hidden;cursor:pointer;scroll-snap-align:start;flex-shrink:0;min-height:var(--card-h,170px)">
               <div style="position:absolute;top:-28px;right:-28px;width:110px;height:110px;border-radius:50%;background:rgba(255,255,255,0.06);pointer-events:none"></div>
               <div style="position:absolute;bottom:-18px;left:40px;width:70px;height:70px;border-radius:50%;background:rgba(255,255,255,0.04);pointer-events:none"></div>
               <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:4px">
@@ -4130,9 +4149,9 @@ window.renderPerfiles = function(){
       <div id="perfil-panel-debito" style="display:${_perfilTabActivo==='debito'?'block':'none'}">
 
         <!-- Lista cuentas débito — carrusel vertical con snap -->
-        <div style="display:flex;flex-direction:column;gap:16px;max-height:280px;overflow-y:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;scroll-snap-type:y mandatory;overscroll-behavior:contain;padding:4px 2px">
+        <div style="display:flex;flex-direction:column;gap:12px;max-height:calc(var(--card-h, 170px) + 28px);overflow-y:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;scroll-snap-type:y mandatory;overscroll-behavior:contain;padding-bottom:4px" id="perfil-debito-carousel">
           ${(perfil.cuentasDebito && perfil.cuentasDebito.length) ? perfil.cuentasDebito.map((c,i)=>`
-            <div onmousedown="startLongPressPerfil(this,'debito','${c.id}')" onmouseup="cancelLongPress()" onmouseleave="cancelLongPress()" ontouchstart="startLongPressPerfil(this,'debito','${c.id}')" ontouchend="cancelLongPress()" ontouchmove="cancelLongPress()" style="position:relative;border-radius:18px;padding:18px 18px 16px;background:linear-gradient(135deg,#1a1a1a 0%,#3a3a3a 60%,#555 100%);color:#fff;box-shadow:0 6px 24px rgba(0,0,0,0.22);overflow:hidden;cursor:pointer;scroll-snap-align:start;flex-shrink:0">
+            <div onmousedown="startLongPressPerfil(this,'debito','${c.id}')" onmouseup="cancelLongPress()" onmouseleave="cancelLongPress()" ontouchstart="startLongPressPerfil(this,'debito','${c.id}')" ontouchend="cancelLongPress()" ontouchmove="cancelLongPress()" style="position:relative;border-radius:18px;padding:18px 18px 16px;background:linear-gradient(135deg,#1a1a1a 0%,#3a3a3a 60%,#555 100%);color:#fff;box-shadow:0 6px 24px rgba(0,0,0,0.22);overflow:hidden;cursor:pointer;scroll-snap-align:start;flex-shrink:0;min-height:var(--card-h,170px)">
               <div style="position:absolute;top:-28px;right:-28px;width:110px;height:110px;border-radius:50%;background:rgba(255,255,255,0.06);pointer-events:none"></div>
               <div style="position:absolute;bottom:-18px;left:40px;width:70px;height:70px;border-radius:50%;background:rgba(255,255,255,0.04);pointer-events:none"></div>
               <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:4px">
@@ -4292,6 +4311,7 @@ async function _ejecutarGuardadoTarjeta(nombre, corte, limite, apodoEdit, isCamb
     editandoTarjetaId = null;
     window._editMode = null;
     renderPerfiles();
+    setTimeout(function(){ if(window._ajustarCarruselPerfil) window._ajustarCarruselPerfil(); }, 60);
 
     // Construir resumen antes/después
     const titulo = nombre + (apodoEdit ? ' · ' + apodoEdit : '');
@@ -4327,6 +4347,7 @@ window._listoResumenDebito = async function(){
       window.perfil = perfil;
       buildCarruselDebito();
       renderPerfiles();
+    setTimeout(function(){ if(window._ajustarCarruselPerfil) window._ajustarCarruselPerfil(); }, 60);
     } catch(e){ showToast('\u274c Error al guardar'); return; }
     window._pendienteDebitoId = null;
   }
@@ -4479,6 +4500,7 @@ window.eliminarTarjetaPerfil = async function(id){
     buildCarrusel();
     showToast('Tarjeta eliminada');
     renderPerfiles();
+    setTimeout(function(){ if(window._ajustarCarruselPerfil) window._ajustarCarruselPerfil(); }, 60);
   }catch(e){ showToast('❌ Error al eliminar'); }
 }
 
@@ -4505,6 +4527,7 @@ window.guardarNuevaTarjeta = async function(){
     selectedCorteEdit = null;
     window.showSuccess('Tarjeta agregada', `${nombre}${apodoNueva ? ' · ' + apodoNueva : ''} — Corte día ${corte}`);
     renderPerfiles();
+    setTimeout(function(){ if(window._ajustarCarruselPerfil) window._ajustarCarruselPerfil(); }, 60);
   }catch(e){ showToast('❌ Error al guardar'); }
 }
 
@@ -4558,6 +4581,7 @@ window.guardarNuevaDebito = async function(){
     window.showSuccess('Cuenta agregada', `${nombre}${apodo ? ' · ' + apodo : ''}`);
     buildCarruselDebito();
     renderPerfiles();
+    setTimeout(function(){ if(window._ajustarCarruselPerfil) window._ajustarCarruselPerfil(); }, 60);
   } catch(e){ showToast('❌ Error al guardar'); }
 }
 
@@ -4581,6 +4605,7 @@ window.eliminarDebitoPerfil = async function(id){
     showToast('Cuenta eliminada');
     buildCarruselDebito();
     renderPerfiles();
+    setTimeout(function(){ if(window._ajustarCarruselPerfil) window._ajustarCarruselPerfil(); }, 60);
   } catch(e){ showToast('❌ Error al eliminar'); }
 }
 
@@ -4642,6 +4667,7 @@ window.guardarEdicionDebito = async function(){
       window.perfil = perfil;
       buildCarruselDebito();
       renderPerfiles();
+    setTimeout(function(){ if(window._ajustarCarruselPerfil) window._ajustarCarruselPerfil(); }, 60);
       window.showSuccess('Cuenta actualizada', '');
     } catch(e){ showToast('\u274c Error al guardar'); }
   }
@@ -8025,6 +8051,7 @@ window.confirmarEliminarBanco = function(){
   setDoc(doc(db,'usuarios', currentUser.uid, 'perfil','datos'), perfil)
     .then(()=>{
       buildCarrusel(); renderPerfiles();
+    setTimeout(function(){ if(window._ajustarCarruselPerfil) window._ajustarCarruselPerfil(); }, 60);
       const nombre  = eliminada ? eliminada.nombre : 'Tarjeta';
       const apodo   = eliminada?.apodo ? ` · ${eliminada.apodo}` : '';
       const limite  = eliminada ? `$${eliminada.limite.toLocaleString('es-MX')}` : '';
@@ -9191,6 +9218,7 @@ window.confirmarEliminarBanco = function(){
   setDoc(doc(db,'usuarios', currentUser.uid, 'perfil','datos'), perfil)
     .then(()=>{
       buildCarrusel(); renderPerfiles();
+    setTimeout(function(){ if(window._ajustarCarruselPerfil) window._ajustarCarruselPerfil(); }, 60);
       const nombre  = eliminada ? eliminada.nombre : 'Tarjeta';
       const apodo   = eliminada?.apodo ? ` · ${eliminada.apodo}` : '';
       const limite  = eliminada ? `$${eliminada.limite.toLocaleString('es-MX')}` : '';
