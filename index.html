@@ -4008,7 +4008,7 @@ window._buildCarruselStack = function(stackId, indexActual){
   if(!cards.length) return;
   const idx = indexActual || stack._currentIdx || 0;
   stack._currentIdx = idx;
-  const peek = 10; // px visibles de la tarjeta de atrás
+  const peek = 14; // px — solo el borde inferior redondeado asoma
 
   cards.forEach((card, i)=>{
     card.style.position = i === 0 ? 'relative' : 'absolute';
@@ -4031,16 +4031,17 @@ window._buildCarruselStack = function(stackId, indexActual){
       card.style.zIndex = '2';
       card.style.pointerEvents = 'auto';
     } else if(diff === 1){
-      // siguiente tarjeta — asoma por abajo
+      // siguiente tarjeta — solo el borde inferior asoma por abajo, sin escalar
       const h = cards[idx].offsetHeight || 170;
-      card.style.transform = `translateY(${h - peek}px) scale(0.95)`;
-      card.style.opacity = '0.85';
+      card.style.transform = `translateY(${h - peek}px) scale(0.96)`;
+      card.style.opacity = '0.5';
       card.style.zIndex = '1';
       card.style.pointerEvents = 'none';
+      card.style.borderRadius = '18px';
     } else {
-      // resto — ocultar debajo
+      // resto — completamente oculto
       const h = cards[idx].offsetHeight || 170;
-      card.style.transform = `translateY(${h - peek + 8}px) scale(0.90)`;
+      card.style.transform = `translateY(${h}px) scale(0.96)`;
       card.style.opacity = '0';
       card.style.zIndex = '0';
       card.style.pointerEvents = 'none';
