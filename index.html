@@ -3988,10 +3988,10 @@ window.renderPerfiles = function(){
       <!-- ── Panel Crédito ── -->
       <div id="perfil-panel-credito" style="display:${_perfilTabActivo==='credito'?'block':'none'}">
 
-        <!-- Lista tarjetas crédito como tarjetas visuales -->
-        <div style="display:flex;flex-direction:column;gap:12px">
+        <!-- Lista tarjetas crédito como tarjetas visuales — scroll interno máx 3 tarjetas -->
+        <div style="max-height:calc(3 * (120px + 12px));overflow-y:auto;display:flex;flex-direction:column;gap:12px;padding-right:2px;scrollbar-width:thin;scrollbar-color:#e0e0e0 transparent;-webkit-overflow-scrolling:touch;">
           ${(perfil.tarjetas||[]).map((t,i)=>`
-            <div onmousedown="startLongPressPerfil(this,'credito','${t.id}')" onmouseup="cancelLongPress()" onmouseleave="cancelLongPress()" ontouchstart="startLongPressPerfil(this,'credito','${t.id}')" ontouchend="cancelLongPress()" ontouchmove="cancelLongPress()" style="position:relative;border-radius:18px;padding:18px 18px 16px;background:linear-gradient(135deg,#1a1a1a 0%,#3a3a3a 60%,#555 100%);color:#fff;box-shadow:0 6px 24px rgba(0,0,0,0.22);overflow:hidden;cursor:pointer">
+            <div onmousedown="startLongPressPerfil(this,'credito','${t.id}')" onmouseup="cancelLongPress()" onmouseleave="cancelLongPress()" ontouchstart="startLongPressPerfil(this,'credito','${t.id}')" ontouchend="cancelLongPress()" ontouchmove="cancelLongPress()" style="position:relative;border-radius:18px;padding:18px 18px 16px;background:linear-gradient(135deg,#1a1a1a 0%,#3a3a3a 60%,#555 100%);color:#fff;box-shadow:0 6px 24px rgba(0,0,0,0.22);overflow:hidden;cursor:pointer;flex-shrink:0">
               <div style="position:absolute;top:-28px;right:-28px;width:110px;height:110px;border-radius:50%;background:rgba(255,255,255,0.06);pointer-events:none"></div>
               <div style="position:absolute;bottom:-18px;left:40px;width:70px;height:70px;border-radius:50%;background:rgba(255,255,255,0.04);pointer-events:none"></div>
               <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:4px">
@@ -4012,12 +4012,12 @@ window.renderPerfiles = function(){
               </div>
             </div>`).join('')}
           ${!(perfil.tarjetas||[]).length ? `<div style="text-align:center;color:#ccc;font-size:13px;padding:10px 0">Sin tarjetas de cr\u00e9dito</div>` : ''}
-        <!-- Botón agregar tarjeta siempre visible -->
+        </div>
+        <!-- Botón agregar tarjeta — fuera del scroll, siempre visible -->
         <button onclick="abrirFormNuevaTarjeta()"
-          style="width:100%;padding:12px;border-radius:10px;border:1.5px dashed #ccc;background:#fafafa;color:#555;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;margin-top:8px">
+          style="width:100%;padding:12px;border-radius:10px;border:1.5px dashed #ccc;background:#fafafa;color:#555;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;margin-top:12px">
           + Agregar tarjeta de crédito
         </button>
-        </div>
 
         <!-- Agregar tarjeta crédito (modo edición) -->
         ${modoEdicionCredito ? `
@@ -4081,10 +4081,10 @@ window.renderPerfiles = function(){
       <!-- ── Panel Débito ── -->
       <div id="perfil-panel-debito" style="display:${_perfilTabActivo==='debito'?'block':'none'}">
 
-        <!-- Lista cuentas débito como tarjetas -->
-        <div style="display:flex;flex-direction:column;gap:12px">
+        <!-- Lista cuentas débito como tarjetas — scroll interno máx 3 tarjetas -->
+        <div style="max-height:calc(3 * (120px + 12px));overflow-y:auto;display:flex;flex-direction:column;gap:12px;padding-right:2px;scrollbar-width:thin;scrollbar-color:#e0e0e0 transparent;-webkit-overflow-scrolling:touch;">
           ${(perfil.cuentasDebito && perfil.cuentasDebito.length) ? perfil.cuentasDebito.map((c,i)=>`
-            <div onmousedown="startLongPressPerfil(this,'debito','${c.id}')" onmouseup="cancelLongPress()" onmouseleave="cancelLongPress()" ontouchstart="startLongPressPerfil(this,'debito','${c.id}')" ontouchend="cancelLongPress()" ontouchmove="cancelLongPress()" style="position:relative;border-radius:18px;padding:18px 18px 16px;background:linear-gradient(135deg,#1a1a1a 0%,#3a3a3a 60%,#555 100%);color:#fff;box-shadow:0 6px 24px rgba(0,0,0,0.22);overflow:hidden;cursor:pointer">
+            <div onmousedown="startLongPressPerfil(this,'debito','${c.id}')" onmouseup="cancelLongPress()" onmouseleave="cancelLongPress()" ontouchstart="startLongPressPerfil(this,'debito','${c.id}')" ontouchend="cancelLongPress()" ontouchmove="cancelLongPress()" style="position:relative;border-radius:18px;padding:18px 18px 16px;background:linear-gradient(135deg,#1a1a1a 0%,#3a3a3a 60%,#555 100%);color:#fff;box-shadow:0 6px 24px rgba(0,0,0,0.22);overflow:hidden;cursor:pointer;flex-shrink:0">
               <div style="position:absolute;top:-28px;right:-28px;width:110px;height:110px;border-radius:50%;background:rgba(255,255,255,0.06);pointer-events:none"></div>
               <div style="position:absolute;bottom:-18px;left:40px;width:70px;height:70px;border-radius:50%;background:rgba(255,255,255,0.04);pointer-events:none"></div>
               <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:4px">
@@ -4105,12 +4105,12 @@ window.renderPerfiles = function(){
               </div>
             </div>`).join('')
           : `<div style="text-align:center;color:#ccc;font-size:13px;padding:10px 0">Sin cuentas de d\u00e9bito</div>`}
-        <!-- Botón agregar cuenta débito siempre visible -->
+        </div>
+        <!-- Botón agregar cuenta débito — fuera del scroll, siempre visible -->
         <button onclick="abrirFormNuevaCuenta()"
-          style="width:100%;padding:12px;border-radius:10px;border:1.5px dashed #ccc;background:#fafafa;color:#555;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;margin-top:8px">
+          style="width:100%;padding:12px;border-radius:10px;border:1.5px dashed #ccc;background:#fafafa;color:#555;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;margin-top:12px">
           + Agregar cuenta de débito
         </button>
-        </div>
 
         <!-- Agregar cuenta débito (modo edición) -->
         ${modoEdicionDebito ? `
