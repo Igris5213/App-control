@@ -3702,6 +3702,22 @@ window.perfilSwitchTab = function(tab) {
   renderPerfiles();
 };
 
+function _ajustarAlturaScroll(scrollId) {
+  requestAnimationFrame(function() {
+    var el = document.getElementById(scrollId);
+    if (!el) return;
+    var tarjetas = el.children;
+    if (tarjetas.length === 0) return;
+    // Mide la altura real de la primera tarjeta + su gap
+    var gap = 12;
+    var alturaUna = tarjetas[0].getBoundingClientRect().height;
+    // Máx-height = 3 tarjetas + 2 gaps entre ellas
+    el.style.maxHeight = (alturaUna * 3 + gap * 2) + 'px';
+    el.style.overflow = 'hidden';
+    el.style.overflowY = tarjetas.length > 3 ? 'auto' : 'hidden';
+  });
+}
+
 function _resetEdicionPerfiles() {
   if (modoEdicionCredito || modoEdicionDebito) {
     modoEdicionCredito = false;
@@ -3989,7 +4005,7 @@ window.renderPerfiles = function(){
       <div id="perfil-panel-credito" style="display:${_perfilTabActivo==='credito'?'block':'none'}">
 
         <!-- Lista tarjetas crédito como tarjetas visuales — scroll interno máx 3 tarjetas -->
-        <div style="max-height:calc(3 * 170px + 2 * 12px);overflow:hidden;overflow-y:auto;display:flex;flex-direction:column;gap:12px;padding-right:2px;scrollbar-width:thin;scrollbar-color:#e0e0e0 transparent;-webkit-overflow-scrolling:touch;border-radius:4px;">
+        <div style="overflow-y:auto;display:flex;flex-direction:column;gap:12px;padding-right:2px;scrollbar-width:thin;scrollbar-color:#e0e0e0 transparent;-webkit-overflow-scrolling:touch;" id="credito-scroll">
           ${(perfil.tarjetas||[]).map((t,i)=>`
             <div onmousedown="startLongPressPerfil(this,'credito','${t.id}')" onmouseup="cancelLongPress()" onmouseleave="cancelLongPress()" ontouchstart="startLongPressPerfil(this,'credito','${t.id}')" ontouchend="cancelLongPress()" ontouchmove="cancelLongPress()" style="position:relative;border-radius:18px;padding:18px 18px 16px;background:linear-gradient(135deg,#1a1a1a 0%,#3a3a3a 60%,#555 100%);color:#fff;box-shadow:0 6px 24px rgba(0,0,0,0.22);overflow:hidden;cursor:pointer;flex-shrink:0">
               <div style="position:absolute;top:-28px;right:-28px;width:110px;height:110px;border-radius:50%;background:rgba(255,255,255,0.06);pointer-events:none"></div>
@@ -4082,7 +4098,7 @@ window.renderPerfiles = function(){
       <div id="perfil-panel-debito" style="display:${_perfilTabActivo==='debito'?'block':'none'}">
 
         <!-- Lista cuentas débito como tarjetas — scroll interno máx 3 tarjetas -->
-        <div style="max-height:calc(3 * 170px + 2 * 12px);overflow:hidden;overflow-y:auto;display:flex;flex-direction:column;gap:12px;padding-right:2px;scrollbar-width:thin;scrollbar-color:#e0e0e0 transparent;-webkit-overflow-scrolling:touch;border-radius:4px;">
+        <div style="overflow-y:auto;display:flex;flex-direction:column;gap:12px;padding-right:2px;scrollbar-width:thin;scrollbar-color:#e0e0e0 transparent;-webkit-overflow-scrolling:touch;" id="debito-scroll">
           ${(perfil.cuentasDebito && perfil.cuentasDebito.length) ? perfil.cuentasDebito.map((c,i)=>`
             <div onmousedown="startLongPressPerfil(this,'debito','${c.id}')" onmouseup="cancelLongPress()" onmouseleave="cancelLongPress()" ontouchstart="startLongPressPerfil(this,'debito','${c.id}')" ontouchend="cancelLongPress()" ontouchmove="cancelLongPress()" style="position:relative;border-radius:18px;padding:18px 18px 16px;background:linear-gradient(135deg,#1a1a1a 0%,#3a3a3a 60%,#555 100%);color:#fff;box-shadow:0 6px 24px rgba(0,0,0,0.22);overflow:hidden;cursor:pointer;flex-shrink:0">
               <div style="position:absolute;top:-28px;right:-28px;width:110px;height:110px;border-radius:50%;background:rgba(255,255,255,0.06);pointer-events:none"></div>
@@ -4155,6 +4171,8 @@ window.renderPerfiles = function(){
       </div><!-- /panel débito -->
 
     </div>`;
+  _ajustarAlturaScroll('credito-scroll');
+  _ajustarAlturaScroll('debito-scroll');
 }
 
 let editandoTarjetaId = null;
