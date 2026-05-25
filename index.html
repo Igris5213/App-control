@@ -2527,7 +2527,11 @@ function movsPorCorte(tarjetaId, corte, periodoFin){
   return movimientos
     .filter(m=>m.tarjetaId===tarjetaId)
     .filter(m=>{ const f=new Date(m.fecha+'T12:00:00'); return f>=p.inicio && f<=p.fin; })
-    .sort((a,b)=>b.creadoEn-a.creadoEn);
+    .sort((a,b)=>{
+      const fa = a.fecha||'', fb = b.fecha||'';
+      if(fb !== fa) return fb.localeCompare(fa);
+      return (b.creadoEn||0) - (a.creadoEn||0);
+    });
 }
 
 function fmtDateShort(fecha,creadoEn){
@@ -2732,13 +2736,10 @@ window.guardar = async function(){
           // Deduplicar por id para evitar entradas duplicadas
           const movMap = new Map(); movimientos.forEach(m=>movMap.set(m.id,m)); movimientos=[...movMap.values()];
           movimientos.sort((a,b)=>{ const fa=a.fecha||'',fb=b.fecha||''; return fb!==fa?fb.localeCompare(fa):(b.creadoEn||0)-(a.creadoEn||0); });
+          window.movimientos = movimientos;
           updateCards();
           renderMovimientos();
-          // Actualizar historial si está visible
-          const movFull = document.getElementById('movimientos-full');
-          if(movFull && window._pendingTarjetaId){
-            renderMovimientosFull(window._pendingTarjetaId);
-          }
+          if(typeof window._renderHistorialActivo === 'function') window._renderHistorialActivo();
           editingId = null;
           // showSuccess se muestra desde _confirmarResumenMovimiento
         } catch(e){ showToast('❌ Error: '+e.message); }
@@ -8948,8 +8949,17 @@ window._ejecutarGuardarExtDB = async function(){
 
   try{
     const { addDoc, collection } = await import('https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js');
-    await addDoc(collection(window.db, 'usuarios', window.currentUser.uid, 'movimientos'), datos);
-    // onSnapshot actualizará el array y la UI automáticamente
+    const _docRef = await addDoc(collection(window.db, 'usuarios', window.currentUser.uid, 'movimientos'), datos);
+    // Agregar al array local inmediatamente y reordenar por fecha
+    movimientos = [{ id: _docRef.id, ...datos }, ...movimientos];
+    movimientos.sort((a,b)=>{
+      const fa = a.fecha||'', fb = b.fecha||'';
+      if(fb !== fa) return fb.localeCompare(fa);
+      return (b.creadoEn||0) - (a.creadoEn||0);
+    });
+    window.movimientos = movimientos;
+    renderMovimientos();
+    if(typeof window._renderHistorialActivo === 'function') window._renderHistorialActivo();
     document.getElementById('inp-monto-ext').value    = '';
     document.getElementById('inp-fecha-ext').value    = '';
     document.getElementById('inp-comercio-ext').value = '';
@@ -10733,9 +10743,8 @@ document.addEventListener('DOMContentLoaded', function(){
         style="padding:14px;border-radius:12px;border:1.5px solid #e0e0e0;background:#fff;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit;color:#111">
         Corregir
       </button>
-      <button onclick="_confirmarResumenPromo()"
-        style="padding:14px;border-radius:12px;background:linear-gradient(180deg,#111,#444);color:#fff;border:none;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit">
-        Confirmar
+      <button onclick="_confirmarResumenPromo()" class="hold-btn"
+        style="padding:14px;border-radius:12px;background:linear-gradient(180deg,#111,#444);color:#fff;border:none;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit"><span class="hold-label">Confirmar</span>
       </button>
     </div>
   </div>
