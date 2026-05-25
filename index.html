@@ -3989,7 +3989,7 @@ window.renderPerfiles = function(){
       <div id="perfil-panel-credito" style="display:${_perfilTabActivo==='credito'?'block':'none'}">
 
         <!-- Lista tarjetas crédito como tarjetas visuales — scroll interno máx 3 tarjetas -->
-        <div style="max-height:calc(3 * (120px + 12px));overflow-y:auto;display:flex;flex-direction:column;gap:12px;padding-right:2px;scrollbar-width:thin;scrollbar-color:#e0e0e0 transparent;-webkit-overflow-scrolling:touch;">
+        <div style="max-height:calc(3 * (165px + 12px));overflow-y:auto;display:flex;flex-direction:column;gap:12px;padding-right:2px;scrollbar-width:thin;scrollbar-color:#e0e0e0 transparent;-webkit-overflow-scrolling:touch;">
           ${(perfil.tarjetas||[]).map((t,i)=>`
             <div onmousedown="startLongPressPerfil(this,'credito','${t.id}')" onmouseup="cancelLongPress()" onmouseleave="cancelLongPress()" ontouchstart="startLongPressPerfil(this,'credito','${t.id}')" ontouchend="cancelLongPress()" ontouchmove="cancelLongPress()" style="position:relative;border-radius:18px;padding:18px 18px 16px;background:linear-gradient(135deg,#1a1a1a 0%,#3a3a3a 60%,#555 100%);color:#fff;box-shadow:0 6px 24px rgba(0,0,0,0.22);overflow:hidden;cursor:pointer;flex-shrink:0">
               <div style="position:absolute;top:-28px;right:-28px;width:110px;height:110px;border-radius:50%;background:rgba(255,255,255,0.06);pointer-events:none"></div>
@@ -4082,7 +4082,7 @@ window.renderPerfiles = function(){
       <div id="perfil-panel-debito" style="display:${_perfilTabActivo==='debito'?'block':'none'}">
 
         <!-- Lista cuentas débito como tarjetas — scroll interno máx 3 tarjetas -->
-        <div style="max-height:calc(3 * (120px + 12px));overflow-y:auto;display:flex;flex-direction:column;gap:12px;padding-right:2px;scrollbar-width:thin;scrollbar-color:#e0e0e0 transparent;-webkit-overflow-scrolling:touch;">
+        <div style="max-height:calc(3 * (165px + 12px));overflow-y:auto;display:flex;flex-direction:column;gap:12px;padding-right:2px;scrollbar-width:thin;scrollbar-color:#e0e0e0 transparent;-webkit-overflow-scrolling:touch;">
           ${(perfil.cuentasDebito && perfil.cuentasDebito.length) ? perfil.cuentasDebito.map((c,i)=>`
             <div onmousedown="startLongPressPerfil(this,'debito','${c.id}')" onmouseup="cancelLongPress()" onmouseleave="cancelLongPress()" ontouchstart="startLongPressPerfil(this,'debito','${c.id}')" ontouchend="cancelLongPress()" ontouchmove="cancelLongPress()" style="position:relative;border-radius:18px;padding:18px 18px 16px;background:linear-gradient(135deg,#1a1a1a 0%,#3a3a3a 60%,#555 100%);color:#fff;box-shadow:0 6px 24px rgba(0,0,0,0.22);overflow:hidden;cursor:pointer;flex-shrink:0">
               <div style="position:absolute;top:-28px;right:-28px;width:110px;height:110px;border-radius:50%;background:rgba(255,255,255,0.06);pointer-events:none"></div>
