@@ -227,6 +227,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .amount-inp:focus{border-color:#111}
 .modal-save{width:100%;padding:14px;border-radius:12px;background:linear-gradient(180deg,#111,#444);color:#fff;border:none;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit;margin-top:4px}
 .modal-save:disabled{opacity:0.6}
+@keyframes shake{0%,100%{transform:translateX(0)}15%{transform:translateX(-8px)}30%{transform:translateX(8px)}45%{transform:translateX(-6px)}60%{transform:translateX(6px)}75%{transform:translateX(-3px)}90%{transform:translateX(3px)}}
+.shake{animation:shake 0.5s ease}
 /* ── Hold-to-confirm buttons ── */
 .hold-btn{position:relative;overflow:hidden;user-select:none;-webkit-user-select:none;cursor:pointer}
 .hold-btn .hold-progress{position:absolute;left:0;top:0;height:100%;width:0%;background:rgba(255,255,255,0.28);transition:none;pointer-events:none;border-radius:inherit;z-index:0}
@@ -236,6 +238,21 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .toast.show{opacity:1}
 
 /* Modal de éxito */
+/* ── Login feedback toast ── */
+#login-toast{position:fixed;bottom:120px;left:50%;transform:translateX(-50%) translateY(20px);z-index:9999;opacity:0;transition:opacity 0.25s,transform 0.25s;pointer-events:none;min-width:220px;max-width:280px}
+#login-toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+#login-toast .lt-box{background:#111;border-radius:16px;padding:14px 20px;display:flex;align-items:center;gap:12px;box-shadow:0 8px 32px rgba(0,0,0,0.3)}
+#login-toast .lt-icon{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+#login-toast .lt-text{font-size:14px;font-weight:600;color:#fff;white-space:nowrap}
+
+/* ── Login success overlay ── */
+#login-success-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.35);z-index:10000;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity 0.25s}
+#login-success-overlay.show{opacity:1;pointer-events:all}
+#login-success-box{background:#fff;border-radius:20px;padding:28px 32px;text-align:center;width:220px;box-shadow:0 12px 40px rgba(0,0,0,0.15);transform:scale(0.88);transition:transform 0.3s cubic-bezier(0.34,1.3,0.64,1)}
+#login-success-overlay.show #login-success-box{transform:scale(1)}
+#login-success-icon{width:52px;height:52px;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 14px}
+#login-success-title{font-size:16px;font-weight:700;color:#111}
+
 .success-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.4);z-index:9999;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity 0.3s}
 .success-overlay.show{opacity:1;pointer-events:all}
 .success-box{background:#fff;border-radius:24px;padding:36px 32px;text-align:center;box-shadow:0 12px 48px rgba(0,0,0,0.22);transform:scale(0.85);transition:transform 0.35s cubic-bezier(0.34,1.3,0.64,1)}
@@ -440,6 +457,45 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 
 
 <!-- ══ MODAL CONTRASEÑA LOGIN ══ -->
+<!-- ══ MODAL REORDENAR TARJETA ══ -->
+<div class="modal-overlay" id="modal-reordenar" onclick="if(event.target===this)this.classList.remove('open')">
+  <div class="modal" onclick="event.stopPropagation()" style="padding-bottom:28px">
+    <div class="modal-handle"></div>
+    <div style="font-size:17px;font-weight:700;color:#111;text-align:center;margin-bottom:6px">Reordenar</div>
+    <div id="reordenar-nombre" style="font-size:13px;color:#888;text-align:center;margin-bottom:20px"></div>
+    <div style="display:flex;flex-direction:column;gap:10px">
+      <button id="btn-reordenar-arriba"
+        style="width:100%;padding:14px;border-radius:12px;background:linear-gradient(180deg,#111,#444);color:#fff;border:none;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:8px">
+        <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><polyline points="18 15 12 9 6 15"/></svg>
+        Mover arriba
+      </button>
+      <button id="btn-reordenar-abajo"
+        style="width:100%;padding:14px;border-radius:12px;background:linear-gradient(180deg,#111,#444);color:#fff;border:none;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:8px">
+        <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
+        Mover abajo
+      </button>
+      <button onclick="document.getElementById('modal-reordenar').classList.remove('open')"
+        style="width:100%;padding:13px;border-radius:12px;border:1.5px solid #e0e0e0;background:#fff;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit;color:#111">
+        Cancelar
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ MODAL SESIÓN ACTIVA ══ -->
+<div class="modal-overlay" id="modal-sesion-activa">
+  <div class="modal" onclick="event.stopPropagation()" style="text-align:center;padding-bottom:28px">
+    <div class="modal-handle"></div>
+    <div style="width:56px;height:56px;border-radius:50%;background:#fff3e0;display:flex;align-items:center;justify-content:center;margin:0 auto 16px">
+      <svg width="28" height="28" fill="none" stroke="#f57c00" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+    </div>
+    <div style="font-size:17px;font-weight:700;color:#111;margin-bottom:8px">Sesión activa</div>
+    <div style="font-size:14px;color:#888;line-height:1.5;margin-bottom:24px">Este usuario ya tiene una sesión abierta en otro dispositivo. Cierra esa sesión antes de ingresar aquí.</div>
+    <button onclick="document.getElementById('modal-sesion-activa').classList.remove('open');iniciarFlujoAuth()"
+      style="width:100%;padding:14px;border-radius:12px;background:linear-gradient(180deg,#111,#444);color:#fff;border:none;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit">Entendido</button>
+  </div>
+</div>
+
 <div class="modal-overlay" id="modal-login-pass" onclick="cerrarModalLoginPass(event)">
   <div class="modal">
     <div class="modal-handle"></div>
@@ -457,7 +513,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
     <div id="modal-login-error" style="font-size:13px;color:#e53935;min-height:18px;margin-bottom:10px;text-align:center"></div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:4px">
       <button onclick="cerrarModalLoginPass()" style="padding:13px;border-radius:12px;border:1.5px solid #e0e0e0;background:#fff;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit;color:#111">Cancelar</button>
-      <button onclick="confirmarLoginPass()" style="padding:13px;border-radius:12px;background:linear-gradient(180deg,#111,#444);color:#fff;border:none;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit">Entrar</button>
+      <button id="modal-login-ok-btn" onclick="confirmarLoginPass()" style="padding:13px;border-radius:12px;background:linear-gradient(180deg,#111,#444);color:#fff;border:none;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit">Entrar</button>
     </div>
   </div>
 </div>
@@ -1506,6 +1562,9 @@ let perfil = null;         // { nombre, tarjetas: [{id,nombre,corte,limite,color
 let movimientos = [];
 let current = 0;
 let editingId = null;
+let _sessionToken = null;
+let _unsubSession = null;
+let _bgTimer = null;
 let deletingId = null;
 let promocionesCache = []; // cache de promociones para updateCards
 let onAfterEdit = null; // callback tras editar/eliminar en ventana movimientos
@@ -2158,6 +2217,73 @@ function _syncWindowVars(){
   window.fmt                = fmt;
   window.promocionesCache   = promocionesCache;
   window.onAfterEdit        = onAfterEdit;
+}
+
+// ── Control de sesión única ──────────────────────────────────────
+const SESSION_TIMEOUT_MS = 30000; // 30 seg sin heartbeat = sesión expirada
+
+function _generarToken(){
+  return Date.now().toString(36) + Math.random().toString(36).substr(2,9);
+}
+
+async function _verificarYRegistrarSesion(){
+  const sesionRef = doc(db,'usuarios', loginUsuarioActivo, 'auth','sesion');
+  try{
+    const snap = await getDoc(sesionRef);
+    if(snap.exists()){
+      const data = snap.data();
+      const edad = Date.now() - (data.ts || 0);
+      if(data.token && edad < SESSION_TIMEOUT_MS){
+        return false; // sesión activa en otro dispositivo
+      }
+    }
+  } catch(e){}
+  _sessionToken = _generarToken();
+  await setDoc(sesionRef, { token: _sessionToken, ts: Date.now(), device: navigator.userAgent.substring(0,80) });
+  return true;
+}
+
+function _iniciarHeartbeat(){
+  if(window._heartbeatInterval) clearInterval(window._heartbeatInterval);
+  window._heartbeatInterval = setInterval(async ()=>{
+    if(!_sessionToken || !loginUsuarioActivo) return;
+    const sesionRef = doc(db,'usuarios', loginUsuarioActivo, 'auth','sesion');
+    try{
+      const snap = await getDoc(sesionRef);
+      if(!snap.exists() || snap.data().token !== _sessionToken){
+        clearInterval(window._heartbeatInterval);
+        return;
+      }
+      setDoc(sesionRef, { token: _sessionToken, ts: Date.now() }, { merge: true }).catch(()=>{});
+    } catch(e){}
+  }, 15000);
+}
+
+function _monitorearSesion(){
+  if(_unsubSession){ _unsubSession(); _unsubSession = null; }
+  _unsubSession = onSnapshot(doc(db,'usuarios', loginUsuarioActivo, 'auth','sesion'), snap=>{
+    if(!snap.exists() || !_sessionToken) return;
+    if(snap.data().token && snap.data().token !== _sessionToken){
+      _cerrarSesionForzado();
+    }
+  });
+}
+
+function _cerrarSesionForzado(){
+  if(_unsubSession){ _unsubSession(); _unsubSession = null; }
+  if(window._heartbeatInterval){ clearInterval(window._heartbeatInterval); }
+  if(_unsubMovimientos){ _unsubMovimientos(); _unsubMovimientos = null; }
+  _sessionToken = null;
+  showToast('⚠️ Sesión iniciada en otro dispositivo');
+  setTimeout(()=>{
+    perfil = null; movimientos = []; tarjetasOb = []; tarjetasDebOb = [];
+    loginUsuarioActivo = null;
+    currentUser = { uid: 'usuario' };
+    document.getElementById('main-app').style.display = 'none';
+    document.getElementById('main-app').classList.remove('visible');
+    document.getElementById('bottom-nav').style.display = 'none';
+    iniciarFlujoAuth();
+  }, 2000);
 }
 
 async function iniciarApp(){
@@ -2919,6 +3045,44 @@ async function eliminarPerfil(){
 }
 
 // ── Toast ────────────────────────────────────────
+window.showLoginToast = function(tipo, mensaje){
+  const toast  = document.getElementById('login-toast');
+  const icon   = document.getElementById('lt-icon');
+  const text   = document.getElementById('lt-text');
+  if(!toast) return;
+  text.textContent = mensaje;
+  if(tipo === 'ok'){
+    icon.style.background = '#fff';
+    icon.innerHTML = '<svg width="16" height="16" fill="none" stroke="#111" stroke-width="2.5" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>';
+  } else {
+    icon.style.background = '#e53935';
+    icon.innerHTML = '<svg width="16" height="16" fill="none" stroke="#fff" stroke-width="2.5" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>';
+  }
+  toast.classList.add('show');
+  setTimeout(()=>toast.classList.remove('show'), 2000);
+};
+
+window.showLoginSuccess = function(tipo, titulo, callback){
+  const ov    = document.getElementById('login-success-overlay');
+  const icon  = document.getElementById('login-success-icon');
+  const title = document.getElementById('login-success-title');
+  if(!ov) return;
+
+  title.textContent = titulo;
+  if(tipo === 'ok'){
+    icon.style.background = '#111';
+    icon.innerHTML = '<svg width="22" height="22" fill="none" stroke="#fff" stroke-width="2.5" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>';
+  } else {
+    icon.style.background = '#111';
+    icon.innerHTML = '<svg width="22" height="22" fill="none" stroke="#fff" stroke-width="2.5" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>';
+  }
+  ov.classList.add('show');
+  setTimeout(()=>{
+    ov.classList.remove('show');
+    if(callback) setTimeout(callback, 250);
+  }, 1600);
+};
+
 window.showSuccess = function showSuccess(titulo='Movimiento guardado', subtitulo='Tu gasto fue registrado correctamente'){
   const overlay = document.getElementById('success-overlay');
   const subEl = overlay.querySelector('.success-sub');
@@ -3031,16 +3195,36 @@ window.cerrarModalLoginPass = function(e){
 }
 
 window.confirmarLoginPass = function(){
-  const pass = document.getElementById('modal-auth-pass').value;
+  const pass  = document.getElementById('modal-auth-pass').value;
   const errEl = document.getElementById('modal-login-error');
+  const passEl = document.getElementById('modal-auth-pass');
   errEl.textContent = '';
+  if(!pass){ errEl.textContent = 'Ingresa tu contraseña'; return; }
+
   const lista = getUsuarios();
   const u = lista.find(x=>x.user===loginUsuarioActivo);
+  const modalPass = document.getElementById('modal-login-pass');
+
   if(!u || u.hash !== hashSimple(u.user+pass)){
-    errEl.textContent = 'Contraseña incorrecta';
+    // Shake en el campo
+    passEl.classList.remove('shake');
+    void passEl.offsetWidth;
+    passEl.classList.add('shake');
+    passEl.style.borderColor = '#e53935';
+    passEl.value = '';
+    setTimeout(()=>{ passEl.style.borderColor = '#e0e0e0'; passEl.classList.remove('shake'); }, 600);
+    // Ocultar modal y mostrar error
+    modalPass.classList.remove('open');
+    window.showLoginSuccess('error', 'Contraseña incorrecta', ()=>{
+      // Regresar al modal con foco
+      modalPass.classList.add('open');
+      setTimeout(()=>passEl.focus(), 300);
+    });
     return;
   }
-  document.getElementById('modal-login-pass').classList.remove('open');
+
+  // Correcto — entrar directo
+  modalPass.classList.remove('open');
   entrarApp();
 }
 
@@ -3150,6 +3334,13 @@ window.cerrarSesion = function(){
 window.ejecutarCerrarSesion = function(){
   document.getElementById('modal-confirm-logout').classList.remove('show');
   const nombre = currentUser?.uid || '';
+  if(_unsubSession){ _unsubSession(); _unsubSession = null; }
+  if(window._heartbeatInterval){ clearInterval(window._heartbeatInterval); }
+  if(_bgTimer){ clearTimeout(_bgTimer); _bgTimer = null; }
+  if(_sessionToken && loginUsuarioActivo){
+    deleteDoc(doc(db,'usuarios', loginUsuarioActivo, 'auth','sesion')).catch(()=>{});
+  }
+  _sessionToken = null;
   perfil = null; movimientos = []; tarjetasOb = []; tarjetasDebOb = []; pendingUser = null;
   if(_unsubMovimientos){ _unsubMovimientos(); _unsubMovimientos = null; }
   document.querySelectorAll('.modal-overlay').forEach(m=>m.classList.remove('open'));
@@ -3696,27 +3887,18 @@ let modoEdicion = false;        // legacy — kept for compat
 let modoEdicionCredito = false;
 let modoEdicionDebito  = false;
 let _perfilTabActivo   = "credito"; // tab activo en perfil: "credito" | "debito"
+window._perfilTabActivo = _perfilTabActivo;
 
 window.perfilSwitchTab = function(tab) {
   _perfilTabActivo = tab;
+  window._perfilTabActivo = tab;
   renderPerfiles();
+  // Actualizar texto del botón agregar
+  const btn = document.getElementById('btn-agregar-tarjeta-fuera');
+  if(btn){
+    btn.textContent = tab === 'credito' ? '+ Agregar tarjeta de crédito' : '+ Agregar cuenta de débito';
+  }
 };
-
-function _ajustarAlturaScroll(scrollId) {
-  requestAnimationFrame(function() {
-    var el = document.getElementById(scrollId);
-    if (!el) return;
-    var tarjetas = el.children;
-    if (tarjetas.length === 0) return;
-    // Mide la altura real de la primera tarjeta + su gap
-    var gap = 12;
-    var alturaUna = tarjetas[0].getBoundingClientRect().height;
-    // Máx-height = 3 tarjetas + 2 gaps entre ellas
-    el.style.maxHeight = (alturaUna * 3 + gap * 2) + 'px';
-    el.style.overflow = 'hidden';
-    el.style.overflowY = tarjetas.length > 3 ? 'auto' : 'hidden';
-  });
-}
 
 function _resetEdicionPerfiles() {
   if (modoEdicionCredito || modoEdicionDebito) {
@@ -3728,17 +3910,198 @@ function _resetEdicionPerfiles() {
 
 // ── Long Press en tarjetas de perfil ──────────────────────
 let _longPressPerfilTimer = null;
+let _longPressStartY = 0;
+let _longPressStartX = 0;
 
 window.startLongPressPerfil = function(el, tipo, id){
+  _longPressStartY = event?.touches?.[0]?.clientY || 0;
+  _longPressStartX = event?.touches?.[0]?.clientX || 0;
   _longPressPerfilTimer = setTimeout(()=>{
     _longPressPerfilTimer = null;
     abrirAccionesPerfil(tipo, id);
   }, 600);
 };
 
+// ── Reordenar tarjetas con drag suave ──────────────────────────
+let _drag = {
+  active: false, tipo: null, fromIdx: null, toIdx: null,
+  startY: 0, currentY: 0, offsetY: 0,
+  el: null, cardH: 0, gap: 10,
+  lista: null, container: null, cards: [],
+  timer: null, raf: null
+};
+
+function _getDragContainer(tipo){
+  const panelId = tipo === 'credito' ? 'perfil-panel-credito' : 'perfil-panel-debito';
+  return document.getElementById(panelId)?.querySelector('div[style*="scroll-snap-type"]');
+}
+
+window.startReorderHandle = function(e, tipo, idx){
+  e.stopPropagation();
+  e.preventDefault();
+  const touch = e.touches?.[0] || e;
+
+  _drag.timer = setTimeout(()=>{
+    _drag.timer = null;
+    const container = _getDragContainer(tipo);
+    if(!container) return;
+    const cards = Array.from(container.children);
+    const el = cards[idx];
+    if(!el) return;
+
+    _drag.active   = true;
+    _drag.tipo     = tipo;
+    _drag.fromIdx  = idx;
+    _drag.toIdx    = idx;
+    _drag.startY   = touch.clientY;
+    _drag.currentY = touch.clientY;
+    _drag.offsetY  = 0;
+    _drag.el       = el;
+    _drag.cardH    = el.offsetHeight;
+    _drag.container= container;
+    _drag.cards    = cards;
+    _drag.lista    = tipo === 'credito' ? perfil.tarjetas : perfil.cuentasDebito;
+
+    // Disable scroll snap while dragging
+    container.style.scrollSnapType = 'none';
+    container.style.overflow = 'hidden';
+
+    // Lift dragging card
+    el.style.transition = 'transform 0.05s, box-shadow 0.2s, opacity 0.2s';
+    el.style.opacity    = '0.85';
+    el.style.zIndex     = '20';
+    el.style.boxShadow  = '0 16px 48px rgba(0,0,0,0.5)';
+    el.style.transform  = 'scale(1.03)';
+
+    if(navigator.vibrate) navigator.vibrate(40);
+
+    // Set other cards with smooth transition
+    cards.forEach((c, i) => {
+      if(i !== idx){
+        c.style.transition = 'transform 0.25s cubic-bezier(0.4,0,0.2,1)';
+      }
+    });
+  }, 400);
+};
+
+document.addEventListener('touchmove', function(e){
+  if(!_drag.active || !_drag.el) return;
+  e.preventDefault();
+
+  const touch = e.touches[0];
+  _drag.offsetY  = touch.clientY - _drag.startY;
+  _drag.currentY = touch.clientY;
+
+  // Move dragging card with finger
+  _drag.el.style.transition = 'box-shadow 0.2s, opacity 0.2s';
+  _drag.el.style.transform  = `translateY(${_drag.offsetY}px) scale(1.03)`;
+
+  // Calculate which slot we're hovering
+  const step   = _drag.cardH + _drag.gap;
+  const newIdx = Math.max(0, Math.min(
+    _drag.lista.length - 1,
+    _drag.fromIdx + Math.round(_drag.offsetY / step)
+  ));
+
+  if(newIdx !== _drag.toIdx){
+    _drag.toIdx = newIdx;
+    // Animate other cards out of the way
+    _drag.cards.forEach((c, i) => {
+      if(c === _drag.el) return;
+      let shift = 0;
+      const from = _drag.fromIdx;
+      const to   = _drag.toIdx;
+      if(from < to){
+        // Moving down: cards between from+1 and to shift up
+        if(i > from && i <= to) shift = -(step);
+      } else if(from > to){
+        // Moving up: cards between to and from-1 shift down
+        if(i >= to && i < from) shift = step;
+      }
+      c.style.transform = shift !== 0 ? `translateY(${shift}px)` : 'translateY(0)';
+    });
+  }
+}, {passive: false});
+
+document.addEventListener('touchend', async function(){
+  if(_drag.timer){ clearTimeout(_drag.timer); _drag.timer = null; }
+  if(!_drag.active) return;
+  _drag.active = false;
+
+  // Restore scroll snap
+  if(_drag.container){
+    _drag.container.style.scrollSnapType = '';
+    _drag.container.style.overflow = '';
+  }
+
+  // Snap to final position
+  if(_drag.el){
+    _drag.el.style.transition = 'transform 0.3s cubic-bezier(0.4,0,0.2,1), box-shadow 0.2s, opacity 0.2s';
+    _drag.el.style.transform  = '';
+    _drag.el.style.opacity    = '';
+    _drag.el.style.zIndex     = '';
+    _drag.el.style.boxShadow  = '';
+  }
+  _drag.cards.forEach(c => {
+    c.style.transition = 'transform 0.3s cubic-bezier(0.4,0,0.2,1)';
+    c.style.transform  = '';
+  });
+
+  // Reorder array if position changed
+  if(_drag.fromIdx !== _drag.toIdx){
+    const lista  = _drag.lista;
+    const moved  = lista.splice(_drag.fromIdx, 1)[0];
+    lista.splice(_drag.toIdx, 0, moved);
+
+    // Actualizar carrusel INMEDIATAMENTE
+    if(_drag.tipo === 'credito'){
+      perfil.tarjetas = lista;
+      current = 0;
+      buildCarrusel();
+      updateCards();
+      renderMovimientos();
+    } else {
+      perfil.cuentasDebito = lista;
+      if(typeof _buildDebCarrusel === 'function') _buildDebCarrusel();
+      else if(typeof _updateDebCards === 'function') _updateDebCards();
+    }
+
+    setTimeout(async ()=>{
+      renderPerfiles();
+      try{
+        await setDoc(doc(db,'usuarios', currentUser.uid, 'perfil','datos'), perfil);
+      } catch(e){ showToast('Error al guardar orden'); }
+    }, 320);
+  }
+
+  _drag.el = null;
+  _drag.container = null;
+  _drag.cards = [];
+}, {passive: true});
+
+window.cancelLongPressIfMoved = function(e){
+  if(!_longPressPerfilTimer) return;
+  const touch = e?.touches?.[0] || e?.changedTouches?.[0];
+  if(!touch) { window.cancelLongPress(); return; }
+  const dx = Math.abs(touch.clientX - _longPressStartX);
+  const dy = Math.abs(touch.clientY - _longPressStartY);
+  if(dx > 8 || dy > 8) window.cancelLongPress();
+};
+
+// Global touchmove — cancel perfil long press if finger moves while scrolling
+document.addEventListener('touchmove', function(e){
+  if(!_longPressPerfilTimer) return;
+  const touch = e.touches[0];
+  const dx = Math.abs(touch.clientX - _longPressStartX);
+  const dy = Math.abs(touch.clientY - _longPressStartY);
+  if(dx > 6 || dy > 6){
+    clearTimeout(_longPressPerfilTimer);
+    _longPressPerfilTimer = null;
+  }
+}, {passive: true});
+
 window.cancelLongPress = function(){
   if(_longPressPerfilTimer){ clearTimeout(_longPressPerfilTimer); _longPressPerfilTimer = null; }
-  if(typeof _longPressTimer !== 'undefined' && _longPressTimer){ clearTimeout(_longPressTimer); _longPressTimer = null; }
 };
 
 window.abrirAccionesPerfil = function(tipo, id){
@@ -3989,7 +4352,7 @@ window.renderPerfiles = function(){
     </div>
 
     <!-- ── RECUADRO UNIFICADO: Tarjetas con Toggle Crédito / Débito ── -->
-    <div style="background:#fff;border-radius:16px;padding:18px;box-shadow:0 2px 12px rgba(0,0,0,0.08);margin-bottom:0">
+    <div style="background:#fff;border-radius:16px;padding:18px;box-shadow:0 1px 6px rgba(0,0,0,0.08);margin-bottom:12px">
 
       <!-- Toggle Crédito / Débito -->
       <div id="perfil-tab-toggle" style="display:flex;background:#ebebeb;border-radius:16px;padding:4px;margin-bottom:16px;position:relative">
@@ -4007,10 +4370,19 @@ window.renderPerfiles = function(){
       <!-- ── Panel Crédito ── -->
       <div id="perfil-panel-credito" style="display:${_perfilTabActivo==='credito'?'block':'none'}">
 
-        <!-- Lista tarjetas crédito como tarjetas visuales — scroll interno máx 3 tarjetas -->
-        <div style="overflow-y:auto;display:flex;flex-direction:column;gap:12px;padding:2px 3px;scrollbar-width:thin;scrollbar-color:#e0e0e0 transparent;-webkit-overflow-scrolling:touch;" id="credito-scroll">
+        <!-- Lista tarjetas crédito como tarjetas visuales -->
+        <div style="display:flex;flex-direction:column;gap:10px;max-height:calc(3 * 170px);overflow-y:auto;overflow-x:hidden;scroll-snap-type:y mandatory;-webkit-overflow-scrolling:touch;scrollbar-width:none;overscroll-behavior:contain">
           ${(perfil.tarjetas||[]).map((t,i)=>`
-            <div onmousedown="startLongPressPerfil(this,'credito','${t.id}')" onmouseup="cancelLongPress()" onmouseleave="cancelLongPress()" ontouchstart="startLongPressPerfil(this,'credito','${t.id}')" ontouchend="cancelLongPress()" ontouchmove="cancelLongPress()" style="position:relative;border-radius:18px;padding:18px 18px 16px;background:linear-gradient(135deg,#1a1a1a 0%,#3a3a3a 60%,#555 100%);color:#fff;box-shadow:0 2px 8px rgba(0,0,0,0.15);overflow:hidden;cursor:pointer;flex-shrink:0">
+            <div style="position:relative;border-radius:18px;padding:18px 18px 16px;background:linear-gradient(135deg,#1a1a1a 0%,#3a3a3a 60%,#555 100%);color:#fff;overflow:hidden;scroll-snap-align:start;flex-shrink:0">
+              <!-- Área principal long press -->
+              <div onmousedown="startLongPressPerfil(this,'credito','${t.id}')" onmouseup="cancelLongPress()" onmouseleave="cancelLongPress()" ontouchstart="startLongPressPerfil(this,'credito','${t.id}')" ontouchend="cancelLongPress()" ontouchmove="cancelLongPressIfMoved(event)" style="position:absolute;inset:0;border-radius:18px;cursor:pointer;z-index:0"></div>
+              <!-- Handle de reordenamiento -->
+              <div onmousedown="startReorderHandle(event,'credito',${i})" ontouchstart="startReorderHandle(event,'credito',${i})"
+                style="position:absolute;top:10px;right:10px;width:28px;height:28px;display:flex;align-items:center;justify-content:center;cursor:grab;z-index:10;border-radius:8px;background:rgba(255,255,255,0.1)">
+                <svg width="14" height="14" fill="none" stroke="rgba(255,255,255,0.7)" stroke-width="2" viewBox="0 0 24 24">
+                  <line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/>
+                </svg>
+              </div>
               <div style="position:absolute;top:-28px;right:-28px;width:110px;height:110px;border-radius:50%;background:rgba(255,255,255,0.06);pointer-events:none"></div>
               <div style="position:absolute;bottom:-18px;left:40px;width:70px;height:70px;border-radius:50%;background:rgba(255,255,255,0.04);pointer-events:none"></div>
               <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:4px">
@@ -4032,6 +4404,7 @@ window.renderPerfiles = function(){
             </div>`).join('')}
           ${!(perfil.tarjetas||[]).length ? `<div style="text-align:center;color:#ccc;font-size:13px;padding:10px 0">Sin tarjetas de cr\u00e9dito</div>` : ''}
         </div>
+
 
         <!-- Agregar tarjeta crédito (modo edición) -->
         ${modoEdicionCredito ? `
@@ -4095,10 +4468,17 @@ window.renderPerfiles = function(){
       <!-- ── Panel Débito ── -->
       <div id="perfil-panel-debito" style="display:${_perfilTabActivo==='debito'?'block':'none'}">
 
-        <!-- Lista cuentas débito como tarjetas — scroll interno máx 3 tarjetas -->
-        <div style="overflow-y:auto;display:flex;flex-direction:column;gap:12px;padding:2px 3px;scrollbar-width:thin;scrollbar-color:#e0e0e0 transparent;-webkit-overflow-scrolling:touch;" id="debito-scroll">
+        <!-- Lista cuentas débito como tarjetas -->
+        <div style="display:flex;flex-direction:column;gap:10px;max-height:calc(3 * 170px);overflow-y:auto;overflow-x:hidden;scroll-snap-type:y mandatory;-webkit-overflow-scrolling:touch;scrollbar-width:none;overscroll-behavior:contain">
           ${(perfil.cuentasDebito && perfil.cuentasDebito.length) ? perfil.cuentasDebito.map((c,i)=>`
-            <div onmousedown="startLongPressPerfil(this,'debito','${c.id}')" onmouseup="cancelLongPress()" onmouseleave="cancelLongPress()" ontouchstart="startLongPressPerfil(this,'debito','${c.id}')" ontouchend="cancelLongPress()" ontouchmove="cancelLongPress()" style="position:relative;border-radius:18px;padding:18px 18px 16px;background:linear-gradient(135deg,#1a1a1a 0%,#3a3a3a 60%,#555 100%);color:#fff;box-shadow:0 2px 8px rgba(0,0,0,0.15);overflow:hidden;cursor:pointer;flex-shrink:0">
+            <div style="position:relative;border-radius:18px;padding:18px 18px 16px;background:linear-gradient(135deg,#1a1a1a 0%,#3a3a3a 60%,#555 100%);color:#fff;overflow:hidden;scroll-snap-align:start;flex-shrink:0">
+              <div onmousedown="startLongPressPerfil(this,'debito','${c.id}')" onmouseup="cancelLongPress()" onmouseleave="cancelLongPress()" ontouchstart="startLongPressPerfil(this,'debito','${c.id}')" ontouchend="cancelLongPress()" ontouchmove="cancelLongPressIfMoved(event)" style="position:absolute;inset:0;border-radius:18px;cursor:pointer;z-index:0"></div>
+              <div onmousedown="startReorderHandle(event,'debito',${i})" ontouchstart="startReorderHandle(event,'debito',${i})"
+                style="position:absolute;top:10px;right:10px;width:28px;height:28px;display:flex;align-items:center;justify-content:center;cursor:grab;z-index:10;border-radius:8px;background:rgba(255,255,255,0.1)">
+                <svg width="14" height="14" fill="none" stroke="rgba(255,255,255,0.7)" stroke-width="2" viewBox="0 0 24 24">
+                  <line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/>
+                </svg>
+              </div>
               <div style="position:absolute;top:-28px;right:-28px;width:110px;height:110px;border-radius:50%;background:rgba(255,255,255,0.06);pointer-events:none"></div>
               <div style="position:absolute;bottom:-18px;left:40px;width:70px;height:70px;border-radius:50%;background:rgba(255,255,255,0.04);pointer-events:none"></div>
               <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:4px">
@@ -4119,6 +4499,7 @@ window.renderPerfiles = function(){
               </div>
             </div>`).join('')
           : `<div style="text-align:center;color:#ccc;font-size:13px;padding:10px 0">Sin cuentas de d\u00e9bito</div>`}
+
         </div>
 
         <!-- Agregar cuenta débito (modo edición) -->
@@ -4161,23 +4542,21 @@ window.renderPerfiles = function(){
           </div>
         </div>` : ''}
 
+
+
       </div><!-- /panel débito -->
 
     </div>
 
-    ${_perfilTabActivo === 'credito' ? `
-    <button onclick="abrirFormNuevaTarjeta()"
-      style="width:100%;padding:14px;border-radius:14px;border:none;background:linear-gradient(180deg,#111,#444);color:#fff;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;margin-top:10px;box-shadow:0 2px 8px rgba(0,0,0,0.15)">
-      + Agregar tarjeta de crédito
-    </button>` : `
-    <button onclick="abrirFormNuevaCuenta()"
-      style="width:100%;padding:14px;border-radius:14px;border:none;background:linear-gradient(180deg,#111,#444);color:#fff;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;margin-top:10px;box-shadow:0 2px 8px rgba(0,0,0,0.15)">
-      + Agregar cuenta de débito
-    </button>`}
+`;
 
-  `;
-  _ajustarAlturaScroll('credito-scroll');
-  _ajustarAlturaScroll('debito-scroll');
+  // Botón agregar fuera del recuadro
+  const _wrapp = document.getElementById('btn-agregar-tarjeta-fuera');
+  if(_wrapp){
+    const _esC = _perfilTabActivo==='credito';
+    _wrapp.textContent = _esC ? '+ Agregar tarjeta de crédito' : '+ Agregar cuenta de débito';
+    _wrapp.style.display = 'block';
+  }
 }
 
 let editandoTarjetaId = null;
@@ -5528,7 +5907,13 @@ window.startLongPress = function(el){
   }, 500);
 }
 
-
+window.cancelLongPress = function(){
+  if(_longPressTimer){
+    clearTimeout(_longPressTimer);
+    _longPressTimer = null;
+    _longPressEl = null;
+  }
+}
 
 
 
@@ -9061,6 +9446,10 @@ window.confirmarEliminarPerfil = async function(){
   <div style="width:100%;max-width:390px;padding:0 4px">
     <div style="margin-bottom:20px"></div>
     <div id="perfiles-lista"></div>
+    <button id="btn-agregar-tarjeta-fuera" onclick="window._perfilTabActivo==='credito'?abrirFormNuevaTarjeta():abrirFormNuevaCuenta()"
+      style="width:100%;padding:12px;border-radius:10px;border:1.5px dashed #ccc;background:#fafafa;color:#555;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;margin-top:10px;display:none">
+      + Agregar tarjeta de crédito
+    </button>
   </div>
 </div>
 
@@ -9482,6 +9871,22 @@ window.confirmarEliminarPerfil = async function(){
 </div>
 
 <!-- Modal éxito -->
+<!-- Login success overlay -->
+<div id="login-success-overlay">
+  <div id="login-success-box">
+    <div id="login-success-icon"></div>
+    <div id="login-success-title"></div>
+  </div>
+</div>
+
+<!-- Login feedback toast -->
+<div id="login-toast">
+  <div class="lt-box">
+    <div class="lt-icon" id="lt-icon"></div>
+    <div class="lt-text" id="lt-text">Bienvenido</div>
+  </div>
+</div>
+
 <div class="success-overlay" id="success-overlay">
   <div class="success-box">
     <div class="success-icon">
