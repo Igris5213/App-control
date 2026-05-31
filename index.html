@@ -4053,20 +4053,26 @@ document.addEventListener('touchend', async function(){
     const moved  = lista.splice(_drag.fromIdx, 1)[0];
     lista.splice(_drag.toIdx, 0, moved);
 
-    // Actualizar carrusel INMEDIATAMENTE
-    if(_drag.tipo === 'credito'){
-      perfil.tarjetas = lista;
-      current = 0;
-      buildCarrusel();
-      updateCards();
-      renderMovimientos();
-    } else {
-      perfil.cuentasDebito = lista;
-      if(typeof _buildDebCarrusel === 'function') _buildDebCarrusel();
-      else if(typeof _updateDebCards === 'function') _updateDebCards();
-    }
-
+    // Wait for CSS transitions to finish before re-rendering to avoid duplicate cards
     setTimeout(async ()=>{
+      // Clear any lingering transforms before re-render
+      if(_drag.cards){
+        _drag.cards.forEach(c => { c.style.transition = ''; c.style.transform = ''; });
+      }
+
+      // Actualizar carrusel
+      if(_drag.tipo === 'credito'){
+        perfil.tarjetas = lista;
+        current = 0;
+        buildCarrusel();
+        updateCards();
+        renderMovimientos();
+      } else {
+        perfil.cuentasDebito = lista;
+        if(typeof _buildDebCarrusel === 'function') _buildDebCarrusel();
+        else if(typeof _updateDebCards === 'function') _updateDebCards();
+      }
+
       renderPerfiles();
       try{
         await setDoc(doc(db,'usuarios', currentUser.uid, 'perfil','datos'), perfil);
