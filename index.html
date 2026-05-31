@@ -2674,9 +2674,14 @@ function renderMovimientos(){
   const idx = (current >= 0 && current < perfil.tarjetas.length) ? current : 0;
   const t = perfil.tarjetas[idx];
   if(!t){ el.innerHTML=''; return; }
-  // Últimos 10 movimientos más recientes por fecha del movimiento
+  // Solo movimientos del período de corte actual
+  const { inicio, fin } = getPeriodo(t.corte);
   const filtrados = movimientos
     .filter(m => m.tarjetaId === t.id)
+    .filter(m => {
+      const f = new Date((m.fecha||'') + 'T12:00:00');
+      return f >= inicio && f <= fin;
+    })
     .sort((a,b) => {
       const fa = a.fecha || '';
       const fb = b.fecha || '';
@@ -3928,7 +3933,7 @@ let _drag = {
   startY: 0, currentY: 0, offsetY: 0,
   el: null, cardH: 0, gap: 10,
   lista: null, container: null, cards: [],
-  timer: null, raf: null
+  timer: null, raf: null, parentBox: null
 };
 
 function _getDragContainer(tipo){
@@ -3961,6 +3966,10 @@ window.startReorderHandle = function(e, tipo, idx){
     _drag.container= container;
     _drag.cards    = cards;
     _drag.lista    = tipo === 'credito' ? perfil.tarjetas : perfil.cuentasDebito;
+
+    // Clip the parent white box so dragged cards can't bleed outside it
+    const parentBox = document.getElementById('perfil-cards-box');
+    _drag.parentBox = parentBox || null;
 
     // Disable scroll snap while dragging
     container.style.scrollSnapType = 'none';
@@ -4028,13 +4037,9 @@ document.addEventListener('touchend', async function(){
   if(!_drag.active) return;
   _drag.active = false;
 
-  // Restore scroll snap
-  if(_drag.container){
-    _drag.container.style.scrollSnapType = '';
-    _drag.container.style.overflow = '';
-  }
+  _drag.parentBox = null;
 
-  // Snap to final position
+  // Snap to final position (keep overflow:hidden DURING the 300ms return animation)
   if(_drag.el){
     _drag.el.style.transition = 'transform 0.3s cubic-bezier(0.4,0,0.2,1), box-shadow 0.2s, opacity 0.2s';
     _drag.el.style.transform  = '';
@@ -4046,6 +4051,15 @@ document.addEventListener('touchend', async function(){
     c.style.transition = 'transform 0.3s cubic-bezier(0.4,0,0.2,1)';
     c.style.transform  = '';
   });
+
+  // Restore scroll snap only AFTER animations finish so cards don't bleed outside the box
+  const _containerToRestore = _drag.container;
+  setTimeout(() => {
+    if(_containerToRestore){
+      _containerToRestore.style.scrollSnapType = '';
+      _containerToRestore.style.overflow = '';
+    }
+  }, 320);
 
   // Reorder array if position changed
   if(_drag.fromIdx !== _drag.toIdx){
@@ -4358,7 +4372,7 @@ window.renderPerfiles = function(){
     </div>
 
     <!-- ── RECUADRO UNIFICADO: Tarjetas con Toggle Crédito / Débito ── -->
-    <div style="background:#fff;border-radius:16px;padding:18px;box-shadow:0 1px 6px rgba(0,0,0,0.08);margin-bottom:12px">
+    <div id="perfil-cards-box" style="background:#fff;border-radius:16px;padding:18px;box-shadow:0 1px 6px rgba(0,0,0,0.08);margin-bottom:12px;overflow:hidden">
 
       <!-- Toggle Crédito / Débito -->
       <div id="perfil-tab-toggle" style="display:flex;background:#ebebeb;border-radius:16px;padding:4px;margin-bottom:16px;position:relative">
