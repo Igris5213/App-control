@@ -2487,22 +2487,27 @@ function getMesPagoPromo(corte, creadoEn, periodoFin){
 function getPeriodo(corte, ref=today){
   const r = ref instanceof Date ? ref : today;
   const d=r.getDate(), m=r.getMonth(), y=r.getFullYear();
+
+  // Período: desde el día de corte (inclusive) hasta el día anterior al siguiente corte.
+  // Ej. corte=10 -> 10 abr al 9 may. Ambos extremos ajustados al día hábil anterior
+  // si caen en fin de semana o festivo.
   let inicioRaw, finRaw;
-  if(d<=corte){
+  if(d < corte){
+    // Estamos antes del corte: período del corte del mes pasado al (corte-1) de este mes
     const pm=m===0?11:m-1, py=m===0?y-1:y;
-    inicioRaw=new Date(py,pm,corte+1);
-    finRaw=new Date(y,m,corte);
+    inicioRaw = new Date(py, pm, corte);
+    finRaw    = new Date(y,  m,  corte - 1);
   } else {
-    inicioRaw=new Date(y,m,corte+1);
+    // En el corte o después: período del corte de este mes al (corte-1) del siguiente
+    inicioRaw = new Date(y, m, corte);
     const nm=m===11?0:m+1, ny=m===11?y+1:y;
-    finRaw=new Date(ny,nm,corte);
+    finRaw    = new Date(ny, nm, corte - 1);
   }
-  // fin para mostrar (ajustado a día hábil) vs fin real para clasificar movimientos
-  const finMostrar = diaHabilAnterior(new Date(finRaw));
-  const inicio = inicioRaw;
-  // Para clasificar movimientos usamos finRaw (fecha exacta del corte)
-  const fin = finRaw;
-  const dias = Math.max(0,Math.ceil((finMostrar-today)/86400000));
+
+  const inicio     = diaHabilAnterior(new Date(inicioRaw));
+  const fin        = diaHabilAnterior(new Date(finRaw));
+  const finMostrar = fin;
+  const dias = Math.max(0, Math.ceil((fin - today) / 86400000));
   return { inicio, fin, finMostrar, dias };
 }
 
