@@ -50,6 +50,7 @@
 /* Excepción: scroll de tarjetas en perfiles */
 .perfil-cards-scroll {
   overscroll-behavior-y: contain !important;
+  touch-action: pan-y !important;
 }
 
 /* Indicador pull-to-refresh login */
@@ -4054,7 +4055,6 @@ function _getDragContainer(tipo){
 
 window.startReorderHandle = function(e, tipo, idx){
   e.stopPropagation();
-  e.preventDefault();
   const touch = e.touches?.[0] || e;
 
   _drag.timer = setTimeout(()=>{
