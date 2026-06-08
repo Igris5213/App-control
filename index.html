@@ -4452,7 +4452,7 @@ window.renderPerfiles = function(){
       <div id="perfil-panel-credito" style="display:${_perfilTabActivo==='credito'?'block':'none'}">
 
         <!-- Lista tarjetas crédito como tarjetas visuales -->
-        <div style="display:flex;flex-direction:column;gap:10px;max-height:calc(3 * 170px);overflow-y:auto;overflow-x:hidden;scroll-snap-type:y mandatory;-webkit-overflow-scrolling:touch;scrollbar-width:none;overscroll-behavior:contain">
+        <div style="display:flex;flex-direction:column;gap:10px;max-height:calc(3 * 170px);overflow-y:auto;overflow-x:hidden;scroll-snap-type:y mandatory;-webkit-overflow-scrolling:touch;scrollbar-width:none;overscroll-behavior-y:contain!important">
           ${(perfil.tarjetas||[]).map((t,i)=>`
             <div style="position:relative;border-radius:18px;padding:18px 18px 16px;background:linear-gradient(135deg,#1a1a1a 0%,#3a3a3a 60%,#555 100%);color:#fff;overflow:hidden;scroll-snap-align:start;flex-shrink:0">
               <!-- Área principal long press -->
@@ -4550,7 +4550,7 @@ window.renderPerfiles = function(){
       <div id="perfil-panel-debito" style="display:${_perfilTabActivo==='debito'?'block':'none'}">
 
         <!-- Lista cuentas débito como tarjetas -->
-        <div style="display:flex;flex-direction:column;gap:10px;max-height:calc(3 * 170px);overflow-y:auto;overflow-x:hidden;scroll-snap-type:y mandatory;-webkit-overflow-scrolling:touch;scrollbar-width:none;overscroll-behavior:contain">
+        <div style="display:flex;flex-direction:column;gap:10px;max-height:calc(3 * 170px);overflow-y:auto;overflow-x:hidden;scroll-snap-type:y mandatory;-webkit-overflow-scrolling:touch;scrollbar-width:none;overscroll-behavior-y:contain!important">
           ${(perfil.cuentasDebito && perfil.cuentasDebito.length) ? perfil.cuentasDebito.map((c,i)=>`
             <div style="position:relative;border-radius:18px;padding:18px 18px 16px;background:linear-gradient(135deg,#1a1a1a 0%,#3a3a3a 60%,#555 100%);color:#fff;overflow:hidden;scroll-snap-align:start;flex-shrink:0">
               <div onmousedown="startLongPressPerfil(this,'debito','${c.id}')" onmouseup="cancelLongPress()" onmouseleave="cancelLongPress()" ontouchstart="startLongPressPerfil(this,'debito','${c.id}')" ontouchend="cancelLongPress()" ontouchmove="cancelLongPressIfMoved(event)" style="position:absolute;inset:0;border-radius:18px;cursor:pointer;z-index:0"></div>
