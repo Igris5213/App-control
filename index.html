@@ -2006,7 +2006,7 @@ window.finalizarOnboarding = async function(){
     if(pendingUser){
       const lista = getUsuarios();
       lista.push(pendingUser);
-      guardarUsuarios(lista);
+      guardarUsuarios(lista);  // fire-and-forget OK aquí, ya está en localStorage
       pendingUser = null;
     }
     await setDoc(doc(db,'usuarios', currentUser.uid, 'perfil','datos'), perfil);
@@ -3132,24 +3132,49 @@ function hashSimple(str){
   return h.toString(36);
 }
 
-function getUsuarios(){
+// ── Usuarios en Firestore (colección raíz "auth_users") ──
+const AUTH_USERS_DOC = 'auth_users/lista';
+
+function getUsuariosCache(){
   try{ return JSON.parse(localStorage.getItem(AUTH_KEY)) || []; } catch{ return []; }
 }
 
-function guardarUsuarios(lista){
+function getUsuarios(){
+  // Lectura síncrona desde caché local (para compatibilidad con código sync)
+  return getUsuariosCache();
+}
+
+async function cargarUsuariosFirestore(){
+  try{
+    const snap = await getDoc(doc(db,'auth_users','lista'));
+    if(snap.exists()){
+      const lista = snap.data().usuarios || [];
+      localStorage.setItem(AUTH_KEY, JSON.stringify(lista));
+      return lista;
+    }
+  } catch(e){ console.warn('No se pudo cargar usuarios de Firestore:', e); }
+  return getUsuariosCache();
+}
+
+async function guardarUsuarios(lista){
+  // Guardar en caché local primero (respuesta inmediata)
   localStorage.setItem(AUTH_KEY, JSON.stringify(lista));
+  // Persistir en Firestore para sincronizar entre dispositivos
+  try{
+    await setDoc(doc(db,'auth_users','lista'), { usuarios: lista });
+  } catch(e){ console.warn('Error guardando usuarios en Firestore:', e); }
 }
 
 // Compatibilidad con formato antiguo (un solo usuario)
-function migrarFormatoAntiguo(){
+async function migrarFormatoAntiguo(){
   const viejo = localStorage.getItem('cg_auth_creds');
   if(viejo){
     try{
       const v = JSON.parse(viejo);
-      const lista = getUsuarios();
+      const lista = getUsuariosCache();
       if(!lista.find(u=>u.user===v.user)){
         lista.push(v);
-        guardarUsuarios(lista);
+        await guardarUsuarios(lista);
       }
       localStorage.removeItem('cg_auth_creds');
     } catch{}
@@ -3157,8 +3182,7 @@ function migrarFormatoAntiguo(){
 }
 
 function renderizarUsuarios(){
-  migrarFormatoAntiguo();
-  const lista = getUsuarios();
+  const lista = getUsuariosCache();
   const container = document.getElementById('login-users-list');
   container.innerHTML = '';
   if(lista.length === 0){
@@ -3180,10 +3204,15 @@ function renderizarUsuarios(){
   }
 }
 
-function iniciarFlujoAuth(){
-  renderizarUsuarios();
+async function iniciarFlujoAuth(){
+  // Mostrar login con caché mientras carga Firestore
   showScreen('screen-login');
+  renderizarUsuarios();
   setTimeout(initLogoLongPress, 100);
+  // Cargar usuarios actualizados de Firestore y re-renderizar
+  await migrarFormatoAntiguo();
+  await cargarUsuariosFirestore();
+  renderizarUsuarios();
 }
 
 // Modal contraseña al seleccionar usuario
@@ -3258,7 +3287,7 @@ window.cerrarModalNuevoUsuario = function(e){
     document.getElementById('modal-nuevo-usuario').classList.remove('open');
 }
 
-window.guardarNuevoUsuario = function(){
+window.guardarNuevoUsuario = async function(){
   const user = document.getElementById('nuevo-user-name').value.trim();
   const pass = document.getElementById('nuevo-user-pass').value;
   const pass2 = document.getElementById('nuevo-user-pass2').value;
@@ -3448,7 +3477,7 @@ window.cerrarCambiarPass = function(e){
     document.getElementById('modal-cambiar-pass').classList.remove('open');
 }
 
-window.guardarNuevaPass = function(){
+window.guardarNuevaPass = async function(){
   const actual = document.getElementById('pass-actual').value;
   const nueva = document.getElementById('pass-nueva').value;
   const nueva2 = document.getElementById('pass-nueva2').value;
@@ -3463,7 +3492,7 @@ window.guardarNuevaPass = function(){
   if(nueva !== nueva2){ errEl.textContent = 'Las contraseñas no coinciden'; return; }
 
   lista[idx].hash = hashSimple(lista[idx].user + nueva);
-  guardarUsuarios(lista);
+  await guardarUsuarios(lista);
   document.getElementById('modal-cambiar-pass').classList.remove('open');
   window.showSuccess('Contraseña actualizada', 'Tu contraseña fue cambiada correctamente');
 }
@@ -3518,8 +3547,9 @@ function mostrarPantallaAdmin(){
   scr.style.display = 'flex';
 }
 
-function renderAdminUsers(){
-  const lista = getUsuarios();
+async function renderAdminUsers(){
+  await cargarUsuariosFirestore();
+  const lista = getUsuariosCache();
   const container = document.getElementById('admin-users-list');
   container.innerHTML = '';
 
@@ -3612,7 +3642,7 @@ window.cancelarConfirmEdicion = function(){
   document.getElementById('modal-admin-confirm-edit').classList.remove('show');
 }
 
-window.confirmarEdicion = function(){
+window.confirmarEdicion = async function(){
   const { nuevoNombre, nuevaPass, nombreCambio, passCambio } = adminEditTemp;
   const lista = getUsuarios();
 
@@ -3623,7 +3653,7 @@ window.confirmarEdicion = function(){
     lista[adminEditIndex].hash = hashSimple(nuevoNombre + nuevoNombre);
   }
 
-  guardarUsuarios(lista);
+  await guardarUsuarios(lista);
   document.getElementById('modal-admin-confirm-edit').classList.remove('show');
   document.getElementById('modal-admin-editar').classList.remove('open');
 
@@ -3670,7 +3700,7 @@ window.confirmarEliminarUsuario = async function(){
 
   // Quitar de la lista local
   lista.splice(adminDeleteIndex, 1);
-  guardarUsuarios(lista);
+  await guardarUsuarios(lista);
   document.getElementById('modal-admin-confirm').classList.remove('show');
   window.showSuccess('Usuario eliminado', '');
 
