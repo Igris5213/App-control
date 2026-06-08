@@ -4504,9 +4504,9 @@ window.renderPerfiles = function(){
         <!-- Lista tarjetas crédito como tarjetas visuales -->
         <div style="display:flex;flex-direction:column;gap:10px;max-height:calc(3 * 170px);overflow-y:auto;overflow-x:hidden;scroll-snap-type:y mandatory;-webkit-overflow-scrolling:touch;scrollbar-width:none" class="perfil-cards-scroll">
           ${(perfil.tarjetas||[]).map((t,i)=>`
-            <div style="position:relative;border-radius:18px;padding:18px 18px 16px;background:linear-gradient(135deg,#1a1a1a 0%,#3a3a3a 60%,#555 100%);color:#fff;overflow:hidden;scroll-snap-align:start;flex-shrink:0">
+            <div style="position:relative;border-radius:18px;padding:18px 18px 16px;background:linear-gradient(135deg,#1a1a1a 0%,#3a3a3a 60%,#555 100%);color:#fff;overflow:hidden;scroll-snap-align:start;flex-shrink:0;touch-action:pan-y">
               <!-- Área principal long press -->
-              <div onmousedown="startLongPressPerfil(this,'credito','${t.id}')" onmouseup="cancelLongPress()" onmouseleave="cancelLongPress()" ontouchstart="startLongPressPerfil(this,'credito','${t.id}')" ontouchend="cancelLongPress()" ontouchmove="cancelLongPressIfMoved(event)" style="position:absolute;inset:0;border-radius:18px;cursor:pointer;z-index:0"></div>
+              <div onmousedown="startLongPressPerfil(this,'credito','${t.id}')" onmouseup="cancelLongPress()" onmouseleave="cancelLongPress()" ontouchstart="startLongPressPerfil(this,'credito','${t.id}')" ontouchend="cancelLongPress()" ontouchmove="cancelLongPressIfMoved(event)" style="position:absolute;inset:0;border-radius:18px;cursor:pointer;z-index:0;touch-action:pan-y"></div>
               <!-- Handle de reordenamiento -->
               <div onmousedown="startReorderHandle(event,'credito',${i})" ontouchstart="startReorderHandle(event,'credito',${i})"
                 style="position:absolute;top:10px;right:10px;width:28px;height:28px;display:flex;align-items:center;justify-content:center;cursor:grab;z-index:10;border-radius:8px;background:rgba(255,255,255,0.1)">
@@ -4602,8 +4602,8 @@ window.renderPerfiles = function(){
         <!-- Lista cuentas débito como tarjetas -->
         <div style="display:flex;flex-direction:column;gap:10px;max-height:calc(3 * 170px);overflow-y:auto;overflow-x:hidden;scroll-snap-type:y mandatory;-webkit-overflow-scrolling:touch;scrollbar-width:none" class="perfil-cards-scroll">
           ${(perfil.cuentasDebito && perfil.cuentasDebito.length) ? perfil.cuentasDebito.map((c,i)=>`
-            <div style="position:relative;border-radius:18px;padding:18px 18px 16px;background:linear-gradient(135deg,#1a1a1a 0%,#3a3a3a 60%,#555 100%);color:#fff;overflow:hidden;scroll-snap-align:start;flex-shrink:0">
-              <div onmousedown="startLongPressPerfil(this,'debito','${c.id}')" onmouseup="cancelLongPress()" onmouseleave="cancelLongPress()" ontouchstart="startLongPressPerfil(this,'debito','${c.id}')" ontouchend="cancelLongPress()" ontouchmove="cancelLongPressIfMoved(event)" style="position:absolute;inset:0;border-radius:18px;cursor:pointer;z-index:0"></div>
+            <div style="position:relative;border-radius:18px;padding:18px 18px 16px;background:linear-gradient(135deg,#1a1a1a 0%,#3a3a3a 60%,#555 100%);color:#fff;overflow:hidden;scroll-snap-align:start;flex-shrink:0;touch-action:pan-y">
+              <div onmousedown="startLongPressPerfil(this,'debito','${c.id}')" onmouseup="cancelLongPress()" onmouseleave="cancelLongPress()" ontouchstart="startLongPressPerfil(this,'debito','${c.id}')" ontouchend="cancelLongPress()" ontouchmove="cancelLongPressIfMoved(event)" style="position:absolute;inset:0;border-radius:18px;cursor:pointer;z-index:0;touch-action:pan-y"></div>
               <div onmousedown="startReorderHandle(event,'debito',${i})" ontouchstart="startReorderHandle(event,'debito',${i})"
                 style="position:absolute;top:10px;right:10px;width:28px;height:28px;display:flex;align-items:center;justify-content:center;cursor:grab;z-index:10;border-radius:8px;background:rgba(255,255,255,0.1)">
                 <svg width="14" height="14" fill="none" stroke="rgba(255,255,255,0.7)" stroke-width="2" viewBox="0 0 24 24">
