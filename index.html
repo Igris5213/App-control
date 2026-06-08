@@ -15,7 +15,6 @@
 <link rel="apple-touch-icon" href="icon-192.png">
 <style>
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;outline:none}
-html{overscroll-behavior-y:none}
 /* Bloquear pull-to-refresh en toda la app excepto pantalla login */
 .main-app,
 .main-app *,
@@ -29,6 +28,19 @@ html{overscroll-behavior-y:none}
 #screen-tarjetas-deb {
   overscroll-behavior-y: none;
 }
+
+/* Indicador pull-to-refresh login */
+#ptr-indicator{
+  position:fixed;top:0;left:0;right:0;display:flex;align-items:center;justify-content:center;
+  gap:10px;padding:14px;background:#f5f5f5;z-index:9999;
+  transform:translateY(-100%);transition:transform 0.25s ease;pointer-events:none;
+}
+#ptr-indicator.visible{transform:translateY(0)}
+#ptr-spinner{
+  width:22px;height:22px;border:2.5px solid #e0e0e0;border-top-color:#111;
+  border-radius:50%;animation:ptr-spin 0.7s linear infinite;
+}
+@keyframes ptr-spin{to{transform:rotate(360deg)}}
 body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f5f5f5;min-height:100vh;display:flex;justify-content:center}
 .app{width:100%;max-width:430px;background:#f5f5f5;min-height:100vh;display:flex;flex-direction:column;position:relative}
 
@@ -3242,6 +3254,8 @@ function renderizarUsuarios(){
 }
 
 async function iniciarFlujoAuth(){
+  window._cargarUsuariosFirestore = cargarUsuariosFirestore;
+  window._renderizarUsuarios = renderizarUsuarios;
   // Mostrar login con caché mientras carga Firestore
   showScreen('screen-login');
   renderizarUsuarios();
@@ -11317,6 +11331,65 @@ document.addEventListener('DOMContentLoaded', function(){
     </div>
   </div>
 </div>
+
+<!-- ══ PULL TO REFRESH INDICATOR (solo login) ══ -->
+<div id="ptr-indicator">
+  <div id="ptr-spinner"></div>
+  <span style="font-size:14px;font-weight:600;color:#111">Actualizando...</span>
+</div>
+
+<script>
+(function(){
+  let startY = 0;
+  let pulling = false;
+  let triggered = false;
+  const THRESHOLD = 80;
+
+  function isLoginVisible(){
+    const s = document.getElementById('screen-login');
+    return s && s.style.display !== 'none' && !s.classList.contains('hidden');
+  }
+
+  document.addEventListener('touchstart', function(e){
+    if(!isLoginVisible()) return;
+    const el = document.getElementById('screen-login');
+    if(el.scrollTop > 0) return;
+    startY = e.touches[0].clientY;
+    pulling = true;
+    triggered = false;
+  }, { passive: true });
+
+  document.addEventListener('touchmove', function(e){
+    if(!pulling || !isLoginVisible()) return;
+    const dy = e.touches[0].clientY - startY;
+    if(dy > 0 && document.getElementById('screen-login').scrollTop === 0){
+      const ind = document.getElementById('ptr-indicator');
+      if(dy > THRESHOLD / 2) ind.classList.add('visible');
+      if(dy > THRESHOLD && !triggered) triggered = true;
+    }
+  }, { passive: true });
+
+  document.addEventListener('touchend', async function(){
+    if(!pulling || !isLoginVisible()){ pulling = false; return; }
+    pulling = false;
+    const ind = document.getElementById('ptr-indicator');
+    if(triggered){
+      // Cargar usuarios de Firestore y re-renderizar
+      if(typeof window._cargarUsuariosFirestore === 'function'){
+        await window._cargarUsuariosFirestore();
+      }
+      if(typeof window._renderizarUsuarios === 'function') window._renderizarUsuarios();
+      setTimeout(()=>{
+        ind.classList.remove('visible');
+        if(typeof window.showSuccess === 'function') window.showSuccess('Actualizado', '');
+      }, 600);
+    } else {
+      ind.classList.remove('visible');
+    }
+    triggered = false;
+  });
+})();
+</script>
 
 </body>
 </html>
