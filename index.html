@@ -19,14 +19,38 @@
 .main-app,
 .main-app *,
 #screen-novedades,
+#screen-novedades *,
 #screen-admin,
+#screen-admin *,
 #screen-config,
+#screen-config *,
 #screen-cuentas,
+#screen-cuentas *,
 #screen-welcome,
+#screen-welcome *,
 #screen-nombre,
+#screen-nombre *,
 #screen-tarjetas,
-#screen-tarjetas-deb {
+#screen-tarjetas *,
+#screen-tarjetas-deb,
+#screen-tarjetas-deb *,
+#screen-perfil,
+#screen-perfil *,
+#screen-perfiles,
+#screen-perfiles *,
+#screen-nuevo,
+#screen-nuevo *,
+#screen-promociones,
+#screen-promociones *,
+#screen-movimientos,
+#screen-movimientos *,
+#screen-admin * {
   overscroll-behavior-y: none;
+}
+/* Excepción: scroll de tarjetas en perfiles puede hacer scroll interno */
+#perfil-panel-credito div[style*="scroll-snap-type"],
+#perfil-panel-debito div[style*="scroll-snap-type"] {
+  overscroll-behavior-y: contain !important;
 }
 
 /* Indicador pull-to-refresh login */
