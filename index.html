@@ -252,6 +252,37 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .toast.show{opacity:1}
 
 /* Modal de éxito */
+/* ── Tarjetas de usuario en login (recuadros con profundidad) ── */
+.login-user-card{
+  width:100%;padding:15px 18px;border-radius:18px;
+  background:linear-gradient(180deg,#ffffff,#fbfbfb);
+  border:1px solid rgba(0,0,0,0.045);
+  box-shadow:0 1px 2px rgba(0,0,0,0.04),0 8px 20px -4px rgba(0,0,0,0.10),inset 0 1px 0 rgba(255,255,255,0.9);
+  font-size:15px;font-weight:600;color:#111;cursor:pointer;font-family:inherit;
+  display:flex;align-items:center;gap:14px;text-align:left;
+  transition:transform 0.15s ease,box-shadow 0.15s ease;
+}
+.login-user-card:active{
+  transform:scale(0.965);
+  box-shadow:0 1px 2px rgba(0,0,0,0.05),0 3px 8px rgba(0,0,0,0.08),inset 0 1px 0 rgba(255,255,255,0.9);
+}
+.login-user-avatar{
+  width:42px;height:42px;border-radius:50%;flex-shrink:0;
+  background:linear-gradient(150deg,#2a2a2a,#000);
+  display:flex;align-items:center;justify-content:center;
+  box-shadow:0 4px 10px rgba(0,0,0,0.28),inset 0 1px 1px rgba(255,255,255,0.18);
+}
+.login-user-arrow{margin-left:auto;flex-shrink:0;color:#d5d5d5;transition:transform 0.15s ease}
+.login-user-card:active .login-user-arrow{transform:translateX(2px);color:#bbb}
+.login-add-user-btn{
+  width:100%;padding:15px 20px;border-radius:18px;
+  border:1.5px dashed #dcdcdc;background:#fafafa;
+  font-size:15px;font-weight:600;color:#888;cursor:pointer;font-family:inherit;
+  display:flex;align-items:center;justify-content:center;gap:8px;
+  transition:transform 0.15s ease,border-color 0.15s ease,background 0.15s ease;
+}
+.login-add-user-btn:active{transform:scale(0.97);border-color:#bbb;background:#f2f2f2}
+
 /* ── Login feedback toast ── */
 #login-toast{position:fixed;bottom:120px;left:50%;transform:translateX(-50%) translateY(20px);z-index:9999;opacity:0;transition:opacity 0.25s,transform 0.25s;pointer-events:none;min-width:220px;max-width:280px}
 #login-toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
@@ -395,11 +426,10 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
     <div class="welcome-title" style="margin-bottom:6px">Control de Gastos</div>
     <div class="welcome-sub" id="login-sub" style="margin-bottom:24px">¿Quién eres?</div>
 
-    <!-- Lista de usuarios + agregar en recuadro -->
-    <div style="width:100%;background:#fff;border-radius:20px;border:1.5px solid #e0e0e0;overflow:hidden;margin-bottom:8px;box-shadow:0 4px 20px rgba(0,0,0,0.08)">
-      <div id="login-users-list" style="width:100%;display:flex;flex-direction:column"></div>
-      <button onclick="mostrarFormNuevoUsuario()" id="btn-agregar-usuario"
-        style="width:100%;padding:15px 20px;border:none;border-top:1.5px solid #f0f0f0;background:transparent;font-size:15px;font-weight:600;color:#888;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:8px">
+    <!-- Lista de usuarios en recuadros separados + agregar -->
+    <div style="width:100%;margin-bottom:8px">
+      <div id="login-users-list" style="width:100%;display:flex;flex-direction:column;gap:12px;margin-bottom:12px"></div>
+      <button onclick="mostrarFormNuevoUsuario()" id="btn-agregar-usuario" class="login-add-user-btn">
         <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
         Agregar usuario
       </button>
@@ -3227,14 +3257,14 @@ function renderizarUsuarios(){
     document.getElementById('login-sub').textContent = '¿Quién eres?';
     lista.forEach(u => {
       const btn = document.createElement('button');
+      btn.className = 'login-user-card';
       btn.onclick = () => abrirLoginPass(u.user);
-      btn.style.cssText = 'width:100%;padding:14px 20px;border:none;border-bottom:1.5px solid #f0f0f0;background:#fff;font-size:15px;font-weight:600;color:#111;cursor:pointer;font-family:inherit;display:flex;align-items:center;gap:14px;text-align:left';
       btn.innerHTML = `
-        <div style="width:40px;height:40px;border-radius:50%;background:linear-gradient(180deg,#111,#444);display:flex;align-items:center;justify-content:center;flex-shrink:0">
+        <div class="login-user-avatar">
           <svg width="20" height="20" fill="none" stroke="#fff" stroke-width="2" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
         </div>
         <span>${u.user}</span>
-        <svg style="margin-left:auto" width="16" height="16" fill="none" stroke="rgba(255,255,255,0.4)" stroke-width="2" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>`;
+        <svg class="login-user-arrow" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>`;
       container.appendChild(btn);
     });
   }
@@ -3609,8 +3639,8 @@ async function renderAdminUsers(){
       <button onclick="abrirEditarUsuario(${idx})" style="width:34px;height:34px;border-radius:10px;border:1.5px solid #e0e0e0;background:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer;margin-right:6px">
         <svg width="15" height="15" fill="none" stroke="#111" stroke-width="2" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
       </button>
-      <button onclick="eliminarUsuario(${idx})" style="width:34px;height:34px;border-radius:10px;border:1.5px solid #ffe0e0;background:#f5f5f5;display:flex;align-items:center;justify-content:center;cursor:pointer">
-        <svg width="15" height="15" fill="none" stroke="#e53935" stroke-width="2" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
+      <button onclick="eliminarUsuario(${idx})" style="width:34px;height:34px;border-radius:10px;border:1.5px solid #e0e0e0;background:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer">
+        <svg width="15" height="15" fill="none" stroke="#111" stroke-width="2" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
       </button>`;
     container.appendChild(card);
   });
