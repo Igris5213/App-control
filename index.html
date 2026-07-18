@@ -5581,6 +5581,11 @@ window.irMovimientos = function(){
   _resetEdicionPerfiles();
   if(modoEdicion){ modoEdicion=false; buildCarrusel(); }
   resetHistorial();
+  // Restaurar título y toggle Crédito/Débito (pudieron quedar ocultos de una consulta anterior)
+  const histTitulo = document.getElementById('hist-titulo');
+  if(histTitulo) histTitulo.style.display = '';
+  const histToggleWrap = document.getElementById('hist-toggle-wrap');
+  if(histToggleWrap) histToggleWrap.style.display = '';
   // Reset selección de banco
   document.getElementById('movimientos-full').innerHTML = '';
   document.getElementById('paso-anio').style.display = 'none';
