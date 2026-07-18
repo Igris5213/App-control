@@ -7879,9 +7879,9 @@ window.aceptarConfirmHist = function(){
     // Limitar el recuadro a mostrar solo 7 movimientos, el resto con scroll
     requestAnimationFrame(()=>{
       const _items = elMov.querySelectorAll('.mov-item');
-      if(_items.length > 7){
+      if(_items.length > 8){
         let _h = 0;
-        for(let k=0;k<7;k++){
+        for(let k=0;k<8;k++){
           _h += _items[k].getBoundingClientRect().height;
           _h += parseFloat(getComputedStyle(_items[k]).marginBottom)||0;
         }
