@@ -8276,7 +8276,13 @@ function _renderDebMovimientos(){
     return SCREENS.findIndex(s=>s.id===active.id);
   }
 
+  function loginVisible(){
+    const loginScreen = document.getElementById('screen-login');
+    return loginScreen && loginScreen.style.display !== 'none' && !loginScreen.classList.contains('hidden');
+  }
+
   document.addEventListener('touchstart', function(e){
+    if(loginVisible()) return;
     if(document.querySelector('.modal-overlay.open')) return;
     if(e.target.closest('.modal-overlay')) return;
     if(e.target.closest('#cards-outer, #cuentas-carrusel-wrap')) return;
@@ -8287,6 +8293,8 @@ function _renderDebMovimientos(){
   }, { passive: true });
 
   document.addEventListener('touchend', function(e){
+    // No swipe si estamos en el login
+    if(loginVisible()) return;
     // No swipe si hay cualquier modal abierto
     if(document.querySelector('.modal-overlay.open, .modal-overlay.open *')) return;
     // No swipe si el toque viene de dentro de un modal
