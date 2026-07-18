@@ -314,7 +314,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
   transform:translateX(-50%);
   width:calc(100% - 32px);
   max-width:420px;
-  height:62px;
+  height:52px;
   background:rgba(238,238,238,0.96);
   backdrop-filter:blur(20px);
   -webkit-backdrop-filter:blur(20px);
@@ -357,25 +357,18 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
   box-shadow:0 4px 16px rgba(0,0,0,0.35);
   transform:translateY(0);
 }
-.nav-item.active span{opacity:1!important;}
 
 .nav-item.active svg{
-  width:26px;
-  height:26px;
+  width:30px;
+  height:30px;
 }
 
 .nav-trail{ display:none; }
 
 .nav-item svg{
-  width:20px;
-  height:20px;
+  width:24px;
+  height:24px;
   transition:all 0.32s cubic-bezier(0.34,1.5,0.64,1);
-}
-
-.nav-item:not(.active) span{
-  height:0!important;
-  margin:0!important;
-  overflow:hidden;
 }
 
 .main-app{
@@ -8521,59 +8514,46 @@ window.confirmarEliminarPerfil = async function(){
     <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
       <rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/>
     </svg>
-    <span style="font-size:10px;font-weight:600;letter-spacing:0.02em;margin-top:2px;opacity:0;transition:opacity 0.2s">Tarjetas</span>
-    
-  </button>
+    </button>
 
   <button class="nav-item" id="nav-cuentas" onclick="setNavActive('nav-cuentas'); irCuentas()">
     <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
       <rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/><line x1="5" y1="15" x2="9" y2="15"/><line x1="12" y1="15" x2="14" y2="15"/>
     </svg>
-    <span style="font-size:10px;font-weight:600;letter-spacing:0.02em;margin-top:2px;opacity:0;transition:opacity 0.2s">Cuentas</span>
-    
-  </button>
+    </button>
 
   <button class="nav-item" id="nav-movimientos" onclick="setNavActive('nav-movimientos'); irMovimientos()">
     <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
       <line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/>
       <circle cx="3" cy="6" r="1"/><circle cx="3" cy="12" r="1"/><circle cx="3" cy="18" r="1"/>
     </svg>
-    <span style="font-size:10px;font-weight:600;letter-spacing:0.02em;margin-top:2px;opacity:0;transition:opacity 0.2s">Historial</span>
-    
-  </button>
+    </button>
 
   <button class="nav-item" id="nav-plus" onclick="setNavActive('nav-plus'); irPlus()">
     <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
       <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
     </svg>
-    <span style="font-size:10px;font-weight:600;letter-spacing:0.02em;margin-top:2px;opacity:0;transition:opacity 0.2s">Registrar</span>
-    
-  </button>
+    </button>
 
   <button class="nav-item" id="nav-promociones" onclick="setNavActive('nav-promociones'); irPromociones()">
     <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
       <path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/>
       <line x1="7" y1="7" x2="7.01" y2="7"/>
     </svg>
-    <span style="font-size:10px;font-weight:600;letter-spacing:0.02em;margin-top:2px;opacity:0;transition:opacity 0.2s">Promociones</span>
-    
-  </button>
+    </button>
 
   <button class="nav-item" id="nav-perfiles" onclick="setNavActive('nav-perfiles'); cambiarTab(event,'perfiles')">
     <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
       <circle cx="12" cy="8" r="4"/><path d="M4 20c2-4 14-4 16 0"/>
     </svg>
-    <span style="font-size:10px;font-weight:600;letter-spacing:0.02em;margin-top:2px;opacity:0;transition:opacity 0.2s">Perfiles</span>
-    
-  </button>
+    </button>
 
   <button class="nav-item" id="nav-config" onclick="setNavActive('nav-config'); irConfiguracion()">
     <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
       <circle cx="12" cy="12" r="3"/>
       <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
     </svg>
-    <span style="font-size:10px;font-weight:600;letter-spacing:0.02em;margin-top:2px;opacity:0;transition:opacity 0.2s">Config</span>
-  </button>
+    </button>
 
 </div>
 
