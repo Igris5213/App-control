@@ -5967,6 +5967,11 @@ window.seleccionarCorteMov = function(tarjetaId, corte, periodoFinKey){
 }
 
 window.nuevaBusqueda = function(){
+  // Restaurar título y toggle Crédito/Débito
+  const histTitulo = document.getElementById('hist-titulo');
+  if(histTitulo) histTitulo.style.display = '';
+  const histToggleWrap = document.getElementById('hist-toggle-wrap');
+  if(histToggleWrap) histToggleWrap.style.display = '';
   // Restaurar elementos que fueron ocultados con querySelectorAll
   document.querySelectorAll('#screen-movimientos > div > [style*="background:linear-gradient"]').forEach(el=>{
     el.style.display = '';
@@ -7691,6 +7696,12 @@ window.aceptarConfirmHist = function(){
   });
   const leyenda = document.getElementById('leyenda-historial');
   if(leyenda) leyenda.style.display='none';
+
+  // Ocultar título y toggle Crédito/Débito, dejar solo desde el botón de búsqueda hacia abajo
+  const histTitulo = document.getElementById('hist-titulo');
+  if(histTitulo) histTitulo.style.display = 'none';
+  const histToggleWrap = document.getElementById('hist-toggle-wrap');
+  if(histToggleWrap) histToggleWrap.style.display = 'none';
 
   // Mostrar resumen
   const tResumen = (perfil?.tarjetas||[]).find(x=>x.id===tarjetaId);
@@ -9632,12 +9643,12 @@ window.confirmarEliminarPerfil = async function(){
 <!-- PANTALLA MOVIMIENTOS -->
 
 <div class="screen hidden" id="screen-movimientos">
-  <div style="width:100%;max-width:390px;padding:0 4px;margin-bottom:16px">
+  <div id="hist-titulo" style="width:100%;max-width:390px;padding:0 4px;margin-bottom:16px">
     <div style="font-size:22px;font-weight:800;color:#111;margin-bottom:6px">Historial</div>
     <div style="font-size:14px;color:#aaa">Consulta todos tus movimientos</div>
   </div>
   <!-- Toggle tipo tarjeta historial -->
-  <div style="width:100%;max-width:390px;padding:0 4px;margin-bottom:16px">
+  <div id="hist-toggle-wrap" style="width:100%;max-width:390px;padding:0 4px;margin-bottom:16px">
   <div id="hist-tipo-btns" style="display:flex;background:#ebebeb;border-radius:16px;padding:4px;position:relative">
     <div id="hist-toggle-slider" style="position:absolute;top:4px;bottom:4px;left:4px;width:calc(50% - 4px);background:linear-gradient(180deg,#111,#444);border-radius:12px;box-shadow:0 4px 14px rgba(0,0,0,0.22);transition:transform 0.25s cubic-bezier(0.34,1.2,0.64,1)"></div>
     <button id="hist-btn-credito" onclick="selHistTipo('credito')"
