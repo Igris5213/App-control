@@ -7860,6 +7860,15 @@ window.aceptarConfirmHist = function(){
         <div class="mov-amount">-${fmt(m.monto)}</div>
       </div>`;
     }).join('');
+
+    // Limitar el recuadro a mostrar solo 7 movimientos, el resto con scroll
+    requestAnimationFrame(()=>{
+      const _firstItem = elMov.querySelector('.mov-item');
+      if(_firstItem){
+        const _itemH = _firstItem.getBoundingClientRect().height;
+        elMov.style.maxHeight = (_itemH*7 + 4*6) + 'px';
+      }
+    });
   }
   onAfterEdit = _renderHistorial;
   window._renderHistorialActivo = _renderHistorial;
