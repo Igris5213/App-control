@@ -2969,6 +2969,7 @@ window.guardar = async function(){
   window._confirmMovCtx = 'credito';
 
   // Llenar modal de confirmación
+  document.getElementById('confirm-mov-tarjeta-label').textContent = 'Tarjeta';
   document.getElementById('confirm-mov-tarjeta').textContent = t.nombre + (t.apodo ? ' · ' + t.apodo : '');
   document.getElementById('confirm-mov-fecha').textContent = fechaLegible;
   document.getElementById('confirm-mov-monto').textContent = '$' + monto.toLocaleString('es-MX', {minimumFractionDigits:2, maximumFractionDigits:2});
@@ -4361,7 +4362,7 @@ window.guardarNuevaTarjetaModal = async function(){
     {campo:'Banco', valor: banco},
     {campo:'Apodo', valor: apodo || '—'},
     {campo:'Fecha de corte', valor: 'Día ' + corte},
-    {campo:'Límite', valor: fmt(limite)}
+    {campo:'Límite', valor: fmt(limite), resaltar:true}
   ];
   _mostrarResumenSimple('Nueva tarjeta', 'Revisa los datos', valores, async function(){
     if(!perfil.tarjetas) perfil.tarjetas = [];
@@ -4440,7 +4441,7 @@ window.guardarNuevaCuentaModal = async function(){
   const valores = [
     {campo:'Banco', valor: nombre},
     {campo:'Apodo', valor: apodo || '—'},
-    {campo:'Disponible', valor: fmt(disp)}
+    {campo:'Disponible', valor: fmt(disp), resaltar:true}
   ];
   _mostrarResumenSimple('Nueva cuenta', 'Revisa los datos', valores, async function(){
     if(!perfil.cuentasDebito) perfil.cuentasDebito = [];
@@ -6543,14 +6544,21 @@ window.abrirScrollCargoBanco = function(){
   snapScrollConInicio(sc,44,idx,i=>{
     const banco=bancos[Math.min(i,bancos.length-1)];
     cont.querySelectorAll('.scroll-item').forEach((el,j)=>{ el.classList.toggle('sel',j===i); el.style.color=j===i?'#fff':'#444'; });
-    _cargoBancoSel=banco; _cargoTarjetaSel=null;
+    _cargoBancoSel=banco;
     document.getElementById('cargo-banco-txt').textContent=banco;
     document.getElementById('cargo-banco-btn').style.color='#111';
-    document.getElementById('cargo-tarjeta-txt').textContent='Seleccionar tarjeta...';
-    document.getElementById('cargo-tarjeta-btn').style.color='#999';
     document.getElementById('cargo-tarjeta-scroll-wrap').style.display='none';
     const tarjetas=(perfil?.tarjetas||[]).filter(t=>t.nombre===banco);
     document.getElementById('cargo-tarjeta-wrap').style.display=tarjetas.length?'':'none';
+    if(tarjetas.length){
+      _cargoTarjetaSel=tarjetas[0].id;
+      document.getElementById('cargo-tarjeta-txt').textContent=tarjetas[0].apodo||tarjetas[0].nombre;
+      document.getElementById('cargo-tarjeta-btn').style.color='#111';
+    } else {
+      _cargoTarjetaSel=null;
+      document.getElementById('cargo-tarjeta-txt').textContent='Seleccionar tarjeta...';
+      document.getElementById('cargo-tarjeta-btn').style.color='#999';
+    }
   });
 };
 
@@ -6592,14 +6600,21 @@ window.abrirScrollCargoBancoDeb = function(){
   snapScrollConInicio(sc,44,idx,i=>{
     const banco=bancos[Math.min(i,bancos.length-1)];
     cont.querySelectorAll('.scroll-item').forEach((el,j)=>{ el.classList.toggle('sel',j===i); el.style.color=j===i?'#fff':'#444'; });
-    _cargoBancoDebSel=banco; _cargoCuentaSel=null;
+    _cargoBancoDebSel=banco;
     document.getElementById('cargo-banco-deb-txt').textContent=banco;
     document.getElementById('cargo-banco-deb-btn').style.color='#111';
-    document.getElementById('cargo-cuenta-txt').textContent='Seleccionar cuenta...';
-    document.getElementById('cargo-cuenta-btn').style.color='#999';
     document.getElementById('cargo-cuenta-scroll-wrap').style.display='none';
     const cuentas=(perfil?.cuentasDebito||[]).filter(c=>c.nombre===banco);
     document.getElementById('cargo-cuenta-wrap').style.display=cuentas.length?'':'none';
+    if(cuentas.length){
+      _cargoCuentaSel=cuentas[0].id;
+      document.getElementById('cargo-cuenta-txt').textContent=cuentas[0].apodo||cuentas[0].nombre;
+      document.getElementById('cargo-cuenta-btn').style.color='#111';
+    } else {
+      _cargoCuentaSel=null;
+      document.getElementById('cargo-cuenta-txt').textContent='Seleccionar cuenta...';
+      document.getElementById('cargo-cuenta-btn').style.color='#999';
+    }
   });
 };
 
@@ -6891,8 +6906,7 @@ async function renderCargosRecurrentes(){
       const cargosTipo = cargosRecurrentesCache.filter(function(c){ return c.tipo === tipoInfo.key; });
       if(!cargosTipo.length) return;
       const bancos = [...new Set(cargosTipo.map(c=>c.banco||'Sin banco'))].sort();
-      html += '<div style="background:#fff;border-radius:18px;padding:14px;margin-bottom:16px;box-shadow:0 1px 8px rgba(0,0,0,0.06)">';
-      html += '<div style="font-size:13px;font-weight:800;color:#111;text-transform:uppercase;letter-spacing:0.06em;margin:0 0 8px 4px">' + tipoInfo.label + '</div>';
+      html += '<div style="font-size:12px;font-weight:700;color:#aaa;text-transform:uppercase;letter-spacing:0.06em;margin:12px 0 8px 4px">' + tipoInfo.label + '</div>';
       bancos.forEach(function(banco){
         const grupo = cargosTipo.filter(function(c){ return (c.banco||'Sin banco')===banco; });
         grupo.forEach(function(c){
@@ -6902,11 +6916,11 @@ async function renderCargosRecurrentes(){
           const tipoIcon = c.tipo === 'debito'
             ? '<svg width="17" height="17" fill="none" stroke="#111" stroke-width="2" viewBox="0 0 24 24"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>'
             : '<svg width="17" height="17" fill="none" stroke="#111" stroke-width="2" viewBox="0 0 24 24"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg>';
-          html += '<div data-cargo-id="' + c.id + '" style="background:#f5f5f5;border-radius:14px;padding:14px;margin-bottom:8px;display:flex;align-items:center;gap:12px;cursor:pointer"'
+          html += '<div data-cargo-id="' + c.id + '" style="background:#fff;border-radius:16px;padding:16px;margin-bottom:10px;box-shadow:0 1px 6px rgba(0,0,0,0.06);display:flex;align-items:center;gap:12px;cursor:pointer"'
             + ' onclick="resaltarCargo(this)"'
             + ' onmousedown="startLongPressCargo(this,\'' + c.id + '\')" onmouseup="cancelLongPress()" onmouseleave="cancelLongPress()"'
             + ' ontouchstart="startLongPressCargo(this,\'' + c.id + '\')" ontouchend="cancelLongPress()" ontouchmove="cancelLongPress()">';
-          html += '<div style="width:40px;height:40px;border-radius:12px;background:#fff;display:flex;align-items:center;justify-content:center;flex-shrink:0">' + tipoIcon + '</div>';
+          html += '<div style="width:40px;height:40px;border-radius:12px;background:#f5f5f5;display:flex;align-items:center;justify-content:center;flex-shrink:0">' + tipoIcon + '</div>';
           html += '<div style="flex:1;min-width:0">';
           html += '<div style="font-size:15px;font-weight:700;color:#111;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">' + c.nombre + '</div>';
           html += '<div style="font-size:12px;color:#aaa;margin-top:1px">' + banco + ' · ' + cuentaNombre + '</div>';
@@ -6918,7 +6932,6 @@ async function renderCargosRecurrentes(){
           html += '</div>';
         });
       });
-      html += '</div>';
     });
     listaC.innerHTML = html;
   }catch(e){ console.error('cargos error:',e); listaC.innerHTML='<div style="text-align:center;color:#bbb;padding:24px">Error al cargar</div>'; }
@@ -6934,7 +6947,8 @@ window.abrirModalPromo = function(){
   document.getElementById('promo-banco-txt').textContent = 'Seleccionar banco...';
   document.getElementById('promo-banco-btn').style.color = '#999';
   document.getElementById('promo-tarjeta-txt').textContent = 'Seleccionar tarjeta...';
-  document.getElementById('promo-tarjeta-wrap').style.display = 'none';
+  document.getElementById('promo-tarjeta-btn').style.color = '#999';
+  document.getElementById('promo-tarjeta-wrap').style.display = (perfil?.tarjetas||[]).length ? 'block' : 'none';
   document.getElementById('promo-nombre').value = '';
   document.getElementById('promo-comercio').value = '';
   document.getElementById('promo-importe').value = '';
@@ -7094,15 +7108,21 @@ window.abrirScrollBancoPromo = function(){
       el.style.color = i===idx ? '#fff' : '#444';
     });
     promoBancoSel = banco;
-    promoTarjetaSel = null;
     document.getElementById('promo-banco-txt').textContent = banco;
     document.getElementById('promo-banco-btn').style.color = '#111';
-    document.getElementById('promo-tarjeta-txt').textContent = 'Seleccionar tarjeta...';
-    document.getElementById('promo-tarjeta-btn').style.color = '#999';
     document.getElementById('tarjeta-promo-scroll-wrap').style.display = 'none';
-    // Mostrar tarjeta selector
+    // Mostrar tarjeta selector y auto-seleccionar la primera tarjeta de ese banco
     const tarjetas = (perfil?.tarjetas||[]).filter(t=>t.nombre===banco);
     document.getElementById('promo-tarjeta-wrap').style.display = tarjetas.length ? 'block' : 'none';
+    if(tarjetas.length){
+      promoTarjetaSel = tarjetas[0].id;
+      document.getElementById('promo-tarjeta-txt').textContent = tarjetas[0].apodo || tarjetas[0].nombre;
+      document.getElementById('promo-tarjeta-btn').style.color = '#111';
+    } else {
+      promoTarjetaSel = null;
+      document.getElementById('promo-tarjeta-txt').textContent = 'Seleccionar tarjeta...';
+      document.getElementById('promo-tarjeta-btn').style.color = '#999';
+    }
   });
 }
 
@@ -9443,6 +9463,7 @@ window._selBancoDebito = function(i){
   const primeraCuenta = cuentas.find(c => c.nombre === banco);
   if(primeraCuenta){
     window._debitoCuentaSel = primeraCuenta;
+    _debitoCuentaSel = primeraCuenta;
     document.getElementById('debito-inp-cuenta-id').value = primeraCuenta.id;
     document.getElementById('debito-cuenta-txt').textContent = primeraCuenta.apodo || primeraCuenta.nombre;
     document.getElementById('debito-cuenta-txt').style.color = '#111';
@@ -9666,6 +9687,7 @@ window.guardarExt = async function(){
 
   window._confirmMovCtx = 'ext';
 
+  document.getElementById('confirm-mov-tarjeta-label').textContent = 'Tarjeta';
   document.getElementById('confirm-mov-tarjeta').textContent = t.nombre + (t.apodo ? ' · ' + t.apodo : '');
   document.getElementById('confirm-mov-fecha').textContent = fechaLegibleE;
   document.getElementById('confirm-mov-monto').textContent = '$' + monto.toLocaleString('es-MX', {minimumFractionDigits:2, maximumFractionDigits:2});
@@ -10846,6 +10868,7 @@ window.guardarDebito = async function() {
   const fechaLegibleD = `${parseInt(diaD)} de ${MESES_ESP2[parseInt(mesD)-1]} ${anioD}`;
   const tipoLabel = (_debitoTipo === 'egreso') ? 'Gasto · Débito' : 'Ingreso · Débito';
 
+  document.getElementById('confirm-mov-tarjeta-label').textContent = 'Cuenta';
   document.getElementById('confirm-mov-tarjeta').textContent = _debitoCuentaSel.apodo || _debitoCuentaSel.nombre;
   document.getElementById('confirm-mov-fecha').textContent = fechaLegibleD;
   document.getElementById('confirm-mov-monto').textContent = '$' + monto.toLocaleString('es-MX', {minimumFractionDigits:2, maximumFractionDigits:2});
@@ -11128,7 +11151,7 @@ function _actualizarFechaDebito() {
     </div>
     <div style="background:#f5f5f5;border-radius:16px;padding:16px 18px;margin-bottom:20px;display:flex;flex-direction:column;gap:10px">
       <div id="confirm-mov-row-tarjeta" style="display:flex;justify-content:space-between;align-items:center">
-        <span style="font-size:13px;color:#888;font-weight:500">Tarjeta / Cuenta</span>
+        <span id="confirm-mov-tarjeta-label" style="font-size:13px;color:#888;font-weight:500">Tarjeta / Cuenta</span>
         <span id="confirm-mov-tarjeta" style="font-size:14px;font-weight:400;color:#111;text-align:right;max-width:180px"></span>
       </div>
       <div id="confirm-mov-row-comercio" style="display:flex;justify-content:space-between;align-items:center">
