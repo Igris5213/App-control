@@ -4835,12 +4835,21 @@ function _mostrarResumenSimple(titulo, subtitulo, campos, onConfirmar, successMs
   document.getElementById('resumen-mov-titulo').textContent  = titulo;
   document.getElementById('resumen-mov-sub').textContent     = subtitulo;
   const body = document.getElementById('resumen-mov-body');
-  body.innerHTML = campos.map(c=>`
-    <div style="margin-bottom:12px">
-      <div style="font-size:11px;font-weight:700;color:#aaa;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:6px">${c.campo}</div>
-      <div style="background:linear-gradient(180deg,#111,#444);border-radius:14px;padding:14px 16px;color:#fff;font-weight:700;font-size:15px">${c.valor}</div>
-    </div>
-  `).join('');
+  const rows = campos.map((c)=>{
+    const divider = c.resaltar ? '<div style="height:1px;background:#e8e8e8;margin:2px 0"></div>' : '';
+    const labelStyle = c.resaltar
+      ? 'font-size:14px;color:#111;font-weight:600'
+      : 'font-size:13px;color:#888;font-weight:500';
+    const valorStyle = c.resaltar
+      ? 'font-size:20px;font-weight:800;color:#111;text-align:right'
+      : 'font-size:14px;font-weight:400;color:#111;text-align:right;max-width:180px';
+    return `${divider}
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <span style="${labelStyle}">${c.campo}</span>
+        <span style="${valorStyle}">${c.valor}</span>
+      </div>`;
+  }).join('');
+  body.innerHTML = `<div style="background:#f5f5f5;border-radius:16px;padding:16px 18px;display:flex;flex-direction:column;gap:10px">${rows}</div>`;
   window._resumenMovOnConfirmar = onConfirmar;
   window._resumenMovSuccessMsg = successMsg || 'Guardado';
   overlay.classList.add('open');
@@ -4889,6 +4898,10 @@ window._corregirResumenMovimiento = function(){
     document.getElementById('modal-nueva-tarjeta').classList.add('open');
   } else if(window._resumenMovCtx === 'nueva-cuenta'){
     document.getElementById('modal-nueva-cuenta').classList.add('open');
+  } else if(window._resumenMovCtx === 'nueva-promo'){
+    document.getElementById('modal-promo-overlay').classList.add('open');
+  } else if(window._resumenMovCtx === 'nueva-cargo'){
+    document.getElementById('modal-cargo-recurrente').classList.add('open');
   }
 };
 
@@ -6580,7 +6593,7 @@ window.abrirScrollCargoDia = function(){
     const dia=i+1;
     cont.querySelectorAll('.scroll-item').forEach((el,j)=>{ el.classList.toggle('sel',j===i); el.style.color=j===i?'#fff':'#444'; });
     document.getElementById('cargo-dia-val').value=dia;
-    document.getElementById('cargo-dia-txt').textContent='Día '+dia+' de cada mes';
+    document.getElementById('cargo-dia-txt').textContent='Día '+dia;
     document.getElementById('cargo-dia-btn').style.color='#111';
   });
 };
@@ -6657,7 +6670,7 @@ window.editarCargoRecurrente = function(id){
 
   const dia = parseInt(c.dia) || 1;
   document.getElementById('cargo-dia-val').value      = dia;
-  document.getElementById('cargo-dia-txt').textContent = 'Día ' + dia + ' de cada mes';
+  document.getElementById('cargo-dia-txt').textContent = 'Día ' + dia;
   document.getElementById('cargo-dia-btn').style.color = '#111';
 
   selCargoTipo(c.tipo === 'debito' ? 'debito' : 'credito');
@@ -6766,26 +6779,46 @@ window.guardarCargoRecurrente = async function(){
     if(!banco){ showToast('Selecciona el banco'); return; }
     if(!cuentaId){ showToast('Selecciona la cuenta'); return; }
   }
-  try{
-    if(_cargoEditId){
-      // Modo edición — actualizar documento existente
-      const datos = { nombre, monto, dia, tipo, banco, tarjetaId, cuentaId, activo: true };
-      await updateDoc(doc(db,'usuarios', currentUser.uid, 'cargosRecurrentes', _cargoEditId), datos);
-      cargosRecurrentesCache = cargosRecurrentesCache.map(c=>c.id===_cargoEditId ? {...c,...datos} : c);
-      _cargoEditId = null;
-      cerrarCargoRecurrente();
-      renderCargosRecurrentes();
-      window.showSuccess('Cargo actualizado', '');
-    } else {
-      // Modo nuevo
-      const datos = { nombre, monto, dia, tipo, banco, tarjetaId, cuentaId, creadoEn: Date.now(), activo: true };
-      const docRef = await addDoc(collection(db,'usuarios', currentUser.uid, 'cargosRecurrentes'), datos);
-      cargosRecurrentesCache = [...cargosRecurrentesCache, {...datos, id: docRef.id}];
-      cerrarCargoRecurrente();
-      renderCargosRecurrentes();
-      window.showSuccess('Cargo recurrente guardado', '');
-    }
-  }catch(e){ showToast('❌ Error al guardar'); }
+  document.getElementById('modal-cargo-recurrente').classList.remove('open');
+  window._resumenMovCtx = 'nueva-cargo';
+
+  let cuentaTxt = '—';
+  if(_cargoTipo === 'credito'){
+    const t = (perfil.tarjetas||[]).find(x=>x.id===tarjetaId);
+    cuentaTxt = t ? (t.apodo||t.nombre) : '—';
+  } else {
+    const c = (perfil.cuentasDebito||[]).find(x=>x.id===cuentaId);
+    cuentaTxt = c ? (c.apodo||c.nombre) : '—';
+  }
+
+  const valores = [
+    {campo:'Banco', valor: banco},
+    {campo: _cargoTipo === 'credito' ? 'Tarjeta' : 'Cuenta', valor: cuentaTxt},
+    {campo:'Nombre del cargo', valor: nombre},
+    {campo:'Día del cargo', valor: 'Día ' + dia},
+    {campo:'Monto mensual', valor: fmt(monto), resaltar:true}
+  ];
+
+  _mostrarResumenSimple('Cargo recurrente · ' + (_cargoTipo === 'credito' ? 'Crédito' : 'Débito'), 'Revisa los datos', valores, async function(){
+    try{
+      if(_cargoEditId){
+        // Modo edición — actualizar documento existente
+        const datos = { nombre, monto, dia, tipo, banco, tarjetaId, cuentaId, activo: true };
+        await updateDoc(doc(db,'usuarios', currentUser.uid, 'cargosRecurrentes', _cargoEditId), datos);
+        cargosRecurrentesCache = cargosRecurrentesCache.map(c=>c.id===_cargoEditId ? {...c,...datos} : c);
+        _cargoEditId = null;
+        cerrarCargoRecurrente();
+        renderCargosRecurrentes();
+      } else {
+        // Modo nuevo
+        const datos = { nombre, monto, dia, tipo, banco, tarjetaId, cuentaId, creadoEn: Date.now(), activo: true };
+        const docRef = await addDoc(collection(db,'usuarios', currentUser.uid, 'cargosRecurrentes'), datos);
+        cargosRecurrentesCache = [...cargosRecurrentesCache, {...datos, id: docRef.id}];
+        cerrarCargoRecurrente();
+        renderCargosRecurrentes();
+      }
+    }catch(e){ showToast('❌ Error al guardar'); }
+  }, _cargoEditId ? 'Cargo actualizado' : 'Cargo recurrente guardado');
 };
 
 async function renderCargosRecurrentes(){
@@ -7077,20 +7110,31 @@ window.guardarPromo = async function(){
     creadoEn: creadoEnCalc
   };
 
-  try{
-    const docRef = await addDoc(collection(db,'usuarios', currentUser.uid, 'promociones'), datos);
-    // Agregar al cache local inmediatamente con el id real
-    const nuevaPromo = {...datos, id: docRef.id};
-    promocionesCache = [...promocionesCache, nuevaPromo];
-    window.promocionesCache = promocionesCache;
-    document.getElementById('modal-promo-overlay').classList.remove('open');
-    // Actualizar historial si está visible
-    setTimeout(()=>{
-      if(typeof window._renderHistorialActivo === 'function') window._renderHistorialActivo();
-    }, 300);
-    window.showSuccess('Promoción guardada', '');
-    renderPromociones(true);
-  }catch(e){ showToast('❌ Error al guardar'); }
+  document.getElementById('modal-promo-overlay').classList.remove('open');
+  window._resumenMovCtx = 'nueva-promo';
+  const valores = [
+    {campo:'Banco', valor: promoBancoSel},
+    {campo:'Tarjeta', valor: t?.apodo||t?.nombre||'—'},
+    {campo:'Comercio', valor: comercio || '—'},
+    {campo:'Compra', valor: nombre},
+    {campo:'Meses sin intereses', valor: meses + ' meses'},
+    {campo:'Importe total', valor: fmt(importe), resaltar:true}
+  ];
+  _mostrarResumenSimple('Nueva promoción MSI', 'Revisa los datos', valores, async function(){
+    try{
+      const docRef = await addDoc(collection(db,'usuarios', currentUser.uid, 'promociones'), datos);
+      // Agregar al cache local inmediatamente con el id real
+      const nuevaPromo = {...datos, id: docRef.id};
+      promocionesCache = [...promocionesCache, nuevaPromo];
+      window.promocionesCache = promocionesCache;
+      cerrarModalPromo();
+      // Actualizar historial si está visible
+      setTimeout(()=>{
+        if(typeof window._renderHistorialActivo === 'function') window._renderHistorialActivo();
+      }, 300);
+      renderPromociones(true);
+    }catch(e){ showToast('❌ Error al guardar'); }
+  }, 'Promoción guardada');
 }
 
 window.eliminarPromo = async function(id){
@@ -8821,15 +8865,6 @@ window.confirmarEliminarPerfil = async function(){
       <input class="inp" id="promo-nombre" placeholder="Ej. iPhone, Televisión, Refrigerador..." maxlength="50" onfocus="cerrarScrollsPromo()"/>
     </div>
 
-    <!-- Importe -->
-    <div class="field-wrap">
-      <div class="field-label">Importe total</div>
-      <div class="amount-wrap">
-        <span class="amount-prefix">$</span>
-        <input class="amount-inp" id="promo-importe" type="number" placeholder="0.00" min="0" step="1" inputmode="decimal" onfocus="cerrarScrollsPromo()"/>
-      </div>
-    </div>
-
     <!-- Meses -->
     <div class="field-wrap">
       <div class="field-label">Meses sin intereses</div>
@@ -8854,6 +8889,15 @@ window.confirmarEliminarPerfil = async function(){
         </div>
       </div>
       <div style="height:8px"></div>
+    </div>
+
+    <!-- Importe -->
+    <div class="field-wrap">
+      <div class="field-label">Importe total</div>
+      <div class="amount-wrap">
+        <span class="amount-prefix">$</span>
+        <input class="amount-inp" id="promo-importe" type="number" placeholder="0.00" min="0" step="1" inputmode="decimal" onfocus="cerrarScrollsPromo()"/>
+      </div>
     </div>
 
     <!-- Botones -->
@@ -11079,8 +11123,8 @@ document.addEventListener('DOMContentLoaded', function(){
   <div class="modal" onclick="event.stopPropagation()" style="padding-bottom:28px">
     <div class="modal-handle"></div>
     <div style="text-align:center;margin-bottom:18px">
-      <div style="width:56px;height:56px;border-radius:50%;background:#f0f0f0;display:flex;align-items:center;justify-content:center;margin:0 auto 12px">
-        <svg width="28" height="28" fill="none" stroke="#111" stroke-width="2.2" viewBox="0 0 24 24"><path d="M9 12l2 2 4-4"/><circle cx="12" cy="12" r="10"/></svg>
+      <div style="width:56px;height:56px;border-radius:50%;background:linear-gradient(180deg,#111,#444);display:flex;align-items:center;justify-content:center;margin:0 auto 12px">
+        <svg width="26" height="26" fill="none" stroke="#fff" stroke-width="2.2" viewBox="0 0 24 24"><path d="M9 12l2 2 4-4"/><circle cx="12" cy="12" r="10"/></svg>
       </div>
       <div id="resumen-mov-titulo" style="font-size:18px;font-weight:800;color:#111;margin-bottom:4px">¿Son correctos los cambios?</div>
       <div id="resumen-mov-sub" style="font-size:13px;color:#aaa">Revisa antes de guardar</div>
@@ -11200,15 +11244,6 @@ document.addEventListener('DOMContentLoaded', function(){
       <input class="inp" id="cargo-nombre" type="text" placeholder="Ej. Netflix, Gimnasio..." maxlength="60" autocomplete="off" onfocus="cerrarScrollsCargo()"/>
     </div>
 
-    <!-- Monto -->
-    <div class="field-wrap">
-      <div class="field-label">Monto mensual</div>
-      <div class="amount-wrap">
-        <span class="amount-prefix">$</span>
-        <input class="amount-inp" id="cargo-monto" type="number" placeholder="0.00" min="0" step="0.01" onfocus="cerrarScrollsCargo()"/>
-      </div>
-    </div>
-
     <!-- Día -->
     <div class="field-wrap">
       <div class="field-label">Día del cargo</div>
@@ -11227,6 +11262,15 @@ document.addEventListener('DOMContentLoaded', function(){
         </div>
       </div>
       <div style="height:8px"></div>
+    </div>
+
+    <!-- Monto -->
+    <div class="field-wrap">
+      <div class="field-label">Monto mensual</div>
+      <div class="amount-wrap">
+        <span class="amount-prefix">$</span>
+        <input class="amount-inp" id="cargo-monto" type="number" placeholder="0.00" min="0" step="0.01" onfocus="cerrarScrollsCargo()"/>
+      </div>
     </div>
 
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:8px">
