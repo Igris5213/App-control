@@ -6831,30 +6831,43 @@ async function renderCargosRecurrentes(){
       listaC.innerHTML = '<div style="text-align:center;color:#aaa;padding:40px 0;font-size:15px">Sin cargos recurrentes</div>';
       return;
     }
-    const bancos = [...new Set(cargosRecurrentesCache.map(c=>c.banco||'Sin banco'))].sort();
+    const tipos = [
+      {key:'credito', label:'Tarjetas de crédito'},
+      {key:'debito',  label:'Tarjetas de débito'}
+    ];
     let html = '';
-    bancos.forEach(function(banco){
-      const grupo = cargosRecurrentesCache.filter(function(c){ return (c.banco||'Sin banco')===banco; });
-      html += '<div style="font-size:12px;font-weight:700;color:#aaa;text-transform:uppercase;letter-spacing:0.06em;margin:12px 0 8px 4px">' + banco + '</div>';
-      grupo.forEach(function(c){
-        const t  = (perfil?.tarjetas||[]).find(x=>x.id===c.tarjetaId);
-        const cu = (perfil?.cuentasDebito||[]).find(x=>x.id===c.cuentaId);
-        const cuentaNombre = t ? (t.apodo||t.nombre) : cu ? (cu.apodo||cu.nombre) : '—';
-        const tipoIcon = c.tipo === 'debito'
-          ? '<svg width="17" height="17" fill="none" stroke="#111" stroke-width="2" viewBox="0 0 24 24"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>'
-          : '<svg width="17" height="17" fill="none" stroke="#111" stroke-width="2" viewBox="0 0 24 24"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg>';
-        html += '<div data-cargo-id="' + c.id + '" style="background:#fff;border-radius:16px;padding:16px;box-shadow:0 1px 6px rgba(0,0,0,0.06);margin-bottom:10px;display:flex;align-items:center;gap:12px;cursor:pointer"'
-          + ' onclick="resaltarCargo(this)"'
-          + ' onmousedown="startLongPressCargo(this,\'' + c.id + '\')" onmouseup="cancelLongPress()" onmouseleave="cancelLongPress()"'
-          + ' ontouchstart="startLongPressCargo(this,\'' + c.id + '\')" ontouchend="cancelLongPress()" ontouchmove="cancelLongPress()">';
-        html += '<div style="width:40px;height:40px;border-radius:12px;background:#f5f5f5;display:flex;align-items:center;justify-content:center;flex-shrink:0">' + tipoIcon + '</div>';
-        html += '<div style="flex:1;min-width:0">';
-        html += '<div style="font-size:15px;font-weight:700;color:#111;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">' + c.nombre + '</div>';
-        html += '<div style="font-size:12px;color:#aaa;margin-top:1px">Día ' + c.dia + ' · ' + cuentaNombre + '</div>';
-        html += '</div>';
-        html += '<div style="font-size:15px;font-weight:800;color:#111;flex-shrink:0">$' + Number(c.monto).toLocaleString('es-MX',{minimumFractionDigits:2}) + '</div>';
-        html += '</div>';
+    tipos.forEach(function(tipoInfo){
+      const cargosTipo = cargosRecurrentesCache.filter(function(c){ return c.tipo === tipoInfo.key; });
+      if(!cargosTipo.length) return;
+      const bancos = [...new Set(cargosTipo.map(c=>c.banco||'Sin banco'))].sort();
+      html += '<div style="background:#fff;border-radius:18px;padding:14px;margin-bottom:16px;box-shadow:0 1px 8px rgba(0,0,0,0.06)">';
+      html += '<div style="font-size:13px;font-weight:800;color:#111;text-transform:uppercase;letter-spacing:0.06em;margin:0 0 8px 4px">' + tipoInfo.label + '</div>';
+      bancos.forEach(function(banco){
+        const grupo = cargosTipo.filter(function(c){ return (c.banco||'Sin banco')===banco; });
+        grupo.forEach(function(c){
+          const t  = (perfil?.tarjetas||[]).find(x=>x.id===c.tarjetaId);
+          const cu = (perfil?.cuentasDebito||[]).find(x=>x.id===c.cuentaId);
+          const cuentaNombre = t ? (t.apodo||t.nombre) : cu ? (cu.apodo||cu.nombre) : '—';
+          const tipoIcon = c.tipo === 'debito'
+            ? '<svg width="17" height="17" fill="none" stroke="#111" stroke-width="2" viewBox="0 0 24 24"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>'
+            : '<svg width="17" height="17" fill="none" stroke="#111" stroke-width="2" viewBox="0 0 24 24"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg>';
+          html += '<div data-cargo-id="' + c.id + '" style="background:#f5f5f5;border-radius:14px;padding:14px;margin-bottom:8px;display:flex;align-items:center;gap:12px;cursor:pointer"'
+            + ' onclick="resaltarCargo(this)"'
+            + ' onmousedown="startLongPressCargo(this,\'' + c.id + '\')" onmouseup="cancelLongPress()" onmouseleave="cancelLongPress()"'
+            + ' ontouchstart="startLongPressCargo(this,\'' + c.id + '\')" ontouchend="cancelLongPress()" ontouchmove="cancelLongPress()">';
+          html += '<div style="width:40px;height:40px;border-radius:12px;background:#fff;display:flex;align-items:center;justify-content:center;flex-shrink:0">' + tipoIcon + '</div>';
+          html += '<div style="flex:1;min-width:0">';
+          html += '<div style="font-size:15px;font-weight:700;color:#111;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">' + c.nombre + '</div>';
+          html += '<div style="font-size:12px;color:#aaa;margin-top:1px">' + banco + ' · ' + cuentaNombre + '</div>';
+          html += '</div>';
+          html += '<div style="text-align:right;flex-shrink:0">';
+          html += '<div style="font-size:15px;font-weight:800;color:#111">$' + Number(c.monto).toLocaleString('es-MX',{minimumFractionDigits:2}) + '</div>';
+          html += '<div style="font-size:12px;color:#aaa;margin-top:1px">Día ' + c.dia + '</div>';
+          html += '</div>';
+          html += '</div>';
+        });
       });
+      html += '</div>';
     });
     listaC.innerHTML = html;
   }catch(e){ console.error('cargos error:',e); listaC.innerHTML='<div style="text-align:center;color:#bbb;padding:24px">Error al cargar</div>'; }
@@ -8231,8 +8244,7 @@ function buildCarruselDebito(){
       </div>
       <div class="card-use-bar"><div class="card-use-fill" id="deb-bar-${i}" style="width:0%"></div></div>
       <div class="card-use-pct" id="deb-pct-${i}">0% gastado</div>
-      <div id="deb-promos-${i}" style="font-size:12px;color:rgba(255,255,255,0.8);margin-bottom:6px;display:none"></div>
-      <div id="deb-cargos-${i}" style="font-size:12px;color:rgba(255,255,255,0.8);margin-bottom:8px;display:none"></div>
+      <div id="deb-promos-${i}" style="font-size:12px;color:rgba(255,255,255,0.8);margin-bottom:8px;display:none"></div>
       <div class="card-divider"></div>
       <div class="card-corte-row" style="justify-content:space-between">
         <div style="display:flex;align-items:center;gap:6px">
@@ -8342,7 +8354,12 @@ function _updateDebCards(){
     // Ingresos/egresos: solo del mes actual
     const movMes   = movC.filter(m => m.fecha && m.fecha.startsWith(_preP));
     const ingMes   = movMes.filter(m=>m.tipo==='ingreso').reduce((s,m)=>s+(m.monto||0), 0);
-    const egrMes   = movMes.filter(m=>m.tipo==='egreso').reduce((s,m)=>s+(m.monto||0), 0);
+    const egrMovMes = movMes.filter(m=>m.tipo==='egreso').reduce((s,m)=>s+(m.monto||0), 0);
+    // Cargos recurrentes de débito de esta cuenta: se consideran egreso del mes
+    const _totalCargosDeb = cargosRecurrentesCache
+      .filter(cr => cr.cuentaId === c.id && cr.tipo === 'debito')
+      .reduce((s,cr)=>s+(cr.monto||0), 0);
+    const egrMes = egrMovMes + _totalCargosDeb;
     const fmt2 = n => n.toLocaleString('es-MX',{minimumFractionDigits:2,maximumFractionDigits:2});
     const ingEl  = document.getElementById('deb-ing-'  + i);
     const egrEl  = document.getElementById('deb-egr-'  + i);
@@ -8358,30 +8375,11 @@ function _updateDebCards(){
       barEl.style.width = pct + '%';
       pctEl.textContent = pct + '% gastado';
     }
-    // Promociones (MSI) activas — total del cargo recurrente mensual
+    // Promociones — monto mensual de los cargos recurrentes de débito de esta cuenta
     const promosEl = document.getElementById('deb-promos-' + i);
     if(promosEl){
-      const _totalPromos = (window.promocionesCache||[])
-        .filter(p=>(p.mesesPagados||0) < p.meses)
-        .reduce((s,p)=>s+(p.mensualidad||0), 0);
-      if(_totalPromos > 0){
-        promosEl.innerHTML = 'Promociones: <strong style="color:#fff">$' + fmt2(_totalPromos) + '</strong>';
-        promosEl.style.display = '';
-      } else {
-        promosEl.style.display = 'none';
-      }
-    }
-    // Cargos recurrentes de esta cuenta
-    const cargosEl = document.getElementById('deb-cargos-' + i);
-    if(cargosEl){
-      const _cargosDebC = cargosRecurrentesCache.filter(cr => cr.cuentaId === c.id && cr.tipo === 'debito');
-      if(_cargosDebC.length){
-        const _totalCargos = _cargosDebC.reduce((s,cr)=>s+(cr.monto||0), 0);
-        cargosEl.innerHTML = 'Cargos recurrentes: <strong style="color:#fff">$' + fmt2(_totalCargos) + ' /mes</strong>';
-        cargosEl.style.display = '';
-      } else {
-        cargosEl.style.display = 'none';
-      }
+      promosEl.innerHTML = 'Promociones: <strong style="color:#fff">$' + fmt2(_totalCargosDeb) + '</strong>';
+      promosEl.style.display = '';
     }
     // Gasto por día
     const xdiaEl = document.getElementById('deb-xdia-' + i);
@@ -8598,7 +8596,7 @@ window.confirmarEliminarPerfil = async function(){
     <div class="success-title">¿Cerrar sesión?</div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:20px">
       <button onclick="document.getElementById('modal-confirm-logout').classList.remove('show')" style="padding:12px;border-radius:12px;border:1.5px solid #e0e0e0;background:#fff;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;color:#666">Cancelar</button>
-      <button onclick="ejecutarCerrarSesion()" style="padding:12px;border-radius:12px;background:linear-gradient(180deg,#111,#444);color:#fff;border:none;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit">Cerrar</button>
+      <button onclick="ejecutarCerrarSesion()" class="hold-btn" style="padding:12px;border-radius:12px;background:linear-gradient(180deg,#111,#444);color:#fff;border:none;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit">Cerrar</button>
     </div>
   </div>
 </div>
