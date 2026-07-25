@@ -14,7 +14,8 @@
 <meta name="theme-color" content="#111111">
 <link rel="apple-touch-icon" href="icon-192.png">
 <style>
-*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;outline:none}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;outline:none;user-select:none;-webkit-user-select:none;-moz-user-select:none;-ms-user-select:none;-webkit-touch-callout:none}
+input,textarea{-webkit-user-select:text;user-select:text;-webkit-touch-callout:default}
 
 
 /* Indicador pull-to-refresh login */
@@ -344,7 +345,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
   outline:none;
   -webkit-tap-highlight-color:transparent;
   user-select:none;
-  color:rgba(0,0,0,0.32);
+  color:rgba(0,0,0,0.6);
   position:relative;
   z-index:1;
 }
@@ -1568,14 +1569,16 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
       <div style="font-size:14px;color:#aaa;line-height:1.6">No agregaste ninguna tarjeta de crédito.<br>Puedes añadirla desde la pestaña de <strong style="color:#111">Perfiles</strong>.</div>
     </div>
 
-    <!-- Recuadro unificado: carrusel + movimientos -->
-    <div id="tarjetas-carrusel-wrap" style="background:#fff;border-radius:24px;padding:20px 16px;box-shadow:0 4px 24px rgba(0,0,0,0.08);margin-bottom:32px">
+    <!-- Carrusel de tarjeta -->
+    <div id="tarjetas-carrusel-wrap" style="margin-bottom:16px">
       <div class="cards-outer" id="cards-outer" style="margin:0;border-radius:16px"></div>
       <div class="dots" id="dots"></div>
-      <div style="margin-top:18px">
-        <div class="section-card-title">Últimos movimientos</div>
-        <div id="mov-list" style="max-height:504px;overflow-y:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none"></div>
-      </div>
+    </div>
+
+    <!-- Últimos movimientos -->
+    <div class="section-card" style="margin:0 0 32px">
+      <div class="section-card-title">Últimos movimientos</div>
+      <div id="mov-list" style="max-height:504px;overflow-y:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none"></div>
     </div>
   </div>
 </div>
@@ -2414,8 +2417,7 @@ function buildCarrusel(){
           <strong>Fecha de corte: Día ${t.corte}</strong>
         </div>
         <div style="display:flex;align-items:center;gap:6px">
-          <span style="font-weight:700;font-size:15px">$</span>
-          <strong>Gasto por día: <span id="xdia-${i}">$0.00</span></strong>
+          <strong>Gasto por día: <span id="xdia-${i}">0.00</span></strong>
         </div>
       </div>`;
     outer.appendChild(card);
@@ -2616,7 +2618,7 @@ function updateCards(){
     const diasEl=document.getElementById(`dias-${i}`);
     if(diasEl) diasEl.textContent=diasTxt;
     const xdiaEl=document.getElementById(`xdia-${i}`);
-    if(xdiaEl) xdiaEl.textContent=fmt(usado/30);
+    if(xdiaEl) xdiaEl.textContent=fmt(usado/30).replace('$','');
     const badge=document.getElementById(`badge-${i}`);
     if(badge) badge.style.display = i===current ? 'flex' : 'none';
   });
@@ -8146,7 +8148,7 @@ function buildCarruselDebito(){
         <span>Egresos: <strong id="deb-egr-${i}">$0.00</strong></span>
       </div>
       <div class="card-use-bar"><div class="card-use-fill" id="deb-bar-${i}" style="width:0%"></div></div>
-      <div class="card-use-pct" id="deb-pct-${i}">0% del mes gastado</div>
+      <div class="card-use-pct" id="deb-pct-${i}">0% gastado</div>
       <div id="deb-promos-${i}" style="font-size:12px;color:rgba(255,255,255,0.8);margin-bottom:6px;display:none"></div>
       <div id="deb-cargos-${i}" style="font-size:12px;color:rgba(255,255,255,0.8);margin-bottom:8px;display:none"></div>
       <div class="card-divider"></div>
@@ -8156,8 +8158,7 @@ function buildCarruselDebito(){
           <strong>Fecha de corte: Día 1</strong>
         </div>
         <div style="display:flex;align-items:center;gap:6px">
-          <span style="font-weight:700;font-size:15px">$</span>
-          <strong>Gasto por día: <span id="deb-xdia-${i}">$0.00</span></strong>
+          <strong>Gasto por día: <span id="deb-xdia-${i}">0.00</span></strong>
         </div>
       </div>`;
     outer.appendChild(card);
@@ -8273,9 +8274,7 @@ function _updateDebCards(){
     if(barEl && pctEl){
       const pct = ingMes > 0 ? Math.min(100, Math.round((egrMes / ingMes) * 100)) : (egrMes > 0 ? 100 : 0);
       barEl.style.width = pct + '%';
-      const balance = ingMes - egrMes;
-      const signo = balance >= 0 ? '+' : '-';
-      pctEl.textContent = pct + '% gastado · ' + signo + '$' + fmt2(Math.abs(balance));
+      pctEl.textContent = pct + '% gastado';
     }
     // Promociones (MSI) activas — total del cargo recurrente mensual
     const promosEl = document.getElementById('deb-promos-' + i);
@@ -8306,7 +8305,7 @@ function _updateDebCards(){
     const xdiaEl = document.getElementById('deb-xdia-' + i);
     if(xdiaEl){
       const _xdia = _hoy.getDate() > 0 ? egrMes / _hoy.getDate() : 0;
-      xdiaEl.textContent = '$' + fmt2(_xdia);
+      xdiaEl.textContent = fmt2(_xdia);
     }
   });
 }
@@ -8667,13 +8666,15 @@ window.confirmarEliminarPerfil = async function(){
     </div>
 
     <!-- Carrusel débito -->
-    <div id="cuentas-carrusel-wrap" style="background:#fff;border-radius:24px;padding:20px 16px;box-shadow:0 4px 24px rgba(0,0,0,0.08);margin-bottom:32px">
+    <div id="cuentas-carrusel-wrap" style="margin-bottom:16px">
       <div class="cards-outer" id="deb-cards-outer" style="margin:0;border-radius:16px"></div>
       <div class="dots" id="deb-dots"></div>
-      <div style="margin-top:18px">
-        <div class="section-card-title">Últimos movimientos</div>
-        <div id="deb-mov-list" style="max-height:504px;overflow-y:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none"></div>
-      </div>
+    </div>
+
+    <!-- Últimos movimientos -->
+    <div class="section-card" style="margin:0 0 32px">
+      <div class="section-card-title">Últimos movimientos</div>
+      <div id="deb-mov-list" style="max-height:504px;overflow-y:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none"></div>
     </div>
 
   </div>
