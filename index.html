@@ -7233,7 +7233,7 @@ window.abrirEditarPromo = async function(id){
     // Meses pagados
     const mesesPagActual = Math.min(p.meses, 1 + Math.floor((Date.now() - p.creadoEn) / (1000*60*60*24*30)));
     const mesesPagGuardado = p.mesesPagados !== undefined ? p.mesesPagados : mesesPagActual;
-    document.getElementById('edit-promo-mesespag-txt').textContent = mesesPagGuardado + (mesesPagGuardado===1?' mes pagado':' meses pagados');
+    document.getElementById('edit-promo-mesespag-txt').textContent = mesesPagGuardado + (mesesPagGuardado===1?' mes':' meses');
     document.getElementById('edit-promo-mesespag-txt').style.color = '#111';
     document.getElementById('edit-promo-mesespag').value = mesesPagGuardado;
     document.getElementById('edit-meses-pag-scroll-wrap').style.display = 'none';
@@ -7270,7 +7270,7 @@ function buildScrollMesesEdit(current){
       const mpActual = parseInt(document.getElementById('edit-promo-mesespag').value) || 1;
       if(mpActual > meses){
         document.getElementById('edit-promo-mesespag').value = meses;
-        document.getElementById('edit-promo-mesespag-txt').textContent = meses + (meses===1?' mes pagado':' meses pagados');
+        document.getElementById('edit-promo-mesespag-txt').textContent = meses + (meses===1?' mes':' meses');
       }
     });
   }, 80);
@@ -7301,7 +7301,7 @@ window.abrirScrollMesesPagEdit = function(){
           const sel=i===idx; el.classList.toggle('sel',sel); el.style.color=sel?'#fff':'#444';
         });
         document.getElementById('edit-promo-mesespag').value = meses;
-        document.getElementById('edit-promo-mesespag-txt').textContent = meses + (meses===1?' mes pagado':' meses pagados');
+        document.getElementById('edit-promo-mesespag-txt').textContent = meses + (meses===1?' mes':' meses');
         document.getElementById('edit-promo-mesespag-txt').style.color = '#111';
       });
     }, 80);
