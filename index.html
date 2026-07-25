@@ -399,6 +399,30 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .save-btn-main + .save-btn-main{
   margin-top:10px;
 }
+
+/* ══ PROFUNDIDAD GLOBAL ══ */
+/* Botones/iconos con el gradiente oscuro principal (acción primaria) en toda la app */
+[style*="linear-gradient(180deg,#111,#444)"]{box-shadow:0 4px 14px rgba(0,0,0,0.22)}
+[style*="linear-gradient(180deg,#111,#444)"]:active{box-shadow:0 2px 6px rgba(0,0,0,0.16)}
+/* Botones con el gradiente gris (acciones secundarias/eliminar) */
+[style*="linear-gradient(180deg,#333,#666)"]{box-shadow:0 4px 14px rgba(0,0,0,0.18)}
+[style*="linear-gradient(180deg,#333,#666)"]:active{box-shadow:0 2px 6px rgba(0,0,0,0.14)}
+/* Botones secundarios con borde y fondo blanco */
+[style*="border:1.5px solid #e0e0e0;background:#fff"]{box-shadow:0 1px 4px rgba(0,0,0,0.05)}
+[style*="background:#fff;border:1.5px solid #e0e0e0"]{box-shadow:0 1px 4px rgba(0,0,0,0.05)}
+
+.primary-btn{box-shadow:0 4px 14px rgba(0,0,0,0.22)}
+.ob-btn-agregar{box-shadow:0 4px 14px rgba(0,0,0,0.22)}
+.ob-btn-terminar{box-shadow:0 1px 4px rgba(0,0,0,0.05)}
+.save-btn-main{box-shadow:0 4px 14px rgba(0,0,0,0.22)}
+.modal-save{box-shadow:0 4px 14px rgba(0,0,0,0.22)}
+.ob-input,.ob-input:focus{box-shadow:0 1px 4px rgba(0,0,0,0.05)}
+.added-card-item{box-shadow:0 1px 3px rgba(0,0,0,0.05)}
+.dot.active{box-shadow:0 2px 6px rgba(0,0,0,0.25)}
+.corte-item{box-shadow:0 1px 3px rgba(0,0,0,0.04)}
+.corte-item.selected{box-shadow:0 3px 10px rgba(0,0,0,0.2)}
+.mov-icon{box-shadow:0 1px 3px rgba(0,0,0,0.06)}
+.card-stats-icon{box-shadow:inset 0 1px 2px rgba(0,0,0,0.1)}
 </style>
 </head>
 <body>
@@ -4525,12 +4549,9 @@ window.renderPerfiles = function(){
                   <line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/>
                 </svg>
               </div>
-              <div style="position:absolute;top:-28px;right:-28px;width:110px;height:110px;border-radius:50%;background:rgba(255,255,255,0.06);pointer-events:none"></div>
-              <div style="position:absolute;bottom:-18px;left:40px;width:70px;height:70px;border-radius:50%;background:rgba(255,255,255,0.04);pointer-events:none"></div>
-              <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:4px">
-                <div>
-                  <div style="font-size:18px;font-weight:800;color:#fff;letter-spacing:-0.3px;line-height:1.1">${t.nombre}</div>
-                  ${t.apodo ? `<div style="font-size:12px;color:rgba(255,255,255,0.7);margin-top:2px;font-weight:500">${t.apodo}</div>` : ''}
+              <div style="display:flex;align-items:baseline;justify-content:space-between;margin-bottom:4px;gap:8px">
+                <div style="display:flex;align-items:baseline;gap:6px;min-width:0">
+                  <div style="font-size:15px;font-weight:800;color:#fff;letter-spacing:-0.3px;line-height:1.1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${t.nombre}${t.apodo ? ' - ' + t.apodo : ''}</div>
                 </div>
 
               </div>
@@ -4621,12 +4642,9 @@ window.renderPerfiles = function(){
                   <line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/>
                 </svg>
               </div>
-              <div style="position:absolute;top:-28px;right:-28px;width:110px;height:110px;border-radius:50%;background:rgba(255,255,255,0.06);pointer-events:none"></div>
-              <div style="position:absolute;bottom:-18px;left:40px;width:70px;height:70px;border-radius:50%;background:rgba(255,255,255,0.04);pointer-events:none"></div>
-              <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:4px">
-                <div>
-                  <div style="font-size:18px;font-weight:800;color:#fff;letter-spacing:-0.3px;line-height:1.1">${c.nombre}</div>
-                  ${c.apodo ? `<div style="font-size:12px;color:rgba(255,255,255,0.7);margin-top:2px;font-weight:500">${c.apodo}</div>` : ''}
+              <div style="display:flex;align-items:baseline;justify-content:space-between;margin-bottom:4px;gap:8px">
+                <div style="display:flex;align-items:baseline;gap:6px;min-width:0">
+                  <div style="font-size:15px;font-weight:800;color:#fff;letter-spacing:-0.3px;line-height:1.1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${c.nombre}${c.apodo ? ' - ' + c.apodo : ''}</div>
                 </div>
                 
               </div>
