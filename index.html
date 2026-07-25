@@ -5113,8 +5113,10 @@ window.guardarNuevaDebito = async function(){
   } catch(e){ showToast('❌ Error al guardar'); }
 }
 
-window.eliminarDebitoPerfil = async function(id){
+window.eliminarDebitoPerfil = function(id){
   if(!perfil.cuentasDebito) return;
+  const c = perfil.cuentasDebito.find(x=>x.id===id);
+  if(!c) return;
 
   const tieneCredito = perfil.tarjetas && perfil.tarjetas.length > 0;
   const esUltima = perfil.cuentasDebito.length === 1;
@@ -5126,6 +5128,35 @@ window.eliminarDebitoPerfil = async function(id){
     return;
   }
 
+  window._debitoIdPendiente = id;
+  document.getElementById('eliminar-debito-body').innerHTML = `
+    <div style="display:flex;justify-content:space-between;align-items:center">
+      <span style="font-size:13px;color:#888;font-weight:500">Banco</span>
+      <span style="font-size:14px;font-weight:400;color:#111">${c.nombre}</span>
+    </div>
+    <div style="display:flex;justify-content:space-between;align-items:center">
+      <span style="font-size:13px;color:#888;font-weight:500">Cuenta</span>
+      <span style="font-size:14px;font-weight:400;color:#111">${c.apodo || '—'}</span>
+    </div>
+    <div style="display:flex;justify-content:space-between;align-items:center">
+      <span style="font-size:13px;color:#888;font-weight:500">Saldo disponible</span>
+      <span style="font-size:14px;font-weight:400;color:#111">${typeof c.disponible==='number'&&c.disponible>0?'$'+c.disponible.toLocaleString('es-MX',{minimumFractionDigits:2}):'—'}</span>
+    </div>
+  `;
+  document.getElementById('modal-eliminar-debito').classList.add('open');
+}
+
+window.cerrarModalDebitoDelete = function(e){
+  if(!e || e.target===document.getElementById('modal-eliminar-debito')){
+    document.getElementById('modal-eliminar-debito').classList.remove('open');
+  }
+}
+
+window.confirmarEliminarDebito = async function(){
+  document.getElementById('modal-eliminar-debito').classList.remove('open');
+  const id = window._debitoIdPendiente;
+  if(!id || !perfil.cuentasDebito) return;
+
   perfil.cuentasDebito = perfil.cuentasDebito.filter(c=>c.id!==id);
   try{
     await setDoc(doc(db,'usuarios', currentUser.uid, 'perfil','datos'), perfil);
@@ -5134,6 +5165,7 @@ window.eliminarDebitoPerfil = async function(id){
     buildCarruselDebito();
     renderPerfiles();
   } catch(e){ showToast('❌ Error al eliminar'); }
+  window._debitoIdPendiente = null;
 }
 
 window.abrirEditarDebito = function(id){
@@ -8558,7 +8590,27 @@ setTimeout(initTrail, 300);
 window._eliminarTarjetaPerfilOriginal = window.eliminarTarjetaPerfil;
 
 window.eliminarTarjetaPerfil = function(id){
+  const t = (perfil.tarjetas||[]).find(x=>x.id===id);
+  if(!t) return;
   window._bancoId = id;
+  document.getElementById('eliminar-banco-body').innerHTML = `
+    <div style="display:flex;justify-content:space-between;align-items:center">
+      <span style="font-size:13px;color:#888;font-weight:500">Banco</span>
+      <span style="font-size:14px;font-weight:400;color:#111">${t.nombre}</span>
+    </div>
+    <div style="display:flex;justify-content:space-between;align-items:center">
+      <span style="font-size:13px;color:#888;font-weight:500">Tarjeta</span>
+      <span style="font-size:14px;font-weight:400;color:#111">${t.apodo || '—'}</span>
+    </div>
+    <div style="display:flex;justify-content:space-between;align-items:center">
+      <span style="font-size:13px;color:#888;font-weight:500">Corte</span>
+      <span style="font-size:14px;font-weight:400;color:#111">Día ${t.corte}</span>
+    </div>
+    <div style="display:flex;justify-content:space-between;align-items:center">
+      <span style="font-size:13px;color:#888;font-weight:500">Límite de crédito</span>
+      <span style="font-size:14px;font-weight:400;color:#111">$${t.limite.toLocaleString('es-MX',{minimumFractionDigits:2})}</span>
+    </div>
+  `;
   document.getElementById('modal-eliminar-banco').classList.add('open');
 }
 
@@ -9684,7 +9736,27 @@ window._ejecutarGuardarExtDB = async function(){
 window._eliminarTarjetaPerfilOriginal = window.eliminarTarjetaPerfil;
 
 window.eliminarTarjetaPerfil = function(id){
+  const t = (perfil.tarjetas||[]).find(x=>x.id===id);
+  if(!t) return;
   window._bancoId = id;
+  document.getElementById('eliminar-banco-body').innerHTML = `
+    <div style="display:flex;justify-content:space-between;align-items:center">
+      <span style="font-size:13px;color:#888;font-weight:500">Banco</span>
+      <span style="font-size:14px;font-weight:400;color:#111">${t.nombre}</span>
+    </div>
+    <div style="display:flex;justify-content:space-between;align-items:center">
+      <span style="font-size:13px;color:#888;font-weight:500">Tarjeta</span>
+      <span style="font-size:14px;font-weight:400;color:#111">${t.apodo || '—'}</span>
+    </div>
+    <div style="display:flex;justify-content:space-between;align-items:center">
+      <span style="font-size:13px;color:#888;font-weight:500">Corte</span>
+      <span style="font-size:14px;font-weight:400;color:#111">Día ${t.corte}</span>
+    </div>
+    <div style="display:flex;justify-content:space-between;align-items:center">
+      <span style="font-size:13px;color:#888;font-weight:500">Límite de crédito</span>
+      <span style="font-size:14px;font-weight:400;color:#111">$${t.limite.toLocaleString('es-MX',{minimumFractionDigits:2})}</span>
+    </div>
+  `;
   document.getElementById('modal-eliminar-banco').classList.add('open');
 }
 
@@ -9739,7 +9811,7 @@ window.confirmarEliminarPerfil = async function(){
     <div style="margin-bottom:20px"></div>
     <div id="perfiles-lista"></div>
     <button id="btn-agregar-tarjeta-fuera" onclick="window._perfilTabActivo==='credito'?abrirFormNuevaTarjeta():abrirFormNuevaCuenta()"
-      style="width:100%;padding:12px;border-radius:10px;border:1.5px dashed #ccc;background:#fafafa;color:#555;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;margin-top:10px;display:none">
+      style="width:100%;padding:12px;border-radius:10px;border:none;background:linear-gradient(180deg,#111,#444);color:#fff;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;margin-top:10px;display:none">
       + Agregar tarjeta de crédito
     </button>
   </div>
@@ -10019,14 +10091,37 @@ window.confirmarEliminarPerfil = async function(){
 </div>
 
 <div class="modal-overlay" id="modal-eliminar-banco" onclick="cerrarModalBanco(event)">
-  <div class="modal">
+  <div class="modal" onclick="event.stopPropagation()">
     <div class="modal-handle"></div>
-    <div style="text-align:center;padding:10px 0 20px">
-      <div style="font-size:18px;font-weight:700;color:#111">¿Eliminar este banco?</div>
+    <div style="text-align:center;margin-bottom:18px">
+      <div style="width:56px;height:56px;border-radius:50%;background:#f0f0f0;display:flex;align-items:center;justify-content:center;margin:0 auto 12px">
+        <svg width="24" height="24" fill="none" stroke="#111" stroke-width="2" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/></svg>
+      </div>
+      <div id="eliminar-banco-titulo" style="font-size:18px;font-weight:800;color:#111;margin-bottom:4px">¿Eliminar tarjeta?</div>
+      <div id="eliminar-banco-sub" style="font-size:13px;color:#aaa">Revisa los datos antes de continuar</div>
     </div>
+    <div id="eliminar-banco-body" style="background:#f5f5f5;border-radius:16px;padding:16px 18px;display:flex;flex-direction:column;gap:10px;margin-bottom:20px"></div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
-      <button onclick="cerrarModalBanco()" style="padding:13px;border-radius:12px;padding:13px;border-radius:12px;border:1.5px solid #e0e0e0;background:#fff;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit;color:#666">Cancelar</button>
-      <button onclick="confirmarEliminarBanco()" class="hold-btn" style="padding:13px;border-radius:12px;background:linear-gradient(180deg,#333,#666);color:#fff;border:none">Eliminar</button>
+      <button onclick="cerrarModalBanco()" style="padding:13px;border-radius:12px;border:1.5px solid #e0e0e0;background:#fff;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit;color:#111">Cancelar</button>
+      <button onclick="confirmarEliminarBanco()" class="hold-btn" style="padding:13px;border-radius:12px;background:linear-gradient(180deg,#333,#666);color:#fff;border:none;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit">Eliminar</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modal-eliminar-debito" onclick="cerrarModalDebitoDelete(event)">
+  <div class="modal" onclick="event.stopPropagation()">
+    <div class="modal-handle"></div>
+    <div style="text-align:center;margin-bottom:18px">
+      <div style="width:56px;height:56px;border-radius:50%;background:#f0f0f0;display:flex;align-items:center;justify-content:center;margin:0 auto 12px">
+        <svg width="24" height="24" fill="none" stroke="#111" stroke-width="2" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/></svg>
+      </div>
+      <div id="eliminar-debito-titulo" style="font-size:18px;font-weight:800;color:#111;margin-bottom:4px">¿Eliminar cuenta?</div>
+      <div id="eliminar-debito-sub" style="font-size:13px;color:#aaa">Revisa los datos antes de continuar</div>
+    </div>
+    <div id="eliminar-debito-body" style="background:#f5f5f5;border-radius:16px;padding:16px 18px;display:flex;flex-direction:column;gap:10px;margin-bottom:20px"></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+      <button onclick="cerrarModalDebitoDelete()" style="padding:13px;border-radius:12px;border:1.5px solid #e0e0e0;background:#fff;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit;color:#111">Cancelar</button>
+      <button onclick="confirmarEliminarDebito()" class="hold-btn" style="padding:13px;border-radius:12px;background:linear-gradient(180deg,#333,#666);color:#fff;border:none;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit">Eliminar</button>
     </div>
   </div>
 </div>
