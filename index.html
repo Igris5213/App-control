@@ -2919,7 +2919,7 @@ window.guardar = async function(){
       + '<div style="display:flex;justify-content:space-between;align-items:center"><span style="font-size:14px;color:#111;font-weight:600">Importe</span><span style="font-size:20px;font-weight:800;color:#111">$'+monto.toLocaleString('es-MX',{minimumFractionDigits:2,maximumFractionDigits:2})+'</span></div>';
 
     document.getElementById('deb-resumen-titulo').textContent = '¿Son correctos los cambios?';
-    document.getElementById('deb-resumen-sub').textContent = 'Revisa antes de guardar';
+    document.getElementById('deb-resumen-sub').textContent = 'Revisa los cambios antes de guardar';
 
     const btnRes = document.getElementById('deb-resumen-confirmar-btn');
     btnRes.textContent = 'Guardar';
@@ -2944,7 +2944,7 @@ window.guardar = async function(){
     window._resumenMovCtx = 'credito';
     document.getElementById('modal-overlay').classList.remove('open');
     setTimeout(()=>{
-      _mostrarResumenMovimiento(titulo2 || 'Movimiento', 'Revisa los cambios', cambios2.length ? cambios2 : [{campo:'Importe', antes:'—', despues:fmt$(monto)}], async function(){
+      _mostrarResumenMovimiento(titulo2 || 'Movimiento', 'Revisa los cambios antes de guardar', cambios2.length ? cambios2 : [{campo:'Importe', antes:'—', despues:fmt$(monto)}], async function(){
         const updEdit = { monto, ...(comercioEdit?{comercio:comercioEdit}:{}), ...(conceptoEdit?{concepto:conceptoEdit}:{}), ...(fechaEdit?{fecha:fechaEdit}:{}) };
         try{
           await updateDoc(doc(db,'usuarios', currentUser.uid, 'movimientos',editingId), updEdit);
@@ -3787,7 +3787,7 @@ window.guardarEdicionUsuario = function(){
   document.getElementById('modal-admin-editar').classList.remove('open');
   window._resumenMovCtx = 'admin';
   setTimeout(()=>{
-    _mostrarResumenMovimiento('Editar usuario', 'Revisa los cambios', cambios, confirmarEdicion, successMsg);
+    _mostrarResumenMovimiento('Editar usuario', 'Revisa los cambios antes de guardar', cambios, confirmarEdicion, successMsg);
   }, 200);
 }
 
@@ -6406,7 +6406,7 @@ window.guardarEditDeb = function(){
 
   // Llenar modal resumen editar
   document.getElementById('deb-resumen-titulo').textContent = '¿Son correctos los cambios?';
-  document.getElementById('deb-resumen-sub').textContent = 'Revisa antes de guardar';
+  document.getElementById('deb-resumen-sub').textContent = 'Revisa los cambios antes de guardar';
   const rows = document.getElementById('deb-resumen-rows');
   rows.innerHTML =
     (concepto ? '<div style="display:flex;justify-content:space-between;align-items:center"><span style="font-size:13px;color:#888;font-weight:500">Concepto</span><span style="font-size:14px;font-weight:600;color:#111">'+concepto+'</span></div>' : '')
@@ -6433,7 +6433,7 @@ window.guardarEditDeb = function(){
   window._resumenMovCtx = 'debito';
   document.getElementById('modal-edit-deb').classList.remove('open');
   setTimeout(()=>{
-    _mostrarResumenMovimiento(tituloD||'Movimiento','Revisa los cambios',cambiosD.length?cambiosD:[{campo:'Importe',antes:'—',despues:fmt$D(monto)}], _ejecutarGuardarEditDeb);
+    _mostrarResumenMovimiento(tituloD||'Movimiento','Revisa los cambios antes de guardar',cambiosD.length?cambiosD:[{campo:'Importe',antes:'—',despues:fmt$D(monto)}], _ejecutarGuardarEditDeb);
   }, 250);
 }
 
@@ -6766,12 +6766,6 @@ window.verDetalleCargo = function(id){
   const montoFmt = '$' + Number(c.monto).toLocaleString('es-MX',{minimumFractionDigits:2,maximumFractionDigits:2});
 
   document.getElementById('detalle-cargo-content').innerHTML = `
-    <div style="text-align:center;margin-bottom:20px">
-      <div style="width:52px;height:52px;border-radius:50%;background:#f5f5f5;display:flex;align-items:center;justify-content:center;margin:0 auto 10px">
-        <svg width="22" height="22" fill="none" stroke="#111" stroke-width="2" viewBox="0 0 24 24"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg>
-      </div>
-      <div style="font-size:13px;color:#aaa;margin-top:3px">Cargo recurrente · ${tipoLabel}</div>
-    </div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:20px">
       <div style="background:#f5f5f5;border-radius:12px;padding:12px;text-align:center">
         <div style="font-size:10px;font-weight:700;color:#aaa;text-transform:uppercase;margin-bottom:4px">Banco</div>
@@ -6820,6 +6814,8 @@ window.editarCargoRecurrente = function(id){
   const c = cargosRecurrentesCache.find(x=>x.id===id);
   if(!c){ showToast('No se encontró el cargo'); return; }
   _cargoEditId = id;
+  document.getElementById('cargo-recurrente-modal-title').textContent = 'Editar cargo recurrente';
+  document.getElementById('cargo-recurrente-modal-icon').style.display = 'none';
 
   cerrarScrollsCargo();
   document.getElementById('cargo-nombre').value = c.nombre || '';
@@ -6864,6 +6860,8 @@ window.resaltarCargo = function(el){
 window.abrirModalCargoRecurrente = function(){
   try{
     _cargoEditId=null;
+    document.getElementById('cargo-recurrente-modal-title').textContent = 'Cargo recurrente';
+    document.getElementById('cargo-recurrente-modal-icon').style.display = '';
     _cargoBancoSel=null; _cargoTarjetaSel=null; _cargoBancoDebSel=null; _cargoCuentaSel=null;
     document.getElementById('cargo-nombre').value='';
     document.getElementById('cargo-monto').value='';
@@ -6999,26 +6997,48 @@ window.guardarCargoRecurrente = async function(){
     {campo:'Monto mensual', valor: fmt(monto), resaltar:true}
   ];
 
-  _mostrarResumenSimple('Cargo recurrente · ' + (_cargoTipo === 'credito' ? 'Crédito' : 'Débito'), 'Revisa los datos antes de guardar', valores, async function(){
-    try{
-      if(_cargoEditId){
-        // Modo edición — actualizar documento existente
+  if(_cargoEditId){
+    const cAntes = cargosRecurrentesCache.find(x=>x.id===_cargoEditId);
+    let cuentaAntesTxt = '—';
+    if(cAntes){
+      if(cAntes.tipo === 'credito'){
+        const tA = (perfil.tarjetas||[]).find(x=>x.id===cAntes.tarjetaId);
+        cuentaAntesTxt = tA ? (tA.apodo||tA.nombre) : '—';
+      } else {
+        const cuA = (perfil.cuentasDebito||[]).find(x=>x.id===cAntes.cuentaId);
+        cuentaAntesTxt = cuA ? (cuA.apodo||cuA.nombre) : '—';
+      }
+    }
+    const cambios = [];
+    if(cAntes){
+      if((cAntes.banco||'') !== banco) cambios.push({campo:'Banco', antes:cAntes.banco||'—', despues:banco});
+      if(cuentaAntesTxt !== cuentaTxt) cambios.push({campo: _cargoTipo === 'credito' ? 'Tarjeta' : 'Cuenta', antes:cuentaAntesTxt, despues:cuentaTxt});
+      if((cAntes.nombre||'') !== nombre) cambios.push({campo:'Nombre del cargo', antes:cAntes.nombre||'—', despues:nombre});
+      if(parseInt(cAntes.dia) !== dia) cambios.push({campo:'Día del cargo', antes:'Día '+cAntes.dia, despues:'Día '+dia});
+      if(parseFloat(cAntes.monto) !== monto) cambios.push({campo:'Monto mensual', antes:fmt(cAntes.monto), despues:fmt(monto)});
+    }
+    _mostrarResumenMovimiento('Editar cargo recurrente', 'Revisa los cambios antes de guardar', cambios.length ? cambios : [{campo:'Monto mensual', antes:'—', despues:fmt(monto)}], async function(){
+      try{
         const datos = { nombre, monto, dia, tipo, banco, tarjetaId, cuentaId, activo: true };
         await updateDoc(doc(db,'usuarios', currentUser.uid, 'cargosRecurrentes', _cargoEditId), datos);
         cargosRecurrentesCache = cargosRecurrentesCache.map(c=>c.id===_cargoEditId ? {...c,...datos} : c);
         _cargoEditId = null;
         cerrarCargoRecurrente();
         renderCargosRecurrentes();
-      } else {
-        // Modo nuevo
-        const datos = { nombre, monto, dia, tipo, banco, tarjetaId, cuentaId, creadoEn: Date.now(), activo: true };
-        const docRef = await addDoc(collection(db,'usuarios', currentUser.uid, 'cargosRecurrentes'), datos);
-        cargosRecurrentesCache = [...cargosRecurrentesCache, {...datos, id: docRef.id}];
-        cerrarCargoRecurrente();
-        renderCargosRecurrentes();
-      }
+      }catch(e){ showToast('❌ Error al guardar'); }
+    }, 'Cargo recurrente actualizado');
+    return;
+  }
+
+  _mostrarResumenSimple('Cargo recurrente · ' + (_cargoTipo === 'credito' ? 'Crédito' : 'Débito'), 'Revisa los datos antes de guardar', valores, async function(){
+    try{
+      const datos = { nombre, monto, dia, tipo, banco, tarjetaId, cuentaId, creadoEn: Date.now(), activo: true };
+      const docRef = await addDoc(collection(db,'usuarios', currentUser.uid, 'cargosRecurrentes'), datos);
+      cargosRecurrentesCache = [...cargosRecurrentesCache, {...datos, id: docRef.id}];
+      cerrarCargoRecurrente();
+      renderCargosRecurrentes();
     }catch(e){ showToast('❌ Error al guardar'); }
-  }, _cargoEditId ? 'Cargo recurrente actualizado' : 'Cargo recurrente guardado');
+  }, 'Cargo recurrente guardado');
 };
 
 async function renderCargosRecurrentes(){
@@ -7568,7 +7588,7 @@ window.guardarEditPromo = async function(){
     // Llenar modal resumen promo
     const tituloPromo = (promoAntes.banco || '') + (promoAntes.tarjeta ? ' · ' + promoAntes.tarjeta : '');
     document.getElementById('resumen-promo-titulo').textContent = tituloPromo || 'Promoción';
-    document.getElementById('resumen-promo-sub').textContent = 'Revisa los cambios';
+    document.getElementById('resumen-promo-sub').textContent = 'Revisa los cambios antes de guardar';
     const body = document.getElementById('resumen-promo-body');
     body.innerHTML = cambios.map(c=>`
       <div style="margin-bottom:12px">
@@ -10258,12 +10278,7 @@ window.confirmarEliminarPerfil = async function(){
 <div class="modal-overlay" id="edit-debito-overlay" onclick="cerrarEditDebito(event)" style="z-index:1300">
   <div class="modal">
     <div class="modal-handle"></div>
-    <div style="display:flex;align-items:center;gap:12px;margin-bottom:20px">
-      <div style="width:40px;height:40px;border-radius:12px;background:linear-gradient(180deg,#111,#444);display:flex;align-items:center;justify-content:center;flex-shrink:0">
-        <svg width="20" height="20" fill="none" stroke="#fff" stroke-width="2" viewBox="0 0 24 24"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/><line x1="5" y1="15" x2="9" y2="15"/></svg>
-      </div>
-      <div class="modal-title" style="margin-bottom:0">Editar cuenta de débito</div>
-    </div>
+    <div class="modal-title">Editar cuenta</div>
     <input type="hidden" id="edit-debito-id"/>
     <input type="hidden" id="edit-debito-banco"/>
     <input type="hidden" id="edit-debito-apodo"/>
@@ -11290,8 +11305,8 @@ function _actualizarFechaDebito() {
   <div class="modal" onclick="event.stopPropagation()" style="padding-bottom:28px;border-radius:24px;width:calc(100% - 40px);max-width:390px">
     <div class="modal-handle"></div>
     <div style="text-align:center;padding:6px 0 18px">
-      <div style="width:56px;height:56px;border-radius:50%;background:linear-gradient(180deg,#111,#444);display:flex;align-items:center;justify-content:center;margin:0 auto 14px">
-        <svg width="26" height="26" fill="none" stroke="#fff" stroke-width="2.2" viewBox="0 0 24 24"><path d="M9 12l2 2 4-4"/><circle cx="12" cy="12" r="10"/></svg>
+      <div style="width:52px;height:52px;border-radius:50%;background:#f5f5f5;display:flex;align-items:center;justify-content:center;margin:0 auto 14px">
+        <svg width="24" height="24" fill="none" stroke="#111" stroke-width="2" viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
       </div>
       <div id="deb-resumen-titulo" style="font-size:18px;font-weight:800;color:#111;margin-bottom:4px"></div>
       <div id="deb-resumen-sub" style="font-size:13px;color:#aaa"></div>
@@ -11444,11 +11459,11 @@ document.addEventListener('DOMContentLoaded', function(){
   <div class="modal" onclick="event.stopPropagation()" style="padding-bottom:28px">
     <div class="modal-handle"></div>
     <div style="text-align:center;margin-bottom:18px">
-      <div style="width:56px;height:56px;border-radius:50%;background:linear-gradient(180deg,#111,#444);display:flex;align-items:center;justify-content:center;margin:0 auto 12px">
-        <svg width="26" height="26" fill="none" stroke="#fff" stroke-width="2.2" viewBox="0 0 24 24"><path d="M9 12l2 2 4-4"/><circle cx="12" cy="12" r="10"/></svg>
+      <div style="width:52px;height:52px;border-radius:50%;background:#f5f5f5;display:flex;align-items:center;justify-content:center;margin:0 auto 12px">
+        <svg width="24" height="24" fill="none" stroke="#111" stroke-width="2" viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
       </div>
       <div id="resumen-mov-titulo" style="font-size:18px;font-weight:800;color:#111;margin-bottom:4px">¿Son correctos los cambios?</div>
-      <div id="resumen-mov-sub" style="font-size:13px;color:#aaa">Revisa antes de guardar</div>
+      <div id="resumen-mov-sub" style="font-size:13px;color:#aaa">Revisa los cambios antes de guardar</div>
 
     </div>
     <div id="resumen-mov-body" style="margin-bottom:20px"></div>
@@ -11469,7 +11484,7 @@ document.addEventListener('DOMContentLoaded', function(){
 <div class="modal-overlay" id="modal-cargo-recurrente" onclick="cerrarCargoRecurrente(event)">
   <div class="modal" onclick="event.stopPropagation()" style="max-height:90vh;overflow-y:auto;-webkit-overflow-scrolling:touch">
     <div class="modal-handle"></div>
-    <div class="modal-title"><div style="width:34px;height:34px;border-radius:10px;background:linear-gradient(180deg,#111,#444);display:flex;align-items:center;justify-content:center;flex-shrink:0"><svg width="17" height="17" fill="none" stroke="#fff" stroke-width="2" viewBox="0 0 24 24"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg></div>Cargo recurrente</div>
+    <div class="modal-title"><div id="cargo-recurrente-modal-icon" style="width:34px;height:34px;border-radius:10px;background:linear-gradient(180deg,#111,#444);display:flex;align-items:center;justify-content:center;flex-shrink:0"><svg width="18" height="18" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="m17 2 4 4-4 4"/><path d="M3 11v-1a4 4 0 0 1 4-4h14"/><path d="m7 22-4-4 4-4"/><path d="M21 13v1a4 4 0 0 1-4 4H3"/></svg></div><span id="cargo-recurrente-modal-title">Cargo recurrente</span></div>
 
     <!-- Toggle Crédito / Débito -->
     <div style="display:flex;background:#ebebeb;border-radius:16px;padding:4px;margin-bottom:20px;position:relative">
@@ -11751,11 +11766,11 @@ document.addEventListener('DOMContentLoaded', function(){
   <div class="modal" onclick="event.stopPropagation()" style="padding-bottom:28px">
     <div class="modal-handle"></div>
     <div style="text-align:center;margin-bottom:18px">
-      <div style="width:56px;height:56px;border-radius:50%;background:linear-gradient(180deg,#111,#444);display:flex;align-items:center;justify-content:center;margin:0 auto 12px">
-        <svg width="28" height="28" fill="none" stroke="#fff" stroke-width="2.2" viewBox="0 0 24 24"><path d="M9 12l2 2 4-4"/><circle cx="12" cy="12" r="10"/></svg>
+      <div style="width:52px;height:52px;border-radius:50%;background:#f5f5f5;display:flex;align-items:center;justify-content:center;margin:0 auto 12px">
+        <svg width="24" height="24" fill="none" stroke="#111" stroke-width="2" viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
       </div>
       <div id="resumen-promo-titulo" style="font-size:18px;font-weight:800;color:#111;margin-bottom:4px">¿Son correctos los cambios?</div>
-      <div id="resumen-promo-sub" style="font-size:13px;color:#aaa">Revisa antes de guardar</div>
+      <div id="resumen-promo-sub" style="font-size:13px;color:#aaa">Revisa los cambios antes de guardar</div>
     </div>
     <div id="resumen-promo-body" style="margin-bottom:20px"></div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
@@ -11775,11 +11790,11 @@ document.addEventListener('DOMContentLoaded', function(){
   <div class="modal" onclick="event.stopPropagation()" style="padding-bottom:28px">
     <div class="modal-handle"></div>
     <div style="text-align:center;margin-bottom:18px">
-      <div style="width:56px;height:56px;border-radius:50%;background:#f0f0f0;display:flex;align-items:center;justify-content:center;margin:0 auto 12px">
-        <svg width="28" height="28" fill="none" stroke="#111" stroke-width="2.2" viewBox="0 0 24 24"><path d="M9 12l2 2 4-4"/><circle cx="12" cy="12" r="10"/></svg>
+      <div style="width:52px;height:52px;border-radius:50%;background:#f5f5f5;display:flex;align-items:center;justify-content:center;margin:0 auto 12px">
+        <svg width="24" height="24" fill="none" stroke="#111" stroke-width="2" viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
       </div>
       <div style="font-size:18px;font-weight:800;color:#111;margin-bottom:4px">¿Son correctos los cambios?</div>
-      <div style="font-size:13px;color:#aaa">Revisa antes de guardar</div>
+      <div style="font-size:13px;color:#aaa">Revisa los cambios antes de guardar</div>
 
     </div>
     <div id="resumen-cambio-debito-body" style="margin-bottom:20px"></div>
@@ -11801,11 +11816,11 @@ document.addEventListener('DOMContentLoaded', function(){
   <div class="modal" onclick="event.stopPropagation()" style="padding-bottom:28px">
     <div class="modal-handle"></div>
     <div style="text-align:center;margin-bottom:18px">
-      <div style="width:56px;height:56px;border-radius:50%;background:#f0f0f0;display:flex;align-items:center;justify-content:center;margin:0 auto 12px">
-        <svg width="28" height="28" fill="none" stroke="#111" stroke-width="2.2" viewBox="0 0 24 24"><path d="M9 12l2 2 4-4"/><circle cx="12" cy="12" r="10"/></svg>
+      <div style="width:52px;height:52px;border-radius:50%;background:#f5f5f5;display:flex;align-items:center;justify-content:center;margin:0 auto 12px">
+        <svg width="24" height="24" fill="none" stroke="#111" stroke-width="2" viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
       </div>
       <div style="font-size:18px;font-weight:800;color:#111;margin-bottom:4px">¿Son correctos los cambios?</div>
-      <div style="font-size:13px;color:#aaa">Revisa antes de guardar</div>
+      <div style="font-size:13px;color:#aaa">Revisa los cambios antes de guardar</div>
 
     </div>
     <div id="resumen-cambio-body" style="margin-bottom:20px"></div>
