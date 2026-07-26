@@ -4603,7 +4603,7 @@ window.renderPerfiles = function(){
 
         <!-- Lista tarjetas crédito como tarjetas visuales -->
         ${(perfil.tarjetas||[]).length ? `
-        <div style="display:flex;flex-direction:column;gap:10px;max-height:${Math.min((perfil.tarjetas||[]).length,4)*170}px;overflow-y:auto;overflow-x:hidden;scroll-snap-type:y mandatory;-webkit-overflow-scrolling:touch;scrollbar-width:none" class="perfil-cards-scroll">
+        <div id="perfil-scroll-credito" style="display:flex;flex-direction:column;gap:10px;overflow-y:auto;overflow-x:hidden;scroll-snap-type:y mandatory;-webkit-overflow-scrolling:touch;scrollbar-width:none" class="perfil-cards-scroll" data-count="${(perfil.tarjetas||[]).length}">
           ${(perfil.tarjetas||[]).map((t,i)=>`
             <div style="position:relative;border-radius:18px;padding:18px 18px 16px;background:linear-gradient(135deg,#1a1a1a 0%,#3a3a3a 60%,#555 100%);color:#fff;overflow:hidden;scroll-snap-align:start;flex-shrink:0">
               <!-- Área principal long press -->
@@ -4699,7 +4699,7 @@ window.renderPerfiles = function(){
 
         <!-- Lista cuentas débito como tarjetas -->
         ${(perfil.cuentasDebito && perfil.cuentasDebito.length) ? `
-        <div style="display:flex;flex-direction:column;gap:10px;max-height:${Math.min(perfil.cuentasDebito.length,4)*170}px;overflow-y:auto;overflow-x:hidden;scroll-snap-type:y mandatory;-webkit-overflow-scrolling:touch;scrollbar-width:none" class="perfil-cards-scroll">
+        <div id="perfil-scroll-debito" style="display:flex;flex-direction:column;gap:10px;overflow-y:auto;overflow-x:hidden;scroll-snap-type:y mandatory;-webkit-overflow-scrolling:touch;scrollbar-width:none" class="perfil-cards-scroll" data-count="${perfil.cuentasDebito.length}">
           ${perfil.cuentasDebito.map((c,i)=>`
             <div style="position:relative;border-radius:18px;padding:18px 18px 16px;background:linear-gradient(135deg,#1a1a1a 0%,#3a3a3a 60%,#555 100%);color:#fff;overflow:hidden;scroll-snap-align:start;flex-shrink:0">
               <div onmousedown="startLongPressPerfil(this,'debito','${c.id}')" onmouseup="cancelLongPress()" onmouseleave="cancelLongPress()" ontouchstart="startLongPressPerfil(this,'debito','${c.id}')" ontouchend="cancelLongPress()" ontouchmove="cancelLongPressIfMoved(event)" style="position:absolute;inset:0;border-radius:18px;cursor:pointer;z-index:0"></div>
@@ -4783,6 +4783,31 @@ window.renderPerfiles = function(){
     _wrapp.textContent = _esC ? '+ Agregar tarjeta de crédito' : '+ Agregar cuenta de débito';
     _wrapp.style.display = 'block';
   }
+
+  // Limitar la lista de tarjetas a mostrar máximo 4 antes de hacer scroll interno
+  requestAnimationFrame(limitarListaPerfilA4Tarjetas);
+}
+
+const MAX_TARJETAS_VISIBLES_PERFIL = 4;
+function limitarListaPerfilA4Tarjetas(){
+  ['perfil-scroll-credito','perfil-scroll-debito'].forEach(function(id){
+    const cont = document.getElementById(id);
+    if(!cont) return;
+    const items = cont.children;
+    const total = items.length;
+    if(total <= MAX_TARJETAS_VISIBLES_PERFIL){
+      cont.style.maxHeight = 'none';
+      return;
+    }
+    // Suma la altura real de las primeras 4 tarjetas + los espacios (gap) entre ellas
+    let gap = parseFloat(getComputedStyle(cont).rowGap || getComputedStyle(cont).gap) || 10;
+    let alto = 0;
+    for(let i=0; i<MAX_TARJETAS_VISIBLES_PERFIL; i++){
+      alto += items[i].getBoundingClientRect().height;
+    }
+    alto += gap * (MAX_TARJETAS_VISIBLES_PERFIL - 1);
+    cont.style.maxHeight = alto + 'px';
+  });
 }
 
 let editandoTarjetaId = null;
