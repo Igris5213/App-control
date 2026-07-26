@@ -303,9 +303,75 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .success-overlay.show{opacity:1;pointer-events:all}
 .success-box{background:#fff;border-radius:24px;padding:36px 32px;text-align:center;box-shadow:0 12px 48px rgba(0,0,0,0.22);transform:scale(0.85);transition:transform 0.35s cubic-bezier(0.34,1.3,0.64,1)}
 .success-overlay.show .success-box{transform:scale(1)}
-.success-icon{width:64px;height:64px;border-radius:50%;background:linear-gradient(180deg,#111,#444);display:flex;align-items:center;justify-content:center;margin:0 auto 16px}
+.success-icon{width:64px;height:64px;border-radius:50%;background:linear-gradient(180deg,#111,#444);display:flex;align-items:center;justify-content:center;margin:0 auto 16px;position:relative}
 .success-title{font-size:18px;font-weight:700;color:#111;margin-bottom:6px}
 .success-sub{font-size:14px;color:#888}
+
+/* ── Animación especial del ícono/mensaje "Movimiento registrado" ── */
+#success-overlay.show .success-icon{animation:sIconPop .55s cubic-bezier(.34,1.56,.64,1) both}
+#success-overlay.show .success-icon::before{
+  content:'';position:absolute;inset:-6px;border-radius:50%;
+  border:3px solid #111;animation:sRingPulse .7s ease-out .05s both;
+}
+#success-overlay.show .success-icon::after{
+  content:'';position:absolute;inset:-6px;border-radius:50%;
+  border:3px solid #444;animation:sRingPulse .7s ease-out .18s both;
+}
+#success-overlay.show .success-icon svg polyline{
+  stroke-dasharray:24;stroke-dashoffset:24;
+  animation:sCheckDraw .35s ease-out .32s forwards;
+}
+#success-overlay.show .success-title{opacity:0;animation:sTextIn .4s ease-out .28s both}
+#success-overlay.show .success-sub{opacity:0;animation:sTextIn .4s ease-out .36s both}
+#success-overlay{background:#f5f5f5;pointer-events:none}
+#success-overlay.show{pointer-events:none}
+#success-overlay .success-box{background:transparent;box-shadow:none;padding:0}
+
+@keyframes sIconPop{0%{transform:scale(0)}60%{transform:scale(1.15)}100%{transform:scale(1)}}
+@keyframes sRingPulse{0%{transform:scale(.6);opacity:.7}100%{transform:scale(1.6);opacity:0}}
+@keyframes sCheckDraw{to{stroke-dashoffset:0}}
+@keyframes sTextIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+
+/* ── Animación especial del ícono/mensaje "Elemento eliminado" ── */
+#delete-overlay.show .success-icon{animation:sIconPop .55s cubic-bezier(.34,1.56,.64,1) both}
+#delete-overlay.show .success-icon::before{
+  content:'';position:absolute;inset:-6px;border-radius:50%;
+  border:3px solid #111;animation:sRingPulse .7s ease-out .05s both;
+}
+#delete-overlay.show .success-icon::after{
+  content:'';position:absolute;inset:-6px;border-radius:50%;
+  border:3px solid #444;animation:sRingPulse .7s ease-out .18s both;
+}
+#delete-overlay.show .success-icon svg{transform-origin:center bottom}
+#delete-overlay.show .success-icon svg .trash-lid{transform-box:fill-box;transform-origin:8% 15%;animation:dLidOpen .5s ease-out .3s both}
+#delete-overlay.show .success-icon svg .trash-line{stroke-dasharray:8;stroke-dashoffset:8;animation:sCheckDraw .25s ease-out .55s forwards}
+#delete-overlay.show .success-title{opacity:0;animation:sTextIn .4s ease-out .28s both}
+#delete-overlay.show .success-sub{opacity:0;animation:sTextIn .4s ease-out .36s both}
+#delete-overlay{background:#f5f5f5;pointer-events:none}
+#delete-overlay.show{pointer-events:none}
+#delete-overlay .success-box{background:transparent;box-shadow:none;padding:0}
+
+@keyframes dLidOpen{0%{transform:rotate(0deg)}35%{transform:rotate(-22deg)}65%{transform:rotate(-22deg)}100%{transform:rotate(0deg)}}
+
+/* ── Animación especial del ícono/mensaje "Registro actualizado" ── */
+#modified-overlay.show .success-icon{animation:sIconPop .55s cubic-bezier(.34,1.56,.64,1) both}
+#modified-overlay.show .success-icon::before{
+  content:'';position:absolute;inset:-6px;border-radius:50%;
+  border:3px solid #111;animation:sRingPulse .7s ease-out .05s both;
+}
+#modified-overlay.show .success-icon::after{
+  content:'';position:absolute;inset:-6px;border-radius:50%;
+  border:3px solid #444;animation:sRingPulse .7s ease-out .18s both;
+}
+#modified-overlay.show .success-icon svg .pencil-tip{transform-box:fill-box;transform-origin:25% 95%;animation:mPencilWrite .5s ease-in-out .3s both}
+#modified-overlay.show .success-icon svg .pencil-line{stroke-dasharray:7;stroke-dashoffset:7;animation:sCheckDraw .3s ease-out .55s forwards}
+#modified-overlay.show .success-title{opacity:0;animation:sTextIn .4s ease-out .28s both}
+#modified-overlay.show .success-sub{opacity:0;animation:sTextIn .4s ease-out .36s both}
+#modified-overlay{background:#f5f5f5;pointer-events:none}
+#modified-overlay.show{pointer-events:none}
+#modified-overlay .success-box{background:transparent;box-shadow:none;padding:0}
+
+@keyframes mPencilWrite{0%{transform:rotate(0deg) translate(0,0)}25%{transform:rotate(-8deg) translate(-1px,1px)}50%{transform:rotate(4deg) translate(1px,-1px)}75%{transform:rotate(-6deg) translate(-1px,1px)}100%{transform:rotate(0deg) translate(0,0)}}
 
 /* ── NAVBAR INFERIOR ── */
 .bottom-nav{
@@ -3104,7 +3170,7 @@ window.confirmarEliminar = async function(){
     updateCards(); renderMovimientos();
     if(typeof window._renderHistorialActivo === 'function') window._renderHistorialActivo();
     else if(typeof onAfterEdit === 'function') onAfterEdit();
-    window.showSuccess('Movimiento eliminado', ''); }
+    window.showDeleted('Movimiento eliminado', ''); }
   catch(e){ showToast('❌ Error al eliminar'); }
   btn.disabled=false; deletingId=null;
   document.getElementById('confirm-overlay').classList.remove('open');
@@ -3215,6 +3281,36 @@ window.showSuccess = function showSuccess(titulo='Movimiento guardado', subtitul
   overlay.querySelector('.success-title').textContent = titulo;
   subEl.textContent = subtitulo;
   subEl.style.display = subtitulo ? '' : 'none';
+  // Reiniciar animaciones aunque el overlay ya estuviera visible momentos antes
+  overlay.classList.remove('show');
+  void overlay.offsetWidth; // fuerza reflow para reiniciar las keyframes
+  overlay.classList.add('show');
+  setTimeout(()=>{ overlay.classList.remove('show'); subEl.style.display = ''; }, 1800);
+}
+
+window.showDeleted = function showDeleted(titulo='Elemento eliminado', subtitulo=''){
+  const overlay = document.getElementById('delete-overlay');
+  const subEl = overlay.querySelector('.success-sub');
+  overlay.querySelector('.success-title').textContent = titulo;
+  subEl.textContent = subtitulo;
+  subEl.style.display = subtitulo ? '' : 'none';
+  // Reiniciar animaciones aunque el overlay ya estuviera visible momentos antes
+  overlay.classList.remove('show');
+  void overlay.offsetWidth; // fuerza reflow para reiniciar las keyframes
+  overlay.classList.add('show');
+  setTimeout(()=>{ overlay.classList.remove('show'); subEl.style.display = ''; }, 1800);
+}
+
+
+window.showModified = function showModified(titulo='Registro actualizado', subtitulo=''){
+  const overlay = document.getElementById('modified-overlay');
+  const subEl = overlay.querySelector('.success-sub');
+  overlay.querySelector('.success-title').textContent = titulo;
+  subEl.textContent = subtitulo;
+  subEl.style.display = subtitulo ? '' : 'none';
+  // Reiniciar animaciones aunque el overlay ya estuviera visible momentos antes
+  overlay.classList.remove('show');
+  void overlay.offsetWidth; // fuerza reflow para reiniciar las keyframes
   overlay.classList.add('show');
   setTimeout(()=>{ overlay.classList.remove('show'); subEl.style.display = ''; }, 1800);
 }
@@ -3636,7 +3732,7 @@ window.guardarNuevaPass = async function(){
   lista[idx].hash = hashSimple(lista[idx].user + nueva);
   await guardarUsuarios(lista);
   document.getElementById('modal-cambiar-pass').classList.remove('open');
-  window.showSuccess('Contraseña actualizada', 'Tu contraseña fue cambiada correctamente');
+  window.showModified('Contraseña actualizada', 'Tu contraseña fue cambiada correctamente');
 }
 
 // ── Admin ─────────────────────────────────────────
@@ -3842,7 +3938,7 @@ window.confirmarEliminarUsuario = async function(){
   lista.splice(adminDeleteIndex, 1);
   await guardarUsuarios(lista);
   document.getElementById('modal-admin-confirm').classList.remove('show');
-  window.showSuccess('Usuario eliminado', '');
+  window.showDeleted('Usuario eliminado', '');
 
   // Si ya no quedan usuarios, ir al login limpio con el botón "Agregar usuario"
   if(lista.length === 0){
@@ -4909,14 +5005,14 @@ async function _ejecutarGuardadoTarjeta(nombre, corte, limite, apodoEdit, isCamb
       if(!isNaN(antes.limite) && !isNaN(limiteNum) && antes.limite !== limiteNum) cambios.push({campo:'Límite', antes:fmt$(antes.limite), despues:fmt$(limiteNum)});
       setTimeout(()=>_mostrarResumenCambioTarjeta(titulo, cambios), 100);
     } else {
-      window.showSuccess('Tarjeta actualizada', '');
+      window.showModified('Tarjeta actualizada', '');
     }
   } catch(e){ showToast('❌ Error al guardar'); }
 }
 
 window._listoResumenTarjeta = function(){
   document.getElementById('modal-resumen-cambio-tarjeta').classList.remove('open');
-  setTimeout(()=>window.showSuccess('Información actualizada',''), 350);
+  setTimeout(()=>window.showModified('Información actualizada',''), 350);
 };
 window._listoResumenDebito = async function(){
   document.getElementById('modal-resumen-cambio-debito').classList.remove('open');
@@ -4937,7 +5033,7 @@ window._listoResumenDebito = async function(){
     } catch(e){ showToast('\u274c Error al guardar'); return; }
     window._pendienteDebitoId = null;
   }
-  setTimeout(()=>window.showSuccess('Información actualizada',''), 350);
+  setTimeout(()=>window.showModified('Información actualizada',''), 350);
 };
 
 // ── Resumen antes/después genérico para movimientos ──────────
@@ -4963,6 +5059,7 @@ function _mostrarResumenSimple(titulo, subtitulo, campos, onConfirmar, successMs
   body.innerHTML = `<div style="background:#f5f5f5;border-radius:16px;padding:16px 18px;display:flex;flex-direction:column;gap:10px">${rows}</div>`;
   window._resumenMovOnConfirmar = onConfirmar;
   window._resumenMovSuccessMsg = successMsg || 'Guardado';
+  window._resumenMovEsEdicion = false;
   overlay.classList.add('open');
 }
 function _mostrarResumenMovimiento(titulo, subtitulo, cambios, onConfirmar, successMsg){
@@ -4981,6 +5078,7 @@ function _mostrarResumenMovimiento(titulo, subtitulo, cambios, onConfirmar, succ
     </div>`).join('');
   window._resumenMovOnConfirmar = onConfirmar;
   window._resumenMovSuccessMsg = successMsg || 'Movimiento actualizado';
+  window._resumenMovEsEdicion = true;
   overlay.classList.add('open');
 }
 window._confirmarResumenMovimiento = function(){
@@ -4988,8 +5086,10 @@ window._confirmarResumenMovimiento = function(){
   rm.classList.remove('open');
   rm.style.zIndex = '';
   const msg = window._resumenMovSuccessMsg || 'Movimiento actualizado';
-  setTimeout(()=>window.showSuccess(msg,''), 350);
+  const esEdicion = window._resumenMovEsEdicion;
+  setTimeout(()=> esEdicion ? window.showModified(msg,'') : window.showSuccess(msg,''), 350);
   window._resumenMovSuccessMsg = null;
+  window._resumenMovEsEdicion = null;
   if(typeof window._resumenMovOnConfirmar === 'function'){
     const cb = window._resumenMovOnConfirmar;
     window._resumenMovOnConfirmar = null;
@@ -5259,7 +5359,7 @@ window.confirmarEliminarDebito = async function(){
     window.perfil = perfil;
     buildCarruselDebito();
     renderPerfiles();
-    window.showSuccess('Cuenta de débito eliminada', '');
+    window.showDeleted('Cuenta de débito eliminada', '');
   } catch(e){ showToast('❌ Error al eliminar'); }
   window._debitoIdPendiente = null;
 }
@@ -5324,7 +5424,7 @@ window.guardarEdicionDebito = async function(){
       window.perfil = perfil;
       buildCarruselDebito();
       renderPerfiles();
-      window.showSuccess('Cuenta actualizada', '');
+      window.showModified('Cuenta actualizada', '');
     } catch(e){ showToast('\u274c Error al guardar'); }
   }
 }
@@ -6547,7 +6647,7 @@ window.confirmarEliminarMovDeb = async function(){
     _debMovimientos = _debMovimientos.filter(m=>m.id!==_deletingDebId);
     _updateDebCards();
     _renderDebMovimientos();
-    window.showSuccess('Movimiento eliminado', '');
+    window.showDeleted('Movimiento eliminado', '');
   } catch(e){ showToast('❌ Error al eliminar'); }
   btn.disabled = false;
   _deletingDebId = null;
@@ -6978,7 +7078,7 @@ window.confirmarEliminarCargo = async function(){
     await deleteDoc(doc(db,'usuarios', currentUser.uid, 'cargosRecurrentes', id));
     cargosRecurrentesCache = cargosRecurrentesCache.filter(c=>c.id!==id);
     renderCargosRecurrentes();
-    window.showSuccess('Cargo recurrente eliminado','');
+    window.showDeleted('Cargo recurrente eliminado','');
   }catch(e){ showToast('❌ Error al eliminar'); }
   _cargoIdToDelete = null;
 };
@@ -7408,7 +7508,7 @@ window.eliminarPromo = async function(id){
     window.promocionesCache = promocionesCache;
     window._promoUltimaElim = Date.now();
     renderPromociones(true);
-    window.showSuccess('Promoción eliminada','');
+    window.showDeleted('Promoción eliminada','');
   }catch(e){ showToast('❌ Error al eliminar'); }
 }
 
@@ -7691,7 +7791,7 @@ async function _ejecutarGuardadoPromo(id, importe, meses, mesesPagados){
         document.getElementById(mid)?.classList.remove('open');
       });
     }, 50);
-    window.showSuccess('Promoción actualizada', '');
+    window.showModified('Promoción actualizada', '');
     renderPromociones(true);
   }catch(e){ showToast('❌ Error al guardar'); }
 }
@@ -8879,7 +8979,7 @@ window.confirmarEliminarBanco = function(){
   setDoc(doc(db,'usuarios', currentUser.uid, 'perfil','datos'), perfil)
     .then(()=>{
       buildCarrusel(); renderPerfiles();
-      window.showSuccess('Tarjeta de crédito eliminada', '');
+      window.showDeleted('Tarjeta de crédito eliminada', '');
     })
     .catch(()=>{ showToast('❌ Error al eliminar'); });
 }
@@ -10030,7 +10130,7 @@ window.confirmarEliminarBanco = function(){
   setDoc(doc(db,'usuarios', currentUser.uid, 'perfil','datos'), perfil)
     .then(()=>{
       buildCarrusel(); renderPerfiles();
-      window.showSuccess('Tarjeta de crédito eliminada', '');
+      window.showDeleted('Tarjeta de crédito eliminada', '');
     })
     .catch(()=>{ showToast('❌ Error al eliminar'); });
 }
@@ -10519,6 +10619,34 @@ window.confirmarEliminarPerfil = async function(){
     </div>
     <div class="success-title">Movimiento guardado</div>
     <div class="success-sub">Tu gasto fue registrado correctamente</div>
+  </div>
+</div>
+
+<div class="success-overlay" id="delete-overlay">
+  <div class="success-box">
+    <div class="success-icon">
+      <svg width="28" height="28" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
+        <g class="trash-lid"><polyline points="3 6 5 6 21 6"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></g>
+        <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/>
+        <path class="trash-line" d="M10 11v6"/>
+        <path class="trash-line" d="M14 11v6"/>
+      </svg>
+    </div>
+    <div class="success-title">Elemento eliminado</div>
+    <div class="success-sub"></div>
+  </div>
+</div>
+
+<div class="success-overlay" id="modified-overlay">
+  <div class="success-box">
+    <div class="success-icon">
+      <svg width="28" height="28" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
+        <path class="pencil-line" d="M4 21h7"/>
+        <g class="pencil-tip"><path d="M17.5 3.5a2.121 2.121 0 0 1 3 3L9 18l-4 1 1-4Z"/></g>
+      </svg>
+    </div>
+    <div class="success-title">Registro actualizado</div>
+    <div class="success-sub"></div>
   </div>
 </div>
 
