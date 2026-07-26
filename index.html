@@ -1470,8 +1470,10 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
       <div style="width:56px;height:56px;border-radius:50%;background:#f0f0f0;display:flex;align-items:center;justify-content:center;margin:0 auto 16px">
         <svg width="26" height="26" fill="none" stroke="#111" stroke-width="2" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></svg>
       </div>
-      <div style="font-size:18px;font-weight:700;color:#111">¿Deseas eliminar el movimiento?</div>
+      <div style="font-size:18px;font-weight:700;color:#111;margin-bottom:4px">¿Deseas eliminar el movimiento?</div>
+      <div style="font-size:13px;color:#aaa">Esta acción no se puede deshacer</div>
     </div>
+    <div id="confirm-eliminar-rows" style="background:#f5f5f5;border-radius:16px;padding:16px 18px;margin-bottom:20px;display:flex;flex-direction:column;gap:10px"></div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:8px">
       <button onclick="closeConfirm()" style="padding:13px;border-radius:12px;padding:13px;border-radius:12px;border:1.5px solid #e0e0e0;background:#fff;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit;color:#666">Cancelar</button>
       <button id="confirm-del-btn" onclick="confirmarEliminar()" class="hold-btn" style="padding:13px;border-radius:12px;border:none;background:linear-gradient(180deg,#333,#666);color:#fff;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit">Eliminar</button>
@@ -2969,6 +2971,7 @@ window.guardar = async function(){
   window._confirmMovCtx = 'credito';
 
   // Llenar modal de confirmación
+  document.getElementById('confirm-mov-titulo').textContent = 'Nuevo movimiento - Crédito';
   document.getElementById('confirm-mov-tarjeta-label').textContent = 'Tarjeta';
   document.getElementById('confirm-mov-tarjeta').textContent = t.nombre + (t.apodo ? ' · ' + t.apodo : '');
   document.getElementById('confirm-mov-fecha').textContent = fechaLegible;
@@ -3055,7 +3058,33 @@ window._ejecutarGuardarMov = async function(){
 }
 
 // ── Eliminar ─────────────────────────────────────
-window.eliminar = function(id){ deletingId=id; document.getElementById('confirm-overlay').classList.add('open'); }
+window.eliminar = function(id){
+  deletingId=id;
+  const m = movimientos.find(x=>x.id===id);
+  const rows = document.getElementById('confirm-eliminar-rows');
+  if(m && rows){
+    const comercio = m.comercio || '—';
+    const concepto = m.concepto || m.detalle || '—';
+    const MESES_DEL = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
+    let fechaLeg = '—';
+    if(m.fecha){ const [a,me,d]=m.fecha.split('-'); fechaLeg=parseInt(d)+' de '+MESES_DEL[parseInt(me)-1]+' '+a; }
+    const monto = (m.monto||0).toLocaleString('es-MX',{minimumFractionDigits:2,maximumFractionDigits:2});
+    const tObj  = (perfil && perfil.tarjetas) ? perfil.tarjetas.find(t=>t.id===m.tarjetaId) : null;
+    const banco   = m.banco || (tObj ? tObj.nombre : '') || '—';
+    const tarjeta = m.apodo || (tObj ? tObj.apodo : '') || '—';
+    rows.innerHTML =
+      '<div style="display:flex;justify-content:space-between;align-items:center"><span style="font-size:13px;color:#888;font-weight:500">Banco</span><span style="font-size:14px;font-weight:600;color:#111">'+banco+'</span></div>'
+      + '<div style="display:flex;justify-content:space-between;align-items:center"><span style="font-size:13px;color:#888;font-weight:500">Tarjeta</span><span style="font-size:14px;font-weight:600;color:#111">'+tarjeta+'</span></div>'
+      + '<div style="display:flex;justify-content:space-between;align-items:center"><span style="font-size:13px;color:#888;font-weight:500">Comercio</span><span style="font-size:14px;font-weight:600;color:#111">'+comercio+'</span></div>'
+      + '<div style="display:flex;justify-content:space-between;align-items:center"><span style="font-size:13px;color:#888;font-weight:500">Concepto</span><span style="font-size:14px;font-weight:600;color:#111">'+concepto+'</span></div>'
+      + '<div style="display:flex;justify-content:space-between;align-items:center"><span style="font-size:13px;color:#888;font-weight:500">Fecha</span><span style="font-size:14px;font-weight:600;color:#111">'+fechaLeg+'</span></div>'
+      + '<div style="height:1px;background:#e8e8e8"></div>'
+      + '<div style="display:flex;justify-content:space-between;align-items:center"><span style="font-size:14px;color:#111;font-weight:600">Importe</span><span style="font-size:20px;font-weight:800;color:#111">$'+monto+'</span></div>';
+  } else if(rows){
+    rows.innerHTML = '';
+  }
+  document.getElementById('confirm-overlay').classList.add('open');
+}
 window.confirmarEliminar = async function(){
   if(!deletingId) return;
   const btn=document.getElementById('confirm-del-btn');
@@ -4364,7 +4393,7 @@ window.guardarNuevaTarjetaModal = async function(){
     {campo:'Fecha de corte', valor: 'Día ' + corte},
     {campo:'Límite', valor: fmt(limite), resaltar:true}
   ];
-  _mostrarResumenSimple('Nueva tarjeta', 'Revisa los datos', valores, async function(){
+  _mostrarResumenSimple('Nueva tarjeta - Crédito', 'Revisa los datos antes de guardar', valores, async function(){
     if(!perfil.tarjetas) perfil.tarjetas = [];
     const nueva = {
       id: Date.now()+'_'+Math.random().toString(36).substr(2,9),
@@ -4443,7 +4472,7 @@ window.guardarNuevaCuentaModal = async function(){
     {campo:'Apodo', valor: apodo || '—'},
     {campo:'Disponible', valor: fmt(disp), resaltar:true}
   ];
-  _mostrarResumenSimple('Nueva cuenta', 'Revisa los datos', valores, async function(){
+  _mostrarResumenSimple('Nueva tarjeta - Débito', 'Revisa los datos antes de guardar', valores, async function(){
     if(!perfil.cuentasDebito) perfil.cuentasDebito = [];
     const nueva = {
       id: Date.now()+'_'+Math.random().toString(36).substr(2,9),
@@ -6203,10 +6232,10 @@ window.verDetalleDebito = function(id){
   const detalle  = m.detalle || '';
   document.getElementById('detalle-gasto-content').innerHTML =
     '<div style="margin-bottom:18px">'
-    + '<div style="font-size:13px;color:#aaa;font-weight:500;margin-bottom:2px">' + (esIngreso ? 'Ingreso' : 'Egreso') + '</div>'
     + '<div style="font-size:18px;font-weight:800;color:#111">' + (banco || 'Cuenta') + (apodo ? ' · ' + apodo : '') + '</div>'
     + '</div>'
     + '<div style="background:#f5f5f5;border-radius:16px;padding:16px 18px;margin-bottom:20px;display:flex;flex-direction:column;gap:12px">'
+    + '<div style="display:flex;justify-content:space-between;align-items:center"><span style="font-size:13px;color:#888;font-weight:500">Tipo</span><span style="font-size:14px;font-weight:600;color:#111">' + (esIngreso ? 'Ingreso' : 'Egreso') + '</span></div>'
     + '<div style="display:flex;justify-content:space-between;align-items:center"><span style="font-size:13px;color:#888;font-weight:500">Fecha</span><span style="font-size:14px;font-weight:600;color:#111">' + fechaStr + '</span></div>'
     + '<div style="display:flex;justify-content:space-between;align-items:center"><span style="font-size:13px;color:#888;font-weight:500">Concepto</span><span style="font-size:14px;font-weight:600;color:#111">' + concepto + '</span></div>'
     + (detalle ? '<div style="display:flex;justify-content:space-between;align-items:center"><span style="font-size:13px;color:#888;font-weight:500">Detalle</span><span style="font-size:14px;font-weight:600;color:#111">' + detalle + '</span></div>' : '')
@@ -6401,26 +6430,29 @@ window.pedirConfirmEliminar = function(id){
   const m = _debMovimientos.find(x=>x.id===id);
   if(!m) return;
   const concepto = m.concepto || (m.tipo==='ingreso' ? 'Ingreso' : 'Egreso');
+  const detalle  = m.detalle || '—';
   const MESES_R = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
   let fechaLeg = '—';
   if(m.fecha){ const [a,me,d]=m.fecha.split('-'); fechaLeg=parseInt(d)+' de '+MESES_R[parseInt(me)-1]+' '+a; }
   const monto = (m.monto||0).toLocaleString('es-MX',{minimumFractionDigits:2,maximumFractionDigits:2});
+  const cObj  = (perfil && perfil.cuentasDebito) ? perfil.cuentasDebito.find(c=>c.id===m.cuentaId) : null;
+  const banco   = m.banco || (cObj ? cObj.nombre : '') || '—';
+  const tarjeta = m.apodo || (cObj ? cObj.apodo : '') || '—';
+  const tipo    = m.tipo === 'ingreso' ? 'Ingreso' : 'Egreso';
 
-  document.getElementById('deb-resumen-titulo').textContent = '¿Deseas eliminar este movimiento?';
-  document.getElementById('deb-resumen-sub').textContent = 'Esta acción no se puede deshacer';
-  const rows = document.getElementById('deb-resumen-rows');
+  const rows = document.getElementById('confirm-deb-rows');
   rows.innerHTML =
-    '<div style="display:flex;justify-content:space-between;align-items:center"><span style="font-size:13px;color:#888;font-weight:500">Concepto</span><span style="font-size:14px;font-weight:600;color:#111">'+concepto+'</span></div>'
+    '<div style="display:flex;justify-content:space-between;align-items:center"><span style="font-size:13px;color:#888;font-weight:500">Tipo</span><span style="font-size:14px;font-weight:600;color:#111">'+tipo+'</span></div>'
+    + '<div style="display:flex;justify-content:space-between;align-items:center"><span style="font-size:13px;color:#888;font-weight:500">Banco</span><span style="font-size:14px;font-weight:600;color:#111">'+banco+'</span></div>'
+    + '<div style="display:flex;justify-content:space-between;align-items:center"><span style="font-size:13px;color:#888;font-weight:500">Tarjeta</span><span style="font-size:14px;font-weight:600;color:#111">'+tarjeta+'</span></div>'
+    + '<div style="display:flex;justify-content:space-between;align-items:center"><span style="font-size:13px;color:#888;font-weight:500">Concepto</span><span style="font-size:14px;font-weight:600;color:#111">'+concepto+'</span></div>'
+    + '<div style="display:flex;justify-content:space-between;align-items:center"><span style="font-size:13px;color:#888;font-weight:500">Detalle</span><span style="font-size:14px;font-weight:600;color:#111">'+detalle+'</span></div>'
     + '<div style="display:flex;justify-content:space-between;align-items:center"><span style="font-size:13px;color:#888;font-weight:500">Fecha</span><span style="font-size:14px;font-weight:600;color:#111">'+fechaLeg+'</span></div>'
     + '<div style="height:1px;background:#e8e8e8"></div>'
     + '<div style="display:flex;justify-content:space-between;align-items:center"><span style="font-size:14px;color:#111;font-weight:600">Importe</span><span style="font-size:20px;font-weight:800;color:#111">$'+monto+'</span></div>';
 
-  const btn = document.getElementById('deb-resumen-confirmar-btn');
-  btn.textContent = 'Eliminar';
-  btn.style.background = 'linear-gradient(180deg,#333,#666)';
-  btn.onclick = async function(){ document.getElementById('modal-deb-resumen').classList.remove('open'); _deletingDebId = id; await confirmarEliminarMovDeb(); };
-
-  document.getElementById('modal-deb-resumen').classList.add('open');
+  _deletingDebId = id;
+  document.getElementById('confirm-deb-overlay').classList.add('open');
 };
 
 window.cerrarAccionDeb = function(e){
@@ -6865,7 +6897,7 @@ window.guardarCargoRecurrente = async function(){
     {campo:'Monto mensual', valor: fmt(monto), resaltar:true}
   ];
 
-  _mostrarResumenSimple('Cargo recurrente · ' + (_cargoTipo === 'credito' ? 'Crédito' : 'Débito'), 'Revisa los datos', valores, async function(){
+  _mostrarResumenSimple('Cargo recurrente · ' + (_cargoTipo === 'credito' ? 'Crédito' : 'Débito'), 'Revisa los datos antes de guardar', valores, async function(){
     try{
       if(_cargoEditId){
         // Modo edición — actualizar documento existente
@@ -7204,7 +7236,7 @@ window.guardarPromo = async function(){
     {campo:'Meses sin intereses', valor: meses + ' meses'},
     {campo:'Importe total', valor: fmt(importe), resaltar:true}
   ];
-  _mostrarResumenSimple('Nueva promoción MSI', 'Revisa los datos', valores, async function(){
+  _mostrarResumenSimple('Nueva promoción MSI', 'Revisa los datos antes de guardar', valores, async function(){
     try{
       const docRef = await addDoc(collection(db,'usuarios', currentUser.uid, 'promociones'), datos);
       // Agregar al cache local inmediatamente con el id real
@@ -9687,6 +9719,7 @@ window.guardarExt = async function(){
 
   window._confirmMovCtx = 'ext';
 
+  document.getElementById('confirm-mov-titulo').textContent = 'Nuevo movimiento extemporáneo - Crédito';
   document.getElementById('confirm-mov-tarjeta-label').textContent = 'Tarjeta';
   document.getElementById('confirm-mov-tarjeta').textContent = t.nombre + (t.apodo ? ' · ' + t.apodo : '');
   document.getElementById('confirm-mov-fecha').textContent = fechaLegibleE;
@@ -10773,14 +10806,14 @@ window._debitoSwitchTipo = function(tipo) {
     btnEgr.style.color = '#888';
     icon.style.background = 'linear-gradient(180deg,#111,#444)';
     icon.innerHTML = '<svg width="18" height="18" fill="none" stroke="#fff" stroke-width="2.2" viewBox="0 0 24 24"><line x1="12" y1="19" x2="12" y2="5"/><polyline points="5 12 12 5 19 12"/></svg>';
-    title.textContent = esExt ? 'Ingreso extemporáneo' : 'Movimiento nuevo · Ingreso';
+    title.textContent = esExt ? 'Movimiento extemporáneo' : 'Movimiento nuevo';
   } else {
     slider.style.transform = 'translateX(100%)';
     btnIng.style.color = '#888';
     btnEgr.style.color = '#fff';
     icon.style.background = 'linear-gradient(180deg,#111,#444)';
     icon.innerHTML = '<svg width="18" height="18" fill="none" stroke="#fff" stroke-width="2.2" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><polyline points="19 12 12 19 5 12"/></svg>';
-    title.textContent = esExt ? 'Egreso extemporáneo' : 'Movimiento nuevo · Egreso';
+    title.textContent = esExt ? 'Movimiento extemporáneo' : 'Movimiento nuevo';
   }
 };
 
@@ -10868,6 +10901,12 @@ window.guardarDebito = async function() {
   const fechaLegibleD = `${parseInt(diaD)} de ${MESES_ESP2[parseInt(mesD)-1]} ${anioD}`;
   const tipoLabel = (_debitoTipo === 'egreso') ? 'Gasto · Débito' : 'Ingreso · Débito';
 
+  {
+    const _tipoTxt = (_debitoTipo === 'egreso') ? 'egreso' : 'ingreso';
+    document.getElementById('confirm-mov-titulo').textContent = _debitoEsExtemporaneo
+      ? `Nuevo ${_tipoTxt} extemporáneo - Débito`
+      : `Nuevo ${_tipoTxt} - Débito`;
+  }
   document.getElementById('confirm-mov-tarjeta-label').textContent = 'Cuenta';
   document.getElementById('confirm-mov-tarjeta').textContent = _debitoCuentaSel.apodo || _debitoCuentaSel.nombre;
   document.getElementById('confirm-mov-fecha').textContent = fechaLegibleD;
@@ -11129,8 +11168,10 @@ function _actualizarFechaDebito() {
       <div style="width:56px;height:56px;border-radius:50%;background:#f0f0f0;display:flex;align-items:center;justify-content:center;margin:0 auto 16px">
         <svg width="26" height="26" fill="none" stroke="#111" stroke-width="2" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></svg>
       </div>
-      <div style="font-size:18px;font-weight:700;color:#111">¿Deseas eliminar el movimiento?</div>
+      <div style="font-size:18px;font-weight:700;color:#111;margin-bottom:4px">¿Deseas eliminar el movimiento?</div>
+      <div style="font-size:13px;color:#aaa">Esta acción no se puede deshacer</div>
     </div>
+    <div id="confirm-deb-rows" style="background:#f5f5f5;border-radius:16px;padding:16px 18px;margin-bottom:20px;display:flex;flex-direction:column;gap:10px"></div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:8px">
       <button onclick="cerrarConfirmDeb()" style="padding:13px;border-radius:12px;border:1.5px solid #e0e0e0;background:#fff;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit;color:#666">Cancelar</button>
       <button id="confirm-deb-btn" onclick="confirmarEliminarMovDeb()" class="hold-btn" style="padding:13px;border-radius:12px;border:none;background:linear-gradient(180deg,#333,#666);color:#fff;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit">Eliminar</button>
@@ -11146,7 +11187,7 @@ function _actualizarFechaDebito() {
       <div style="width:56px;height:56px;border-radius:50%;background:linear-gradient(180deg,#111,#444);display:flex;align-items:center;justify-content:center;margin:0 auto 14px">
         <svg width="26" height="26" fill="none" stroke="#fff" stroke-width="2.2" viewBox="0 0 24 24"><path d="M9 12l2 2 4-4"/><circle cx="12" cy="12" r="10"/></svg>
       </div>
-      <div style="font-size:18px;font-weight:800;color:#111;margin-bottom:4px">¿Es correcta la información?</div>
+      <div id="confirm-mov-titulo" style="font-size:18px;font-weight:800;color:#111;margin-bottom:4px">¿Es correcta la información?</div>
       <div style="font-size:13px;color:#aaa">Revisa los datos antes de guardar</div>
     </div>
     <div style="background:#f5f5f5;border-radius:16px;padding:16px 18px;margin-bottom:20px;display:flex;flex-direction:column;gap:10px">
