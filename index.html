@@ -267,15 +267,15 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 #modal-confirm-mov.open .modal{transform:scale(1)}
 /* Date Picker */
 #scroll-anio::-webkit-scrollbar,#scroll-mes::-webkit-scrollbar,#scroll-dia::-webkit-scrollbar{display:none}
-.scroll-item{height:44px;min-height:44px;box-sizing:border-box;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:500;color:#444;cursor:pointer;scroll-snap-align:start;width:100%;text-align:center}
-.dp-item{height:44px;min-height:44px;box-sizing:border-box;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:500;color:#444;cursor:pointer;width:100%;text-align:center}
+.scroll-item{height:44px;min-height:44px;box-sizing:border-box;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:500;color:var(--text-dim);cursor:pointer;scroll-snap-align:start;width:100%;text-align:center}
+.dp-item{height:44px;min-height:44px;box-sizing:border-box;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:500;color:var(--text-dim);cursor:pointer;width:100%;text-align:center}
 /* Fade top/bottom en pickers de scroll */
 .picker-fade-wrap{position:relative}
 .picker-fade-wrap::before,.picker-fade-wrap::after{content:'';position:absolute;left:0;right:0;height:44px;pointer-events:none;z-index:3}
-.picker-fade-wrap::before{top:0;background:linear-gradient(to bottom,#f5f5f5 20%,rgba(245,245,245,0) 100%)}
-.picker-fade-wrap::after{bottom:0;background:linear-gradient(to top,#f5f5f5 20%,rgba(245,245,245,0) 100%)}
-.dp-item.sel{color:#fff!important;font-size:18px;font-weight:700}
-.scroll-item.sel{color:#fff !important;font-size:17px;font-weight:700}
+.picker-fade-wrap::before{top:0;background:linear-gradient(to bottom,var(--card-bg-soft) 20%,rgba(0,0,0,0) 100%)}
+.picker-fade-wrap::after{bottom:0;background:linear-gradient(to top,var(--card-bg-soft) 20%,rgba(0,0,0,0) 100%)}
+.dp-item.sel{color:var(--text)!important;font-size:18px;font-weight:700}
+.scroll-item.sel{color:var(--text) !important;font-size:17px;font-weight:700}
 #scroll-meses-cont::-webkit-scrollbar{display:none}
 .modal-handle{width:40px;height:4px;background:var(--border);border-radius:2px;margin:0 auto 20px}
 .modal-title{font-size:18px;font-weight:700;color:var(--text);margin-bottom:20px;display:flex;align-items:center;gap:10px}
@@ -1447,7 +1447,7 @@ try{
         <div id="banco-ob-scroll-wrap" style="display:none;margin-top:6px;background:var(--card-bg-soft);border-radius:14px;overflow:hidden;position:relative">
           <div style="font-size:10px;font-weight:700;color:var(--text-dim);text-align:center;text-transform:uppercase;letter-spacing:0.08em;padding:8px 0 4px">Desliza para seleccionar</div>
           <div style="position:relative;height:132px;margin:0 8px">
-            <div style="position:absolute;left:0;right:0;top:50%;transform:translateY(-50%);height:44px;border-radius:10px;background:linear-gradient(180deg,#111,#444);pointer-events:none;z-index:1"></div>
+            <div style="position:absolute;left:0;right:0;top:50%;transform:translateY(-50%);height:41px;border-radius:10px;background:var(--bg);border:1.5px solid var(--border);pointer-events:none;z-index:1"></div>
             <div id="scroll-banco-ob" style="position:absolute;inset:0;overflow-y:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch;z-index:2">
               <div style="height:44px"></div>
               <div id="scroll-banco-ob-items" style="width:100%"></div>
@@ -1476,7 +1476,7 @@ try{
         <div id="corte-ob-scroll-wrap" style="display:none;margin-top:6px;background:var(--card-bg-soft);border-radius:14px;overflow:hidden;position:relative">
           <div style="font-size:10px;font-weight:700;color:var(--text-dim);text-align:center;text-transform:uppercase;letter-spacing:0.08em;padding:8px 0 4px">Desliza para seleccionar</div>
           <div style="position:relative;height:132px;margin:0 8px">
-            <div style="position:absolute;left:0;right:0;top:50%;transform:translateY(-50%);height:44px;border-radius:10px;background:linear-gradient(180deg,#111,#444);pointer-events:none;z-index:1"></div>
+            <div style="position:absolute;left:0;right:0;top:50%;transform:translateY(-50%);height:41px;border-radius:10px;background:var(--bg);border:1.5px solid var(--border);pointer-events:none;z-index:1"></div>
             <div id="scroll-corte-ob" style="position:absolute;inset:0;overflow-y:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch;z-index:2">
               <div style="height:44px"></div>
               <div id="scroll-corte-ob-items" style="width:100%"></div>
@@ -1524,7 +1524,7 @@ try{
         <div id="banco-deb-ob-scroll-wrap" style="display:none;margin-top:6px;background:var(--card-bg-soft);border-radius:14px;overflow:hidden;position:relative">
           <div style="font-size:10px;font-weight:700;color:var(--text-dim);text-align:center;text-transform:uppercase;letter-spacing:0.08em;padding:8px 0 4px">Desliza para seleccionar</div>
           <div style="position:relative;height:132px;margin:0 8px">
-            <div style="position:absolute;left:0;right:0;top:50%;transform:translateY(-50%);height:44px;border-radius:10px;background:linear-gradient(180deg,#111,#444);pointer-events:none;z-index:1"></div>
+            <div style="position:absolute;left:0;right:0;top:50%;transform:translateY(-50%);height:41px;border-radius:10px;background:var(--bg);border:1.5px solid var(--border);pointer-events:none;z-index:1"></div>
             <div id="scroll-banco-deb-ob" style="position:absolute;inset:0;overflow-y:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch;z-index:2">
               <div style="height:44px"></div>
               <div id="scroll-banco-deb-ob-items" style="width:100%"></div>
@@ -1726,13 +1726,13 @@ try{
       <div class="field-label">Fecha de corte</div>
         <div onclick="toggleScrollCorteEdit(this)" class="banco-selector-btn" id="corte-edit-tarjeta-btn" style="cursor:pointer">
           <span id="corte-edit-tarjeta-txt">Seleccionar día...</span>
-          <span style="color:#aaa;font-size:12px">▾</span>
+          <span style="color:var(--text-dim);font-size:12px">▾</span>
         </div>
         <input type="hidden" id="inp-corte-edit-tarjeta"/>
         <div id="corte-edit-tarjeta-wrap" style="display:none;margin-top:6px;background:#f0f0f0;border-radius:14px;overflow:hidden;position:relative">
-          <div style="font-size:10px;font-weight:700;color:#aaa;text-align:center;text-transform:uppercase;letter-spacing:0.08em;padding:8px 0 4px">Desliza para seleccionar</div>
+          <div style="font-size:10px;font-weight:700;color:var(--text-dim);text-align:center;text-transform:uppercase;letter-spacing:0.08em;padding:8px 0 4px">Desliza para seleccionar</div>
           <div style="position:relative;height:132px;margin:0 8px">
-            <div style="position:absolute;left:0;right:0;top:50%;transform:translateY(-50%);height:44px;border-radius:10px;background:linear-gradient(180deg,#111,#444);pointer-events:none;z-index:1"></div>
+            <div style="position:absolute;left:0;right:0;top:50%;transform:translateY(-50%);height:41px;border-radius:10px;background:var(--bg);border:1.5px solid var(--border);pointer-events:none;z-index:1"></div>
             <div id="scroll-corte-edit-tarjeta" style="position:absolute;inset:0;overflow-y:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch;z-index:2">
               <div style="height:44px"></div>
               <div id="scroll-corte-edit-tarjeta-items" style="width:100%"></div>
@@ -1788,12 +1788,12 @@ try{
       <div onclick="event.stopPropagation();toggleScrollBancoModal()" id="modal-banco-display"
         style="padding:12px 14px;border-radius:12px;border:1.5px solid #e0e0e0;font-size:15px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;background:#fff">
         <span id="modal-banco-txt" style="color:#999">Seleccionar banco...</span>
-        <span style="color:#aaa;font-size:12px">▾</span>
+        <span style="color:var(--text-dim);font-size:12px">▾</span>
       </div>
-      <div id="modal-banco-scroll-wrap" onclick="event.stopPropagation()" style="display:none;margin-top:6px;background:#f5f5f5;border-radius:14px;overflow:hidden">
-        <div style="font-size:10px;font-weight:700;color:#aaa;text-align:center;text-transform:uppercase;letter-spacing:0.08em;padding:8px 0 4px">Desliza para seleccionar</div>
+      <div id="modal-banco-scroll-wrap" onclick="event.stopPropagation()" style="display:none;margin-top:6px;background:var(--card-bg-soft);border-radius:14px;overflow:hidden">
+        <div style="font-size:10px;font-weight:700;color:var(--text-dim);text-align:center;text-transform:uppercase;letter-spacing:0.08em;padding:8px 0 4px">Desliza para seleccionar</div>
         <div style="position:relative;height:132px;margin:0 8px">
-          <div style="position:absolute;left:0;right:0;top:50%;transform:translateY(-50%);height:44px;border-radius:10px;background:linear-gradient(180deg,#111,#444);pointer-events:none;z-index:1"></div>
+          <div style="position:absolute;left:0;right:0;top:50%;transform:translateY(-50%);height:41px;border-radius:10px;background:var(--bg);border:1.5px solid var(--border);pointer-events:none;z-index:1"></div>
           <div id="scroll-banco-modal" style="position:absolute;inset:0;overflow-y:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch;z-index:2">
             <div style="height:44px"></div>
             <div id="scroll-banco-modal-items"></div>
@@ -1810,12 +1810,12 @@ try{
       <div onclick="event.stopPropagation();toggleScrollTarjetaModal()" id="modal-tarjeta-display"
         style="padding:12px 14px;border-radius:12px;border:1.5px solid #e0e0e0;font-size:15px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;background:#fff">
         <span id="modal-tarjeta-txt" style="color:#999">Seleccionar tarjeta...</span>
-        <span style="color:#aaa;font-size:12px">▾</span>
+        <span style="color:var(--text-dim);font-size:12px">▾</span>
       </div>
-      <div id="modal-tarjeta-scroll-wrap" onclick="event.stopPropagation()" style="display:none;margin-top:6px;background:#f5f5f5;border-radius:14px;overflow:hidden">
-        <div style="font-size:10px;font-weight:700;color:#aaa;text-align:center;text-transform:uppercase;letter-spacing:0.08em;padding:8px 0 4px">Desliza para seleccionar</div>
+      <div id="modal-tarjeta-scroll-wrap" onclick="event.stopPropagation()" style="display:none;margin-top:6px;background:var(--card-bg-soft);border-radius:14px;overflow:hidden">
+        <div style="font-size:10px;font-weight:700;color:var(--text-dim);text-align:center;text-transform:uppercase;letter-spacing:0.08em;padding:8px 0 4px">Desliza para seleccionar</div>
         <div style="position:relative;height:132px;margin:0 8px">
-          <div style="position:absolute;left:0;right:0;top:50%;transform:translateY(-50%);height:44px;border-radius:10px;background:linear-gradient(180deg,#111,#444);pointer-events:none;z-index:1"></div>
+          <div style="position:absolute;left:0;right:0;top:50%;transform:translateY(-50%);height:41px;border-radius:10px;background:var(--bg);border:1.5px solid var(--border);pointer-events:none;z-index:1"></div>
           <div id="scroll-tarjeta-modal" style="position:absolute;inset:0;overflow-y:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch;z-index:2">
             <div style="height:44px"></div>
             <div id="scroll-tarjeta-modal-items"></div>
@@ -1850,16 +1850,16 @@ try{
       <div onclick="event.stopPropagation();toggleScrollFechaModal()" id="modal-fecha-display"
         style="padding:12px 14px;border-radius:12px;border:1.5px solid #e0e0e0;font-size:15px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;background:#fff">
         <span id="modal-fecha-txt" style="color:#999">Seleccionar fecha</span>
-        <span style="color:#aaa;font-size:12px">▾</span>
+        <span style="color:var(--text-dim);font-size:12px">▾</span>
       </div>
-      <div id="modal-fecha-scroll-wrap" onclick="event.stopPropagation()" style="display:none;margin-top:6px;background:#f5f5f5;border-radius:14px;overflow:hidden">
+      <div id="modal-fecha-scroll-wrap" onclick="event.stopPropagation()" style="display:none;margin-top:6px;background:var(--card-bg-soft);border-radius:14px;overflow:hidden">
         <div style="display:flex;gap:4px;padding:8px 8px 0">
           <div style="flex:1;font-size:10px;font-weight:700;color:#aaa;text-transform:uppercase;letter-spacing:0.06em;text-align:center">Año</div>
           <div style="flex:1;font-size:10px;font-weight:700;color:#aaa;text-transform:uppercase;letter-spacing:0.06em;text-align:center">Mes</div>
           <div style="flex:1;font-size:10px;font-weight:700;color:#aaa;text-transform:uppercase;letter-spacing:0.06em;text-align:center">Día</div>
         </div>
         <div style="position:relative;height:132px;margin:4px 8px 0">
-          <div style="position:absolute;left:0;right:0;top:50%;transform:translateY(-50%);height:44px;border-radius:10px;background:linear-gradient(180deg,#111,#444);pointer-events:none;z-index:1"></div>
+          <div style="position:absolute;left:0;right:0;top:50%;transform:translateY(-50%);height:41px;border-radius:10px;background:var(--bg);border:1.5px solid var(--border);pointer-events:none;z-index:1"></div>
           <div style="position:absolute;inset:0;display:flex;z-index:2">
             <div id="scroll-modal-anio" style="flex:1;overflow-y:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch"><div style="height:44px"></div><div id="scroll-modal-anio-items"></div><div style="height:44px"></div></div>
             <div id="scroll-modal-mes"  style="flex:1;overflow-y:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch"><div style="height:44px"></div><div id="scroll-modal-mes-items"></div><div style="height:44px"></div></div>
@@ -2066,14 +2066,14 @@ window.toggleScrollBancoOb = function(){
     const currentIdx = BANCOS_OB.indexOf(currentBanco);
     const cont = document.getElementById('scroll-banco-ob-items');
     const scrollEl = document.getElementById('scroll-banco-ob');
-    cont.innerHTML = BANCOS_OB.map(function(b,i){ return '<div class="scroll-item'+(i===currentIdx?' sel':'')+' " data-n="'+i+'" style="'+(i===currentIdx?'color:#fff;':'color:#444;')+'">'+b+'</div>'; }).join('');
+    cont.innerHTML = BANCOS_OB.map(function(b,i){ return '<div class="scroll-item'+(i===currentIdx?' sel':'')+' " data-n="'+i+'" style="'+(i===currentIdx?'color:var(--text);':'color:var(--text-dim);')+'">'+b+'</div>'; }).join('');
     setTimeout(()=>{
       const idx = currentIdx >= 0 ? currentIdx : 0;
       scrollEl.scrollTop = idx*44;
       cont.querySelectorAll('.scroll-item').forEach((el,i)=>{
         const sel = i===idx;
         el.classList.toggle('sel', sel);
-        el.style.color = sel ? '#fff' : '#444';
+        el.style.color = sel ? 'var(--text)' : 'var(--text-dim)';
       });
     }, 50);
     snapScrollConInicio(scrollEl, 44, currentIdx >= 0 ? currentIdx : 0, idx=>{
@@ -2081,7 +2081,7 @@ window.toggleScrollBancoOb = function(){
       cont.querySelectorAll('.scroll-item').forEach((el,i)=>{
         const sel = i===idx;
         el.classList.toggle('sel', sel);
-        el.style.color = sel ? '#fff' : '#444';
+        el.style.color = sel ? 'var(--text)' : 'var(--text-dim)';
       });
       document.getElementById('inp-banco-ob').value = banco;
       document.getElementById('banco-ob-txt').textContent = banco;
@@ -2102,14 +2102,14 @@ window.toggleScrollCorteOb = function(){
     const cont = document.getElementById('scroll-corte-ob-items');
     const scrollEl = document.getElementById('scroll-corte-ob');
     cont.innerHTML = Array.from({length:31},(_,i)=>i+1).map(n=>`
-      <div class="scroll-item${n===currentCorte?' sel':''}" data-n="${n}" style="${n===currentCorte?'color:#fff;':'color:#444;'}">${n}</div>
+      <div class="scroll-item${n===currentCorte?' sel':''}" data-n="${n}" style="${n===currentCorte?'color:var(--text);':'color:var(--text-dim);'}">${n}</div>
     `).join('');
     setTimeout(()=>{
       scrollEl.scrollTop = (currentCorte-1)*44;
       cont.querySelectorAll('.scroll-item').forEach((el,i)=>{
         const sel = i===(currentCorte-1);
         el.classList.toggle('sel', sel);
-        el.style.color = sel ? '#fff' : '#444';
+        el.style.color = sel ? 'var(--text)' : 'var(--text-dim)';
       });
     }, 50);
     snapScrollConInicio(scrollEl, 44, currentCorte-1, idx=>{
@@ -2117,7 +2117,7 @@ window.toggleScrollCorteOb = function(){
       cont.querySelectorAll('.scroll-item').forEach((el,i)=>{
         const sel = i===idx;
         el.classList.toggle('sel', sel);
-        el.style.color = sel ? '#fff' : '#444';
+        el.style.color = sel ? 'var(--text)' : 'var(--text-dim)';
       });
       document.getElementById('inp-corte-ob').value = dia;
       document.getElementById('corte-ob-txt').textContent = 'Día ' + dia;
@@ -2308,14 +2308,14 @@ window.toggleScrollBancoDebOb = function(){
     const currentIdx = _BANCOS_LIST.indexOf(currentBanco);
     const cont = document.getElementById('scroll-banco-deb-ob-items');
     const scrollEl = document.getElementById('scroll-banco-deb-ob');
-    cont.innerHTML = _BANCOS_LIST.map(function(b,i){ return '<div class="scroll-item'+(i===currentIdx?' sel':'')+'" data-n="'+i+'" style="'+(i===currentIdx?'color:#fff;':'color:#444;')+'">'+b+'</div>'; }).join('');
+    cont.innerHTML = _BANCOS_LIST.map(function(b,i){ return '<div class="scroll-item'+(i===currentIdx?' sel':'')+'" data-n="'+i+'" style="'+(i===currentIdx?'color:var(--text);':'color:var(--text-dim);')+'">'+b+'</div>'; }).join('');
     setTimeout(()=>{
       const idx = currentIdx >= 0 ? currentIdx : 0;
       scrollEl.scrollTop = idx*44;
       cont.querySelectorAll('.scroll-item').forEach((el,i)=>{
         const sel = i===idx;
         el.classList.toggle('sel', sel);
-        el.style.color = sel ? '#fff' : '#444';
+        el.style.color = sel ? 'var(--text)' : 'var(--text-dim)';
       });
     }, 50);
     snapScrollConInicio(scrollEl, 44, currentIdx >= 0 ? currentIdx : 0, idx=>{
@@ -2323,7 +2323,7 @@ window.toggleScrollBancoDebOb = function(){
       cont.querySelectorAll('.scroll-item').forEach((el,i)=>{
         const sel = i===idx;
         el.classList.toggle('sel', sel);
-        el.style.color = sel ? '#fff' : '#444';
+        el.style.color = sel ? 'var(--text)' : 'var(--text-dim)';
       });
       selectedBancoDebNombre = banco;
       document.getElementById('inp-banco-deb-ob').value = banco === 'Otro' ? '' : banco;
@@ -3149,11 +3149,11 @@ window.toggleScrollFechaModal = function(){
     const sc = document.getElementById(scrollId);
     const it = document.getElementById(itemsId);
     selIdx = Math.max(0, Math.min(selIdx, items.length-1));
-    it.innerHTML = items.map((v,i)=>`<div class="dp-item${i===selIdx?' sel':''}" style="${i===selIdx?'color:#fff':'color:#444'}">${v}</div>`).join('');
+    it.innerHTML = items.map((v,i)=>`<div class="dp-item${i===selIdx?' sel':''}" style="${i===selIdx?'color:#fff':'color:var(--text-dim)'}">${v}</div>`).join('');
     sc.scrollTop = selIdx * 44;
     snapScrollConInicio(sc, 44, selIdx, idx=>{
       idx = Math.min(idx, items.length-1);
-      it.querySelectorAll('.dp-item').forEach((el,i)=>{ el.classList.toggle('sel',i===idx); el.style.color=i===idx?'#fff':'#444'; });
+      it.querySelectorAll('.dp-item').forEach((el,i)=>{ el.classList.toggle('sel',i===idx); el.style.color=i===idx?'var(--text)':'var(--text-dim)'; });
       onSel(idx); _actualizarFechaModal();
     });
   }
@@ -4739,16 +4739,16 @@ window.toggleScrollBancoObPrf = function(){
     const scrollEl = document.getElementById('scroll-banco-ob-prf');
     _aislarScrollPerfiles(scrollEl);
     cont.innerHTML = BANCOS.map(function(b,i){
-      return '<div class="scroll-item'+(i===currentIdx?' sel':'')+'" style="'+(i===currentIdx?'color:#fff;':'color:#444;')+'">'+b+'</div>';
+      return '<div class="scroll-item'+(i===currentIdx?' sel':'')+'" style="'+(i===currentIdx?'color:var(--text);':'color:var(--text-dim);')+'">'+b+'</div>';
     }).join('');
     setTimeout(()=>{
       const idx = currentIdx >= 0 ? currentIdx : 0;
       scrollEl.scrollTop = idx*44;
-      cont.querySelectorAll('.scroll-item').forEach((el,i)=>{ el.classList.toggle('sel',i===idx); el.style.color=i===idx?'#fff':'#444'; });
+      cont.querySelectorAll('.scroll-item').forEach((el,i)=>{ el.classList.toggle('sel',i===idx); el.style.color=i===idx?'var(--text)':'var(--text-dim)'; });
     },50);
     snapScrollConInicio(scrollEl, 44, currentIdx >= 0 ? currentIdx : 0, function(idx){
       const banco = BANCOS[Math.min(idx, BANCOS.length-1)];
-      cont.querySelectorAll('.scroll-item').forEach((el,i)=>{ el.classList.toggle('sel',i===idx); el.style.color=i===idx?'#fff':'#444'; });
+      cont.querySelectorAll('.scroll-item').forEach((el,i)=>{ el.classList.toggle('sel',i===idx); el.style.color=i===idx?'var(--text)':'var(--text-dim)'; });
       document.getElementById('inp-banco-ob-prf').value = banco;
       document.getElementById('banco-ob-prf-txt').textContent = banco;
       document.getElementById('banco-ob-prf-txt').style.color = '#111';
@@ -4768,15 +4768,15 @@ window.toggleScrollCorteObPrf = function(){
     const scrollEl = document.getElementById('scroll-corte-ob-prf');
     _aislarScrollPerfiles(scrollEl);
     cont.innerHTML = Array.from({length:31},(_,i)=>i+1).map(function(n){
-      return '<div class="scroll-item'+(n===currentCorte?' sel':'')+'" style="'+(n===currentCorte?'color:#fff;':'color:#444;')+'">'+n+'</div>';
+      return '<div class="scroll-item'+(n===currentCorte?' sel':'')+'" style="'+(n===currentCorte?'color:var(--text);':'color:var(--text-dim);')+'">'+n+'</div>';
     }).join('');
     setTimeout(()=>{
       scrollEl.scrollTop = (currentCorte-1)*44;
-      cont.querySelectorAll('.scroll-item').forEach((el,i)=>{ el.classList.toggle('sel',i===(currentCorte-1)); el.style.color=i===(currentCorte-1)?'#fff':'#444'; });
+      cont.querySelectorAll('.scroll-item').forEach((el,i)=>{ el.classList.toggle('sel',i===(currentCorte-1)); el.style.color=i===(currentCorte-1)?'var(--text)':'var(--text-dim)'; });
     },50);
     snapScrollConInicio(scrollEl, 44, currentCorte-1, function(idx){
       const dia = Math.min(31, Math.max(1, idx+1));
-      cont.querySelectorAll('.scroll-item').forEach((el,i)=>{ el.classList.toggle('sel',i===idx); el.style.color=i===idx?'#fff':'#444'; });
+      cont.querySelectorAll('.scroll-item').forEach((el,i)=>{ el.classList.toggle('sel',i===idx); el.style.color=i===idx?'var(--text)':'var(--text-dim)'; });
       document.getElementById('inp-corte-ob-prf').value = dia;
       document.getElementById('corte-ob-prf-txt').textContent = 'Día ' + dia;
       document.getElementById('corte-ob-prf-txt').style.color = '#111';
@@ -4832,20 +4832,20 @@ window.toggleScrollBancoNuevaCuenta = function(){
     const currentIdx = _BANCOS_LIST.indexOf(currentBanco);
     const cont = document.getElementById('scroll-banco-nc-items');
     const scrollEl = document.getElementById('scroll-banco-nc');
-    cont.innerHTML = _BANCOS_LIST.map(function(b,i){ return '<div class="scroll-item'+(i===currentIdx?' sel':'')+'" data-n="'+i+'" style="'+(i===currentIdx?'color:#fff;':'color:#444;')+'">'+b+'</div>'; }).join('');
+    cont.innerHTML = _BANCOS_LIST.map(function(b,i){ return '<div class="scroll-item'+(i===currentIdx?' sel':'')+'" data-n="'+i+'" style="'+(i===currentIdx?'color:var(--text);':'color:var(--text-dim);')+'">'+b+'</div>'; }).join('');
     setTimeout(()=>{
       const idx = currentIdx >= 0 ? currentIdx : 0;
       scrollEl.scrollTop = idx*44;
       cont.querySelectorAll('.scroll-item').forEach((el,i)=>{
         el.classList.toggle('sel', i===idx);
-        el.style.color = i===idx ? '#fff' : '#444';
+        el.style.color = i===idx ? 'var(--text)' : 'var(--text-dim)';
       });
     }, 50);
     snapScrollConInicio(scrollEl, 44, currentIdx >= 0 ? currentIdx : 0, idx=>{
       const banco = _BANCOS_LIST[Math.min(idx, _BANCOS_LIST.length-1)];
       cont.querySelectorAll('.scroll-item').forEach((el,i)=>{
         el.classList.toggle('sel', i===idx);
-        el.style.color = i===idx ? '#fff' : '#444';
+        el.style.color = i===idx ? 'var(--text)' : 'var(--text-dim)';
       });
       document.getElementById('inp-banco-nc').value = banco === 'Otro' ? '' : banco;
       document.getElementById('banco-nc-txt').textContent = banco;
@@ -5023,13 +5023,13 @@ window.renderPerfiles = function(){
           <div style="font-size:13px;font-weight:700;color:#555;margin-bottom:12px">Nueva tarjeta de crédito</div>
           <div style="font-size:11px;font-weight:700;color:#888;text-transform:uppercase;margin-bottom:6px">Banco</div>
           <div onclick="toggleScrollBancoEdit(this)" class="banco-selector-btn" id="banco-edit-btn" style="cursor:pointer;margin-bottom:6px">
-            <span id="banco-edit-txt">Seleccionar banco...</span><span style="color:#aaa;font-size:12px">▾</span>
+            <span id="banco-edit-txt">Seleccionar banco...</span><span style="color:var(--text-dim);font-size:12px">▾</span>
           </div>
           <input type="hidden" id="inp-banco-edit-nuevo"/>
           <div id="banco-edit-nuevo-wrap" style="display:none;margin-bottom:12px;background:#f0f0f0;border-radius:14px;overflow:hidden;position:relative">
-            <div style="font-size:10px;font-weight:700;color:#aaa;text-align:center;text-transform:uppercase;letter-spacing:0.08em;padding:8px 0 4px">Desliza para seleccionar</div>
+            <div style="font-size:10px;font-weight:700;color:var(--text-dim);text-align:center;text-transform:uppercase;letter-spacing:0.08em;padding:8px 0 4px">Desliza para seleccionar</div>
             <div style="position:relative;height:132px;margin:0 8px">
-              <div style="position:absolute;left:0;right:0;top:50%;transform:translateY(-50%);height:44px;border-radius:10px;background:linear-gradient(180deg,#111,#444);pointer-events:none;z-index:1"></div>
+              <div style="position:absolute;left:0;right:0;top:50%;transform:translateY(-50%);height:41px;border-radius:10px;background:var(--bg);border:1.5px solid var(--border);pointer-events:none;z-index:1"></div>
               <div id="scroll-banco-edit-nuevo" style="position:absolute;inset:0;overflow-y:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch;z-index:2">
                 <div style="height:44px"></div>
                 <div id="scroll-banco-edit-nuevo-items" style="width:100%"></div>
@@ -5040,13 +5040,13 @@ window.renderPerfiles = function(){
           </div>
           <div style="font-size:11px;font-weight:700;color:#888;text-transform:uppercase;margin-bottom:6px">Corte</div>
           <div onclick="toggleScrollCorteEdit(this)" class="banco-selector-btn" id="corte-edit-btn" style="cursor:pointer;margin-bottom:6px">
-            <span id="corte-edit-txt">Seleccionar día de corte...</span><span style="color:#aaa;font-size:12px">▾</span>
+            <span id="corte-edit-txt">Seleccionar día de corte...</span><span style="color:var(--text-dim);font-size:12px">▾</span>
           </div>
           <input type="hidden" id="inp-corte-edit-nuevo"/>
           <div id="corte-edit-nuevo-wrap" style="display:none;margin-bottom:12px;background:#f0f0f0;border-radius:14px;overflow:hidden;position:relative">
-            <div style="font-size:10px;font-weight:700;color:#aaa;text-align:center;text-transform:uppercase;letter-spacing:0.08em;padding:8px 0 4px">Desliza para seleccionar</div>
+            <div style="font-size:10px;font-weight:700;color:var(--text-dim);text-align:center;text-transform:uppercase;letter-spacing:0.08em;padding:8px 0 4px">Desliza para seleccionar</div>
             <div style="position:relative;height:132px;margin:0 8px">
-              <div style="position:absolute;left:0;right:0;top:50%;transform:translateY(-50%);height:44px;border-radius:10px;background:linear-gradient(180deg,#111,#444);pointer-events:none;z-index:1"></div>
+              <div style="position:absolute;left:0;right:0;top:50%;transform:translateY(-50%);height:41px;border-radius:10px;background:var(--bg);border:1.5px solid var(--border);pointer-events:none;z-index:1"></div>
               <div id="scroll-corte-edit-nuevo" style="position:absolute;inset:0;overflow-y:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch;z-index:2">
                 <div style="height:44px"></div>
                 <div id="scroll-corte-edit-nuevo-items" style="width:100%"></div>
@@ -5120,9 +5120,9 @@ window.renderPerfiles = function(){
           </div>
           <input type="hidden" id="inp-banco-debito-nuevo"/>
           <div id="banco-debito-nuevo-wrap" style="display:none;margin-bottom:10px;background:#f0f0f0;border-radius:14px;overflow:hidden;position:relative">
-            <div style="font-size:10px;font-weight:700;color:#aaa;text-align:center;text-transform:uppercase;letter-spacing:0.08em;padding:8px 0 4px">Desliza para seleccionar</div>
+            <div style="font-size:10px;font-weight:700;color:var(--text-dim);text-align:center;text-transform:uppercase;letter-spacing:0.08em;padding:8px 0 4px">Desliza para seleccionar</div>
             <div style="position:relative;height:132px;margin:0 8px">
-              <div style="position:absolute;left:0;right:0;top:50%;transform:translateY(-50%);height:44px;border-radius:10px;background:linear-gradient(180deg,#111,#444);pointer-events:none;z-index:1"></div>
+              <div style="position:absolute;left:0;right:0;top:50%;transform:translateY(-50%);height:41px;border-radius:10px;background:var(--bg);border:1.5px solid var(--border);pointer-events:none;z-index:1"></div>
               <div id="scroll-banco-debito-nuevo" style="position:absolute;inset:0;overflow-y:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch;z-index:2">
                 <div style="height:44px"></div>
                 <div id="scroll-banco-debito-nuevo-items" style="width:100%"></div>
@@ -6755,11 +6755,11 @@ window.toggleScrollFechaEditDeb = function(){
     const sc = document.getElementById(scrollId);
     const it = document.getElementById(itemsId);
     selIdx = Math.max(0, Math.min(selIdx, items.length-1));
-    it.innerHTML = items.map((v,i)=>`<div class="dp-item${i===selIdx?' sel':''}" style="${i===selIdx?'color:#fff':'color:#444'}">${v}</div>`).join('');
+    it.innerHTML = items.map((v,i)=>`<div class="dp-item${i===selIdx?' sel':''}" style="${i===selIdx?'color:#fff':'color:var(--text-dim)'}">${v}</div>`).join('');
     sc.scrollTop = selIdx * 44;
     snapScrollConInicio(sc, 44, selIdx, idx=>{
       idx = Math.min(idx, items.length-1);
-      it.querySelectorAll('.dp-item').forEach((el,i)=>{ el.classList.toggle('sel',i===idx); el.style.color=i===idx?'#fff':'#444'; });
+      it.querySelectorAll('.dp-item').forEach((el,i)=>{ el.classList.toggle('sel',i===idx); el.style.color=i===idx?'var(--text)':'var(--text-dim)'; });
       onSel(idx); _actualizarFechaEditDeb();
     });
   }
@@ -7028,12 +7028,12 @@ window.abrirScrollCargoBanco = function(){
   const cont=document.getElementById('scroll-cargo-banco-items');
   const sc=document.getElementById('scroll-cargo-banco-cont');
   const idx=Math.max(0,bancos.indexOf(_cargoBancoSel));
-  cont.innerHTML=bancos.map((b,i)=>`<div class="scroll-item${i===idx?' sel':''}" style="width:100%;text-align:center;${i===idx?'color:#fff;':'color:#444;'}">${b}</div>`).join('');
+  cont.innerHTML=bancos.map((b,i)=>`<div class="scroll-item${i===idx?' sel':''}" style="width:100%;text-align:center;${i===idx?'color:var(--text);':'color:var(--text-dim);'}">${b}</div>`).join('');
   wrap.style.display='block';
-  setTimeout(()=>{ sc.scrollTop=idx*44; cont.querySelectorAll('.scroll-item').forEach((el,i)=>{ el.classList.toggle('sel',i===idx); el.style.color=i===idx?'#fff':'#444'; }); },50);
+  setTimeout(()=>{ sc.scrollTop=idx*44; cont.querySelectorAll('.scroll-item').forEach((el,i)=>{ el.classList.toggle('sel',i===idx); el.style.color=i===idx?'var(--text)':'var(--text-dim)'; }); },50);
   snapScrollConInicio(sc,44,idx,i=>{
     const banco=bancos[Math.min(i,bancos.length-1)];
-    cont.querySelectorAll('.scroll-item').forEach((el,j)=>{ el.classList.toggle('sel',j===i); el.style.color=j===i?'#fff':'#444'; });
+    cont.querySelectorAll('.scroll-item').forEach((el,j)=>{ el.classList.toggle('sel',j===i); el.style.color=j===i?'var(--text)':'var(--text-dim)'; });
     _cargoBancoSel=banco;
     document.getElementById('cargo-banco-txt').textContent=banco;
     document.getElementById('cargo-banco-btn').style.color='#111';
@@ -7062,12 +7062,12 @@ window.abrirScrollCargoTarjeta = function(){
   const cont=document.getElementById('scroll-cargo-tarjeta-items');
   const sc=document.getElementById('scroll-cargo-tarjeta-cont');
   const idx=Math.max(0,tarjetas.findIndex(t=>t.id===_cargoTarjetaSel));
-  cont.innerHTML=tarjetas.map((t,i)=>`<div class="scroll-item${i===idx?' sel':''}" style="width:100%;text-align:center;${i===idx?'color:#fff;':'color:#444;'}">${t.apodo||t.nombre}</div>`).join('');
+  cont.innerHTML=tarjetas.map((t,i)=>`<div class="scroll-item${i===idx?' sel':''}" style="width:100%;text-align:center;${i===idx?'color:var(--text);':'color:var(--text-dim);'}">${t.apodo||t.nombre}</div>`).join('');
   wrap.style.display='block';
-  setTimeout(()=>{ sc.scrollTop=idx*44; cont.querySelectorAll('.scroll-item').forEach((el,i)=>{ el.classList.toggle('sel',i===idx); el.style.color=i===idx?'#fff':'#444'; }); },50);
+  setTimeout(()=>{ sc.scrollTop=idx*44; cont.querySelectorAll('.scroll-item').forEach((el,i)=>{ el.classList.toggle('sel',i===idx); el.style.color=i===idx?'var(--text)':'var(--text-dim)'; }); },50);
   snapScrollConInicio(sc,44,idx,i=>{
     const t=tarjetas[Math.min(i,tarjetas.length-1)];
-    cont.querySelectorAll('.scroll-item').forEach((el,j)=>{ el.classList.toggle('sel',j===i); el.style.color=j===i?'#fff':'#444'; });
+    cont.querySelectorAll('.scroll-item').forEach((el,j)=>{ el.classList.toggle('sel',j===i); el.style.color=j===i?'var(--text)':'var(--text-dim)'; });
     _cargoTarjetaSel=t.id;
     document.getElementById('cargo-tarjeta-txt').textContent=t.apodo||t.nombre;
     document.getElementById('cargo-tarjeta-btn').style.color='#111';
@@ -7084,12 +7084,12 @@ window.abrirScrollCargoBancoDeb = function(){
   const cont=document.getElementById('scroll-cargo-banco-deb-items');
   const sc=document.getElementById('scroll-cargo-banco-deb-cont');
   const idx=Math.max(0,bancos.indexOf(_cargoBancoDebSel));
-  cont.innerHTML=bancos.map((b,i)=>`<div class="scroll-item${i===idx?' sel':''}" style="width:100%;text-align:center;${i===idx?'color:#fff;':'color:#444;'}">${b}</div>`).join('');
+  cont.innerHTML=bancos.map((b,i)=>`<div class="scroll-item${i===idx?' sel':''}" style="width:100%;text-align:center;${i===idx?'color:var(--text);':'color:var(--text-dim);'}">${b}</div>`).join('');
   wrap.style.display='block';
-  setTimeout(()=>{ sc.scrollTop=idx*44; cont.querySelectorAll('.scroll-item').forEach((el,i)=>{ el.classList.toggle('sel',i===idx); el.style.color=i===idx?'#fff':'#444'; }); },50);
+  setTimeout(()=>{ sc.scrollTop=idx*44; cont.querySelectorAll('.scroll-item').forEach((el,i)=>{ el.classList.toggle('sel',i===idx); el.style.color=i===idx?'var(--text)':'var(--text-dim)'; }); },50);
   snapScrollConInicio(sc,44,idx,i=>{
     const banco=bancos[Math.min(i,bancos.length-1)];
-    cont.querySelectorAll('.scroll-item').forEach((el,j)=>{ el.classList.toggle('sel',j===i); el.style.color=j===i?'#fff':'#444'; });
+    cont.querySelectorAll('.scroll-item').forEach((el,j)=>{ el.classList.toggle('sel',j===i); el.style.color=j===i?'var(--text)':'var(--text-dim)'; });
     _cargoBancoDebSel=banco;
     document.getElementById('cargo-banco-deb-txt').textContent=banco;
     document.getElementById('cargo-banco-deb-btn').style.color='#111';
@@ -7118,12 +7118,12 @@ window.abrirScrollCargoCuenta = function(){
   const cont=document.getElementById('scroll-cargo-cuenta-items');
   const sc=document.getElementById('scroll-cargo-cuenta-cont');
   const idx=Math.max(0,cuentas.findIndex(c=>c.id===_cargoCuentaSel));
-  cont.innerHTML=cuentas.map((c,i)=>`<div class="scroll-item${i===idx?' sel':''}" style="width:100%;text-align:center;${i===idx?'color:#fff;':'color:#444;'}">${c.apodo||c.nombre}</div>`).join('');
+  cont.innerHTML=cuentas.map((c,i)=>`<div class="scroll-item${i===idx?' sel':''}" style="width:100%;text-align:center;${i===idx?'color:var(--text);':'color:var(--text-dim);'}">${c.apodo||c.nombre}</div>`).join('');
   wrap.style.display='block';
-  setTimeout(()=>{ sc.scrollTop=idx*44; cont.querySelectorAll('.scroll-item').forEach((el,i)=>{ el.classList.toggle('sel',i===idx); el.style.color=i===idx?'#fff':'#444'; }); },50);
+  setTimeout(()=>{ sc.scrollTop=idx*44; cont.querySelectorAll('.scroll-item').forEach((el,i)=>{ el.classList.toggle('sel',i===idx); el.style.color=i===idx?'var(--text)':'var(--text-dim)'; }); },50);
   snapScrollConInicio(sc,44,idx,i=>{
     const c=cuentas[Math.min(i,cuentas.length-1)];
-    cont.querySelectorAll('.scroll-item').forEach((el,j)=>{ el.classList.toggle('sel',j===i); el.style.color=j===i?'#fff':'#444'; });
+    cont.querySelectorAll('.scroll-item').forEach((el,j)=>{ el.classList.toggle('sel',j===i); el.style.color=j===i?'var(--text)':'var(--text-dim)'; });
     _cargoCuentaSel=c.id;
     document.getElementById('cargo-cuenta-txt').textContent=c.apodo||c.nombre;
     document.getElementById('cargo-cuenta-btn').style.color='#111';
@@ -7141,13 +7141,13 @@ window.abrirScrollCargoDia = function(){
   const idx=cur-1;
   cont.innerHTML=Array.from({length:31},(_,i)=>{
     const d=i+1,sel=d===cur;
-    return `<div class="scroll-item${sel?' sel':''}" style="width:100%;text-align:center;${sel?'color:#fff;':'color:#444;'}">${d}</div>`;
+    return `<div class="scroll-item${sel?' sel':''}" style="width:100%;text-align:center;${sel?'color:var(--text);':'color:var(--text-dim);'}">${d}</div>`;
   }).join('');
   wrap.style.display='block';
-  setTimeout(()=>{ sc.scrollTop=idx*44; cont.querySelectorAll('.scroll-item').forEach((el,i)=>{ el.classList.toggle('sel',i===idx); el.style.color=i===idx?'#fff':'#444'; }); },50);
+  setTimeout(()=>{ sc.scrollTop=idx*44; cont.querySelectorAll('.scroll-item').forEach((el,i)=>{ el.classList.toggle('sel',i===idx); el.style.color=i===idx?'var(--text)':'var(--text-dim)'; }); },50);
   snapScrollConInicio(sc,44,idx,i=>{
     const dia=i+1;
-    cont.querySelectorAll('.scroll-item').forEach((el,j)=>{ el.classList.toggle('sel',j===i); el.style.color=j===i?'#fff':'#444'; });
+    cont.querySelectorAll('.scroll-item').forEach((el,j)=>{ el.classList.toggle('sel',j===i); el.style.color=j===i?'var(--text)':'var(--text-dim)'; });
     document.getElementById('cargo-dia-val').value=dia;
     document.getElementById('cargo-dia-txt').textContent='Día '+dia;
     document.getElementById('cargo-dia-btn').style.color='#111';
@@ -7610,7 +7610,7 @@ window.abrirScrollTarjetaPromo = function(){
   const currentIdx = Math.max(0, tarjetas.findIndex(t=>t.id===promoTarjetaSel));
 
   cont.innerHTML = tarjetas.map((t,i)=>`
-    <div class="scroll-item${i===currentIdx?' sel':''}" style="width:100%;text-align:center;${i===currentIdx?'color:#fff;':'color:#444;'}">${t.apodo||t.nombre}</div>
+    <div class="scroll-item${i===currentIdx?' sel':''}" style="width:100%;text-align:center;${i===currentIdx?'color:var(--text);':'color:var(--text-dim);'}">${t.apodo||t.nombre}</div>
   `).join('');
 
   wrap.style.display = 'block';
@@ -7619,7 +7619,7 @@ window.abrirScrollTarjetaPromo = function(){
     scrollCont.scrollTop = currentIdx * 44;
     cont.querySelectorAll('.scroll-item').forEach((el,i)=>{
       el.classList.toggle('sel', i===currentIdx);
-      el.style.color = i===currentIdx ? '#fff' : '#444';
+      el.style.color = i===currentIdx ? 'var(--text)' : 'var(--text-dim)';
     });
   }, 50);
 
@@ -7627,7 +7627,7 @@ window.abrirScrollTarjetaPromo = function(){
     const t = tarjetas[Math.min(idx, tarjetas.length-1)];
     cont.querySelectorAll('.scroll-item').forEach((el,i)=>{
       el.classList.toggle('sel', i===idx);
-      el.style.color = i===idx ? '#fff' : '#444';
+      el.style.color = i===idx ? 'var(--text)' : 'var(--text-dim)';
     });
     promoTarjetaSel = t.id;
     document.getElementById('promo-tarjeta-txt').textContent = t.apodo||t.nombre;
@@ -7649,7 +7649,7 @@ window.abrirScrollBancoPromo = function(){
   const currentIdx = Math.max(0, bancos.indexOf(promoBancoSel));
 
   cont.innerHTML = bancos.map((b,i)=>`
-    <div class="scroll-item${i===currentIdx?' sel':''}" style="width:100%;text-align:center;${i===currentIdx?'color:#fff;':'color:#444;'}">${b}</div>
+    <div class="scroll-item${i===currentIdx?' sel':''}" style="width:100%;text-align:center;${i===currentIdx?'color:var(--text);':'color:var(--text-dim);'}">${b}</div>
   `).join('');
 
   wrap.style.display = 'block';
@@ -7658,7 +7658,7 @@ window.abrirScrollBancoPromo = function(){
     scrollCont.scrollTop = currentIdx * 44;
     cont.querySelectorAll('.scroll-item').forEach((el,i)=>{
       el.classList.toggle('sel', i===currentIdx);
-      el.style.color = i===currentIdx ? '#fff' : '#444';
+      el.style.color = i===currentIdx ? 'var(--text)' : 'var(--text-dim)';
     });
   }, 50);
 
@@ -7666,7 +7666,7 @@ window.abrirScrollBancoPromo = function(){
     const banco = bancos[Math.min(idx, bancos.length-1)];
     cont.querySelectorAll('.scroll-item').forEach((el,i)=>{
       el.classList.toggle('sel', i===idx);
-      el.style.color = i===idx ? '#fff' : '#444';
+      el.style.color = i===idx ? 'var(--text)' : 'var(--text-dim)';
     });
     promoBancoSel = banco;
     document.getElementById('promo-banco-txt').textContent = banco;
@@ -7696,7 +7696,7 @@ window.abrirScrollMeses = function(){
   const cont = document.getElementById('scroll-meses-items');
   const current = parseInt(document.getElementById('promo-meses').value) || 3;
   cont.innerHTML = Array.from({length:24},(_,i)=>i+1).map(n=>`
-    <div class="scroll-item${n===current?' sel':''}" data-m="${n}" style="width:100%;text-align:center;${n===current?'color:#fff;':'color:#444;'}">${n} ${n===1?'mes':'meses'}</div>
+    <div class="scroll-item${n===current?' sel':''}" data-m="${n}" style="width:100%;text-align:center;${n===current?'color:var(--text);':'color:var(--text-dim);'}">${n} ${n===1?'mes':'meses'}</div>
   `).join('');
   wrap.style.display = 'block';
   // Scroll al seleccionado
@@ -7707,7 +7707,7 @@ window.abrirScrollMeses = function(){
     cont.querySelectorAll('.scroll-item').forEach((el,i)=>{
       const sel = i===(current-1);
       el.classList.toggle('sel', sel);
-      el.style.color = sel ? '#fff' : '#444';
+      el.style.color = sel ? 'var(--text)' : 'var(--text-dim)';
     });
   }, 50);
   // Listener
@@ -7716,7 +7716,7 @@ window.abrirScrollMeses = function(){
     cont.querySelectorAll('.scroll-item').forEach((el,i)=>{
       const sel = i===idx;
       el.classList.toggle('sel', sel);
-      el.style.color = sel ? '#fff' : '#444';
+      el.style.color = sel ? 'var(--text)' : 'var(--text-dim)';
     });
     document.getElementById('promo-meses').value = meses;
     document.getElementById('promo-meses-txt').textContent = meses + (meses===1?' mes':' meses');
@@ -7892,21 +7892,21 @@ function buildScrollMesesEdit(current){
   const cont = document.getElementById('edit-scroll-meses-items');
   const scrollCont = document.getElementById('edit-scroll-meses-cont');
   cont.innerHTML = Array.from({length:24},(_,i)=>i+1).map(n=>
-    `<div class="scroll-item${n===current?' sel':''}" style="${n===current?'color:#fff;':'color:#444;'}">${n} ${n===1?'mes':'meses'}</div>`
+    `<div class="scroll-item${n===current?' sel':''}" style="${n===current?'color:var(--text);':'color:var(--text-dim);'}">${n} ${n===1?'mes':'meses'}</div>`
   ).join('');
   setTimeout(()=>{
     scrollCont.scrollTop = (current-1)*44;
     cont.querySelectorAll('.scroll-item').forEach((el,i)=>{
       const sel = i===(current-1);
       el.classList.toggle('sel', sel);
-      el.style.color = sel ? '#fff' : '#444';
+      el.style.color = sel ? 'var(--text)' : 'var(--text-dim)';
     });
     snapScroll(scrollCont, 44, idx=>{
       const meses = Math.min(24, Math.max(1, idx+1));
       cont.querySelectorAll('.scroll-item').forEach((el,i)=>{
         const sel = i===idx;
         el.classList.toggle('sel', sel);
-        el.style.color = sel ? '#fff' : '#444';
+        el.style.color = sel ? 'var(--text)' : 'var(--text-dim)';
       });
       document.getElementById('edit-promo-meses').value = meses;
       document.getElementById('edit-promo-meses-txt').textContent = meses + (meses===1?' mes':' meses');
@@ -7932,17 +7932,17 @@ window.abrirScrollMesesPagEdit = function(){
     const cont = document.getElementById('edit-scroll-mesespag-items');
     const scrollCont = document.getElementById('edit-scroll-mesespag-cont');
     cont.innerHTML = Array.from({length:maxMeses},(_,i)=>i+1).map(n=>
-      `<div class="scroll-item${n===current?' sel':''}" style="${n===current?'color:#fff;':'color:#444;'}">${n} ${n===1?'mes':'meses'}</div>`
+      `<div class="scroll-item${n===current?' sel':''}" style="${n===current?'color:var(--text);':'color:var(--text-dim);'}">${n} ${n===1?'mes':'meses'}</div>`
     ).join('');
     setTimeout(()=>{
       scrollCont.scrollTop = (current-1)*44;
       cont.querySelectorAll('.scroll-item').forEach((el,i)=>{
-        const sel=i===(current-1); el.classList.toggle('sel',sel); el.style.color=sel?'#fff':'#444';
+        const sel=i===(current-1); el.classList.toggle('sel',sel); el.style.color=sel?'var(--text)':'var(--text-dim)';
       });
       snapScroll(scrollCont, 44, idx=>{
         const meses = Math.min(maxMeses, Math.max(1, idx+1));
         cont.querySelectorAll('.scroll-item').forEach((el,i)=>{
-          const sel=i===idx; el.classList.toggle('sel',sel); el.style.color=sel?'#fff':'#444';
+          const sel=i===idx; el.classList.toggle('sel',sel); el.style.color=sel?'var(--text)':'var(--text-dim)';
         });
         document.getElementById('edit-promo-mesespag').value = meses;
         document.getElementById('edit-promo-mesespag-txt').textContent = meses + (meses===1?' mes':' meses');
@@ -8695,16 +8695,16 @@ function buildScrollBancoPerfiles(scrollId, itemsId, wrapId, txtId, inpId, curre
     const scrollEl = document.getElementById(scrollId);
     _aislarScrollPerfiles(scrollEl);
     cont.innerHTML = BANCOS.map(function(b,i){
-      return '<div class="scroll-item'+(i===currentIdx?' sel':'')+'" style="'+(i===currentIdx?'color:#fff;':'color:#444;')+'">' + b + '</div>';
+      return '<div class="scroll-item'+(i===currentIdx?' sel':'')+'" style="'+(i===currentIdx?'color:var(--text);':'color:var(--text-dim);')+'">' + b + '</div>';
     }).join('');
     setTimeout(()=>{
       const idx = currentIdx >= 0 ? currentIdx : 0;
       scrollEl.scrollTop = idx*44;
-      cont.querySelectorAll('.scroll-item').forEach((el,i)=>{ el.classList.toggle('sel',i===idx); el.style.color=i===idx?'#fff':'#444'; });
+      cont.querySelectorAll('.scroll-item').forEach((el,i)=>{ el.classList.toggle('sel',i===idx); el.style.color=i===idx?'var(--text)':'var(--text-dim)'; });
     },50);
     snapScrollConInicio(scrollEl, 44, currentIdx >= 0 ? currentIdx : 0, function(idx){
       const b = BANCOS[Math.min(idx,BANCOS.length-1)];
-      cont.querySelectorAll('.scroll-item').forEach((el,i)=>{ el.classList.toggle('sel',i===idx); el.style.color=i===idx?'#fff':'#444'; });
+      cont.querySelectorAll('.scroll-item').forEach((el,i)=>{ el.classList.toggle('sel',i===idx); el.style.color=i===idx?'var(--text)':'var(--text-dim)'; });
       document.getElementById(inpId).value = b;
       document.getElementById(txtId).textContent = b;
     });
@@ -8724,16 +8724,16 @@ function buildScrollCortePerfiles(scrollId, itemsId, wrapId, txtId, inpId, curre
     const scrollEl = document.getElementById(scrollId);
     _aislarScrollPerfiles(scrollEl);
     cont.innerHTML = Array.from({length:31},(_,i)=>i+1).map(function(n){
-      return '<div class="scroll-item'+(n-1===currentIdx?' sel':'')+'" style="'+(n-1===currentIdx?'color:#fff;':'color:#444;')+'">'+n+'</div>';
+      return '<div class="scroll-item'+(n-1===currentIdx?' sel':'')+'" style="'+(n-1===currentIdx?'color:var(--text);':'color:var(--text-dim);')+'">'+n+'</div>';
     }).join('');
     setTimeout(()=>{
       scrollEl.scrollTop = currentIdx*44;
-      cont.querySelectorAll('.scroll-item').forEach((el,i)=>{ el.classList.toggle('sel',i===currentIdx); el.style.color=i===currentIdx?'#fff':'#444'; });
+      cont.querySelectorAll('.scroll-item').forEach((el,i)=>{ el.classList.toggle('sel',i===currentIdx); el.style.color=i===currentIdx?'var(--text)':'var(--text-dim)'; });
     },50);
     const _initialCorteVal = parseInt(currentVal) || 1;
     snapScrollConInicio(scrollEl, 44, currentIdx, function(idx){
       const dia = idx+1;
-      cont.querySelectorAll('.scroll-item').forEach((el,i)=>{ el.classList.toggle('sel',i===idx); el.style.color=i===idx?'#fff':'#444'; });
+      cont.querySelectorAll('.scroll-item').forEach((el,i)=>{ el.classList.toggle('sel',i===idx); el.style.color=i===idx?'var(--text)':'var(--text-dim)'; });
       document.getElementById(inpId).value = dia;
       document.getElementById(txtId).textContent = 'Día ' + dia;
       if(inpId === 'inp-corte-edit-tarjeta') selectedCorteEdit = dia;
@@ -8776,14 +8776,14 @@ window.toggleScrollBancoDebitoNuevo = function(){
     const currentIdx = _BANCOS_LIST.indexOf(currentBanco);
     const cont = document.getElementById('scroll-banco-debito-nuevo-items');
     const scrollEl = document.getElementById('scroll-banco-debito-nuevo');
-    cont.innerHTML = _BANCOS_LIST.map(function(b,i){ return '<div class="scroll-item'+(i===currentIdx?' sel':'')+'" data-n="'+i+'" style="'+(i===currentIdx?'color:#fff;':'color:#444;')+'">'+b+'</div>'; }).join('');
+    cont.innerHTML = _BANCOS_LIST.map(function(b,i){ return '<div class="scroll-item'+(i===currentIdx?' sel':'')+'" data-n="'+i+'" style="'+(i===currentIdx?'color:var(--text);':'color:var(--text-dim);')+'">'+b+'</div>'; }).join('');
     setTimeout(()=>{
       const idx = currentIdx >= 0 ? currentIdx : 0;
       scrollEl.scrollTop = idx*44;
       cont.querySelectorAll('.scroll-item').forEach((el,i)=>{
         const sel = i===idx;
         el.classList.toggle('sel', sel);
-        el.style.color = sel ? '#fff' : '#444';
+        el.style.color = sel ? 'var(--text)' : 'var(--text-dim)';
       });
     }, 50);
     snapScrollConInicio(scrollEl, 44, currentIdx >= 0 ? currentIdx : 0, idx=>{
@@ -8791,7 +8791,7 @@ window.toggleScrollBancoDebitoNuevo = function(){
       cont.querySelectorAll('.scroll-item').forEach((el,i)=>{
         const sel = i===idx;
         el.classList.toggle('sel', sel);
-        el.style.color = sel ? '#fff' : '#444';
+        el.style.color = sel ? 'var(--text)' : 'var(--text-dim)';
       });
       document.getElementById('inp-banco-debito-nuevo').value = banco === 'Otro' ? '' : banco;
       document.getElementById('banco-debito-nuevo-txt').textContent = banco;
@@ -9503,13 +9503,13 @@ window.confirmarEliminarPerfil = async function(){
       <div onclick="abrirScrollBancoPromo()" id="promo-banco-btn"
         style="padding:12px 14px;border-radius:12px;border:1.5px solid #e0e0e0;font-size:15px;cursor:pointer;color:#999;display:flex;justify-content:space-between;align-items:center;background:#fff">
         <span id="promo-banco-txt">Seleccionar banco...</span>
-        <span style="color:#aaa;font-size:12px">▾</span>
+        <span style="color:var(--text-dim);font-size:12px">▾</span>
       </div>
       <!-- Scroll inline banco promo -->
-      <div id="banco-promo-scroll-wrap" style="display:none;margin-top:6px;border-radius:14px;overflow:hidden;position:relative;background:#f5f5f5">
-        <div style="font-size:10px;font-weight:700;color:#aaa;text-align:center;text-transform:uppercase;letter-spacing:0.08em;padding:8px 0 4px">Desliza para seleccionar</div>
+      <div id="banco-promo-scroll-wrap" style="display:none;margin-top:6px;border-radius:14px;overflow:hidden;position:relative;background:var(--card-bg-soft)">
+        <div style="font-size:10px;font-weight:700;color:var(--text-dim);text-align:center;text-transform:uppercase;letter-spacing:0.08em;padding:8px 0 4px">Desliza para seleccionar</div>
         <div style="position:relative;height:132px;margin:0 8px">
-          <div style="position:absolute;left:0;right:0;top:50%;transform:translateY(-50%);height:44px;border-radius:10px;background:linear-gradient(180deg,#111,#444);pointer-events:none;z-index:1"></div>
+          <div style="position:absolute;left:0;right:0;top:50%;transform:translateY(-50%);height:41px;border-radius:10px;background:var(--bg);border:1.5px solid var(--border);pointer-events:none;z-index:1"></div>
           <div id="scroll-banco-promo-cont" style="position:absolute;inset:0;overflow-y:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch;z-index:2">
             <div style="height:44px"></div>
             <div id="scroll-banco-promo-items" style="width:100%"></div>
@@ -9526,13 +9526,13 @@ window.confirmarEliminarPerfil = async function(){
       <div onclick="abrirScrollTarjetaPromo()" id="promo-tarjeta-btn"
         style="padding:12px 14px;border-radius:12px;border:1.5px solid #e0e0e0;font-size:15px;cursor:pointer;color:#999;display:flex;justify-content:space-between;align-items:center;background:#fff">
         <span id="promo-tarjeta-txt">Seleccionar tarjeta...</span>
-        <span style="color:#aaa;font-size:12px">▾</span>
+        <span style="color:var(--text-dim);font-size:12px">▾</span>
       </div>
       <!-- Scroll inline tarjeta promo -->
-      <div id="tarjeta-promo-scroll-wrap" style="display:none;margin-top:6px;border-radius:14px;overflow:hidden;position:relative;background:#f5f5f5">
-        <div style="font-size:10px;font-weight:700;color:#aaa;text-align:center;text-transform:uppercase;letter-spacing:0.08em;padding:8px 0 4px">Desliza para seleccionar</div>
+      <div id="tarjeta-promo-scroll-wrap" style="display:none;margin-top:6px;border-radius:14px;overflow:hidden;position:relative;background:var(--card-bg-soft)">
+        <div style="font-size:10px;font-weight:700;color:var(--text-dim);text-align:center;text-transform:uppercase;letter-spacing:0.08em;padding:8px 0 4px">Desliza para seleccionar</div>
         <div style="position:relative;height:132px;margin:0 8px">
-          <div style="position:absolute;left:0;right:0;top:50%;transform:translateY(-50%);height:44px;border-radius:10px;background:linear-gradient(180deg,#111,#444);pointer-events:none;z-index:1"></div>
+          <div style="position:absolute;left:0;right:0;top:50%;transform:translateY(-50%);height:41px;border-radius:10px;background:var(--bg);border:1.5px solid var(--border);pointer-events:none;z-index:1"></div>
           <div id="scroll-tarjeta-promo-cont" style="position:absolute;inset:0;overflow-y:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch;z-index:2">
             <div style="height:44px"></div>
             <div id="scroll-tarjeta-promo-items" style="width:100%"></div>
@@ -9561,17 +9561,17 @@ window.confirmarEliminarPerfil = async function(){
       <div onclick="abrirScrollMeses()" id="promo-meses-display"
         style="padding:12px 14px;border-radius:12px;border:1.5px solid #e0e0e0;font-size:15px;cursor:pointer;color:#999;display:flex;justify-content:space-between;align-items:center;background:#fff">
         <span id="promo-meses-txt">Seleccionar meses...</span>
-        <span style="color:#aaa;font-size:12px">▾</span>
+        <span style="color:var(--text-dim);font-size:12px">▾</span>
       </div>
       <input type="hidden" id="promo-meses" value=""/>
     </div>
 
     <!-- Scroll selector de meses -->
-    <div id="meses-scroll-wrap" style="display:none;margin-top:-8px;margin-bottom:8px;border-radius:14px;overflow:hidden;position:relative;background:#f5f5f5">
-      <div style="font-size:10px;font-weight:700;color:#aaa;text-align:center;text-transform:uppercase;letter-spacing:0.08em;padding:8px 0 4px">Desliza para seleccionar</div>
+    <div id="meses-scroll-wrap" style="display:none;margin-top:-8px;margin-bottom:8px;border-radius:14px;overflow:hidden;position:relative;background:var(--card-bg-soft)">
+      <div style="font-size:10px;font-weight:700;color:var(--text-dim);text-align:center;text-transform:uppercase;letter-spacing:0.08em;padding:8px 0 4px">Desliza para seleccionar</div>
       <div style="position:relative;height:132px">
         <!-- Recuadro negro centrado -->
-        <div style="position:absolute;left:12px;right:12px;top:50%;transform:translateY(-50%);height:44px;border-radius:10px;background:linear-gradient(180deg,#111,#444);pointer-events:none;z-index:1"></div>
+        <div style="position:absolute;left:12px;right:12px;top:50%;transform:translateY(-50%);height:41px;border-radius:10px;background:var(--bg);border:1.5px solid var(--border);pointer-events:none;z-index:1"></div>
         <div id="scroll-meses-cont" style="position:absolute;inset:0;overflow-y:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch;z-index:2">
           <div style="height:44px"></div>
           <div id="scroll-meses-items" style="width:100%"></div>
@@ -9628,12 +9628,12 @@ window.confirmarEliminarPerfil = async function(){
       <div onclick="event.stopPropagation();toggleScrollBancoExt()" id="ext-banco-display"
         style="padding:12px 14px;border-radius:12px;border:1.5px solid #e0e0e0;font-size:15px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;background:#fff">
         <span id="ext-banco-txt" style="color:#999">Seleccionar banco...</span>
-        <span style="color:#aaa;font-size:12px">▾</span>
+        <span style="color:var(--text-dim);font-size:12px">▾</span>
       </div>
-      <div id="ext-banco-scroll-wrap" onclick="event.stopPropagation()" style="display:none;margin-top:6px;background:#f5f5f5;border-radius:14px;overflow:hidden">
-        <div style="font-size:10px;font-weight:700;color:#aaa;text-align:center;text-transform:uppercase;letter-spacing:0.08em;padding:8px 0 4px">Desliza para seleccionar</div>
+      <div id="ext-banco-scroll-wrap" onclick="event.stopPropagation()" style="display:none;margin-top:6px;background:var(--card-bg-soft);border-radius:14px;overflow:hidden">
+        <div style="font-size:10px;font-weight:700;color:var(--text-dim);text-align:center;text-transform:uppercase;letter-spacing:0.08em;padding:8px 0 4px">Desliza para seleccionar</div>
         <div style="position:relative;height:132px;margin:0 8px">
-          <div style="position:absolute;left:0;right:0;top:50%;transform:translateY(-50%);height:44px;border-radius:10px;background:linear-gradient(180deg,#111,#444);pointer-events:none;z-index:1"></div>
+          <div style="position:absolute;left:0;right:0;top:50%;transform:translateY(-50%);height:41px;border-radius:10px;background:var(--bg);border:1.5px solid var(--border);pointer-events:none;z-index:1"></div>
           <div id="scroll-banco-ext" style="position:absolute;inset:0;overflow-y:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch;z-index:2">
             <div style="height:44px"></div>
             <div id="scroll-banco-ext-items"></div>
@@ -9650,12 +9650,12 @@ window.confirmarEliminarPerfil = async function(){
       <div onclick="event.stopPropagation();toggleScrollTarjetaExt()" id="ext-tarjeta-display"
         style="padding:12px 14px;border-radius:12px;border:1.5px solid #e0e0e0;font-size:15px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;background:#fff">
         <span id="ext-tarjeta-txt" style="color:#999">Seleccionar tarjeta...</span>
-        <span style="color:#aaa;font-size:12px">▾</span>
+        <span style="color:var(--text-dim);font-size:12px">▾</span>
       </div>
-      <div id="ext-tarjeta-scroll-wrap" onclick="event.stopPropagation()" style="display:none;margin-top:6px;background:#f5f5f5;border-radius:14px;overflow:hidden">
-        <div style="font-size:10px;font-weight:700;color:#aaa;text-align:center;text-transform:uppercase;letter-spacing:0.08em;padding:8px 0 4px">Desliza para seleccionar</div>
+      <div id="ext-tarjeta-scroll-wrap" onclick="event.stopPropagation()" style="display:none;margin-top:6px;background:var(--card-bg-soft);border-radius:14px;overflow:hidden">
+        <div style="font-size:10px;font-weight:700;color:var(--text-dim);text-align:center;text-transform:uppercase;letter-spacing:0.08em;padding:8px 0 4px">Desliza para seleccionar</div>
         <div style="position:relative;height:132px;margin:0 8px">
-          <div style="position:absolute;left:0;right:0;top:50%;transform:translateY(-50%);height:44px;border-radius:10px;background:linear-gradient(180deg,#111,#444);pointer-events:none;z-index:1"></div>
+          <div style="position:absolute;left:0;right:0;top:50%;transform:translateY(-50%);height:41px;border-radius:10px;background:var(--bg);border:1.5px solid var(--border);pointer-events:none;z-index:1"></div>
           <div id="scroll-tarjeta-ext" style="position:absolute;inset:0;overflow-y:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch;z-index:2">
             <div style="height:44px"></div>
             <div id="scroll-tarjeta-ext-items"></div>
@@ -9690,16 +9690,16 @@ window.confirmarEliminarPerfil = async function(){
       <div onclick="event.stopPropagation();document.getElementById('ext-tarjeta-scroll-wrap').style.display='none';toggleScrollFechaExt()" id="fecha-ext-display"
         style="padding:12px 14px;border-radius:10px;border:1.5px solid #e5e7eb;font-size:15px;cursor:pointer;color:#999;display:flex;justify-content:space-between;align-items:center;background:#fff">
         <span id="fecha-ext-txt">Seleccionar fecha</span>
-        <span style="color:#aaa;font-size:12px">▾</span>
+        <span style="color:var(--text-dim);font-size:12px">▾</span>
       </div>
-      <div id="fecha-ext-scroll-wrap" style="display:none;margin-top:6px;background:#f5f5f5;border-radius:14px;overflow:hidden" onclick="event.stopPropagation()">
+      <div id="fecha-ext-scroll-wrap" style="display:none;margin-top:6px;background:var(--card-bg-soft);border-radius:14px;overflow:hidden" onclick="event.stopPropagation()">
         <div style="display:flex;gap:4px;padding:8px 8px 0">
           <div style="flex:1;font-size:10px;font-weight:700;color:#aaa;text-transform:uppercase;letter-spacing:0.06em;text-align:center">Año</div>
           <div style="flex:1;font-size:10px;font-weight:700;color:#aaa;text-transform:uppercase;letter-spacing:0.06em;text-align:center">Mes</div>
           <div style="flex:1;font-size:10px;font-weight:700;color:#aaa;text-transform:uppercase;letter-spacing:0.06em;text-align:center">Día</div>
         </div>
         <div style="position:relative;height:132px;margin:4px 8px 0">
-          <div style="position:absolute;left:0;right:0;top:50%;transform:translateY(-50%);height:44px;border-radius:10px;background:linear-gradient(180deg,#111,#444);pointer-events:none;z-index:1"></div>
+          <div style="position:absolute;left:0;right:0;top:50%;transform:translateY(-50%);height:41px;border-radius:10px;background:var(--bg);border:1.5px solid var(--border);pointer-events:none;z-index:1"></div>
           <div style="position:absolute;inset:0;display:flex;z-index:2">
             <div id="scroll-ext-anio" style="flex:1;overflow-y:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch">
               <div style="height:44px"></div>
@@ -9733,17 +9733,17 @@ window.confirmarEliminarPerfil = async function(){
 <div class="modal-overlay" id="datepicker-overlay" onclick="cerrarDatePicker(event)" style="z-index:400;align-items:center">
   <div class="modal" style="padding:0;overflow:hidden">
     <div class="modal-handle" style="margin-top:12px"></div>
-    <div style="padding:16px 20px 8px;font-size:16px;font-weight:700;color:#111;text-align:center">Seleccionar fecha</div>
+    <div style="padding:16px 20px 8px;font-size:16px;font-weight:700;color:var(--text);text-align:center">Seleccionar fecha</div>
         <!-- Labels -->
     <div style="display:flex;gap:4px;padding:4px 0 0">
-      <div style="flex:1;font-size:10px;font-weight:700;color:#aaa;text-transform:uppercase;letter-spacing:0.06em;text-align:center;padding:4px 0">Año</div>
-      <div style="flex:1;font-size:10px;font-weight:700;color:#aaa;text-transform:uppercase;letter-spacing:0.06em;text-align:center;padding:4px 0">Mes</div>
-      <div style="flex:1;font-size:10px;font-weight:700;color:#aaa;text-transform:uppercase;letter-spacing:0.06em;text-align:center;padding:4px 0">Día</div>
+      <div style="flex:1;font-size:10px;font-weight:700;color:var(--text-dim);text-transform:uppercase;letter-spacing:0.06em;text-align:center;padding:4px 0">Año</div>
+      <div style="flex:1;font-size:10px;font-weight:700;color:var(--text-dim);text-transform:uppercase;letter-spacing:0.06em;text-align:center;padding:4px 0">Mes</div>
+      <div style="flex:1;font-size:10px;font-weight:700;color:var(--text-dim);text-transform:uppercase;letter-spacing:0.06em;text-align:center;padding:4px 0">Día</div>
     </div>
     <!-- Scrolls - misma estructura que editar promoción -->
-    <div style="background:#f5f5f5;border-radius:14px;overflow:hidden;position:relative;margin-bottom:16px">
+    <div style="background:var(--card-bg-soft);border-radius:14px;overflow:hidden;position:relative;margin-bottom:16px">
       <div style="position:relative;height:132px">
-        <div style="position:absolute;left:8px;right:8px;top:50%;transform:translateY(-50%);height:44px;border-radius:10px;background:linear-gradient(180deg,#111,#444);pointer-events:none;z-index:1"></div>
+        <div style="position:absolute;left:8px;right:8px;top:50%;transform:translateY(-50%);height:41px;border-radius:10px;background:var(--bg);border:1.5px solid var(--border);pointer-events:none;z-index:1"></div>
         <div style="position:absolute;inset:0;display:flex;z-index:2">
           <div id="scroll-anio" style="flex:1;overflow-y:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch">
             <div style="height:44px"></div>
@@ -9856,14 +9856,14 @@ window.toggleScrollFechaExt = function(){
     const scrollEl = document.getElementById(scrollId);
     const itemsEl  = document.getElementById(itemsId);
     itemsEl.innerHTML = items.map((v,i)=>
-      `<div class="dp-item${i===selIdx?' sel':''}" style="${i===selIdx?'color:#fff;':'color:#444;'}">${v}</div>`
+      `<div class="dp-item${i===selIdx?' sel':''}" style="${i===selIdx?'color:var(--text);':'color:var(--text-dim);'}">${v}</div>`
     ).join('');
     scrollEl.scrollTop = selIdx * 44;
     const highlight = idx => {
       itemsEl.querySelectorAll('.dp-item').forEach((el,i)=>{
         const sel = i === idx;
         el.classList.toggle('sel', sel);
-        el.style.color = sel ? '#fff' : '#444';
+        el.style.color = sel ? 'var(--text)' : 'var(--text-dim)';
       });
       onSelect(idx);
     };
@@ -9948,12 +9948,12 @@ function _buildScrollBancoModal(){
   const selIdx = Math.max(0, bancos.indexOf(currentBanco));
   cont.innerHTML = bancos.map((b,i) => {
     const sel = i === selIdx;
-    return `<div class="scroll-item${sel?' sel':''}" style="${sel?'color:#fff;':'color:#444;'}" onclick="window._selBancoModal(${i})">${b}</div>`;
+    return `<div class="scroll-item${sel?' sel':''}" style="${sel?'color:var(--text);':'color:var(--text-dim);'}" onclick="window._selBancoModal(${i})">${b}</div>`;
   }).join('');
   setTimeout(() => { scroll.scrollTop = selIdx * 44; }, 50);
   snapScrollConInicio(scroll, 44, selIdx, idx => {
     cont.querySelectorAll('.scroll-item').forEach((el,i) => {
-      const s = i===idx; el.classList.toggle('sel',s); el.style.color = s?'#fff':'#444';
+      const s = i===idx; el.classList.toggle('sel',s); el.style.color = s?'var(--text)':'var(--text-dim)';
     });
     window._selBancoModal(idx);
   });
@@ -9996,12 +9996,12 @@ function _buildScrollBancoExt(){
   const selIdx = Math.max(0, bancos.indexOf(currentBanco));
   cont.innerHTML = bancos.map((b,i) => {
     const sel = i === selIdx;
-    return `<div class="scroll-item${sel?' sel':''}" style="${sel?'color:#fff;':'color:#444;'}" onclick="window._selBancoExt(${i})">${b}</div>`;
+    return `<div class="scroll-item${sel?' sel':''}" style="${sel?'color:var(--text);':'color:var(--text-dim);'}" onclick="window._selBancoExt(${i})">${b}</div>`;
   }).join('');
   setTimeout(() => { scroll.scrollTop = selIdx * 44; }, 50);
   snapScrollConInicio(scroll, 44, selIdx, idx => {
     cont.querySelectorAll('.scroll-item').forEach((el,i) => {
-      const s = i===idx; el.classList.toggle('sel',s); el.style.color = s?'#fff':'#444';
+      const s = i===idx; el.classList.toggle('sel',s); el.style.color = s?'var(--text)':'var(--text-dim)';
     });
     window._selBancoExt(idx);
   });
@@ -10044,12 +10044,12 @@ function _buildScrollBancoDebito(){
   const selIdx = Math.max(0, bancos.indexOf(currentBanco));
   cont.innerHTML = bancos.map((b,i) => {
     const sel = i === selIdx;
-    return `<div class="scroll-item${sel?' sel':''}" style="${sel?'color:#fff;':'color:#444;'}" onclick="window._selBancoDebito(${i})">${b}</div>`;
+    return `<div class="scroll-item${sel?' sel':''}" style="${sel?'color:var(--text);':'color:var(--text-dim);'}" onclick="window._selBancoDebito(${i})">${b}</div>`;
   }).join('');
   setTimeout(() => { scroll.scrollTop = selIdx * 44; }, 50);
   snapScrollConInicio(scroll, 44, selIdx, idx => {
     cont.querySelectorAll('.scroll-item').forEach((el,i) => {
-      const s = i===idx; el.classList.toggle('sel',s); el.style.color = s?'#fff':'#444';
+      const s = i===idx; el.classList.toggle('sel',s); el.style.color = s?'var(--text)':'var(--text-dim)';
     });
     window._selBancoDebito(idx);
   });
@@ -10094,18 +10094,18 @@ function _buildScrollTarjetasModal(){
   cont.innerHTML = tarjetas.map((t,i) => {
     const label = t.apodo || t.nombre;
     const sel = i === selIdx;
-    return `<div class="scroll-item${sel?' sel':''}" style="${sel?'color:#fff;':'color:#444;'}" onclick="window._selTarjetaModalFilt(${i})">${label}</div>`;
+    return `<div class="scroll-item${sel?' sel':''}" style="${sel?'color:var(--text);':'color:var(--text-dim);'}" onclick="window._selTarjetaModalFilt(${i})">${label}</div>`;
   }).join('');
   window._tarjetasFiltModal = tarjetas;
   setTimeout(() => {
     scroll.scrollTop = selIdx * 44;
     cont.querySelectorAll('.scroll-item').forEach((el,i) => {
-      const s = i===selIdx; el.classList.toggle('sel',s); el.style.color = s?'#fff':'#444';
+      const s = i===selIdx; el.classList.toggle('sel',s); el.style.color = s?'var(--text)':'var(--text-dim)';
     });
   }, 50);
   snapScrollConInicio(scroll, 44, selIdx, idx => {
     cont.querySelectorAll('.scroll-item').forEach((el,i) => {
-      const s = i===idx; el.classList.toggle('sel',s); el.style.color = s?'#fff':'#444';
+      const s = i===idx; el.classList.toggle('sel',s); el.style.color = s?'var(--text)':'var(--text-dim)';
     });
     window._selTarjetaModalFilt(idx);
   });
@@ -10133,18 +10133,18 @@ function _buildScrollTarjetasExt(){
   cont.innerHTML = tarjetas.map((t,i) => {
     const label = t.apodo || t.nombre;
     const sel = i === selIdx;
-    return `<div class="scroll-item${sel?' sel':''}" style="${sel?'color:#fff;':'color:#444;'}" onclick="window._selTarjetaExtFilt(${i})">${label}</div>`;
+    return `<div class="scroll-item${sel?' sel':''}" style="${sel?'color:var(--text);':'color:var(--text-dim);'}" onclick="window._selTarjetaExtFilt(${i})">${label}</div>`;
   }).join('');
   window._tarjetasFiltExt = tarjetas;
   setTimeout(() => {
     scroll.scrollTop = selIdx * 44;
     cont.querySelectorAll('.scroll-item').forEach((el,i) => {
-      const s = i===selIdx; el.classList.toggle('sel',s); el.style.color = s?'#fff':'#444';
+      const s = i===selIdx; el.classList.toggle('sel',s); el.style.color = s?'var(--text)':'var(--text-dim)';
     });
   }, 50);
   snapScrollConInicio(scroll, 44, selIdx, idx => {
     cont.querySelectorAll('.scroll-item').forEach((el,i) => {
-      const s = i===idx; el.classList.toggle('sel',s); el.style.color = s?'#fff':'#444';
+      const s = i===idx; el.classList.toggle('sel',s); el.style.color = s?'var(--text)':'var(--text-dim)';
     });
     window._selTarjetaExtFilt(idx);
   });
@@ -11056,16 +11056,16 @@ window.confirmarEliminarPerfil = async function(){
       <div onclick="abrirScrollMesesPagEdit()" id="edit-promo-mesespag-display"
         style="padding:12px 14px;border-radius:12px;border:1.5px solid #e0e0e0;font-size:15px;cursor:pointer;color:#999;display:flex;justify-content:space-between;align-items:center;background:#fff">
         <span id="edit-promo-mesespag-txt">Seleccionar...</span>
-        <span style="color:#aaa;font-size:12px">▾</span>
+        <span style="color:var(--text-dim);font-size:12px">▾</span>
       </div>
       <input type="hidden" id="edit-promo-mesespag"/>
     </div>
 
     <!-- Scroll meses pagados -->
-    <div id="edit-meses-pag-scroll-wrap" style="display:none;margin-top:-8px;margin-bottom:8px;background:#f5f5f5;border-radius:14px;overflow:hidden;position:relative">
-      <div style="font-size:10px;font-weight:700;color:#aaa;text-align:center;text-transform:uppercase;letter-spacing:0.08em;padding:8px 0 4px">Desliza para seleccionar</div>
+    <div id="edit-meses-pag-scroll-wrap" style="display:none;margin-top:-8px;margin-bottom:8px;background:var(--card-bg-soft);border-radius:14px;overflow:hidden;position:relative">
+      <div style="font-size:10px;font-weight:700;color:var(--text-dim);text-align:center;text-transform:uppercase;letter-spacing:0.08em;padding:8px 0 4px">Desliza para seleccionar</div>
       <div style="position:relative;height:132px">
-        <div style="position:absolute;left:12px;right:12px;top:50%;transform:translateY(-50%);height:44px;border-radius:10px;background:linear-gradient(180deg,#111,#444);pointer-events:none;z-index:1"></div>
+        <div style="position:absolute;left:12px;right:12px;top:50%;transform:translateY(-50%);height:41px;border-radius:10px;background:var(--bg);border:1.5px solid var(--border);pointer-events:none;z-index:1"></div>
         <div id="edit-scroll-mesespag-cont" style="position:absolute;inset:0;overflow-y:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch;z-index:2">
           <div style="height:44px"></div>
           <div id="edit-scroll-mesespag-items" style="width:100%"></div>
@@ -11081,15 +11081,15 @@ window.confirmarEliminarPerfil = async function(){
       <div onclick="abrirScrollMesesEdit()" id="edit-promo-meses-display"
         style="padding:12px 14px;border-radius:12px;border:1.5px solid #e0e0e0;font-size:15px;cursor:pointer;color:#999;display:flex;justify-content:space-between;align-items:center;background:#fff">
         <span id="edit-promo-meses-txt">Seleccionar meses...</span>
-        <span style="color:#aaa;font-size:12px">▾</span>
+        <span style="color:var(--text-dim);font-size:12px">▾</span>
       </div>
     </div>
 
     <!-- Scroll meses editar -->
-    <div id="edit-meses-scroll-wrap" style="display:none;margin-top:-8px;margin-bottom:8px;background:#f5f5f5;border-radius:14px;overflow:hidden;position:relative">
-      <div style="font-size:10px;font-weight:700;color:#aaa;text-align:center;text-transform:uppercase;letter-spacing:0.08em;padding:8px 0 4px">Desliza para seleccionar</div>
+    <div id="edit-meses-scroll-wrap" style="display:none;margin-top:-8px;margin-bottom:8px;background:var(--card-bg-soft);border-radius:14px;overflow:hidden;position:relative">
+      <div style="font-size:10px;font-weight:700;color:var(--text-dim);text-align:center;text-transform:uppercase;letter-spacing:0.08em;padding:8px 0 4px">Desliza para seleccionar</div>
       <div style="position:relative;height:132px">
-        <div style="position:absolute;left:12px;right:12px;top:50%;transform:translateY(-50%);height:44px;border-radius:10px;background:linear-gradient(180deg,#111,#444);pointer-events:none;z-index:1"></div>
+        <div style="position:absolute;left:12px;right:12px;top:50%;transform:translateY(-50%);height:41px;border-radius:10px;background:var(--bg);border:1.5px solid var(--border);pointer-events:none;z-index:1"></div>
         <div id="edit-scroll-meses-cont" style="position:absolute;inset:0;overflow-y:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch;z-index:2">
           <div style="height:44px"></div>
           <div id="edit-scroll-meses-items" style="width:100%"></div>
@@ -11145,12 +11145,12 @@ window.confirmarEliminarPerfil = async function(){
       <div onclick="event.stopPropagation();toggleScrollBancoDebito()" id="debito-banco-display"
         style="padding:12px 14px;border-radius:12px;border:1.5px solid #e0e0e0;font-size:15px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;background:#fff">
         <span id="debito-banco-txt" style="color:#999">Seleccionar banco...</span>
-        <span style="color:#aaa;font-size:12px">▾</span>
+        <span style="color:var(--text-dim);font-size:12px">▾</span>
       </div>
-      <div id="debito-banco-scroll-wrap" onclick="event.stopPropagation()" style="display:none;margin-top:6px;background:#f5f5f5;border-radius:14px;overflow:hidden;position:relative">
-        <div style="font-size:10px;font-weight:700;color:#aaa;text-align:center;text-transform:uppercase;letter-spacing:0.08em;padding:8px 0 4px">Desliza para seleccionar</div>
+      <div id="debito-banco-scroll-wrap" onclick="event.stopPropagation()" style="display:none;margin-top:6px;background:var(--card-bg-soft);border-radius:14px;overflow:hidden;position:relative">
+        <div style="font-size:10px;font-weight:700;color:var(--text-dim);text-align:center;text-transform:uppercase;letter-spacing:0.08em;padding:8px 0 4px">Desliza para seleccionar</div>
         <div style="position:relative;height:132px;margin:0 8px">
-          <div style="position:absolute;left:0;right:0;top:50%;transform:translateY(-50%);height:44px;border-radius:10px;background:linear-gradient(180deg,#111,#444);pointer-events:none;z-index:1"></div>
+          <div style="position:absolute;left:0;right:0;top:50%;transform:translateY(-50%);height:41px;border-radius:10px;background:var(--bg);border:1.5px solid var(--border);pointer-events:none;z-index:1"></div>
           <div id="scroll-banco-debito-modal" style="position:absolute;inset:0;overflow-y:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch;z-index:2">
             <div style="height:44px"></div>
             <div id="scroll-banco-debito-modal-items" style="width:100%"></div>
@@ -11166,14 +11166,14 @@ window.confirmarEliminarPerfil = async function(){
       <div onclick="event.stopPropagation();toggleScrollCuentaDebito()" id="debito-cuenta-display"
         style="padding:12px 14px;border-radius:12px;border:1.5px solid #e0e0e0;font-size:15px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;background:#fff">
         <span id="debito-cuenta-txt" style="color:#999">Seleccionar cuenta...</span>
-        <span style="color:#aaa;font-size:12px">▾</span>
+        <span style="color:var(--text-dim);font-size:12px">▾</span>
       </div>
       <input type="hidden" id="debito-inp-cuenta-id"/>
       <!-- Scroll de cuentas -->
-      <div id="debito-cuenta-scroll-wrap" onclick="event.stopPropagation()" style="display:none;margin-top:6px;background:#f5f5f5;border-radius:14px;overflow:hidden;position:relative">
-        <div style="font-size:10px;font-weight:700;color:#aaa;text-align:center;text-transform:uppercase;letter-spacing:0.08em;padding:8px 0 4px">Desliza para seleccionar</div>
+      <div id="debito-cuenta-scroll-wrap" onclick="event.stopPropagation()" style="display:none;margin-top:6px;background:var(--card-bg-soft);border-radius:14px;overflow:hidden;position:relative">
+        <div style="font-size:10px;font-weight:700;color:var(--text-dim);text-align:center;text-transform:uppercase;letter-spacing:0.08em;padding:8px 0 4px">Desliza para seleccionar</div>
         <div style="position:relative;height:132px;margin:0 8px">
-          <div style="position:absolute;left:0;right:0;top:50%;transform:translateY(-50%);height:44px;border-radius:10px;background:linear-gradient(180deg,#111,#444);pointer-events:none;z-index:1"></div>
+          <div style="position:absolute;left:0;right:0;top:50%;transform:translateY(-50%);height:41px;border-radius:10px;background:var(--bg);border:1.5px solid var(--border);pointer-events:none;z-index:1"></div>
           <div id="scroll-cuenta-debito" style="position:absolute;inset:0;overflow-y:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch;z-index:2">
             <div style="height:44px"></div>
             <div id="scroll-cuenta-debito-items" style="width:100%"></div>
@@ -11208,16 +11208,16 @@ window.confirmarEliminarPerfil = async function(){
         <div onclick="event.stopPropagation();document.getElementById('debito-cuenta-scroll-wrap').style.display='none';toggleScrollFechaDebito()" id="debito-fecha-display"
           style="padding:12px 14px;border-radius:10px;border:1.5px solid #e0e0e0;font-size:15px;cursor:pointer;color:#999;display:flex;justify-content:space-between;align-items:center;background:#fff;box-shadow:0 1px 4px rgba(0,0,0,0.06)">
           <span id="debito-fecha-txt">Seleccionar fecha</span>
-          <span style="color:#aaa;font-size:12px">▾</span>
+          <span style="color:var(--text-dim);font-size:12px">▾</span>
         </div>
-        <div id="debito-fecha-scroll-wrap" style="display:none;margin-top:6px;background:#f5f5f5;border-radius:14px;overflow:hidden" onclick="event.stopPropagation()">
+        <div id="debito-fecha-scroll-wrap" style="display:none;margin-top:6px;background:var(--card-bg-soft);border-radius:14px;overflow:hidden" onclick="event.stopPropagation()">
           <div style="display:flex;gap:4px;padding:8px 8px 0">
             <div style="flex:1;font-size:10px;font-weight:700;color:#aaa;text-transform:uppercase;letter-spacing:0.06em;text-align:center">Año</div>
             <div style="flex:1;font-size:10px;font-weight:700;color:#aaa;text-transform:uppercase;letter-spacing:0.06em;text-align:center">Mes</div>
             <div style="flex:1;font-size:10px;font-weight:700;color:#aaa;text-transform:uppercase;letter-spacing:0.06em;text-align:center">Día</div>
           </div>
           <div style="position:relative;height:132px;margin:4px 8px 0">
-            <div style="position:absolute;left:0;right:0;top:50%;transform:translateY(-50%);height:44px;border-radius:10px;background:linear-gradient(180deg,#111,#444);pointer-events:none;z-index:1"></div>
+            <div style="position:absolute;left:0;right:0;top:50%;transform:translateY(-50%);height:41px;border-radius:10px;background:var(--bg);border:1.5px solid var(--border);pointer-events:none;z-index:1"></div>
             <div style="position:absolute;inset:0;display:flex;z-index:2">
               <div id="scroll-deb-anio" style="flex:1;overflow-y:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch">
                 <div style="height:44px"></div>
@@ -11371,17 +11371,17 @@ function _buildScrollCuentasDebito() {
   cont.innerHTML = cuentas.map((c, i) => {
     const label = c.apodo || c.nombre;
     const sel = i === selIdx;
-    return `<div class="scroll-item${sel?' sel':''}" style="${sel?'color:#fff;':'color:#444;'}" onclick="_selCuentaDebitoFilt(${i})">${label}</div>`;
+    return `<div class="scroll-item${sel?' sel':''}" style="${sel?'color:var(--text);':'color:var(--text-dim);'}" onclick="_selCuentaDebitoFilt(${i})">${label}</div>`;
   }).join('');
   setTimeout(() => {
     scroll.scrollTop = selIdx * 44;
     cont.querySelectorAll('.scroll-item').forEach((el,i) => {
-      const s = i===selIdx; el.classList.toggle('sel',s); el.style.color = s?'#fff':'#444';
+      const s = i===selIdx; el.classList.toggle('sel',s); el.style.color = s?'var(--text)':'var(--text-dim)';
     });
   }, 50);
   snapScrollConInicio(scroll, 44, selIdx, idx => {
     cont.querySelectorAll('.scroll-item').forEach((el,i) => {
-      const s = i===idx; el.classList.toggle('sel',s); el.style.color = s?'#fff':'#444';
+      const s = i===idx; el.classList.toggle('sel',s); el.style.color = s?'var(--text)':'var(--text-dim)';
     });
     _selCuentaDebito(idx);
   });
@@ -11642,14 +11642,14 @@ window.toggleScrollFechaDebito = function() {
     const scrollEl = document.getElementById(scrollId);
     const itemsEl  = document.getElementById(itemsId);
     itemsEl.innerHTML = items.map((v, i) =>
-      `<div class="dp-item${i === selIdx ? ' sel' : ''}" style="${i === selIdx ? 'color:#fff;' : 'color:#444;'}">${v}</div>`
+      `<div class="dp-item${i === selIdx ? ' sel' : ''}" style="${i === selIdx ? 'color:#fff;' : 'color:var(--text-dim);'}">${v}</div>`
     ).join('');
     scrollEl.scrollTop = selIdx * 44;
     const highlight = idx => {
       itemsEl.querySelectorAll('.dp-item').forEach((el, i) => {
         const sel = i === idx;
         el.classList.toggle('sel', sel);
-        el.style.color = sel ? '#fff' : '#444';
+        el.style.color = sel ? 'var(--text)' : 'var(--text-dim)';
       });
       onSelect(idx);
     };
@@ -11729,16 +11729,16 @@ function _actualizarFechaDebito() {
       <div onclick="event.stopPropagation();toggleScrollFechaEditDeb()" id="deb-edit-fecha-display"
         style="padding:12px 14px;border-radius:10px;border:1.5px solid #e0e0e0;font-size:15px;cursor:pointer;color:#999;display:flex;justify-content:space-between;align-items:center;background:#fff">
         <span id="deb-edit-fecha-txt">Seleccionar fecha</span>
-        <span style="color:#aaa;font-size:12px">▾</span>
+        <span style="color:var(--text-dim);font-size:12px">▾</span>
       </div>
-      <div id="deb-edit-fecha-scroll-wrap" onclick="event.stopPropagation()" style="display:none;margin-top:6px;background:#f5f5f5;border-radius:14px;overflow:hidden">
+      <div id="deb-edit-fecha-scroll-wrap" onclick="event.stopPropagation()" style="display:none;margin-top:6px;background:var(--card-bg-soft);border-radius:14px;overflow:hidden">
         <div style="display:flex;gap:4px;padding:8px 8px 0">
           <div style="flex:1;font-size:10px;font-weight:700;color:#aaa;text-transform:uppercase;letter-spacing:0.06em;text-align:center">Año</div>
           <div style="flex:1;font-size:10px;font-weight:700;color:#aaa;text-transform:uppercase;letter-spacing:0.06em;text-align:center">Mes</div>
           <div style="flex:1;font-size:10px;font-weight:700;color:#aaa;text-transform:uppercase;letter-spacing:0.06em;text-align:center">Día</div>
         </div>
         <div style="position:relative;height:132px;margin:4px 8px 0">
-          <div style="position:absolute;left:0;right:0;top:50%;transform:translateY(-50%);height:44px;border-radius:10px;background:linear-gradient(180deg,#111,#444);pointer-events:none;z-index:1"></div>
+          <div style="position:absolute;left:0;right:0;top:50%;transform:translateY(-50%);height:41px;border-radius:10px;background:var(--bg);border:1.5px solid var(--border);pointer-events:none;z-index:1"></div>
           <div style="position:absolute;inset:0;display:flex;z-index:2">
             <div id="scroll-deb-edit-anio" style="flex:1;overflow-y:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch">
               <div style="height:44px"></div>
@@ -11972,12 +11972,12 @@ document.addEventListener('DOMContentLoaded', function(){
         <div class="field-label">Banco</div>
         <div onclick="abrirScrollCargoBanco()" id="cargo-banco-btn"
           style="padding:12px 14px;border-radius:12px;border:1.5px solid #e0e0e0;font-size:15px;cursor:pointer;color:#999;display:flex;justify-content:space-between;align-items:center;background:#fff">
-          <span id="cargo-banco-txt">Seleccionar banco...</span><span style="color:#aaa;font-size:12px">▾</span>
+          <span id="cargo-banco-txt">Seleccionar banco...</span><span style="color:var(--text-dim);font-size:12px">▾</span>
         </div>
-        <div id="cargo-banco-scroll-wrap" style="display:none;margin-top:6px;border-radius:14px;overflow:hidden;position:relative;background:#f5f5f5">
-          <div style="font-size:10px;font-weight:700;color:#aaa;text-align:center;text-transform:uppercase;letter-spacing:0.08em;padding:8px 0 4px">Desliza para seleccionar</div>
+        <div id="cargo-banco-scroll-wrap" style="display:none;margin-top:6px;border-radius:14px;overflow:hidden;position:relative;background:var(--card-bg-soft)">
+          <div style="font-size:10px;font-weight:700;color:var(--text-dim);text-align:center;text-transform:uppercase;letter-spacing:0.08em;padding:8px 0 4px">Desliza para seleccionar</div>
           <div style="position:relative;height:132px;margin:0 8px">
-            <div style="position:absolute;left:0;right:0;top:50%;transform:translateY(-50%);height:44px;border-radius:10px;background:linear-gradient(180deg,#111,#444);pointer-events:none;z-index:1"></div>
+            <div style="position:absolute;left:0;right:0;top:50%;transform:translateY(-50%);height:41px;border-radius:10px;background:var(--bg);border:1.5px solid var(--border);pointer-events:none;z-index:1"></div>
             <div id="scroll-cargo-banco-cont" style="position:absolute;inset:0;overflow-y:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch;z-index:2">
               <div style="height:44px"></div><div id="scroll-cargo-banco-items" style="width:100%"></div><div style="height:44px"></div>
             </div>
@@ -11989,12 +11989,12 @@ document.addEventListener('DOMContentLoaded', function(){
         <div class="field-label">Tarjeta</div>
         <div onclick="abrirScrollCargoTarjeta()" id="cargo-tarjeta-btn"
           style="padding:12px 14px;border-radius:12px;border:1.5px solid #e0e0e0;font-size:15px;cursor:pointer;color:#999;display:flex;justify-content:space-between;align-items:center;background:#fff">
-          <span id="cargo-tarjeta-txt">Seleccionar tarjeta...</span><span style="color:#aaa;font-size:12px">▾</span>
+          <span id="cargo-tarjeta-txt">Seleccionar tarjeta...</span><span style="color:var(--text-dim);font-size:12px">▾</span>
         </div>
-        <div id="cargo-tarjeta-scroll-wrap" style="display:none;margin-top:6px;border-radius:14px;overflow:hidden;position:relative;background:#f5f5f5">
-          <div style="font-size:10px;font-weight:700;color:#aaa;text-align:center;text-transform:uppercase;letter-spacing:0.08em;padding:8px 0 4px">Desliza para seleccionar</div>
+        <div id="cargo-tarjeta-scroll-wrap" style="display:none;margin-top:6px;border-radius:14px;overflow:hidden;position:relative;background:var(--card-bg-soft)">
+          <div style="font-size:10px;font-weight:700;color:var(--text-dim);text-align:center;text-transform:uppercase;letter-spacing:0.08em;padding:8px 0 4px">Desliza para seleccionar</div>
           <div style="position:relative;height:132px;margin:0 8px">
-            <div style="position:absolute;left:0;right:0;top:50%;transform:translateY(-50%);height:44px;border-radius:10px;background:linear-gradient(180deg,#111,#444);pointer-events:none;z-index:1"></div>
+            <div style="position:absolute;left:0;right:0;top:50%;transform:translateY(-50%);height:41px;border-radius:10px;background:var(--bg);border:1.5px solid var(--border);pointer-events:none;z-index:1"></div>
             <div id="scroll-cargo-tarjeta-cont" style="position:absolute;inset:0;overflow-y:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch;z-index:2">
               <div style="height:44px"></div><div id="scroll-cargo-tarjeta-items" style="width:100%"></div><div style="height:44px"></div>
             </div>
@@ -12010,12 +12010,12 @@ document.addEventListener('DOMContentLoaded', function(){
         <div class="field-label">Banco</div>
         <div onclick="abrirScrollCargoBancoDeb()" id="cargo-banco-deb-btn"
           style="padding:12px 14px;border-radius:12px;border:1.5px solid #e0e0e0;font-size:15px;cursor:pointer;color:#999;display:flex;justify-content:space-between;align-items:center;background:#fff">
-          <span id="cargo-banco-deb-txt">Seleccionar banco...</span><span style="color:#aaa;font-size:12px">▾</span>
+          <span id="cargo-banco-deb-txt">Seleccionar banco...</span><span style="color:var(--text-dim);font-size:12px">▾</span>
         </div>
-        <div id="cargo-banco-deb-scroll-wrap" style="display:none;margin-top:6px;border-radius:14px;overflow:hidden;position:relative;background:#f5f5f5">
-          <div style="font-size:10px;font-weight:700;color:#aaa;text-align:center;text-transform:uppercase;letter-spacing:0.08em;padding:8px 0 4px">Desliza para seleccionar</div>
+        <div id="cargo-banco-deb-scroll-wrap" style="display:none;margin-top:6px;border-radius:14px;overflow:hidden;position:relative;background:var(--card-bg-soft)">
+          <div style="font-size:10px;font-weight:700;color:var(--text-dim);text-align:center;text-transform:uppercase;letter-spacing:0.08em;padding:8px 0 4px">Desliza para seleccionar</div>
           <div style="position:relative;height:132px;margin:0 8px">
-            <div style="position:absolute;left:0;right:0;top:50%;transform:translateY(-50%);height:44px;border-radius:10px;background:linear-gradient(180deg,#111,#444);pointer-events:none;z-index:1"></div>
+            <div style="position:absolute;left:0;right:0;top:50%;transform:translateY(-50%);height:41px;border-radius:10px;background:var(--bg);border:1.5px solid var(--border);pointer-events:none;z-index:1"></div>
             <div id="scroll-cargo-banco-deb-cont" style="position:absolute;inset:0;overflow-y:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch;z-index:2">
               <div style="height:44px"></div><div id="scroll-cargo-banco-deb-items" style="width:100%"></div><div style="height:44px"></div>
             </div>
@@ -12027,12 +12027,12 @@ document.addEventListener('DOMContentLoaded', function(){
         <div class="field-label">Cuenta</div>
         <div onclick="abrirScrollCargoCuenta()" id="cargo-cuenta-btn"
           style="padding:12px 14px;border-radius:12px;border:1.5px solid #e0e0e0;font-size:15px;cursor:pointer;color:#999;display:flex;justify-content:space-between;align-items:center;background:#fff">
-          <span id="cargo-cuenta-txt">Seleccionar cuenta...</span><span style="color:#aaa;font-size:12px">▾</span>
+          <span id="cargo-cuenta-txt">Seleccionar cuenta...</span><span style="color:var(--text-dim);font-size:12px">▾</span>
         </div>
-        <div id="cargo-cuenta-scroll-wrap" style="display:none;margin-top:6px;border-radius:14px;overflow:hidden;position:relative;background:#f5f5f5">
-          <div style="font-size:10px;font-weight:700;color:#aaa;text-align:center;text-transform:uppercase;letter-spacing:0.08em;padding:8px 0 4px">Desliza para seleccionar</div>
+        <div id="cargo-cuenta-scroll-wrap" style="display:none;margin-top:6px;border-radius:14px;overflow:hidden;position:relative;background:var(--card-bg-soft)">
+          <div style="font-size:10px;font-weight:700;color:var(--text-dim);text-align:center;text-transform:uppercase;letter-spacing:0.08em;padding:8px 0 4px">Desliza para seleccionar</div>
           <div style="position:relative;height:132px;margin:0 8px">
-            <div style="position:absolute;left:0;right:0;top:50%;transform:translateY(-50%);height:44px;border-radius:10px;background:linear-gradient(180deg,#111,#444);pointer-events:none;z-index:1"></div>
+            <div style="position:absolute;left:0;right:0;top:50%;transform:translateY(-50%);height:41px;border-radius:10px;background:var(--bg);border:1.5px solid var(--border);pointer-events:none;z-index:1"></div>
             <div id="scroll-cargo-cuenta-cont" style="position:absolute;inset:0;overflow-y:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch;z-index:2">
               <div style="height:44px"></div><div id="scroll-cargo-cuenta-items" style="width:100%"></div><div style="height:44px"></div>
             </div>
@@ -12053,14 +12053,14 @@ document.addEventListener('DOMContentLoaded', function(){
       <div class="field-label">Día del cargo</div>
       <div onclick="abrirScrollCargoDia()" id="cargo-dia-btn"
         style="padding:12px 14px;border-radius:12px;border:1.5px solid #e0e0e0;font-size:15px;cursor:pointer;color:#999;display:flex;justify-content:space-between;align-items:center;background:#fff">
-        <span id="cargo-dia-txt">Seleccionar día...</span><span style="color:#aaa;font-size:12px">▾</span>
+        <span id="cargo-dia-txt">Seleccionar día...</span><span style="color:var(--text-dim);font-size:12px">▾</span>
       </div>
       <input type="hidden" id="cargo-dia-val"/>
     </div>
-    <div id="cargo-dia-scroll-wrap" style="display:none;margin-top:-8px;margin-bottom:8px;border-radius:14px;overflow:hidden;position:relative;background:#f5f5f5">
-      <div style="font-size:10px;font-weight:700;color:#aaa;text-align:center;text-transform:uppercase;letter-spacing:0.08em;padding:8px 0 4px">Desliza para seleccionar</div>
+    <div id="cargo-dia-scroll-wrap" style="display:none;margin-top:-8px;margin-bottom:8px;border-radius:14px;overflow:hidden;position:relative;background:var(--card-bg-soft)">
+      <div style="font-size:10px;font-weight:700;color:var(--text-dim);text-align:center;text-transform:uppercase;letter-spacing:0.08em;padding:8px 0 4px">Desliza para seleccionar</div>
       <div style="position:relative;height:132px">
-        <div style="position:absolute;left:12px;right:12px;top:50%;transform:translateY(-50%);height:44px;border-radius:10px;background:linear-gradient(180deg,#111,#444);pointer-events:none;z-index:1"></div>
+        <div style="position:absolute;left:12px;right:12px;top:50%;transform:translateY(-50%);height:41px;border-radius:10px;background:var(--bg);border:1.5px solid var(--border);pointer-events:none;z-index:1"></div>
         <div id="scroll-cargo-dia-cont" style="position:absolute;inset:0;overflow-y:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch;z-index:2">
           <div style="height:44px"></div><div id="scroll-cargo-dia-items" style="width:100%"></div><div style="height:44px"></div>
         </div>
@@ -12093,13 +12093,13 @@ document.addEventListener('DOMContentLoaded', function(){
       <div class="ob-label">Banco</div>
       <div onclick="toggleScrollBancoObPrf()" id="banco-ob-prf-display"
         style="padding:12px 14px;border-radius:12px;border:1.5px solid #e0e0e0;font-size:15px;cursor:pointer;color:#999;display:flex;justify-content:space-between;align-items:center;background:#fff">
-        <span id="banco-ob-prf-txt">Seleccionar banco...</span><span style="color:#aaa;font-size:12px">▾</span>
+        <span id="banco-ob-prf-txt">Seleccionar banco...</span><span style="color:var(--text-dim);font-size:12px">▾</span>
       </div>
       <input type="hidden" id="inp-banco-ob-prf"/>
-      <div id="banco-ob-prf-scroll-wrap" style="display:none;margin-top:6px;background:#f5f5f5;border-radius:14px;overflow:hidden;position:relative">
-        <div style="font-size:10px;font-weight:700;color:#aaa;text-align:center;text-transform:uppercase;letter-spacing:0.08em;padding:8px 0 4px">Desliza para seleccionar</div>
+      <div id="banco-ob-prf-scroll-wrap" style="display:none;margin-top:6px;background:var(--card-bg-soft);border-radius:14px;overflow:hidden;position:relative">
+        <div style="font-size:10px;font-weight:700;color:var(--text-dim);text-align:center;text-transform:uppercase;letter-spacing:0.08em;padding:8px 0 4px">Desliza para seleccionar</div>
         <div style="position:relative;height:132px;margin:0 8px">
-          <div style="position:absolute;left:0;right:0;top:50%;transform:translateY(-50%);height:44px;border-radius:10px;background:linear-gradient(180deg,#111,#444);pointer-events:none;z-index:1"></div>
+          <div style="position:absolute;left:0;right:0;top:50%;transform:translateY(-50%);height:41px;border-radius:10px;background:var(--bg);border:1.5px solid var(--border);pointer-events:none;z-index:1"></div>
           <div id="scroll-banco-ob-prf" style="position:absolute;inset:0;overflow-y:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch;z-index:2">
             <div style="height:44px"></div><div id="scroll-banco-ob-prf-items" style="width:100%"></div><div style="height:44px"></div>
           </div>
@@ -12117,13 +12117,13 @@ document.addEventListener('DOMContentLoaded', function(){
       <div class="ob-label">Fecha de corte</div>
       <div onclick="toggleScrollCorteObPrf()" id="corte-ob-prf-display"
         style="padding:12px 14px;border-radius:12px;border:1.5px solid #e0e0e0;font-size:15px;cursor:pointer;color:#999;display:flex;justify-content:space-between;align-items:center;background:#fff">
-        <span id="corte-ob-prf-txt">Seleccionar día...</span><span style="color:#aaa;font-size:12px">▾</span>
+        <span id="corte-ob-prf-txt">Seleccionar día...</span><span style="color:var(--text-dim);font-size:12px">▾</span>
       </div>
       <input type="hidden" id="inp-corte-ob-prf"/>
-      <div id="corte-ob-prf-scroll-wrap" style="display:none;margin-top:6px;background:#f5f5f5;border-radius:14px;overflow:hidden;position:relative">
-        <div style="font-size:10px;font-weight:700;color:#aaa;text-align:center;text-transform:uppercase;letter-spacing:0.08em;padding:8px 0 4px">Desliza para seleccionar</div>
+      <div id="corte-ob-prf-scroll-wrap" style="display:none;margin-top:6px;background:var(--card-bg-soft);border-radius:14px;overflow:hidden;position:relative">
+        <div style="font-size:10px;font-weight:700;color:var(--text-dim);text-align:center;text-transform:uppercase;letter-spacing:0.08em;padding:8px 0 4px">Desliza para seleccionar</div>
         <div style="position:relative;height:132px;margin:0 8px">
-          <div style="position:absolute;left:0;right:0;top:50%;transform:translateY(-50%);height:44px;border-radius:10px;background:linear-gradient(180deg,#111,#444);pointer-events:none;z-index:1"></div>
+          <div style="position:absolute;left:0;right:0;top:50%;transform:translateY(-50%);height:41px;border-radius:10px;background:var(--bg);border:1.5px solid var(--border);pointer-events:none;z-index:1"></div>
           <div id="scroll-corte-ob-prf" style="position:absolute;inset:0;overflow-y:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch;z-index:2">
             <div style="height:44px"></div><div id="scroll-corte-ob-prf-items" style="width:100%"></div><div style="height:44px"></div>
           </div>
@@ -12155,13 +12155,13 @@ document.addEventListener('DOMContentLoaded', function(){
       <div class="ob-label">Banco</div>
       <div onclick="toggleScrollBancoNuevaCuenta()" id="banco-nc-display"
         style="padding:12px 14px;border-radius:12px;border:1.5px solid #e0e0e0;font-size:15px;cursor:pointer;color:#999;display:flex;justify-content:space-between;align-items:center;background:#fff">
-        <span id="banco-nc-txt">Seleccionar banco...</span><span style="color:#aaa;font-size:12px">▾</span>
+        <span id="banco-nc-txt">Seleccionar banco...</span><span style="color:var(--text-dim);font-size:12px">▾</span>
       </div>
       <input type="hidden" id="inp-banco-nc"/>
-      <div id="banco-nc-scroll-wrap" style="display:none;margin-top:6px;background:#f5f5f5;border-radius:14px;overflow:hidden;position:relative">
-        <div style="font-size:10px;font-weight:700;color:#aaa;text-align:center;text-transform:uppercase;letter-spacing:0.08em;padding:8px 0 4px">Desliza para seleccionar</div>
+      <div id="banco-nc-scroll-wrap" style="display:none;margin-top:6px;background:var(--card-bg-soft);border-radius:14px;overflow:hidden;position:relative">
+        <div style="font-size:10px;font-weight:700;color:var(--text-dim);text-align:center;text-transform:uppercase;letter-spacing:0.08em;padding:8px 0 4px">Desliza para seleccionar</div>
         <div style="position:relative;height:132px;margin:0 8px">
-          <div style="position:absolute;left:0;right:0;top:50%;transform:translateY(-50%);height:44px;border-radius:10px;background:linear-gradient(180deg,#111,#444);pointer-events:none;z-index:1"></div>
+          <div style="position:absolute;left:0;right:0;top:50%;transform:translateY(-50%);height:41px;border-radius:10px;background:var(--bg);border:1.5px solid var(--border);pointer-events:none;z-index:1"></div>
           <div id="scroll-banco-nc" style="position:absolute;inset:0;overflow-y:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch;z-index:2">
             <div style="height:44px"></div><div id="scroll-banco-nc-items" style="width:100%"></div><div style="height:44px"></div>
           </div>
