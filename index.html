@@ -102,7 +102,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .ob-input{width:100%;padding:13px 14px;border-radius:12px;border:1.5px solid var(--border);font-size:15px;font-family:inherit;outline:none;color:var(--text);background:var(--input-bg)}
 .ob-input:focus{border-color:#111}
 .ob-prefix-wrap{position:relative}
-.ob-prefix{position:absolute;left:14px;top:50%;transform:translateY(-50%);font-size:15px;color:#666}
+.ob-prefix{position:absolute;left:14px;top:50%;transform:translateY(-50%);font-size:15px;color:var(--text-dim)}
 .ob-input-prefix{padding-left:28px}
 .ob-back{background:none;border:none;color:#444;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;margin-top:8px;width:100%;text-align:center}
 
@@ -118,7 +118,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .ob-action-btns{display:flex;flex-direction:column;gap:10px;margin-top:6px}
 .ob-btn-agregar{width:100%;padding:14px;border-radius:12px;background:linear-gradient(180deg,#111,#444);color:#fff;border:none;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit}
 .ob-btn-agregar:active{transform:scale(0.98)}
-.ob-btn-terminar{width:100%;padding:13px;border-radius:12px;background:#fff;border:1.5px solid #111;color:#111;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit}
+.ob-btn-terminar{width:100%;padding:13px;border-radius:12px;background:var(--card-bg);border:1.5px solid var(--text);color:var(--text);font-size:15px;font-weight:600;cursor:pointer;font-family:inherit;margin-bottom:10px}
 .ob-btn-terminar:active{transform:scale(0.98)}
 .ob-btn-volver{width:100%;padding:10px;border-radius:12px;background:none;border:none;color:#aaa;font-size:14px;font-weight:500;cursor:pointer;font-family:inherit}
 
@@ -1416,7 +1416,7 @@ try{
     <div class="ob-sub" id="ob-sub-tarjetas">Configura el banco, tipo y monto disponible.</div>
 
     <!-- Toggle Crédito / Débito -->
-    <div id="ob-tipo-toggle" style="display:flex;background:#ebebeb;border-radius:16px;padding:4px;margin-bottom:20px;position:relative">
+    <div id="ob-tipo-toggle" style="display:flex;background:var(--input-bg);border-radius:16px;padding:4px;margin-bottom:20px;position:relative">
       <div id="ob-toggle-slider" style="position:absolute;top:4px;bottom:4px;left:4px;width:calc(50% - 4px);background:#0a0a0a;border-radius:12px;box-shadow:0 2px 10px rgba(0,0,0,0.25);transition:transform 0.25s cubic-bezier(0.34,1.2,0.64,1)"></div>
       <button onclick="obSwitchTipo('credito')" id="ob-btn-credito"
         style="flex:1;padding:12px 8px;border:none;background:none;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;border-radius:12px;position:relative;z-index:1;color:#fff;transition:color 0.2s;display:flex;align-items:center;justify-content:center;gap:7px">
@@ -1424,7 +1424,7 @@ try{
         Crédito
       </button>
       <button onclick="obSwitchTipo('debito')" id="ob-btn-debito"
-        style="flex:1;padding:12px 8px;border:none;background:none;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;border-radius:12px;position:relative;z-index:1;color:#888;transition:color 0.2s;display:flex;align-items:center;justify-content:center;gap:7px">
+        style="flex:1;padding:12px 8px;border:none;background:none;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;border-radius:12px;position:relative;z-index:1;color:var(--text-dim);transition:color 0.2s;display:flex;align-items:center;justify-content:center;gap:7px">
         <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/><line x1="5" y1="15" x2="9" y2="15"/></svg>
         Débito
       </button>
@@ -1439,13 +1439,13 @@ try{
       <div class="ob-field">
         <div class="ob-label">Banco</div>
         <div onclick="toggleScrollBancoOb()" id="banco-ob-display"
-          style="padding:12px 14px;border-radius:12px;border:1.5px solid #e0e0e0;font-size:15px;cursor:pointer;color:#999;display:flex;justify-content:space-between;align-items:center;background:#fff">
+          style="padding:12px 14px;border-radius:12px;border:1.5px solid var(--border);font-size:15px;cursor:pointer;color:var(--text-dim);display:flex;justify-content:space-between;align-items:center;background:var(--input-bg)">
           <span id="banco-ob-txt">Seleccionar banco...</span>
-          <span style="color:#aaa;font-size:12px">▾</span>
+          <span style="color:var(--text-dim);font-size:12px">▾</span>
         </div>
         <input type="hidden" id="inp-banco-ob" />
-        <div id="banco-ob-scroll-wrap" style="display:none;margin-top:6px;background:#f5f5f5;border-radius:14px;overflow:hidden;position:relative">
-          <div style="font-size:10px;font-weight:700;color:#aaa;text-align:center;text-transform:uppercase;letter-spacing:0.08em;padding:8px 0 4px">Desliza para seleccionar</div>
+        <div id="banco-ob-scroll-wrap" style="display:none;margin-top:6px;background:var(--card-bg-soft);border-radius:14px;overflow:hidden;position:relative">
+          <div style="font-size:10px;font-weight:700;color:var(--text-dim);text-align:center;text-transform:uppercase;letter-spacing:0.08em;padding:8px 0 4px">Desliza para seleccionar</div>
           <div style="position:relative;height:132px;margin:0 8px">
             <div style="position:absolute;left:0;right:0;top:50%;transform:translateY(-50%);height:44px;border-radius:10px;background:linear-gradient(180deg,#111,#444);pointer-events:none;z-index:1"></div>
             <div id="scroll-banco-ob" style="position:absolute;inset:0;overflow-y:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch;z-index:2">
@@ -1460,7 +1460,7 @@ try{
       </div>
       <!-- 2. Tarjeta -->
       <div class="ob-field">
-        <div class="ob-label">Tarjeta <span style="font-weight:400;color:#aaa">(opcional)</span></div>
+        <div class="ob-label">Tarjeta <span style="font-weight:400;color:var(--text-dim)">(opcional)</span></div>
         <input class="ob-input" id="inp-apodo-ob" placeholder="Ej. Personal, Nómina..." maxlength="30"
           onfocus="document.getElementById('banco-ob-scroll-wrap').style.display='none';document.getElementById('corte-ob-scroll-wrap').style.display='none';" />
       </div>
@@ -1468,13 +1468,13 @@ try{
       <div class="ob-field">
         <div class="ob-label">Fecha de corte</div>
         <div onclick="toggleScrollCorteOb()" id="corte-ob-display"
-          style="padding:12px 14px;border-radius:12px;border:1.5px solid #e0e0e0;font-size:15px;cursor:pointer;color:#999;display:flex;justify-content:space-between;align-items:center;background:#fff">
+          style="padding:12px 14px;border-radius:12px;border:1.5px solid var(--border);font-size:15px;cursor:pointer;color:var(--text-dim);display:flex;justify-content:space-between;align-items:center;background:var(--input-bg)">
           <span id="corte-ob-txt">Seleccionar día...</span>
-          <span style="color:#aaa;font-size:12px">▾</span>
+          <span style="color:var(--text-dim);font-size:12px">▾</span>
         </div>
         <input type="hidden" id="inp-corte-ob" />
-        <div id="corte-ob-scroll-wrap" style="display:none;margin-top:6px;background:#f5f5f5;border-radius:14px;overflow:hidden;position:relative">
-          <div style="font-size:10px;font-weight:700;color:#aaa;text-align:center;text-transform:uppercase;letter-spacing:0.08em;padding:8px 0 4px">Desliza para seleccionar</div>
+        <div id="corte-ob-scroll-wrap" style="display:none;margin-top:6px;background:var(--card-bg-soft);border-radius:14px;overflow:hidden;position:relative">
+          <div style="font-size:10px;font-weight:700;color:var(--text-dim);text-align:center;text-transform:uppercase;letter-spacing:0.08em;padding:8px 0 4px">Desliza para seleccionar</div>
           <div style="position:relative;height:132px;margin:0 8px">
             <div style="position:absolute;left:0;right:0;top:50%;transform:translateY(-50%);height:44px;border-radius:10px;background:linear-gradient(180deg,#111,#444);pointer-events:none;z-index:1"></div>
             <div id="scroll-corte-ob" style="position:absolute;inset:0;overflow-y:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch;z-index:2">
@@ -1496,9 +1496,17 @@ try{
         </div>
       </div>
       <div class="ob-action-btns" id="ob-action-btns">
-        <button class="ob-btn-agregar" onclick="agregarTarjetaOb()">+ Agregar tarjeta</button>
         <button class="ob-btn-terminar" id="btn-finalizar" style="display:none" onclick="finalizarOnboarding()">Terminar</button>
-        <button class="ob-btn-volver" id="btn-volver-ob" onclick="volverOnboarding()">← Volver</button>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+          <button class="btn-flat-cancel" id="btn-volver-ob" onclick="volverOnboarding()">
+            <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+            Volver
+          </button>
+          <button class="btn-flat-confirm" onclick="agregarTarjetaOb()">
+            <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            Agregar tarjeta
+          </button>
+        </div>
       </div>
     </div>
 
@@ -1508,13 +1516,13 @@ try{
       <div class="ob-field">
         <div class="ob-label">Banco</div>
         <div onclick="toggleScrollBancoDebOb()" id="banco-deb-ob-display"
-          style="padding:12px 14px;border-radius:12px;border:1.5px solid #e0e0e0;font-size:15px;cursor:pointer;color:#999;display:flex;justify-content:space-between;align-items:center;background:#fff">
+          style="padding:12px 14px;border-radius:12px;border:1.5px solid var(--border);font-size:15px;cursor:pointer;color:var(--text-dim);display:flex;justify-content:space-between;align-items:center;background:var(--input-bg)">
           <span id="banco-deb-ob-txt">Seleccionar banco...</span>
-          <span style="color:#aaa;font-size:12px">▾</span>
+          <span style="color:var(--text-dim);font-size:12px">▾</span>
         </div>
         <input type="hidden" id="inp-banco-deb-ob" />
-        <div id="banco-deb-ob-scroll-wrap" style="display:none;margin-top:6px;background:#f5f5f5;border-radius:14px;overflow:hidden;position:relative">
-          <div style="font-size:10px;font-weight:700;color:#aaa;text-align:center;text-transform:uppercase;letter-spacing:0.08em;padding:8px 0 4px">Desliza para seleccionar</div>
+        <div id="banco-deb-ob-scroll-wrap" style="display:none;margin-top:6px;background:var(--card-bg-soft);border-radius:14px;overflow:hidden;position:relative">
+          <div style="font-size:10px;font-weight:700;color:var(--text-dim);text-align:center;text-transform:uppercase;letter-spacing:0.08em;padding:8px 0 4px">Desliza para seleccionar</div>
           <div style="position:relative;height:132px;margin:0 8px">
             <div style="position:absolute;left:0;right:0;top:50%;transform:translateY(-50%);height:44px;border-radius:10px;background:linear-gradient(180deg,#111,#444);pointer-events:none;z-index:1"></div>
             <div id="scroll-banco-deb-ob" style="position:absolute;inset:0;overflow-y:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch;z-index:2">
@@ -1529,7 +1537,7 @@ try{
       </div>
       <!-- 2. Tarjeta -->
       <div class="ob-field">
-        <div class="ob-label">Tarjeta <span style="font-weight:400;color:#aaa">(opcional)</span></div>
+        <div class="ob-label">Tarjeta <span style="font-weight:400;color:var(--text-dim)">(opcional)</span></div>
         <input class="ob-input" id="inp-apodo-deb-ob" placeholder="Ej. Nómina, Ahorros..." maxlength="30"
           onfocus="document.getElementById('banco-deb-ob-scroll-wrap').style.display='none';" />
       </div>
@@ -1543,9 +1551,17 @@ try{
         </div>
       </div>
       <div class="ob-action-btns">
-        <button class="ob-btn-agregar" onclick="agregarDebitoOb()">+ Agregar cuenta</button>
         <button class="ob-btn-terminar" id="btn-finalizar-deb" style="display:none" onclick="finalizarOnboarding()">Terminar</button>
-        <button class="ob-btn-volver" onclick="volverOnboarding()">← Volver</button>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+          <button class="btn-flat-cancel" onclick="volverOnboarding()">
+            <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+            Volver
+          </button>
+          <button class="btn-flat-confirm" onclick="agregarDebitoOb()">
+            <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            Agregar cuenta
+          </button>
+        </div>
       </div>
     </div>
 
@@ -2069,7 +2085,7 @@ window.toggleScrollBancoOb = function(){
       });
       document.getElementById('inp-banco-ob').value = banco;
       document.getElementById('banco-ob-txt').textContent = banco;
-      document.getElementById('banco-ob-txt').style.color = '#111';
+      document.getElementById('banco-ob-txt').style.color = 'var(--text)';
       document.getElementById('inp-banco-ob-otro').style.display = 'none';
     });
   }
@@ -2105,7 +2121,7 @@ window.toggleScrollCorteOb = function(){
       });
       document.getElementById('inp-corte-ob').value = dia;
       document.getElementById('corte-ob-txt').textContent = 'Día ' + dia;
-      document.getElementById('corte-ob-txt').style.color = '#111';
+      document.getElementById('corte-ob-txt').style.color = 'var(--text)';
     });
   }
 }
@@ -2216,14 +2232,14 @@ window.volverOnboarding = function(){
 function resetFormTarjeta(){
   document.getElementById('inp-banco-ob').value = '';
   document.getElementById('banco-ob-txt').textContent = 'Seleccionar banco...';
-  document.getElementById('banco-ob-txt').style.color = '#999';
+  document.getElementById('banco-ob-txt').style.color = 'var(--text-dim)';
   document.getElementById('banco-ob-scroll-wrap').style.display = 'none';
   document.getElementById('inp-banco-ob-otro').style.display = 'none';
   document.getElementById('inp-apodo-ob').value = '';
   document.getElementById('inp-limite-ob').value = '';
   document.getElementById('inp-corte-ob').value = '';
   document.getElementById('corte-ob-txt').textContent = 'Seleccionar día...';
-  document.getElementById('corte-ob-txt').style.color = '#999';
+  document.getElementById('corte-ob-txt').style.color = 'var(--text-dim)';
   document.getElementById('corte-ob-scroll-wrap').style.display = 'none';
   selectedBancoNombre = '';
   selectedCorte = null;
@@ -2251,14 +2267,14 @@ window.obSwitchTipo = function(tipo){
   if(tipo === 'credito'){
     slider.style.transform = 'translateX(0)';
     btnCred.style.color = '#fff';
-    btnDeb.style.color  = '#888';
+    btnDeb.style.color  = 'var(--text-dim)';
     formCred.style.display = 'block';
     formDeb.style.display  = 'none';
     document.getElementById('added-cards-cred').style.display = '';
     document.getElementById('added-cards-deb').style.display  = 'none';
   } else {
     slider.style.transform = 'translateX(100%)';
-    btnCred.style.color = '#888';
+    btnCred.style.color = 'var(--text-dim)';
     btnDeb.style.color  = '#fff';
     formCred.style.display = 'none';
     formDeb.style.display  = 'block';
@@ -2312,7 +2328,7 @@ window.toggleScrollBancoDebOb = function(){
       selectedBancoDebNombre = banco;
       document.getElementById('inp-banco-deb-ob').value = banco === 'Otro' ? '' : banco;
       document.getElementById('banco-deb-ob-txt').textContent = banco;
-      document.getElementById('banco-deb-ob-txt').style.color = '#111';
+      document.getElementById('banco-deb-ob-txt').style.color = 'var(--text)';
       document.getElementById('inp-banco-deb-ob-otro').style.display = banco === 'Otro' ? 'block' : 'none';
     });
   }
@@ -2340,7 +2356,7 @@ window.agregarDebitoOb = function(){
   selectedBancoDebNombre = '';
   document.getElementById('inp-banco-deb-ob').value = '';
   document.getElementById('banco-deb-ob-txt').textContent = 'Seleccionar banco...';
-  document.getElementById('banco-deb-ob-txt').style.color = '#999';
+  document.getElementById('banco-deb-ob-txt').style.color = 'var(--text-dim)';
   document.getElementById('banco-deb-ob-scroll-wrap').style.display = 'none';
   document.getElementById('inp-banco-deb-ob-otro').style.display = 'none';
   document.getElementById('inp-apodo-deb-ob').value = '';
