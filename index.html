@@ -9405,7 +9405,7 @@ window.confirmarEliminarPerfil = async function(){
     <div style="font-size:14px;color:#aaa;margin-bottom:20px" id="nuevo-subtitulo">Selecciona el tipo de tarjeta</div>
 
     <!-- Toggle Crédito / Débito -->
-    <div style="display:flex;background:#ebebeb;border-radius:16px;padding:4px;margin-bottom:24px;position:relative">
+    <div style="display:flex;background:none;border-radius:16px;padding:4px;margin-bottom:24px;position:relative">
       <div id="nuevo-toggle-slider" style="position:absolute;top:4px;bottom:4px;left:4px;width:calc(50% - 4px);background:linear-gradient(180deg,#111,#444);border-radius:12px;box-shadow:0 4px 14px rgba(0,0,0,0.22);transition:transform 0.25s cubic-bezier(0.34,1.2,0.64,1)"></div>
       <button onclick="nuevoSwitchTipo('credito')" id="nuevo-btn-credito"
         style="flex:1;padding:11px 8px;border:none;background:none;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;border-radius:12px;position:relative;z-index:1;color:#fff;transition:color 0.2s;display:flex;align-items:center;justify-content:center;gap:7px">
@@ -10112,14 +10112,14 @@ window._selBancoDebito = function(i){
   const banco = bancos[i];
   if(!banco) return;
   document.getElementById('debito-banco-txt').textContent = banco;
-  document.getElementById('debito-banco-txt').style.color = '#111';
+  document.getElementById('debito-banco-txt').style.color = 'var(--text)';
   const primeraCuenta = cuentas.find(c => c.nombre === banco);
   if(primeraCuenta){
     window._debitoCuentaSel = primeraCuenta;
     _debitoCuentaSel = primeraCuenta;
     document.getElementById('debito-inp-cuenta-id').value = primeraCuenta.id;
     document.getElementById('debito-cuenta-txt').textContent = primeraCuenta.apodo || primeraCuenta.nombre;
-    document.getElementById('debito-cuenta-txt').style.color = '#111';
+    document.getElementById('debito-cuenta-txt').style.color = 'var(--text)';
   }
 };
 window.toggleScrollBancoDebito = function(){
@@ -11172,13 +11172,13 @@ window.confirmarEliminarPerfil = async function(){
 <div class="modal-overlay" id="modal-debito-overlay" onclick="cerrarModalDebito(event)">
   <div class="modal">
     <div class="modal-handle"></div>
-    <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px">
+    <div class="modal-title" style="margin-bottom:16px">
       <div id="debito-modal-icon" style="width:34px;height:34px;border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0"></div>
-      <div id="debito-modal-title" style="font-size:18px;font-weight:700;color:#111;line-height:1.2"></div>
+      <div id="debito-modal-title" style="line-height:1.2"></div>
     </div>
 
     <!-- Toggle Ingreso / Egreso -->
-    <div style="display:flex;background:#ebebeb;border-radius:14px;padding:4px;margin-bottom:16px;position:relative">
+    <div style="display:flex;background:none;border-radius:14px;padding:4px;margin-bottom:16px;position:relative">
       <div id="debito-tipo-slider" style="position:absolute;top:4px;bottom:4px;left:4px;width:calc(50% - 4px);background:#0a0a0a;border-radius:10px;box-shadow:0 2px 10px rgba(0,0,0,0.25);transition:transform 0.25s cubic-bezier(0.34,1.2,0.64,1)"></div>
       <button id="debito-toggle-ingreso" onclick="_debitoSwitchTipo('ingreso')"
         style="flex:1;padding:11px 8px;border:none;background:none;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;border-radius:10px;position:relative;z-index:1;transition:color 0.2s;display:flex;align-items:center;justify-content:center;gap:6px;color:#fff">
@@ -11196,8 +11196,8 @@ window.confirmarEliminarPerfil = async function(){
     <div class="field-wrap">
       <div class="field-label">Banco</div>
       <div onclick="event.stopPropagation();toggleScrollBancoDebito()" id="debito-banco-display"
-        style="padding:12px 14px;border-radius:12px;border:1.5px solid #e0e0e0;font-size:15px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;background:#fff">
-        <span id="debito-banco-txt" style="color:#999">Seleccionar banco...</span>
+        style="padding:12px 14px;border-radius:12px;border:1.5px solid var(--border);font-size:15px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;background:var(--input-bg)">
+        <span id="debito-banco-txt" style="color:var(--text-dim)">Seleccionar banco...</span>
         <span style="color:var(--text-dim);font-size:12px">▾</span>
       </div>
       <div id="debito-banco-scroll-wrap" onclick="event.stopPropagation()" style="display:none;margin-top:6px;background:var(--card-bg-soft);border-radius:14px;overflow:hidden;position:relative">
@@ -11217,8 +11217,8 @@ window.confirmarEliminarPerfil = async function(){
     <div class="field-wrap">
       <div class="field-label">Cuenta</div>
       <div onclick="event.stopPropagation();toggleScrollCuentaDebito()" id="debito-cuenta-display"
-        style="padding:12px 14px;border-radius:12px;border:1.5px solid #e0e0e0;font-size:15px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;background:#fff">
-        <span id="debito-cuenta-txt" style="color:#999">Seleccionar cuenta...</span>
+        style="padding:12px 14px;border-radius:12px;border:1.5px solid var(--border);font-size:15px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;background:var(--input-bg)">
+        <span id="debito-cuenta-txt" style="color:var(--text-dim)">Seleccionar cuenta...</span>
         <span style="color:var(--text-dim);font-size:12px">▾</span>
       </div>
       <input type="hidden" id="debito-inp-cuenta-id"/>
@@ -11259,8 +11259,8 @@ window.confirmarEliminarPerfil = async function(){
       <div class="field-wrap" id="debito-fecha-wrap" style="display:none">
         <div class="field-label">Fecha</div>
         <div onclick="event.stopPropagation();document.getElementById('debito-cuenta-scroll-wrap').style.display='none';toggleScrollFechaDebito()" id="debito-fecha-display"
-          style="padding:12px 14px;border-radius:10px;border:1.5px solid #e0e0e0;font-size:15px;cursor:pointer;color:#999;display:flex;justify-content:space-between;align-items:center;background:#fff;box-shadow:0 1px 4px rgba(0,0,0,0.06)">
-          <span id="debito-fecha-txt">Seleccionar fecha</span>
+          style="padding:12px 14px;border-radius:12px;border:1.5px solid var(--border);font-size:15px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;background:var(--input-bg)">
+          <span id="debito-fecha-txt" style="color:var(--text-dim)">Seleccionar fecha</span>
           <span style="color:var(--text-dim);font-size:12px">▾</span>
         </div>
         <div id="debito-fecha-scroll-wrap" style="display:none;margin-top:6px;background:var(--card-bg-soft);border-radius:14px;overflow:hidden" onclick="event.stopPropagation()">
@@ -11296,8 +11296,8 @@ window.confirmarEliminarPerfil = async function(){
     <input type="hidden" id="debito-inp-hora"/>
     <div id="debito-error" style="font-size:13px;color:#e53935;min-height:18px;margin-bottom:6px;text-align:center"></div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:4px">
-      <button onclick="cerrarModalDebito()" style="padding:13px;border-radius:12px;border:1.5px solid #e0e0e0;background:#fff;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit;color:#111">Cancelar</button>
-      <button id="debito-save-btn" onclick="guardarDebito()" class="modal-save" style="margin-top:0">Guardar</button>
+      <button class="btn-flat-cancel" onclick="cerrarModalDebito()">Cancelar</button>
+      <button id="debito-save-btn" onclick="guardarDebito()" class="modal-save" style="margin-top:0;background:linear-gradient(180deg,var(--card-bg-soft),var(--bg));color:var(--text);border:1.5px solid var(--border)">Guardar</button>
     </div>
   </div>
 </div>
@@ -11447,7 +11447,7 @@ window._selCuentaDebito = function(i) {
   _debitoCuentaSel = c;
   document.getElementById('debito-inp-cuenta-id').value = c.id;
   document.getElementById('debito-cuenta-txt').textContent = c.apodo || c.nombre;
-  document.getElementById('debito-cuenta-txt').style.color = '#111';
+  document.getElementById('debito-cuenta-txt').style.color = 'var(--text)';
 };
 window._selCuentaDebitoFilt = function(i) {
   const cuentas = window._cuentasDebitoFilt || [];
@@ -11456,7 +11456,7 @@ window._selCuentaDebitoFilt = function(i) {
   _debitoCuentaSel = c;
   document.getElementById('debito-inp-cuenta-id').value = c.id;
   document.getElementById('debito-cuenta-txt').textContent = c.apodo || c.nombre;
-  document.getElementById('debito-cuenta-txt').style.color = '#111';
+  document.getElementById('debito-cuenta-txt').style.color = 'var(--text)';
 };
 // alias sin prefijo window para poder llamarlo desde onclick inline del scroll
 _selCuentaDebito = window._selCuentaDebito;
@@ -11506,8 +11506,8 @@ function _abrirModalDebito(tipo, esExtemporaneo) {
   _debitoCuentaSel = null;
 
   const btn = document.getElementById('debito-save-btn');
-  btn.style.background = 'linear-gradient(180deg,#111,#444)';
-  btn.style.color = '#fff';
+  btn.style.background = 'linear-gradient(180deg,var(--card-bg-soft),var(--bg))';
+  btn.style.color = 'var(--text)';
 
   window._debitoSwitchTipo(tipo);
 
@@ -11517,7 +11517,7 @@ function _abrirModalDebito(tipo, esExtemporaneo) {
     fechaWrap.style.display = 'block';
     document.getElementById('debito-inp-fecha').value = '';
     document.getElementById('debito-fecha-txt').textContent = 'Seleccionar fecha';
-    document.getElementById('debito-fecha-txt').style.color = '#999';
+    document.getElementById('debito-fecha-txt').style.color = 'var(--text-dim)';
     document.getElementById('debito-fecha-scroll-wrap').style.display = 'none';
   } else {
     fechaWrap.style.display = 'none';
@@ -11540,9 +11540,9 @@ function _abrirModalDebito(tipo, esExtemporaneo) {
   _debitoCuentaSel = null;
   document.getElementById('debito-inp-cuenta-id').value = '';
   document.getElementById('debito-banco-txt').textContent = 'Seleccionar banco...';
-  document.getElementById('debito-banco-txt').style.color = '#999';
+  document.getElementById('debito-banco-txt').style.color = 'var(--text-dim)';
   document.getElementById('debito-cuenta-txt').textContent = 'Seleccionar cuenta...';
-  document.getElementById('debito-cuenta-txt').style.color = '#999';
+  document.getElementById('debito-cuenta-txt').style.color = 'var(--text-dim)';
 
   btn.disabled = false;
 
@@ -11754,7 +11754,7 @@ function _actualizarFechaDebito() {
   const dia = String(_dpDebDia).padStart(2, '0');
   document.getElementById('debito-inp-fecha').value = `${_dpDebAnio}-${mes}-${dia}`;
   document.getElementById('debito-fecha-txt').textContent = `${dia} de ${MESES[_dpDebMes - 1]} ${_dpDebAnio}`;
-  document.getElementById('debito-fecha-txt').style.color = '#111';
+  document.getElementById('debito-fecha-txt').style.color = 'var(--text)';
 }
 </script>
 
@@ -12146,7 +12146,7 @@ document.addEventListener('DOMContentLoaded', function(){
     <div class="ob-field">
       <div class="ob-label">Banco</div>
       <div onclick="toggleScrollBancoObPrf()" id="banco-ob-prf-display"
-        style="padding:12px 14px;border-radius:12px;border:1.5px solid #e0e0e0;font-size:15px;cursor:pointer;color:#999;display:flex;justify-content:space-between;align-items:center;background:#fff">
+        style="padding:12px 14px;border-radius:12px;border:1.5px solid var(--border);font-size:15px;cursor:pointer;color:var(--text-dim);display:flex;justify-content:space-between;align-items:center;background:var(--input-bg)">
         <span id="banco-ob-prf-txt">Seleccionar banco...</span><span style="color:var(--text-dim);font-size:12px">▾</span>
       </div>
       <input type="hidden" id="inp-banco-ob-prf"/>
@@ -12170,7 +12170,7 @@ document.addEventListener('DOMContentLoaded', function(){
     <div class="ob-field">
       <div class="ob-label">Fecha de corte</div>
       <div onclick="toggleScrollCorteObPrf()" id="corte-ob-prf-display"
-        style="padding:12px 14px;border-radius:12px;border:1.5px solid #e0e0e0;font-size:15px;cursor:pointer;color:#999;display:flex;justify-content:space-between;align-items:center;background:#fff">
+        style="padding:12px 14px;border-radius:12px;border:1.5px solid var(--border);font-size:15px;cursor:pointer;color:var(--text-dim);display:flex;justify-content:space-between;align-items:center;background:var(--input-bg)">
         <span id="corte-ob-prf-txt">Seleccionar día...</span><span style="color:var(--text-dim);font-size:12px">▾</span>
       </div>
       <input type="hidden" id="inp-corte-ob-prf"/>
@@ -12194,8 +12194,14 @@ document.addEventListener('DOMContentLoaded', function(){
       </div>
     </div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:4px">
-      <button onclick="cerrarModalNuevaTarjeta()" style="padding:14px;border-radius:12px;border:1.5px solid #e0e0e0;background:#fff;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit;color:#666">Cancelar</button>
-      <button class="modal-save" onclick="guardarNuevaTarjetaModal()" style="margin-top:0;background:linear-gradient(180deg,var(--card-bg-soft),var(--bg));color:var(--text);border:1.5px solid var(--border)">Guardar</button>
+      <button onclick="cerrarModalNuevaTarjeta()" class="btn-flat-cancel">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        Cancelar
+      </button>
+      <button onclick="guardarNuevaTarjetaModal()" class="btn-flat-confirm">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+        Guardar
+      </button>
     </div>
   </div>
 </div>
@@ -12208,7 +12214,7 @@ document.addEventListener('DOMContentLoaded', function(){
     <div class="ob-field">
       <div class="ob-label">Banco</div>
       <div onclick="toggleScrollBancoNuevaCuenta()" id="banco-nc-display"
-        style="padding:12px 14px;border-radius:12px;border:1.5px solid #e0e0e0;font-size:15px;cursor:pointer;color:#999;display:flex;justify-content:space-between;align-items:center;background:#fff">
+        style="padding:12px 14px;border-radius:12px;border:1.5px solid var(--border);font-size:15px;cursor:pointer;color:var(--text-dim);display:flex;justify-content:space-between;align-items:center;background:var(--input-bg)">
         <span id="banco-nc-txt">Seleccionar banco...</span><span style="color:var(--text-dim);font-size:12px">▾</span>
       </div>
       <input type="hidden" id="inp-banco-nc"/>
@@ -12238,8 +12244,14 @@ document.addEventListener('DOMContentLoaded', function(){
       </div>
     </div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:4px">
-      <button onclick="cerrarModalNuevaCuenta()" style="padding:14px;border-radius:12px;border:1.5px solid #e0e0e0;background:#fff;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit;color:#666">Cancelar</button>
-      <button class="modal-save" onclick="guardarNuevaCuentaModal()" style="margin-top:0">Guardar</button>
+      <button onclick="cerrarModalNuevaCuenta()" class="btn-flat-cancel">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        Cancelar
+      </button>
+      <button onclick="guardarNuevaCuentaModal()" class="btn-flat-confirm">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+        Guardar
+      </button>
     </div>
   </div>
 </div>
