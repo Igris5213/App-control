@@ -5365,7 +5365,21 @@ function _mostrarResumenSimple(titulo, subtitulo, campos, onConfirmar, successMs
   window._resumenMovOnConfirmar = onConfirmar;
   window._resumenMovSuccessMsg = successMsg || 'Guardado';
   window._resumenMovEsEdicion = false;
+  _aplicarColorConfirmarResumen();
   overlay.classList.add('open');
+}
+function _aplicarColorConfirmarResumen(){
+  const confirmBtn = document.getElementById('resumen-mov-confirm-btn');
+  if(!confirmBtn) return;
+  if(window._resumenMovCtx === 'nueva-tarjeta'){
+    confirmBtn.style.background = 'linear-gradient(180deg,var(--card-bg-soft),var(--bg))';
+    confirmBtn.style.borderColor = 'var(--border)';
+    confirmBtn.style.color = 'var(--text)';
+  } else {
+    confirmBtn.style.background = '';
+    confirmBtn.style.borderColor = '';
+    confirmBtn.style.color = '';
+  }
 }
 function _mostrarResumenMovimiento(titulo, subtitulo, cambios, onConfirmar, successMsg){
   const overlay = document.getElementById('modal-resumen-movimiento');
@@ -5384,6 +5398,7 @@ function _mostrarResumenMovimiento(titulo, subtitulo, cambios, onConfirmar, succ
   window._resumenMovOnConfirmar = onConfirmar;
   window._resumenMovSuccessMsg = successMsg || 'Movimiento actualizado';
   window._resumenMovEsEdicion = true;
+  _aplicarColorConfirmarResumen();
   overlay.classList.add('open');
 }
 window._confirmarResumenMovimiento = function(){
@@ -11964,7 +11979,7 @@ document.addEventListener('DOMContentLoaded', function(){
         <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
         Corregir
       </button>
-      <button onclick="_confirmarResumenMovimiento()" class="hold-btn btn-flat-confirm">
+      <button id="resumen-mov-confirm-btn" onclick="_confirmarResumenMovimiento()" class="hold-btn btn-flat-confirm">
         <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
         <span class="hold-label">Confirmar</span>
       </button>
@@ -12164,7 +12179,7 @@ document.addEventListener('DOMContentLoaded', function(){
     </div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:4px">
       <button onclick="cerrarModalNuevaTarjeta()" style="padding:14px;border-radius:12px;border:1.5px solid #e0e0e0;background:#fff;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit;color:#666">Cancelar</button>
-      <button class="modal-save" onclick="guardarNuevaTarjetaModal()" style="margin-top:0">Guardar</button>
+      <button class="modal-save" onclick="guardarNuevaTarjetaModal()" style="margin-top:0;background:linear-gradient(180deg,var(--card-bg-soft),var(--bg));color:var(--text);border:1.5px solid var(--border)">Guardar</button>
     </div>
   </div>
 </div>
