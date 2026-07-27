@@ -120,7 +120,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .ob-action-btns{display:flex;flex-direction:column;gap:10px;margin-top:6px}
 .ob-btn-agregar{width:100%;padding:14px;border-radius:12px;background:linear-gradient(180deg,#111,#444);color:#fff;border:none;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit}
 .ob-btn-agregar:active{transform:scale(0.98)}
-.ob-btn-terminar{width:100%;padding:13px;border-radius:12px;background:var(--card-bg);border:1.5px solid var(--text);color:var(--text);font-size:15px;font-weight:600;cursor:pointer;font-family:inherit;margin-bottom:10px}
+.ob-btn-terminar{width:100%;padding:13px;border-radius:12px;background:var(--card-bg);border:1.5px solid var(--text);color:var(--text);font-size:15px;font-weight:600;cursor:pointer;font-family:inherit}
 .ob-btn-terminar:active{transform:scale(0.98)}
 .ob-btn-volver{width:100%;padding:10px;border-radius:12px;background:none;border:none;color:#aaa;font-size:14px;font-weight:500;cursor:pointer;font-family:inherit}
 
@@ -1502,7 +1502,6 @@ try{
         </div>
       </div>
       <div class="ob-action-btns" id="ob-action-btns">
-        <button class="ob-btn-terminar" id="btn-finalizar" style="display:none" onclick="finalizarOnboarding()">Terminar</button>
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
           <button class="btn-flat-cancel" id="btn-volver-ob" onclick="volverOnboarding()">
             <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
@@ -1513,6 +1512,7 @@ try{
             Agregar tarjeta
           </button>
         </div>
+        <button class="ob-btn-terminar" id="btn-finalizar" style="display:none" onclick="finalizarOnboarding()">Terminar</button>
       </div>
     </div>
 
@@ -1557,7 +1557,6 @@ try{
         </div>
       </div>
       <div class="ob-action-btns">
-        <button class="ob-btn-terminar" id="btn-finalizar-deb" style="display:none" onclick="finalizarOnboarding()">Terminar</button>
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
           <button class="btn-flat-cancel" onclick="volverOnboarding()">
             <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
@@ -1568,6 +1567,7 @@ try{
             Agregar cuenta
           </button>
         </div>
+        <button class="ob-btn-terminar" id="btn-finalizar-deb" style="display:none" onclick="finalizarOnboarding()">Terminar</button>
       </div>
     </div>
 
