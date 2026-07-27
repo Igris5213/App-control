@@ -16,6 +16,11 @@
 <style>
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;outline:none;user-select:none;-webkit-user-select:none;-moz-user-select:none;-ms-user-select:none;-webkit-touch-callout:none}
 input,textarea{-webkit-user-select:text;user-select:text;-webkit-touch-callout:default}
+/* Ocultar el ícono nativo de "revelar contraseña" del navegador (Edge/IE) para no duplicar el ícono de ojo personalizado */
+input[type="password"]::-ms-reveal,
+input[type="password"]::-ms-clear{display:none;width:0;height:0}
+input[type="password"]::-webkit-credentials-auto-fill-button{display:none !important;visibility:hidden;pointer-events:none;position:absolute;right:0}
+input[type="password"]::-webkit-strong-password-auto-fill-button{display:none !important;visibility:hidden;pointer-events:none;position:absolute;right:0}
 
 /* ── Variables de tema (claro / oscuro) ── */
 :root{
@@ -326,6 +331,38 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 }
 .login-add-user-btn:active{transform:scale(0.97);border-color:#bbb;background:#f2f2f2}
 
+/* ── Pantalla Admin (mismo estilo tematizado que login) ── */
+.admin-user-card{
+  background:linear-gradient(180deg,var(--card-bg),var(--card-bg-soft));
+  border:1px solid var(--border);border-radius:18px;padding:16px 18px;
+  display:flex;align-items:center;gap:14px;
+  box-shadow:0 1px 2px rgba(0,0,0,0.04),0 8px 20px -4px rgba(0,0,0,0.10);
+  transition:background 0.25s ease,border-color 0.25s ease;
+}
+.admin-icon-btn{
+  width:34px;height:34px;border-radius:10px;border:1.5px solid var(--border);
+  background:var(--card-bg);color:var(--text);
+  display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;
+  transition:background 0.25s ease,border-color 0.25s ease;
+}
+.admin-back-btn{
+  width:36px;height:36px;border-radius:50%;border:1.5px solid var(--border);
+  background:var(--card-bg);color:var(--text);
+  display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;
+  transition:background 0.25s ease,border-color 0.25s ease;
+}
+
+/* ── Botones planos Cancelar / Confirmar (modales) ── */
+.btn-flat-cancel,.btn-flat-confirm{
+  padding:14px;border-radius:14px;border:1.5px solid var(--border);
+  font-size:15px;font-weight:600;cursor:pointer;font-family:inherit;color:var(--text);
+  display:flex;align-items:center;justify-content:center;gap:8px;
+  transition:background 0.25s ease,border-color 0.25s ease,transform 0.15s ease;
+}
+.btn-flat-cancel{background:var(--bg)}
+.btn-flat-confirm{background:linear-gradient(180deg,var(--card-bg-soft),var(--bg))}
+.btn-flat-cancel:active,.btn-flat-confirm:active{transform:scale(0.98)}
+
 /* ── Login feedback toast ── */
 #login-toast{position:fixed;bottom:120px;left:50%;transform:translateX(-50%) translateY(20px);z-index:9999;opacity:0;transition:opacity 0.25s,transform 0.25s;pointer-events:none;min-width:220px;max-width:280px}
 #login-toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
@@ -392,10 +429,10 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 
 .success-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.4);z-index:9999;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity 0.3s}
 .success-overlay.show{opacity:1;pointer-events:all}
-.success-box{background:#fff;border-radius:24px;padding:36px 32px;text-align:center;box-shadow:0 12px 48px rgba(0,0,0,0.22);transform:scale(0.85);transition:transform 0.35s cubic-bezier(0.34,1.3,0.64,1)}
+.success-box{background:var(--card-bg);border-radius:24px;padding:36px 32px;text-align:center;box-shadow:0 12px 48px rgba(0,0,0,0.22);transform:scale(0.85);transition:transform 0.35s cubic-bezier(0.34,1.3,0.64,1),background 0.25s ease}
 .success-overlay.show .success-box{transform:scale(1)}
 .success-icon{width:64px;height:64px;border-radius:50%;background:linear-gradient(180deg,#111,#444);display:flex;align-items:center;justify-content:center;margin:0 auto 16px;position:relative}
-.success-title{font-size:18px;font-weight:700;color:#111;margin-bottom:6px}
+.success-title{font-size:18px;font-weight:700;color:var(--text);margin-bottom:6px}
 .success-sub{font-size:14px;color:#888}
 
 /* ── Íconos sin fondo circular (overlays de guardado/eliminado/actualizado) ── */
@@ -673,15 +710,19 @@ try{
     <div class="modal-handle"></div>
     <div class="modal-title">Acceso</div>
     <div style="position:relative;margin-bottom:6px">
-      <input id="admin-pass-inp" type="password" placeholder="Contraseña"
-        style="width:100%;padding:13px 14px;border-radius:12px;border:1.5px solid #e0e0e0;font-size:15px;font-family:inherit;color:#111;background:#fff;outline:none;box-sizing:border-box"
-        onfocus="this.style.borderColor='#111'" onblur="this.style.borderColor='#e0e0e0'"
+      <input id="admin-pass-inp" type="password" placeholder="Contraseña" class="inp"
         onkeydown="if(event.key==='Enter') confirmarAdmin()"/>
     </div>
     <div id="admin-pass-error" style="font-size:13px;color:#e53935;min-height:18px;margin-bottom:10px;text-align:center"></div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:4px">
-      <button onclick="cerrarModalAdmin()" style="padding:13px;border-radius:12px;border:1.5px solid #e0e0e0;background:#fff;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit;color:#111">Cancelar</button>
-      <button onclick="confirmarAdmin()" style="padding:13px;border-radius:12px;background:linear-gradient(180deg,#111,#444);color:#fff;border:none;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit">Entrar</button>
+      <button onclick="cerrarModalAdmin()" class="btn-flat-cancel">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        Cancelar
+      </button>
+      <button onclick="confirmarAdmin()" class="btn-flat-confirm">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+        Entrar
+      </button>
     </div>
   </div>
 </div>
@@ -691,16 +732,16 @@ try{
   <div style="width:100%;max-width:390px">
 
     <div style="display:flex;align-items:center;gap:12px;margin-bottom:24px">
-      <button onclick="salirAdmin()" style="width:36px;height:36px;border-radius:50%;border:1.5px solid #e0e0e0;background:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0">
-        <svg width="16" height="16" fill="none" stroke="#111" stroke-width="2.5" viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
+      <button onclick="salirAdmin()" class="admin-back-btn">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
       </button>
       <div>
-        <div style="font-size:20px;font-weight:800;color:#111">Administrador</div>
-        <div style="font-size:13px;color:#aaa">Gestión de usuarios</div>
+        <div style="font-size:20px;font-weight:800;color:var(--text)">Administrador</div>
+        <div style="font-size:13px;color:var(--text-dim)">Gestión de usuarios</div>
       </div>
     </div>
 
-    <div style="font-size:11px;font-weight:700;color:#aaa;text-transform:uppercase;letter-spacing:0.1em;margin-bottom:10px">Usuarios registrados</div>
+    <div style="font-size:11px;font-weight:700;color:var(--text-dim);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:10px">Usuarios registrados</div>
     <div id="admin-users-list" style="display:flex;flex-direction:column;gap:10px;margin-bottom:20px"></div>
 
   </div>
@@ -718,12 +759,18 @@ try{
     </div>
     <div class="field-wrap" style="margin-bottom:14px">
       <div class="field-label">Contraseña <span style="color:#aaa;font-weight:400">(toca para escribir una nueva)</span></div>
-      <div style="position:relative"><input id="admin-edit-pass" type="password" class="inp" style="padding-right:44px" onfocus="onFocusAdminEditPass()" onblur="onBlurAdminEditPass()"/><button type="button" onclick="togglePassVis('admin-edit-pass')" style="position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:#aaa;padding:4px"><svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button></div>
+      <div style="position:relative"><input id="admin-edit-pass" type="password" class="inp" style="padding-right:44px" onfocus="onFocusAdminEditPass()" onblur="onBlurAdminEditPass()"/><button type="button" onclick="togglePassVis('admin-edit-pass')" style="position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--text-dim);padding:4px"><svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button></div>
     </div>
     <div id="admin-edit-error" style="font-size:13px;color:#e53935;min-height:18px;margin-bottom:10px;text-align:center"></div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:4px">
-      <button onclick="cerrarModalEditarUsuario()" style="padding:13px;border-radius:12px;border:1.5px solid #e0e0e0;background:#fff;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit;color:#111">Cancelar</button>
-      <button onclick="guardarEdicionUsuario()" style="padding:13px;border-radius:12px;background:linear-gradient(180deg,#111,#444);color:#fff;border:none;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit">Guardar</button>
+      <button onclick="cerrarModalEditarUsuario()" class="btn-flat-cancel">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        Cancelar
+      </button>
+      <button onclick="guardarEdicionUsuario()" class="btn-flat-confirm">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+        Guardar
+      </button>
     </div>
   </div>
 </div>
@@ -773,20 +820,25 @@ try{
   <div class="modal">
     <div class="modal-handle"></div>
     <div class="modal-title" id="modal-login-title">Iniciar sesión</div>
-    <div style="font-size:14px;color:#888;margin-bottom:18px;text-align:center" id="modal-login-sub">Ingresa tu contraseña</div>
+    <div style="font-size:14px;color:var(--text-dim);margin-bottom:18px;text-align:center" id="modal-login-sub">Ingresa tu contraseña</div>
     <div style="position:relative;margin-bottom:6px">
-      <input id="modal-auth-pass" type="password" placeholder="Contraseña" autocomplete="current-password"
-        style="width:100%;padding:13px 44px 13px 14px;border-radius:12px;border:1.5px solid #e0e0e0;font-size:15px;font-family:inherit;color:#111;background:#fff;outline:none;box-sizing:border-box"
-        onfocus="this.style.borderColor='#111'" onblur="this.style.borderColor='#e0e0e0'"
+      <input id="modal-auth-pass" type="password" placeholder="Contraseña" autocomplete="current-password" class="inp"
+        style="padding-right:44px"
         onkeydown="if(event.key==='Enter') confirmarLoginPass()"/>
-      <button onclick="togglePassVisModal()" style="position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:#aaa;padding:4px">
+      <button onclick="togglePassVisModal()" style="position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--text-dim);padding:4px">
         <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
       </button>
     </div>
     <div id="modal-login-error" style="font-size:13px;color:#e53935;min-height:18px;margin-bottom:10px;text-align:center"></div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:4px">
-      <button onclick="cerrarModalLoginPass()" style="padding:13px;border-radius:12px;border:1.5px solid #e0e0e0;background:#fff;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit;color:#111">Cancelar</button>
-      <button id="modal-login-ok-btn" onclick="confirmarLoginPass()" style="padding:13px;border-radius:12px;background:linear-gradient(180deg,#111,#444);color:#fff;border:none;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit">Entrar</button>
+      <button onclick="cerrarModalLoginPass()" class="btn-flat-cancel">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        Cancelar
+      </button>
+      <button id="modal-login-ok-btn" onclick="confirmarLoginPass()" class="btn-flat-confirm">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+        Entrar
+      </button>
     </div>
   </div>
 </div>
@@ -3982,23 +4034,23 @@ async function renderAdminUsers(){
   container.innerHTML = '';
 
   if(lista.length === 0){
-    container.innerHTML = '<div style="text-align:center;color:#aaa;font-size:14px;padding:20px">No hay usuarios registrados</div>';
+    container.innerHTML = '<div style="text-align:center;color:var(--text-dim);font-size:14px;padding:20px">No hay usuarios registrados</div>';
     return;
   }
 
   lista.forEach((u, idx) => {
     const card = document.createElement('div');
-    card.style.cssText = 'background:#fff;border-radius:18px;padding:16px 18px;display:flex;align-items:center;gap:14px;box-shadow:0 2px 12px rgba(0,0,0,0.06)';
+    card.className = 'admin-user-card';
     card.innerHTML = `
       <div style="width:40px;height:40px;border-radius:50%;background:linear-gradient(180deg,#111,#444);display:flex;align-items:center;justify-content:center;flex-shrink:0">
         <svg width="20" height="20" fill="none" stroke="#fff" stroke-width="2" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
       </div>
-      <div style="flex:1;font-size:15px;font-weight:600;color:#111">${u.user}</div>
-      <button onclick="abrirEditarUsuario(${idx})" style="width:34px;height:34px;border-radius:10px;border:1.5px solid #e0e0e0;background:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer;margin-right:6px">
-        <svg width="15" height="15" fill="none" stroke="#111" stroke-width="2" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+      <div style="flex:1;font-size:15px;font-weight:600;color:var(--text)">${u.user}</div>
+      <button onclick="abrirEditarUsuario(${idx})" class="admin-icon-btn" style="margin-right:6px">
+        <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
       </button>
-      <button onclick="eliminarUsuario(${idx})" style="width:34px;height:34px;border-radius:10px;border:1.5px solid #e0e0e0;background:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer">
-        <svg width="15" height="15" fill="none" stroke="#111" stroke-width="2" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
+      <button onclick="eliminarUsuario(${idx})" class="admin-icon-btn">
+        <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
       </button>`;
     container.appendChild(card);
   });
@@ -5233,20 +5285,20 @@ function _mostrarResumenSimple(titulo, subtitulo, campos, onConfirmar, successMs
   document.getElementById('resumen-mov-sub').textContent     = subtitulo;
   const body = document.getElementById('resumen-mov-body');
   const rows = campos.map((c)=>{
-    const divider = c.resaltar ? '<div style="height:1px;background:#e8e8e8;margin:2px 0"></div>' : '';
+    const divider = c.resaltar ? '<div style="height:1px;background:var(--border);margin:2px 0"></div>' : '';
     const labelStyle = c.resaltar
-      ? 'font-size:14px;color:#111;font-weight:600'
-      : 'font-size:13px;color:#888;font-weight:500';
+      ? 'font-size:14px;color:var(--text);font-weight:600'
+      : 'font-size:13px;color:var(--text-dim);font-weight:500';
     const valorStyle = c.resaltar
-      ? 'font-size:20px;font-weight:800;color:#111;text-align:right'
-      : 'font-size:14px;font-weight:400;color:#111;text-align:right;max-width:180px';
+      ? 'font-size:20px;font-weight:800;color:var(--text);text-align:right'
+      : 'font-size:14px;font-weight:400;color:var(--text);text-align:right;max-width:180px';
     return `${divider}
       <div style="display:flex;justify-content:space-between;align-items:center">
         <span style="${labelStyle}">${c.campo}</span>
         <span style="${valorStyle}">${c.valor}</span>
       </div>`;
   }).join('');
-  body.innerHTML = `<div style="background:#f5f5f5;border-radius:16px;padding:16px 18px;display:flex;flex-direction:column;gap:10px">${rows}</div>`;
+  body.innerHTML = `<div style="background:var(--card-bg-soft);border-radius:16px;padding:16px 18px;display:flex;flex-direction:column;gap:10px">${rows}</div>`;
   window._resumenMovOnConfirmar = onConfirmar;
   window._resumenMovSuccessMsg = successMsg || 'Guardado';
   window._resumenMovEsEdicion = false;
@@ -5259,11 +5311,11 @@ function _mostrarResumenMovimiento(titulo, subtitulo, cambios, onConfirmar, succ
   const body = document.getElementById('resumen-mov-body');
   body.innerHTML = cambios.map(c=>`
     <div style="margin-bottom:12px">
-      <div style="font-size:11px;font-weight:700;color:#aaa;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:6px">${c.campo}</div>
+      <div style="font-size:11px;font-weight:700;color:var(--text-dim);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:6px">${c.campo}</div>
       <div style="display:flex;align-items:center;gap:8px">
-        <div style="flex:1;background:#f5f5f5;border-radius:8px;padding:8px 10px;font-size:13px;color:#888;text-decoration:none">${c.antes}</div>
-        <svg width="14" height="14" fill="none" stroke="#111" stroke-width="2" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
-        <div style="flex:1;background:linear-gradient(180deg,#111,#444);border-radius:8px;padding:8px 10px;font-size:13px;color:#fff;font-weight:600">${c.despues}</div>
+        <div style="flex:1;background:var(--card-bg-soft);border-radius:8px;padding:8px 10px;font-size:13px;color:var(--text-dim);text-decoration:none">${c.antes}</div>
+        <svg width="14" height="14" fill="none" stroke="currentColor" style="color:var(--text-dim);flex-shrink:0" stroke-width="2" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
+        <div style="flex:1;background:linear-gradient(180deg,var(--card-bg-soft),var(--bg));border:1px solid var(--border);border-radius:8px;padding:8px 10px;font-size:13px;color:var(--text);font-weight:600">${c.despues}</div>
       </div>
     </div>`).join('');
   window._resumenMovOnConfirmar = onConfirmar;
@@ -11234,8 +11286,14 @@ window.confirmarEliminarPerfil = async function(){
     </div>
     <div class="success-title">¿Desea eliminar "<span id="admin-confirm-nombre"></span>"?</div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:20px">
-      <button onclick="cancelarEliminarUsuario()" style="padding:12px;border-radius:12px;border:1.5px solid #e0e0e0;background:#fff;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;color:#111">Cancelar</button>
-      <button onclick="confirmarEliminarUsuario()" class="hold-btn" style="padding:12px;border-radius:12px;background:linear-gradient(180deg,#111,#444);color:#fff;border:none;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit">Eliminar</button>
+      <button onclick="cancelarEliminarUsuario()" class="btn-flat-cancel" style="padding:12px;font-size:14px;border-radius:12px">
+        <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        Cancelar
+      </button>
+      <button onclick="confirmarEliminarUsuario()" class="hold-btn btn-flat-confirm" style="padding:12px;font-size:14px;border-radius:12px">
+        <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/></svg>
+        <span class="hold-label">Eliminar</span>
+      </button>
     </div>
   </div>
 </div>
@@ -11830,22 +11888,22 @@ document.addEventListener('DOMContentLoaded', function(){
   <div class="modal" onclick="event.stopPropagation()" style="padding-bottom:28px">
     <div class="modal-handle"></div>
     <div style="text-align:center;margin-bottom:18px">
-      <div style="width:52px;height:52px;border-radius:50%;background:#f5f5f5;display:flex;align-items:center;justify-content:center;margin:0 auto 12px">
-        <svg width="24" height="24" fill="none" stroke="#111" stroke-width="2" viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+      <div style="width:52px;height:52px;border-radius:50%;background:var(--icon-bg);display:flex;align-items:center;justify-content:center;margin:0 auto 12px">
+        <svg width="24" height="24" fill="none" stroke="currentColor" style="color:var(--text)" stroke-width="2" viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
       </div>
-      <div id="resumen-mov-titulo" style="font-size:18px;font-weight:800;color:#111;margin-bottom:4px">¿Son correctos los cambios?</div>
-      <div id="resumen-mov-sub" style="font-size:13px;color:#aaa">Revisa los cambios antes de guardar</div>
+      <div id="resumen-mov-titulo" style="font-size:18px;font-weight:800;color:var(--text);margin-bottom:4px">¿Son correctos los cambios?</div>
+      <div id="resumen-mov-sub" style="font-size:13px;color:var(--text-dim)">Revisa los cambios antes de guardar</div>
 
     </div>
     <div id="resumen-mov-body" style="margin-bottom:20px"></div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
-      <button onclick="_corregirResumenMovimiento()"
-        style="padding:14px;border-radius:12px;border:1.5px solid #e0e0e0;background:#fff;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit;color:#111">
+      <button onclick="_corregirResumenMovimiento()" class="btn-flat-cancel">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
         Corregir
       </button>
-      <button onclick="_confirmarResumenMovimiento()" class="hold-btn"
-        style="padding:14px;border-radius:12px;background:linear-gradient(180deg,#111,#444);color:#fff;border:none;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit">
-        Confirmar
+      <button onclick="_confirmarResumenMovimiento()" class="hold-btn btn-flat-confirm">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+        <span class="hold-label">Confirmar</span>
       </button>
     </div>
   </div>
