@@ -292,12 +292,37 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 #login-toast .lt-text{font-size:14px;font-weight:600;color:#fff;white-space:nowrap}
 
 /* ── Login success overlay ── */
-#login-success-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.35);z-index:10000;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity 0.25s}
-#login-success-overlay.show{opacity:1;pointer-events:all}
-#login-success-box{background:#fff;border-radius:20px;padding:28px 32px;text-align:center;width:220px;box-shadow:0 12px 40px rgba(0,0,0,0.15);transform:scale(0.88);transition:transform 0.3s cubic-bezier(0.34,1.3,0.64,1)}
+#login-success-overlay{position:fixed;inset:0;background:#f5f5f5;z-index:10000;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity 0.25s}
+#login-success-overlay.show{opacity:1;pointer-events:none}
+#login-success-box{background:transparent;box-shadow:none;padding:0;text-align:center;width:220px;transform:scale(0.88);transition:transform 0.3s cubic-bezier(0.34,1.3,0.64,1)}
 #login-success-overlay.show #login-success-box{transform:scale(1)}
-#login-success-icon{width:52px;height:52px;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 14px}
+#login-success-icon{width:52px;height:52px;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 14px;position:relative}
 #login-success-title{font-size:16px;font-weight:700;color:#111}
+#login-success-overlay.show #login-success-icon{animation:sIconPop .7s cubic-bezier(.34,1.56,.64,1) both}
+#login-success-overlay.show #login-success-icon.icon-error{animation:sIconPop .7s cubic-bezier(.34,1.56,.64,1) both, eIconShake .9s ease-in-out .55s both}
+#login-success-overlay.show #login-success-icon.icon-error::before{
+  content:'';position:absolute;inset:-6px;border-radius:50%;
+  border:3px solid #111;animation:sRingPulse 1.1s ease-out .2s both;
+}
+#login-success-overlay.show #login-success-icon.icon-error::after{
+  content:'';position:absolute;inset:-6px;border-radius:50%;
+  border:3px solid #999;animation:sRingPulse 1.1s ease-out .45s both;
+}
+#login-success-overlay.show #login-success-icon svg *{stroke-dasharray:24;stroke-dashoffset:24;animation:sCheckDraw .5s ease-out .5s forwards}
+#login-success-overlay.show #login-success-title{opacity:0;animation:sTextIn .6s ease-out .8s both}
+
+@keyframes eIconShake{
+  0%,100%{transform:translateX(0) rotate(0deg)}
+  10%{transform:translateX(-7px) rotate(-9deg)}
+  20%{transform:translateX(7px) rotate(9deg)}
+  30%{transform:translateX(-6px) rotate(-7deg)}
+  40%{transform:translateX(6px) rotate(7deg)}
+  50%{transform:translateX(-4px) rotate(-5deg)}
+  60%{transform:translateX(4px) rotate(5deg)}
+  70%{transform:translateX(-2px) rotate(-3deg)}
+  80%{transform:translateX(2px) rotate(3deg)}
+  90%{transform:translateX(-1px) rotate(-1deg)}
+}
 
 .success-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.4);z-index:9999;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity 0.3s}
 .success-overlay.show{opacity:1;pointer-events:all}
@@ -3295,18 +3320,23 @@ window.showLoginSuccess = function(tipo, titulo, callback){
   if(!ov) return;
 
   title.textContent = titulo;
+  icon.classList.remove('icon-error');
+  icon.style.background = '#111';
   if(tipo === 'ok'){
-    icon.style.background = '#111';
     icon.innerHTML = '<svg width="22" height="22" fill="none" stroke="#fff" stroke-width="2.5" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>';
   } else {
-    icon.style.background = '#111';
+    icon.classList.add('icon-error');
     icon.innerHTML = '<svg width="22" height="22" fill="none" stroke="#fff" stroke-width="2.5" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>';
   }
+  // Reiniciar animaciones aunque el overlay ya estuviera visible momentos antes
+  ov.classList.remove('show');
+  void ov.offsetWidth; // fuerza reflow para reiniciar las keyframes
   ov.classList.add('show');
+  const duracion = tipo === 'ok' ? 1600 : 2400;
   setTimeout(()=>{
     ov.classList.remove('show');
     if(callback) setTimeout(callback, 250);
-  }, 1600);
+  }, duracion);
 };
 
 window.showSuccess = function showSuccess(titulo='Movimiento guardado', subtitulo='Tu gasto fue registrado correctamente'){
@@ -3759,7 +3789,16 @@ window.guardarNuevaPass = async function(){
   const lista = getUsuarios();
   const idx = lista.findIndex(u=>u.user===loginUsuarioActivo);
   if(idx<0){ errEl.textContent = 'Error al obtener credenciales'; return; }
-  if(lista[idx].hash !== hashSimple(lista[idx].user + actual)){ errEl.textContent = 'La contraseña actual es incorrecta'; return; }
+  if(lista[idx].hash !== hashSimple(lista[idx].user + actual)){
+    errEl.textContent = 'La contraseña actual es incorrecta';
+    const passActualEl = document.getElementById('pass-actual');
+    passActualEl.classList.remove('shake');
+    void passActualEl.offsetWidth;
+    passActualEl.classList.add('shake');
+    passActualEl.style.borderColor = '#e53935';
+    setTimeout(()=>{ passActualEl.style.borderColor = ''; passActualEl.classList.remove('shake'); }, 600);
+    return;
+  }
   if(nueva.length < 4){ errEl.textContent = 'La nueva contraseña debe tener al menos 4 caracteres'; return; }
   if(nueva !== nueva2){ errEl.textContent = 'Las contraseñas no coinciden'; return; }
 
@@ -3803,8 +3842,15 @@ window.cerrarModalAdmin = function(e){
 
 window.confirmarAdmin = function(){
   const pass = document.getElementById('admin-pass-inp').value;
+  const passEl = document.getElementById('admin-pass-inp');
   if(hashSimple('administrador'+pass) !== ADMIN_HASH){
     document.getElementById('admin-pass-error').textContent = 'Contraseña incorrecta';
+    // Shake en el campo
+    passEl.classList.remove('shake');
+    void passEl.offsetWidth;
+    passEl.classList.add('shake');
+    passEl.style.borderColor = '#e53935';
+    setTimeout(()=>{ passEl.style.borderColor = ''; passEl.classList.remove('shake'); }, 600);
     return;
   }
   document.getElementById('modal-admin-pass').classList.remove('open');
