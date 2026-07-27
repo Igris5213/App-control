@@ -17,6 +17,46 @@
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;outline:none;user-select:none;-webkit-user-select:none;-moz-user-select:none;-ms-user-select:none;-webkit-touch-callout:none}
 input,textarea{-webkit-user-select:text;user-select:text;-webkit-touch-callout:default}
 
+/* ── Variables de tema (claro / oscuro) ── */
+:root{
+  --bg:#f5f5f5;
+  --card-bg:#ffffff;
+  --card-bg-soft:#fbfbfb;
+  --text:#111111;
+  --text-dim:#888888;
+  --border:#e0e0e0;
+  --input-bg:#ffffff;
+  --icon-bg:#f0f0f0;
+  --nav-bg:rgba(238,238,238,0.96);
+  --dot-inactive:#cccccc;
+}
+html.dark-mode{
+  --bg:#121212;
+  --card-bg:#1e1e1e;
+  --card-bg-soft:#232323;
+  --text:#f0f0f0;
+  --text-dim:#999999;
+  --border:#3a3a3a;
+  --input-bg:#242424;
+  --icon-bg:#2a2a2a;
+  --nav-bg:rgba(30,30,30,0.9);
+  --dot-inactive:#4a4a4a;
+}
+html.dark-mode body{background:var(--bg)}
+
+/* ── Botón de modo oscuro (login) ── */
+#dark-mode-toggle{
+  position:absolute;top:20px;right:20px;width:44px;height:44px;border-radius:50%;
+  background:var(--card-bg);border:1.5px solid var(--border);cursor:pointer;
+  display:flex;align-items:center;justify-content:center;color:var(--text);
+  box-shadow:0 2px 8px rgba(0,0,0,0.08);transition:transform 0.15s ease,background 0.2s ease;z-index:10;
+}
+#dark-mode-toggle:active{transform:scale(0.92)}
+#dark-mode-toggle svg{transition:transform 0.4s ease,opacity 0.3s ease}
+#dark-mode-toggle .icon-sun{position:absolute;opacity:1;transform:rotate(0deg) scale(1)}
+#dark-mode-toggle .icon-moon{position:absolute;opacity:0;transform:rotate(-90deg) scale(0.5)}
+html.dark-mode #dark-mode-toggle .icon-sun{opacity:0;transform:rotate(90deg) scale(0.5)}
+html.dark-mode #dark-mode-toggle .icon-moon{opacity:1;transform:rotate(0deg) scale(1)}
 
 /* Indicador pull-to-refresh login */
 #ptr-indicator{
@@ -30,30 +70,31 @@ input,textarea{-webkit-user-select:text;user-select:text;-webkit-touch-callout:d
   border-radius:50%;animation:ptr-spin 0.7s linear infinite;
 }
 @keyframes ptr-spin{to{transform:rotate(360deg)}}
-body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f5f5f5;min-height:100vh;display:flex;justify-content:center}
-.app{width:100%;max-width:430px;background:#f5f5f5;min-height:100vh;display:flex;flex-direction:column;position:relative}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg);min-height:100vh;display:flex;justify-content:center;transition:background 0.25s ease}
+.app{width:100%;max-width:430px;background:var(--bg);min-height:100vh;display:flex;flex-direction:column;position:relative}
+
 
 /* ── PANTALLAS DE ONBOARDING ── */
-.screen{position:fixed;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;z-index:200;padding:24px 50px 90px;background:#f5f5f5;overflow-y:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+.screen{position:fixed;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;z-index:200;padding:24px 50px 90px;background:var(--bg);overflow-y:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;transition:background 0.25s ease}
 .screen::-webkit-scrollbar{display:none}
 #screen-cuentas{padding-top:16px}
 .screen.hidden{display:none}
 
 /* Bienvenida */
 .welcome-icon{width:90px;height:90px;border-radius:28px;background:linear-gradient(180deg,#111,#444);display:flex;align-items:center;justify-content:center;margin-bottom:28px;box-shadow:0 8px 32px rgba(0,0,0,0.2)}
-.welcome-title{font-size:28px;font-weight:800;color:#111;text-align:center;margin-bottom:12px}
-.welcome-sub{font-size:15px;color:#888;text-align:center;line-height:1.5;margin-bottom:48px}
+.welcome-title{font-size:28px;font-weight:800;color:var(--text);text-align:center;margin-bottom:12px}
+.welcome-sub{font-size:15px;color:var(--text-dim);text-align:center;line-height:1.5;margin-bottom:48px}
 .primary-btn{width:100%;padding:16px;border-radius:14px;background:linear-gradient(180deg,#111,#444);color:#fff;border:none;font-size:16px;font-weight:700;cursor:pointer;font-family:inherit;margin-bottom:12px}
 .primary-btn:active{transform:scale(0.98)}
 
 /* Formularios onboarding */
-.ob-card{width:100%;max-width:390px;background:#fff;border-radius:24px;padding:28px 24px;box-shadow:0 8px 32px rgba(0,0,0,0.12)}
+.ob-card{width:100%;max-width:390px;background:var(--card-bg);border-radius:24px;padding:28px 24px;box-shadow:0 8px 32px rgba(0,0,0,0.12)}
 .ob-step{font-size:12px;font-weight:600;color:#444;text-transform:uppercase;letter-spacing:0.1em;margin-bottom:8px}
-.ob-title{font-size:22px;font-weight:800;color:#111;margin-bottom:6px}
-.ob-sub{font-size:14px;color:#888;margin-bottom:24px}
+.ob-title{font-size:22px;font-weight:800;color:var(--text);margin-bottom:6px}
+.ob-sub{font-size:14px;color:var(--text-dim);margin-bottom:24px}
 .ob-field{margin-bottom:16px}
-.ob-label{font-size:13px;font-weight:600;color:#555;margin-bottom:6px}
-.ob-input{width:100%;padding:13px 14px;border-radius:12px;border:1.5px solid #e0e0e0;font-size:15px;font-family:inherit;outline:none;color:#111;background:#fff}
+.ob-label{font-size:13px;font-weight:600;color:var(--text-dim);margin-bottom:6px}
+.ob-input{width:100%;padding:13px 14px;border-radius:12px;border:1.5px solid var(--border);font-size:15px;font-family:inherit;outline:none;color:var(--text);background:var(--input-bg)}
 .ob-input:focus{border-color:#111}
 .ob-prefix-wrap{position:relative}
 .ob-prefix{position:absolute;left:14px;top:50%;transform:translateY(-50%);font-size:15px;color:#666}
@@ -77,7 +118,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .ob-btn-volver{width:100%;padding:10px;border-radius:12px;background:none;border:none;color:#aaa;font-size:14px;font-weight:500;cursor:pointer;font-family:inherit}
 
 /* Botón selector banco */
-.banco-selector-btn{width:100%;padding:13px 14px;border-radius:12px;border:1.5px solid #e0e0e0;background:#fff;font-size:15px;font-family:inherit;color:#999;cursor:pointer;display:flex;align-items:center;justify-content:space-between;text-align:left;transition:border-color 0.2s;box-shadow:0 1px 4px rgba(0,0,0,0.06)}
+.banco-selector-btn{width:100%;padding:13px 14px;border-radius:12px;border:1.5px solid var(--border);background:var(--input-bg);font-size:15px;font-family:inherit;color:#999;cursor:pointer;display:flex;align-items:center;justify-content:space-between;text-align:left;transition:border-color 0.2s;box-shadow:0 1px 4px rgba(0,0,0,0.06)}
 .banco-selector-btn:hover{border-color:#111}
 .banco-selector-btn.selected{color:#111;border-color:#111}
 
@@ -100,10 +141,10 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 #screen-login{display:flex}
 .main-app{display:none;flex-direction:column;width:100%}
 .main-app.visible{display:flex;flex-direction:column;min-height:100vh;width:100%}
-.topbar{background:#f5f5f5;padding:16px 20px 8px;display:flex;align-items:center;justify-content:center;position:relative}
-.top-section{background:#f5f5f5;width:100%;padding:0 50px;box-sizing:border-box}
-.topbar-title{font-size:20px;font-weight:700;color:#111;text-align:center}
-.topbar-settings{position:absolute;right:20px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:#888;padding:4px}
+.topbar{background:var(--bg);padding:16px 20px 8px;display:flex;align-items:center;justify-content:center;position:relative}
+.top-section{background:var(--bg);width:100%;padding:0 50px;box-sizing:border-box}
+.topbar-title{font-size:20px;font-weight:700;color:var(--text);text-align:center}
+.topbar-settings{position:absolute;right:20px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--text-dim);padding:4px}
 
 /* CARRUSEL */
 .cards-outer{
@@ -160,13 +201,13 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 
 /* DOTS */
 .dots{display:flex;justify-content:center;gap:7px;margin:14px 0 6px}
-.dot{width:8px;height:8px;border-radius:50%;background:#ccc;transition:all 0.25s;cursor:pointer}
-.dot.active{background:#111;width:22px;border-radius:4px}
+.dot{width:8px;height:8px;border-radius:50%;background:var(--dot-inactive);transition:all 0.25s;cursor:pointer}
+.dot.active{background:var(--text);width:22px;border-radius:4px}
 
 /* RECUADROS */
-.section-card{background:#fff;border-radius:16px;margin:0 50px 12px;padding:16px;box-shadow:0 1px 6px rgba(0,0,0,0.06)}
+.section-card{background:var(--card-bg);border-radius:16px;margin:0 50px 12px;padding:16px;box-shadow:0 1px 6px rgba(0,0,0,0.06)}
 .btn-registro{transition:opacity 0.15s,transform 0.15s}.btn-registro:active{opacity:0.75;transform:scale(0.98)}
-.section-card-title{font-size:13px;font-weight:700;color:#aaa;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:12px}
+.section-card-title{font-size:13px;font-weight:700;color:var(--text-dim);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:12px}
 
 /* BOTÓN */
 .save-wrap{padding:0}
@@ -174,9 +215,9 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .save-btn-main:active{transform:scale(0.98)}
 
 /* MOVIMIENTOS */
-.mov-section{padding:0 0 40px;background:#f5f5f5}
-.mov-title{font-size:13px;font-weight:700;color:#aaa;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:12px}
-.mov-item{background:#f5f5f5;border-radius:10px;padding:10px 8px;margin-bottom:4px;display:flex;align-items:center;gap:12px;border-bottom:1px solid #eee;cursor:pointer;transition:background 0.2s,box-shadow 0.2s,transform 0.15s}
+.mov-section{padding:0 0 40px;background:var(--bg)}
+.mov-title{font-size:13px;font-weight:700;color:var(--text-dim);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:12px}
+.mov-item{background:var(--bg);border-radius:10px;padding:10px 8px;margin-bottom:4px;display:flex;align-items:center;gap:12px;border-bottom:1px solid var(--border);cursor:pointer;transition:background 0.2s,box-shadow 0.2s,transform 0.15s}
 .mov-item:last-child{border-bottom:none;margin-bottom:0}
 .mov-item.selected{background:linear-gradient(180deg,#111,#444);border-bottom-color:transparent;box-shadow:0 4px 14px rgba(0,0,0,0.18);transform:scale(1.01);border-radius:12px;z-index:1;position:relative;color:#fff}
 .mov-item.selected .mov-date{color:#fff !important}
@@ -187,15 +228,16 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .mov-item.selected .edit-btn{color:#fff !important}
 .mov-item.selected .del-btn2{color:#fff !important}
 .mov-item.selected .edit-btn svg,.mov-item.selected .del-btn2 svg{stroke:#fff}
-.mov-icon{width:38px;height:38px;border-radius:50%;background:#f0f0f0;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.mov-icon{width:38px;height:38px;border-radius:50%;background:var(--icon-bg);display:flex;align-items:center;justify-content:center;flex-shrink:0}
 .mov-info{flex:1;min-width:0}
-.mov-date{font-size:13px;color:#666;font-weight:500}
-.mov-amount{font-size:15px;font-weight:700;color:#111;margin-right:4px;white-space:nowrap}
+.mov-name{color:var(--text)}
+.mov-date{font-size:13px;color:var(--text-dim);font-weight:500}
+.mov-amount{font-size:15px;font-weight:700;color:var(--text);margin-right:4px;white-space:nowrap}
 .mov-actions{display:flex;gap:4px;flex-shrink:0}
 .edit-btn,.del-btn2{background:none;border:none;cursor:pointer;padding:6px;border-radius:8px}
-.edit-btn{color:#444}.del-btn2{color:#111}
-.edit-btn:hover{background:#f0f0f0}.del-btn2:hover{background:#f0f0f0}
-.empty-mov{text-align:center;color:#ccc;font-size:14px;padding:2rem 0}
+.edit-btn{color:var(--text-dim)}.del-btn2{color:var(--text)}
+.edit-btn:hover{background:var(--icon-bg)}.del-btn2:hover{background:var(--icon-bg)}
+.empty-mov{text-align:center;color:var(--text-dim);font-size:14px;padding:2rem 0}
 
 /* Animaciones flecha movimientos débito */
 @keyframes arrowUp{
@@ -214,7 +256,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 /* MODALES */
 .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.4);z-index:300;display:flex;align-items:flex-end;justify-content:center;opacity:0;pointer-events:none;transition:opacity 0.3s}
 .modal-overlay.open{opacity:1;pointer-events:all}
-.modal{background:#fff;border-radius:24px;padding:24px 20px 40px;width:100%;max-width:430px;transform:translateY(100%);transition:transform 0.3s;box-shadow:0 -4px 32px rgba(0,0,0,0.12)}
+.modal{background:var(--card-bg);border-radius:24px;padding:24px 20px 40px;width:100%;max-width:430px;transform:translateY(100%);transition:transform 0.3s,background 0.25s ease;box-shadow:0 -4px 32px rgba(0,0,0,0.12)}
 .modal-overlay.open .modal{transform:translateY(0)}
 #modal-confirm-mov .modal{transform:scale(0.9)}
 #modal-confirm-mov.open .modal{transform:scale(1)}
@@ -230,12 +272,12 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .dp-item.sel{color:#fff!important;font-size:18px;font-weight:700}
 .scroll-item.sel{color:#fff !important;font-size:17px;font-weight:700}
 #scroll-meses-cont::-webkit-scrollbar{display:none}
-.modal-handle{width:40px;height:4px;background:#e0e0e0;border-radius:2px;margin:0 auto 20px}
-.modal-title{font-size:18px;font-weight:700;color:#111;margin-bottom:20px;display:flex;align-items:center;gap:10px}
-.field-label{font-size:13px;color:#666;margin-bottom:6px;font-weight:500}
+.modal-handle{width:40px;height:4px;background:var(--border);border-radius:2px;margin:0 auto 20px}
+.modal-title{font-size:18px;font-weight:700;color:var(--text);margin-bottom:20px;display:flex;align-items:center;gap:10px}
+.field-label{font-size:13px;color:var(--text-dim);margin-bottom:6px;font-weight:500}
 .field-wrap{margin-bottom:14px}
-.inp{width:100%;padding:12px 14px;border-radius:10px;border:1.5px solid #e0e0e0;font-size:15px;background:#fff;color:#111;font-family:inherit;outline:none;box-shadow:0 1px 4px rgba(0,0,0,0.06)}
-.inp:focus{border-color:#111}
+.inp{width:100%;padding:12px 14px;border-radius:10px;border:1.5px solid var(--border);font-size:15px;background:var(--input-bg);color:var(--text);font-family:inherit;outline:none;box-shadow:0 1px 4px rgba(0,0,0,0.06)}
+.inp:focus{border-color:var(--text)}
 .amount-wrap{position:relative}
 .amount-prefix{position:absolute;left:14px;top:50%;transform:translateY(-50%);color:#666;font-size:15px}
 .amount-inp{width:100%;padding:12px 14px 12px 28px;border-radius:10px;border:1.5px solid #e0e0e0;font-size:16px;background:#fff;color:#111;font-family:inherit;outline:none;box-shadow:0 1px 4px rgba(0,0,0,0.06)}
@@ -256,16 +298,16 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 /* ── Tarjetas de usuario en login (recuadros con profundidad) ── */
 .login-user-card{
   width:100%;padding:15px 18px;border-radius:18px;
-  background:linear-gradient(180deg,#ffffff,#fbfbfb);
-  border:1px solid rgba(0,0,0,0.045);
-  box-shadow:0 1px 2px rgba(0,0,0,0.04),0 8px 20px -4px rgba(0,0,0,0.10),inset 0 1px 0 rgba(255,255,255,0.9);
-  font-size:15px;font-weight:600;color:#111;cursor:pointer;font-family:inherit;
+  background:linear-gradient(180deg,var(--card-bg),var(--card-bg-soft));
+  border:1px solid var(--border);
+  box-shadow:0 1px 2px rgba(0,0,0,0.04),0 8px 20px -4px rgba(0,0,0,0.10),inset 0 1px 0 rgba(255,255,255,0.05);
+  font-size:15px;font-weight:600;color:var(--text);cursor:pointer;font-family:inherit;
   display:flex;align-items:center;gap:14px;text-align:left;
-  transition:transform 0.15s ease,box-shadow 0.15s ease;
+  transition:transform 0.15s ease,box-shadow 0.15s ease,background 0.25s ease,border-color 0.25s ease;
 }
 .login-user-card:active{
   transform:scale(0.965);
-  box-shadow:0 1px 2px rgba(0,0,0,0.05),0 3px 8px rgba(0,0,0,0.08),inset 0 1px 0 rgba(255,255,255,0.9);
+  box-shadow:0 1px 2px rgba(0,0,0,0.05),0 3px 8px rgba(0,0,0,0.08),inset 0 1px 0 rgba(255,255,255,0.05);
 }
 .login-user-avatar{
   width:42px;height:42px;border-radius:50%;flex-shrink:0;
@@ -277,10 +319,10 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .login-user-card:active .login-user-arrow{transform:translateX(2px);color:#bbb}
 .login-add-user-btn{
   width:100%;padding:15px 20px;border-radius:18px;
-  border:1.5px dashed #dcdcdc;background:#fafafa;
-  font-size:15px;font-weight:600;color:#888;cursor:pointer;font-family:inherit;
+  border:1.5px dashed var(--border);background:var(--card-bg-soft);
+  font-size:15px;font-weight:600;color:var(--text-dim);cursor:pointer;font-family:inherit;
   display:flex;align-items:center;justify-content:center;gap:8px;
-  transition:transform 0.15s ease,border-color 0.15s ease,background 0.15s ease;
+  transition:transform 0.15s ease,border-color 0.15s ease,background 0.25s ease;
 }
 .login-add-user-btn:active{transform:scale(0.97);border-color:#bbb;background:#f2f2f2}
 
@@ -292,12 +334,12 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 #login-toast .lt-text{font-size:14px;font-weight:600;color:#fff;white-space:nowrap}
 
 /* ── Login success overlay ── */
-#login-success-overlay{position:fixed;inset:0;background:#f5f5f5;z-index:10000;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity 0.25s}
+#login-success-overlay{position:fixed;inset:0;background:var(--bg);z-index:10000;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity 0.25s}
 #login-success-overlay.show{opacity:1;pointer-events:none}
 #login-success-box{background:transparent;box-shadow:none;padding:0;text-align:center;width:220px;transform:scale(0.88);transition:transform 0.3s cubic-bezier(0.34,1.3,0.64,1)}
 #login-success-overlay.show #login-success-box{transform:scale(1)}
 #login-success-icon{width:52px;height:52px;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 14px;position:relative}
-#login-success-title{font-size:16px;font-weight:700;color:#111}
+#login-success-title{font-size:16px;font-weight:700;color:var(--text)}
 #login-success-overlay.show #login-success-icon{animation:sIconPop .7s cubic-bezier(.34,1.56,.64,1) both}
 #login-success-overlay.show #login-success-icon.icon-error{animation:sIconPop .7s cubic-bezier(.34,1.56,.64,1) both, eIconShake .9s ease-in-out .55s both}
 #login-success-overlay.show #login-success-icon.icon-error::before{
@@ -325,24 +367,24 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 }
 
 /* ── Login loading overlay (carga de datos tras contraseña correcta) ── */
-#login-loading-overlay{position:fixed;inset:0;background:#f5f5f5;z-index:10000;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity 0.25s}
+#login-loading-overlay{position:fixed;inset:0;background:var(--bg);z-index:10000;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity 0.25s}
 #login-loading-overlay.show{opacity:1;pointer-events:all}
 #login-loading-box{text-align:center}
 #login-loading-ring-wrap{width:96px;height:96px;position:relative;margin:0 auto 22px;display:flex;align-items:center;justify-content:center}
 #login-loading-icon{width:56px;height:56px;display:flex;align-items:center;justify-content:center;z-index:2;position:relative;animation:llPulse 1.4s ease-in-out infinite}
-#login-loading-text{font-size:15px;font-weight:700;color:#111}
+#login-loading-text{font-size:15px;font-weight:700;color:var(--text)}
 
 /* Anillos tipo radar que se expanden y desvanecen */
-.ll-ping{position:absolute;inset:0;border-radius:50%;border:2px solid #111;opacity:0;animation:llPing 2.4s ease-out infinite}
+.ll-ping{position:absolute;inset:0;border-radius:50%;border:2px solid var(--text);opacity:0;animation:llPing 2.4s ease-out infinite}
 .ll-ping-2{animation-delay:.8s}
 .ll-ping-3{animation-delay:1.6s}
 
 /* Puntos orbitando alrededor del ícono */
 #login-loading-orbit{position:absolute;inset:0;animation:llOrbit 3s linear infinite}
-.ll-orbit-dot{position:absolute;border-radius:50%;background:#111}
+.ll-orbit-dot{position:absolute;border-radius:50%;background:var(--text)}
 .ll-orbit-dot-1{top:-3px;left:50%;width:7px;height:7px;margin-left:-3.5px}
-.ll-orbit-dot-2{bottom:6px;right:-3px;width:6px;height:6px;background:#555}
-.ll-orbit-dot-3{bottom:6px;left:-3px;width:5px;height:5px;background:#999}
+.ll-orbit-dot-2{bottom:6px;right:-3px;width:6px;height:6px;background:var(--text-dim)}
+.ll-orbit-dot-3{bottom:6px;left:-3px;width:5px;height:5px;background:var(--text-dim)}
 
 @keyframes llPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.08)}}
 @keyframes llPing{0%{transform:scale(.6);opacity:.6}100%{transform:scale(1.45);opacity:0}}
@@ -465,7 +507,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
   width:calc(100% - 32px);
   max-width:420px;
   height:52px;
-  background:rgba(238,238,238,0.96);
+  background:var(--nav-bg);
   backdrop-filter:blur(20px);
   -webkit-backdrop-filter:blur(20px);
   border-radius:100px;
@@ -494,7 +536,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
   outline:none;
   -webkit-tap-highlight-color:transparent;
   user-select:none;
-  color:rgba(0,0,0,0.6);
+  color:var(--text-dim);
   position:relative;
   z-index:1;
 }
@@ -528,7 +570,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
   overflow-y:auto;
   -webkit-overflow-scrolling:touch;
   z-index:150;
-  background:#f5f5f5;
+  background:var(--bg);
   z-index:150;
   display:flex;
   flex-direction:column;
@@ -575,6 +617,14 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 </style>
 </head>
 <body>
+<script>
+// Aplicar modo oscuro guardado lo antes posible (evita parpadeo blanco/negro)
+try{
+  if(localStorage.getItem('cg_dark_mode') === '1'){
+    document.documentElement.classList.add('dark-mode');
+  }
+}catch(e){}
+</script>
 <div class="toast" id="toast"></div>
 
 <!-- ══ PANTALLA 1: BIENVENIDA ══ -->
@@ -591,6 +641,12 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 
 <!-- ══ PANTALLA LOGIN ══ -->
 <div class="screen hidden" id="screen-login" style="touch-action:none">
+
+  <button id="dark-mode-toggle" onclick="toggleDarkMode()" aria-label="Modo oscuro">
+    <svg class="icon-sun" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/></svg>
+    <svg class="icon-moon" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+  </button>
+
   <div style="width:100%;max-width:390px;display:flex;flex-direction:column;align-items:center">
 
     <div class="welcome-icon" id="login-logo" style="margin-top:20px;user-select:none;-webkit-user-select:none">
@@ -1740,8 +1796,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
       <div style="width:72px;height:72px;border-radius:24px;background:linear-gradient(180deg,#111,#444);display:flex;align-items:center;justify-content:center;margin:0 auto 24px;box-shadow:0 8px 32px rgba(0,0,0,0.15)">
         <svg width="32" height="32" fill="none" stroke="#fff" stroke-width="2" viewBox="0 0 24 24"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/><line x1="5" y1="15" x2="9" y2="15"/></svg>
       </div>
-      <div style="font-size:22px;font-weight:800;color:#111;margin-bottom:8px">Sin tarjetas de crédito</div>
-      <div style="font-size:14px;color:#aaa;line-height:1.6">No agregaste ninguna tarjeta de crédito.<br>Puedes añadirla desde la pestaña de <strong style="color:#111">Perfiles</strong>.</div>
+      <div style="font-size:22px;font-weight:800;color:var(--text);margin-bottom:8px">Sin tarjetas de crédito</div>
+      <div style="font-size:14px;color:var(--text-dim);line-height:1.6">No agregaste ninguna tarjeta de crédito.<br>Puedes añadirla desde la pestaña de <strong style="color:var(--text)">Perfiles</strong>.</div>
     </div>
 
     <!-- Carrusel de tarjeta -->
@@ -3596,6 +3652,13 @@ window.confirmarLoginPass = function(){
 window.togglePassVisModal = function(){
   const inp = document.getElementById('modal-auth-pass');
   inp.type = inp.type === 'password' ? 'text' : 'password';
+}
+
+// ── Modo oscuro ──
+window.toggleDarkMode = function(){
+  const html = document.documentElement;
+  const activo = html.classList.toggle('dark-mode');
+  try{ localStorage.setItem('cg_dark_mode', activo ? '1' : '0'); }catch(e){}
 }
 
 // Modal nuevo usuario
@@ -10744,7 +10807,7 @@ window.confirmarEliminarPerfil = async function(){
         <span class="ll-orbit-dot ll-orbit-dot-3"></span>
       </div>
       <div id="login-loading-icon">
-        <svg width="30" height="30" fill="none" stroke="#111" stroke-width="2" viewBox="0 0 24 24"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
+        <svg width="30" height="30" fill="none" stroke="var(--text)" stroke-width="2" viewBox="0 0 24 24"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
       </div>
     </div>
     <div id="login-loading-text">Cargando tu información</div>
