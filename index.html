@@ -1880,7 +1880,7 @@ try{
     </div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:4px">
       <button class="btn-flat-cancel" onclick="cancelarModalMovimiento()">Cancelar</button>
-      <button class="modal-save" id="modal-save-btn" onclick="guardar()" style="margin-top:0">Guardar</button>
+      <button class="modal-save" id="modal-save-btn" onclick="guardar()" style="margin-top:0;background:linear-gradient(180deg,var(--card-bg-soft),var(--bg));color:var(--text);border:1.5px solid var(--border)">Guardar</button>
     </div>
   </div>
 </div>
@@ -3128,11 +3128,11 @@ window.openEdit = function(id){
     const MESES_E = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
     document.getElementById('inp-fecha-modal').value = mFecha.fecha;
     document.getElementById('modal-fecha-txt').textContent = parseInt(d)+' de '+MESES_E[parseInt(me)-1]+' '+a;
-    document.getElementById('modal-fecha-txt').style.color = '#111';
+    document.getElementById('modal-fecha-txt').style.color = 'var(--text)';
   } else {
     document.getElementById('inp-fecha-modal').value = '';
     document.getElementById('modal-fecha-txt').textContent = 'Seleccionar fecha';
-    document.getElementById('modal-fecha-txt').style.color = '#999';
+    document.getElementById('modal-fecha-txt').style.color = 'var(--text-dim)';
   }
   document.getElementById('modal-overlay').classList.add('open');
 }
@@ -3201,7 +3201,7 @@ window.toggleScrollFechaModal = function(){
     const f = dAnio+'-'+String(dMes).padStart(2,'0')+'-'+String(dDia).padStart(2,'0');
     document.getElementById('inp-fecha-modal').value = f;
     document.getElementById('modal-fecha-txt').textContent = dDia+' de '+MESES_ESP[dMes-1]+' '+dAnio;
-    document.getElementById('modal-fecha-txt').style.color = '#111';
+    document.getElementById('modal-fecha-txt').style.color = 'var(--text)';
   }
 };
 
@@ -3215,6 +3215,19 @@ window.closeModalOut = function(e){
 
 // ── Contexto de confirmación de movimiento ──────────
 window._confirmMovCtx = null; // 'credito' | 'debito' | 'ext'
+window._aplicarColorConfirmMov = function _aplicarColorConfirmMov(){
+  const btn = document.getElementById('confirm-mov-ok-btn');
+  if(!btn) return;
+  if(window._confirmMovCtx === 'credito' || window._confirmMovCtx === 'ext'){
+    btn.style.background = 'linear-gradient(180deg,var(--card-bg-soft),var(--bg))';
+    btn.style.color = 'var(--text)';
+    btn.style.border = '1.5px solid var(--border)';
+  } else {
+    btn.style.background = 'linear-gradient(180deg,#111,#444)';
+    btn.style.color = '#fff';
+    btn.style.border = 'none';
+  }
+}
 
 window.guardar = async function(){
   const monto = parseFloat(document.getElementById('inp-monto').value);
@@ -3317,6 +3330,7 @@ window.guardar = async function(){
 
   // Cerrar modal formulario y abrir confirmación
   document.getElementById('modal-overlay').classList.remove('open');
+  _aplicarColorConfirmMov();
   setTimeout(() => document.getElementById('modal-confirm-mov').classList.add('open'), 250);
 }
 
@@ -9664,8 +9678,8 @@ window.confirmarEliminarPerfil = async function(){
     <div class="field-wrap">
       <div class="field-label">Banco</div>
       <div onclick="event.stopPropagation();toggleScrollBancoExt()" id="ext-banco-display"
-        style="padding:12px 14px;border-radius:12px;border:1.5px solid #e0e0e0;font-size:15px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;background:#fff">
-        <span id="ext-banco-txt" style="color:#999">Seleccionar banco...</span>
+        style="padding:12px 14px;border-radius:12px;border:1.5px solid var(--border);font-size:15px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;background:var(--input-bg)">
+        <span id="ext-banco-txt" style="color:var(--text-dim)">Seleccionar banco...</span>
         <span style="color:var(--text-dim);font-size:12px">▾</span>
       </div>
       <div id="ext-banco-scroll-wrap" onclick="event.stopPropagation()" style="display:none;margin-top:6px;background:var(--card-bg-soft);border-radius:14px;overflow:hidden">
@@ -9686,8 +9700,8 @@ window.confirmarEliminarPerfil = async function(){
     <div class="field-wrap">
       <div class="field-label">Tarjeta</div>
       <div onclick="event.stopPropagation();toggleScrollTarjetaExt()" id="ext-tarjeta-display"
-        style="padding:12px 14px;border-radius:12px;border:1.5px solid #e0e0e0;font-size:15px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;background:#fff">
-        <span id="ext-tarjeta-txt" style="color:#999">Seleccionar tarjeta...</span>
+        style="padding:12px 14px;border-radius:12px;border:1.5px solid var(--border);font-size:15px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;background:var(--input-bg)">
+        <span id="ext-tarjeta-txt" style="color:var(--text-dim)">Seleccionar tarjeta...</span>
         <span style="color:var(--text-dim);font-size:12px">▾</span>
       </div>
       <div id="ext-tarjeta-scroll-wrap" onclick="event.stopPropagation()" style="display:none;margin-top:6px;background:var(--card-bg-soft);border-radius:14px;overflow:hidden">
@@ -9726,7 +9740,7 @@ window.confirmarEliminarPerfil = async function(){
     <div class="field-wrap">
       <div class="field-label">Fecha</div>
       <div onclick="event.stopPropagation();document.getElementById('ext-tarjeta-scroll-wrap').style.display='none';toggleScrollFechaExt()" id="fecha-ext-display"
-        style="padding:12px 14px;border-radius:10px;border:1.5px solid #e5e7eb;font-size:15px;cursor:pointer;color:#999;display:flex;justify-content:space-between;align-items:center;background:#fff">
+        style="padding:12px 14px;border-radius:10px;border:1.5px solid var(--border);font-size:15px;cursor:pointer;color:var(--text-dim);display:flex;justify-content:space-between;align-items:center;background:var(--input-bg)">
         <span id="fecha-ext-txt">Seleccionar fecha</span>
         <span style="color:var(--text-dim);font-size:12px">▾</span>
       </div>
@@ -9761,8 +9775,8 @@ window.confirmarEliminarPerfil = async function(){
       <input type="hidden" id="inp-fecha-ext" />
     </div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:4px">
-      <button onclick="document.getElementById('modal-ext-overlay').classList.remove('open')" style="padding:13px;border-radius:12px;border:1.5px solid #e0e0e0;background:#fff;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit;color:#111">Cancelar</button>
-      <button class="modal-save" onclick="guardarExt()" style="margin-top:0">Guardar</button>
+      <button class="btn-flat-cancel" onclick="document.getElementById('modal-ext-overlay').classList.remove('open')">Cancelar</button>
+      <button class="modal-save" onclick="guardarExt()" style="margin-top:0;background:linear-gradient(180deg,var(--card-bg-soft),var(--bg));color:var(--text);border:1.5px solid var(--border)">Guardar</button>
     </div>
   </div>
 </div>
@@ -9953,7 +9967,7 @@ function _actualizarFechaExt(){
   const dia = String(dpDia).padStart(2,'0');
   document.getElementById('inp-fecha-ext').value = `${dpAnio}-${mes}-${dia}`;
   document.getElementById('fecha-ext-txt').textContent = `${dia} de ${MESES[dpMes-1]} ${dpAnio}`;
-  document.getElementById('fecha-ext-txt').style.color = '#111';
+  document.getElementById('fecha-ext-txt').style.color = 'var(--text)';
 }
 window.cerrarDatePicker = function(e){
   if(e.target===document.getElementById('datepicker-overlay'))
@@ -9967,7 +9981,7 @@ window.confirmarFechaExt = function(){
   document.getElementById('inp-fecha-ext').value = fechaVal;
   const mesNombre = MESES[dpMes-1];
   document.getElementById('fecha-ext-txt').textContent = `${dia} de ${mesNombre} ${dpAnio}`;
-  document.getElementById('fecha-ext-txt').style.color = '#111';
+  document.getElementById('fecha-ext-txt').style.color = 'var(--text)';
   document.getElementById('datepicker-overlay').classList.remove('open');
 }
 
@@ -10051,13 +10065,13 @@ window._selBancoExt = function(i){
   if(!banco) return;
   document.getElementById('inp-banco-ext').value = banco;
   document.getElementById('ext-banco-txt').textContent = banco;
-  document.getElementById('ext-banco-txt').style.color = '#111';
+  document.getElementById('ext-banco-txt').style.color = 'var(--text)';
   const primeraTarjeta = tarjetas.find(t => t.nombre === banco);
   if(primeraTarjeta){
     window._tarjetaExtSel = primeraTarjeta;
     document.getElementById('inp-tarjeta-ext').value = primeraTarjeta.id;
     document.getElementById('ext-tarjeta-txt').textContent = primeraTarjeta.apodo || '—';
-    document.getElementById('ext-tarjeta-txt').style.color = '#111';
+    document.getElementById('ext-tarjeta-txt').style.color = 'var(--text)';
   }
 };
 window.toggleScrollBancoExt = function(){
@@ -10194,7 +10208,7 @@ window._selTarjetaExtFilt = function(i){
   window._tarjetaExtSel = t;
   document.getElementById('inp-tarjeta-ext').value = t.id;
   document.getElementById('ext-tarjeta-txt').textContent = t.apodo || t.nombre;
-  document.getElementById('ext-tarjeta-txt').style.color = '#111';
+  document.getElementById('ext-tarjeta-txt').style.color = 'var(--text)';
 };
 
 window._selTarjetaModal = function(i){
@@ -10212,7 +10226,7 @@ window._selTarjetaExt = function(i){
   window._tarjetaExtSel = t;
   document.getElementById('inp-tarjeta-ext').value = t.id;
   document.getElementById('ext-tarjeta-txt').textContent = t.nombre + (t.apodo ? ' · ' + t.apodo : '');
-  document.getElementById('ext-tarjeta-txt').style.color = '#111';
+  document.getElementById('ext-tarjeta-txt').style.color = 'var(--text)';
 };
 
 window.toggleScrollTarjetaModal = function(){
@@ -10278,16 +10292,16 @@ window.openModalExt = function(){
   document.getElementById('inp-monto-ext').value = '';
   document.getElementById('inp-fecha-ext').value = '';
   document.getElementById('fecha-ext-txt').textContent = 'Seleccionar fecha';
-  document.getElementById('fecha-ext-txt').style.color = '#999';
+  document.getElementById('fecha-ext-txt').style.color = 'var(--text-dim)';
   document.getElementById('fecha-ext-scroll-wrap').style.display = 'none';
   document.getElementById('ext-banco-scroll-wrap').style.display = 'none';
   document.getElementById('ext-tarjeta-scroll-wrap').style.display = 'none';
   window._tarjetaExtSel = null;
   document.getElementById('inp-banco-ext').value = '';
   document.getElementById('ext-banco-txt').textContent = 'Seleccionar banco...';
-  document.getElementById('ext-banco-txt').style.color = '#999';
+  document.getElementById('ext-banco-txt').style.color = 'var(--text-dim)';
   document.getElementById('ext-tarjeta-txt').textContent = 'Seleccionar tarjeta...';
-  document.getElementById('ext-tarjeta-txt').style.color = '#999';
+  document.getElementById('ext-tarjeta-txt').style.color = 'var(--text-dim)';
   document.getElementById('inp-tarjeta-ext').value = '';
   document.getElementById('modal-ext-overlay').classList.add('open');
 };
@@ -10338,6 +10352,7 @@ window.guardarExt = async function(){
   document.getElementById('confirm-mov-concepto').textContent = concepto;
 
   document.getElementById('modal-ext-overlay').classList.remove('open');
+  _aplicarColorConfirmMov();
   setTimeout(() => document.getElementById('modal-confirm-mov').classList.add('open'), 250);
 };
 
@@ -11589,6 +11604,7 @@ window.guardarDebito = async function() {
 
   // Cerrar modal formulario y abrir confirmación
   document.getElementById('modal-debito-overlay').classList.remove('open');
+  _aplicarColorConfirmMov();
   setTimeout(() => document.getElementById('modal-confirm-mov').classList.add('open'), 250);
 };
 
@@ -11885,7 +11901,7 @@ function _actualizarFechaDebito() {
     </div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
       <button onclick="_cancelarConfirmMov()" class="btn-flat-cancel">Corregir</button>
-      <button id="confirm-mov-ok-btn" class="hold-btn" onclick="_ejecutarGuardarMov()" style="padding:14px;border-radius:12px;background:linear-gradient(180deg,#111,#444);color:#fff;border:none;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit">Confirmar</button>
+      <button id="confirm-mov-ok-btn" class="hold-btn" onclick="_ejecutarGuardarMov()" style="padding:14px;border-radius:12px;color:#fff;border:none;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit">Confirmar</button>
     </div>
   </div>
 </div>
