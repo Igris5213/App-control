@@ -324,6 +324,30 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
   90%{transform:translateX(-1px) rotate(-1deg)}
 }
 
+/* ── Login loading overlay (carga de datos tras contraseña correcta) ── */
+#login-loading-overlay{position:fixed;inset:0;background:#f5f5f5;z-index:10000;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity 0.25s}
+#login-loading-overlay.show{opacity:1;pointer-events:all}
+#login-loading-box{text-align:center}
+#login-loading-ring-wrap{width:96px;height:96px;position:relative;margin:0 auto 22px;display:flex;align-items:center;justify-content:center}
+#login-loading-icon{width:56px;height:56px;border-radius:20px;background:linear-gradient(180deg,#111,#444);display:flex;align-items:center;justify-content:center;box-shadow:0 8px 24px rgba(0,0,0,0.2);z-index:2;position:relative;animation:llPulse 1.4s ease-in-out infinite}
+#login-loading-text{font-size:15px;font-weight:700;color:#111}
+
+/* Anillos tipo radar que se expanden y desvanecen */
+.ll-ping{position:absolute;inset:0;border-radius:28px;border:2px solid #111;opacity:0;animation:llPing 2.4s ease-out infinite}
+.ll-ping-2{animation-delay:.8s}
+.ll-ping-3{animation-delay:1.6s}
+
+/* Puntos orbitando alrededor del ícono */
+#login-loading-orbit{position:absolute;inset:0;animation:llOrbit 3s linear infinite}
+.ll-orbit-dot{position:absolute;border-radius:50%;background:#111}
+.ll-orbit-dot-1{top:-3px;left:50%;width:7px;height:7px;margin-left:-3.5px}
+.ll-orbit-dot-2{bottom:6px;right:-3px;width:6px;height:6px;background:#555}
+.ll-orbit-dot-3{bottom:6px;left:-3px;width:5px;height:5px;background:#999}
+
+@keyframes llPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.08)}}
+@keyframes llPing{0%{transform:scale(.6);opacity:.6}100%{transform:scale(1.45);opacity:0}}
+@keyframes llOrbit{to{transform:rotate(360deg)}}
+
 .success-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.4);z-index:9999;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity 0.3s}
 .success-overlay.show{opacity:1;pointer-events:all}
 .success-box{background:#fff;border-radius:24px;padding:36px 32px;text-align:center;box-shadow:0 12px 48px rgba(0,0,0,0.22);transform:scale(0.85);transition:transform 0.35s cubic-bezier(0.34,1.3,0.64,1)}
@@ -3633,6 +3657,19 @@ function getCredenciales(){
   return lista.find(u=>u.user===loginUsuarioActivo) || null;
 }
 
+window.showLoginLoading = function(){
+  const ov = document.getElementById('login-loading-overlay');
+  if(!ov) return;
+  ov.classList.remove('show');
+  void ov.offsetWidth;
+  ov.classList.add('show');
+}
+
+window.hideLoginLoading = function(){
+  const ov = document.getElementById('login-loading-overlay');
+  if(ov) ov.classList.remove('show');
+}
+
 async function entrarApp(){
   // Limpiar estado del usuario anterior antes de cargar el nuevo
   perfil = null;
@@ -3645,9 +3682,18 @@ async function entrarApp(){
 
   // Actualizar uid con el usuario seleccionado
   currentUser = { uid: loginUsuarioActivo };
+
+  // Mostrar animación de carga mientras se traen los datos (mínimo 3s)
+  showLoginLoading();
+  const esperaMinima = new Promise(resolve=>setTimeout(resolve, 3000));
+
   // Cargar perfil de Firebase
   try{
-    const snap = await getDoc(doc(db,'usuarios', currentUser.uid, 'perfil','datos'));
+    const [snap] = await Promise.all([
+      getDoc(doc(db,'usuarios', currentUser.uid, 'perfil','datos')),
+      esperaMinima
+    ]);
+    hideLoginLoading();
     if(snap.exists()){
       perfil = snap.data();
       window.perfil      = perfil;
@@ -3662,6 +3708,7 @@ async function entrarApp(){
       showScreen('screen-welcome');
     }
   } catch(e){
+    hideLoginLoading();
     document.getElementById('bottom-nav').style.display = 'none';
     actualizarBotonesCancelar();
     showScreen('screen-welcome');
@@ -10681,6 +10728,26 @@ window.confirmarEliminarPerfil = async function(){
   <div id="login-success-box">
     <div id="login-success-icon"></div>
     <div id="login-success-title"></div>
+  </div>
+</div>
+
+<!-- Login loading overlay (entre contraseña correcta y bienvenida) -->
+<div id="login-loading-overlay">
+  <div id="login-loading-box">
+    <div id="login-loading-ring-wrap">
+      <span class="ll-ping ll-ping-1"></span>
+      <span class="ll-ping ll-ping-2"></span>
+      <span class="ll-ping ll-ping-3"></span>
+      <div id="login-loading-orbit">
+        <span class="ll-orbit-dot ll-orbit-dot-1"></span>
+        <span class="ll-orbit-dot ll-orbit-dot-2"></span>
+        <span class="ll-orbit-dot ll-orbit-dot-3"></span>
+      </div>
+      <div id="login-loading-icon">
+        <svg width="26" height="26" fill="none" stroke="#fff" stroke-width="2" viewBox="0 0 24 24"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
+      </div>
+    </div>
+    <div id="login-loading-text">Cargando tu información</div>
   </div>
 </div>
 
