@@ -109,6 +109,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 /* Tarjetas agregadas en onboarding */
 .added-cards{margin-bottom:16px;display:flex;flex-direction:column;gap:8px}
 .added-card-item{background:var(--bg);border-radius:14px;padding:12px 14px;display:flex;align-items:center;gap:12px;border:1.5px solid var(--border)}
+.added-card-item.card-enter{animation:cardSlideInRight .9s cubic-bezier(.22,1.1,.36,1) both}
+@keyframes cardSlideInRight{from{transform:translateX(60px);opacity:0}to{transform:translateX(0);opacity:1}}
 .added-card-icon{width:38px;height:38px;border-radius:10px;background:linear-gradient(180deg,#111,#444);display:flex;align-items:center;justify-content:center;flex-shrink:0;color:#fff}
 .added-card-body{flex:1;min-width:0}
 .added-card-name{font-size:14px;font-weight:600;color:var(--text)}
@@ -286,8 +288,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .inp{width:100%;padding:12px 14px;border-radius:10px;border:1.5px solid var(--border);font-size:15px;background:var(--input-bg);color:var(--text);font-family:inherit;outline:none;box-shadow:0 1px 4px rgba(0,0,0,0.06)}
 .inp:focus{border-color:var(--text)}
 .amount-wrap{position:relative}
-.amount-prefix{position:absolute;left:14px;top:50%;transform:translateY(-50%);color:#666;font-size:15px}
-.amount-inp{width:100%;padding:12px 14px 12px 28px;border-radius:10px;border:1.5px solid #e0e0e0;font-size:16px;background:#fff;color:#111;font-family:inherit;outline:none;box-shadow:0 1px 4px rgba(0,0,0,0.06)}
+.amount-prefix{position:absolute;left:14px;top:50%;transform:translateY(-50%);color:var(--text-dim);font-size:15px}
+.amount-inp{width:100%;padding:12px 14px 12px 28px;border-radius:10px;border:1.5px solid var(--border);font-size:16px;background:var(--input-bg);color:var(--text);font-family:inherit;outline:none;box-shadow:0 1px 4px rgba(0,0,0,0.06)}
 /* Oculta las flechas nativas de los inputs numéricos (el navegador las pinta con fondo blanco fijo) */
 input[type=number]::-webkit-outer-spin-button,
 input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
@@ -1792,8 +1794,8 @@ try{
     <div class="field-wrap" id="campo-tarjeta-wrap">
       <div class="field-label">Banco</div>
       <div onclick="event.stopPropagation();toggleScrollBancoModal()" id="modal-banco-display"
-        style="padding:12px 14px;border-radius:12px;border:1.5px solid #e0e0e0;font-size:15px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;background:#fff">
-        <span id="modal-banco-txt" style="color:#999">Seleccionar banco...</span>
+        style="padding:12px 14px;border-radius:12px;border:1.5px solid var(--border);font-size:15px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;background:var(--input-bg)">
+        <span id="modal-banco-txt" style="color:var(--text-dim)">Seleccionar banco...</span>
         <span style="color:var(--text-dim);font-size:12px">▾</span>
       </div>
       <div id="modal-banco-scroll-wrap" onclick="event.stopPropagation()" style="display:none;margin-top:6px;background:var(--card-bg-soft);border-radius:14px;overflow:hidden">
@@ -1814,8 +1816,8 @@ try{
     <div class="field-wrap" id="campo-tarjeta-apodo-wrap">
       <div class="field-label">Tarjeta</div>
       <div onclick="event.stopPropagation();toggleScrollTarjetaModal()" id="modal-tarjeta-display"
-        style="padding:12px 14px;border-radius:12px;border:1.5px solid #e0e0e0;font-size:15px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;background:#fff">
-        <span id="modal-tarjeta-txt" style="color:#999">Seleccionar tarjeta...</span>
+        style="padding:12px 14px;border-radius:12px;border:1.5px solid var(--border);font-size:15px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;background:var(--input-bg)">
+        <span id="modal-tarjeta-txt" style="color:var(--text-dim)">Seleccionar tarjeta...</span>
         <span style="color:var(--text-dim);font-size:12px">▾</span>
       </div>
       <div id="modal-tarjeta-scroll-wrap" onclick="event.stopPropagation()" style="display:none;margin-top:6px;background:var(--card-bg-soft);border-radius:14px;overflow:hidden">
@@ -1854,8 +1856,8 @@ try{
     <div class="field-wrap" id="campo-fecha-wrap" style="display:none">
       <div class="field-label">Fecha</div>
       <div onclick="event.stopPropagation();toggleScrollFechaModal()" id="modal-fecha-display"
-        style="padding:12px 14px;border-radius:12px;border:1.5px solid #e0e0e0;font-size:15px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;background:#fff">
-        <span id="modal-fecha-txt" style="color:#999">Seleccionar fecha</span>
+        style="padding:12px 14px;border-radius:12px;border:1.5px solid var(--border);font-size:15px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;background:var(--input-bg)">
+        <span id="modal-fecha-txt" style="color:var(--text-dim)">Seleccionar fecha</span>
         <span style="color:var(--text-dim);font-size:12px">▾</span>
       </div>
       <div id="modal-fecha-scroll-wrap" onclick="event.stopPropagation()" style="display:none;margin-top:6px;background:var(--card-bg-soft);border-radius:14px;overflow:hidden">
@@ -1877,7 +1879,7 @@ try{
       <input type="hidden" id="inp-fecha-modal"/>
     </div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:4px">
-      <button onclick="cancelarModalMovimiento()" style="padding:13px;border-radius:12px;border:1.5px solid #e0e0e0;background:#fff;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit;color:#111">Cancelar</button>
+      <button class="btn-flat-cancel" onclick="cancelarModalMovimiento()">Cancelar</button>
       <button class="modal-save" id="modal-save-btn" onclick="guardar()" style="margin-top:0">Guardar</button>
     </div>
   </div>
@@ -2183,22 +2185,27 @@ window.agregarTarjetaOb = function(){
   const apodo = document.getElementById('inp-apodo-ob').value.trim();
   const colorMapaOb = {'Invex':'card-color-invex','BBVA':'card-color-bbva','Santander':'card-color-santander'};
   const colorOb = colorMapaOb[nombre] || COLORS[tarjetasOb.length % COLORS.length];
-  tarjetasOb.push({ id: Date.now()+'_'+Math.random().toString(36).substr(2,9), nombre, apodo, corte, limite, color: colorOb });
-  renderTarjetasOb();
+  const nuevaId = Date.now()+'_'+Math.random().toString(36).substr(2,9);
+  tarjetasOb.push({ id: nuevaId, nombre, apodo, corte, limite, color: colorOb });
 
   // Reset
   selectedBancoNombre = '';
   selectedCorte = null;
   resetFormTarjeta();
   _actualizarBotonesTerminar();
-  document.getElementById('modal-nueva-tarjeta')?.classList.remove('open'); window.showSuccess('Tarjeta agregada', '');
+  document.getElementById('modal-nueva-tarjeta')?.classList.remove('open'); window.showSuccess('Tarjeta agregada', '', 1100);
+
+  // Primero entra la animación de éxito y, justo cuando esta se retira, el recuadro de la tarjeta se desliza desde la derecha
+  setTimeout(()=>{ _tarjetaObEntrando = nuevaId; renderTarjetasOb(); }, 1100);
 }
+
+let _tarjetaObEntrando = null; // id de la tarjeta/cuenta recién agregada que debe animarse entrando desde la derecha
 
 function renderTarjetasOb(){
   const elCred = document.getElementById('added-cards-cred');
   const elDeb  = document.getElementById('added-cards-deb');
   elCred.innerHTML = tarjetasOb.map(t=>`
-    <div class="added-card-item">
+    <div class="added-card-item${t.id===_tarjetaObEntrando ? ' card-enter' : ''}">
       <div class="added-card-icon">
         <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/><circle cx="18" cy="15" r="2"/></svg>
       </div>
@@ -2209,7 +2216,7 @@ function renderTarjetasOb(){
       <button class="added-card-del" onclick="quitarTarjetaOb('${t.id}')">×</button>
     </div>`).join('');
   elDeb.innerHTML = tarjetasDebOb.map(t=>`
-    <div class="added-card-item">
+    <div class="added-card-item${t.id===_tarjetaObEntrando ? ' card-enter' : ''}">
       <div class="added-card-icon">
         <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/><line x1="5" y1="15" x2="9" y2="15"/></svg>
       </div>
@@ -2219,6 +2226,7 @@ function renderTarjetasOb(){
       </div>
       <button class="added-card-del" onclick="quitarDebitoOb('${t.id}')">×</button>
     </div>`).join('');
+  _tarjetaObEntrando = null;
 }
 
 window.quitarTarjetaOb = function(id){
@@ -2356,13 +2364,13 @@ window.agregarDebitoOb = function(){
 
   if(!nombre){ showToast('Selecciona un banco'); return; }
 
+  const nuevaId = Date.now()+'_'+Math.random().toString(36).substr(2,9);
   tarjetasDebOb.push({
-    id: Date.now()+'_'+Math.random().toString(36).substr(2,9),
+    id: nuevaId,
     tipoCuenta: 'debito',
     nombre, apodo, disponible,
     color: 'card-color-0'
   });
-  renderTarjetasOb();
 
   // Reset débito
   selectedBancoDebNombre = '';
@@ -2375,7 +2383,10 @@ window.agregarDebitoOb = function(){
   document.getElementById('inp-disponible-deb-ob').value = '';
 
   _actualizarBotonesTerminar();
-  window.showSuccess('Cuenta agregada', '');
+  window.showSuccess('Cuenta agregada', '', 1100);
+
+  // Primero entra la animación de éxito y, justo cuando esta se retira, el recuadro de la cuenta se desliza desde la derecha
+  setTimeout(()=>{ _tarjetaObEntrando = nuevaId; renderTarjetasOb(); }, 1100);
 }
 
 window.finalizarOnboarding = async function(){
@@ -3523,7 +3534,7 @@ window.showLoginSuccess = function(tipo, titulo, callback){
   }, duracion);
 };
 
-window.showSuccess = function showSuccess(titulo='Movimiento guardado', subtitulo='Tu gasto fue registrado correctamente'){
+window.showSuccess = function showSuccess(titulo='Movimiento guardado', subtitulo='Tu gasto fue registrado correctamente', duracion=3200){
   const overlay = document.getElementById('success-overlay');
   const subEl = overlay.querySelector('.success-sub');
   overlay.querySelector('.success-title').textContent = titulo;
@@ -3533,7 +3544,7 @@ window.showSuccess = function showSuccess(titulo='Movimiento guardado', subtitul
   overlay.classList.remove('show');
   void overlay.offsetWidth; // fuerza reflow para reiniciar las keyframes
   overlay.classList.add('show');
-  setTimeout(()=>{ overlay.classList.remove('show'); subEl.style.display = ''; }, 3200);
+  setTimeout(()=>{ overlay.classList.remove('show'); subEl.style.display = ''; }, duracion);
 }
 
 window.showDeleted = function showDeleted(titulo='Elemento eliminado', subtitulo=''){
