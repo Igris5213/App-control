@@ -9988,13 +9988,13 @@ window._selBancoModal = function(i){
   if(!banco) return;
   document.getElementById('inp-banco-modal').value = banco;
   document.getElementById('modal-banco-txt').textContent = banco;
-  document.getElementById('modal-banco-txt').style.color = '#111';
+  document.getElementById('modal-banco-txt').style.color = 'var(--text)';
   const primeraTarjeta = tarjetas.find(t => t.nombre === banco);
   if(primeraTarjeta){
     window._tarjetaModalSel = primeraTarjeta;
     document.getElementById('inp-tarjeta-modal').value = primeraTarjeta.id;
     document.getElementById('modal-tarjeta-txt').textContent = primeraTarjeta.apodo || '—';
-    document.getElementById('modal-tarjeta-txt').style.color = '#111';
+    document.getElementById('modal-tarjeta-txt').style.color = 'var(--text)';
   }
 };
 window.toggleScrollBancoModal = function(){
@@ -10140,7 +10140,7 @@ window._selTarjetaModalFilt = function(i){
   window._tarjetaModalSel = t;
   document.getElementById('inp-tarjeta-modal').value = t.id;
   document.getElementById('modal-tarjeta-txt').textContent = t.apodo || t.nombre;
-  document.getElementById('modal-tarjeta-txt').style.color = '#111';
+  document.getElementById('modal-tarjeta-txt').style.color = 'var(--text)';
 };
 
 function _buildScrollTarjetasExt(){
@@ -10188,7 +10188,7 @@ window._selTarjetaModal = function(i){
   window._tarjetaModalSel = t;
   document.getElementById('inp-tarjeta-modal').value = t.id;
   document.getElementById('modal-tarjeta-txt').textContent = t.nombre + (t.apodo ? ' · ' + t.apodo : '');
-  document.getElementById('modal-tarjeta-txt').style.color = '#111';
+  document.getElementById('modal-tarjeta-txt').style.color = 'var(--text)';
 };
 
 window._selTarjetaExt = function(i){
@@ -10238,9 +10238,9 @@ window.openModal = function(){
   window._tarjetaModalSel = null;
   document.getElementById('inp-banco-modal').value = '';
   document.getElementById('modal-banco-txt').textContent = 'Seleccionar banco...';
-  document.getElementById('modal-banco-txt').style.color = '#999';
+  document.getElementById('modal-banco-txt').style.color = 'var(--text-dim)';
   document.getElementById('modal-tarjeta-txt').textContent = 'Seleccionar tarjeta...';
-  document.getElementById('modal-tarjeta-txt').style.color = '#999';
+  document.getElementById('modal-tarjeta-txt').style.color = 'var(--text-dim)';
   document.getElementById('inp-tarjeta-modal').value = '';
   document.getElementById('campo-tarjeta-wrap').style.display = '';
   document.getElementById('campo-tarjeta-apodo-wrap') && (document.getElementById('campo-tarjeta-apodo-wrap').style.display = '');
@@ -11838,38 +11838,38 @@ function _actualizarFechaDebito() {
       <div style="width:56px;height:56px;border-radius:50%;background:linear-gradient(180deg,#111,#444);display:flex;align-items:center;justify-content:center;margin:0 auto 14px">
         <svg width="26" height="26" fill="none" stroke="#fff" stroke-width="2.2" viewBox="0 0 24 24"><path d="M9 12l2 2 4-4"/><circle cx="12" cy="12" r="10"/></svg>
       </div>
-      <div id="confirm-mov-titulo" style="font-size:18px;font-weight:800;color:#111;margin-bottom:4px">¿Es correcta la información?</div>
-      <div style="font-size:13px;color:#aaa">Revisa los datos antes de guardar</div>
+      <div id="confirm-mov-titulo" style="font-size:18px;font-weight:800;color:var(--text);margin-bottom:4px">¿Es correcta la información?</div>
+      <div style="font-size:13px;color:var(--text-dim)">Revisa los datos antes de guardar</div>
     </div>
-    <div style="background:#f5f5f5;border-radius:16px;padding:16px 18px;margin-bottom:20px;display:flex;flex-direction:column;gap:10px">
+    <div style="background:var(--card-bg-soft);border-radius:16px;padding:16px 18px;margin-bottom:20px;display:flex;flex-direction:column;gap:10px">
       <div id="confirm-mov-row-tarjeta" style="display:flex;justify-content:space-between;align-items:center">
-        <span id="confirm-mov-tarjeta-label" style="font-size:13px;color:#888;font-weight:500">Tarjeta / Cuenta</span>
-        <span id="confirm-mov-tarjeta" style="font-size:14px;font-weight:400;color:#111;text-align:right;max-width:180px"></span>
+        <span id="confirm-mov-tarjeta-label" style="font-size:13px;color:var(--text-dim);font-weight:500">Tarjeta / Cuenta</span>
+        <span id="confirm-mov-tarjeta" style="font-size:14px;font-weight:400;color:var(--text);text-align:right;max-width:180px"></span>
       </div>
       <div id="confirm-mov-row-comercio" style="display:flex;justify-content:space-between;align-items:center">
-        <span style="font-size:13px;color:#888;font-weight:500">Comercio</span>
-        <span id="confirm-mov-comercio" style="font-size:14px;font-weight:400;color:#111;text-align:right;max-width:180px"></span>
+        <span style="font-size:13px;color:var(--text-dim);font-weight:500">Comercio</span>
+        <span id="confirm-mov-comercio" style="font-size:14px;font-weight:400;color:var(--text);text-align:right;max-width:180px"></span>
       </div>
       <div id="confirm-mov-row-concepto" style="display:flex;justify-content:space-between;align-items:center">
-        <span style="font-size:13px;color:#888;font-weight:500">Concepto</span>
-        <span id="confirm-mov-concepto" style="font-size:14px;font-weight:400;color:#111;text-align:right;max-width:180px"></span>
+        <span style="font-size:13px;color:var(--text-dim);font-weight:500">Concepto</span>
+        <span id="confirm-mov-concepto" style="font-size:14px;font-weight:400;color:var(--text);text-align:right;max-width:180px"></span>
       </div>
       <div id="confirm-mov-row-detalle" style="display:flex;justify-content:space-between;align-items:center">
-        <span style="font-size:13px;color:#888;font-weight:500">Detalle</span>
-        <span id="confirm-mov-detalle" style="font-size:14px;font-weight:400;color:#111;text-align:right;max-width:180px"></span>
+        <span style="font-size:13px;color:var(--text-dim);font-weight:500">Detalle</span>
+        <span id="confirm-mov-detalle" style="font-size:14px;font-weight:400;color:var(--text);text-align:right;max-width:180px"></span>
       </div>
       <div id="confirm-mov-row-fecha" style="display:flex;justify-content:space-between;align-items:center">
-        <span style="font-size:13px;color:#888;font-weight:500">Fecha</span>
-        <span id="confirm-mov-fecha" style="font-size:14px;font-weight:400;color:#111"></span>
+        <span style="font-size:13px;color:var(--text-dim);font-weight:500">Fecha</span>
+        <span id="confirm-mov-fecha" style="font-size:14px;font-weight:400;color:var(--text)"></span>
       </div>
-      <div style="height:1px;background:#e8e8e8"></div>
+      <div style="height:1px;background:var(--border)"></div>
       <div style="display:flex;justify-content:space-between;align-items:center">
-        <span style="font-size:14px;color:#111;font-weight:600">Monto</span>
-        <span id="confirm-mov-monto" style="font-size:20px;font-weight:800;color:#111"></span>
+        <span style="font-size:14px;color:var(--text);font-weight:600">Monto</span>
+        <span id="confirm-mov-monto" style="font-size:20px;font-weight:800;color:var(--text)"></span>
       </div>
     </div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
-      <button onclick="_cancelarConfirmMov()" style="padding:14px;border-radius:12px;border:1.5px solid #e0e0e0;background:#fff;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit;color:#111">Corregir</button>
+      <button onclick="_cancelarConfirmMov()" class="btn-flat-cancel">Corregir</button>
       <button id="confirm-mov-ok-btn" class="hold-btn" onclick="_ejecutarGuardarMov()" style="padding:14px;border-radius:12px;background:linear-gradient(180deg,#111,#444);color:#fff;border:none;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit">Confirmar</button>
     </div>
   </div>
