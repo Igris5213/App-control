@@ -94,7 +94,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 
 /* Formularios onboarding */
 .ob-card{width:100%;max-width:390px;background:var(--card-bg);border-radius:24px;padding:28px 24px;box-shadow:0 8px 32px rgba(0,0,0,0.12)}
-.ob-step{font-size:12px;font-weight:600;color:#444;text-transform:uppercase;letter-spacing:0.1em;margin-bottom:8px}
+.ob-step{font-size:12px;font-weight:600;color:var(--text-dim);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:8px}
 .ob-title{font-size:22px;font-weight:800;color:var(--text);margin-bottom:6px}
 .ob-sub{font-size:14px;color:var(--text-dim);margin-bottom:24px}
 .ob-field{margin-bottom:16px}
@@ -671,11 +671,16 @@ try{
   </div>
   <div class="welcome-title">Control de Gastos</div>
   <div class="welcome-sub">Administra tus tarjetas y gastos de forma simple y organizada.</div>
-  <button class="primary-btn" onclick="irACrearPerfil()">Comenzar</button>
-  <button id="btn-cancelar-welcome" class="btn-flat-cancel" style="display:none;width:100%;margin-top:8px" onclick="cancelarRegistro()">
-    <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-    Cancelar
-  </button>
+  <div id="welcome-btns-grid" style="display:grid;grid-template-columns:1fr;gap:10px;width:100%">
+    <button id="btn-cancelar-welcome" class="btn-flat-cancel" style="display:none" onclick="cancelarRegistro()">
+      <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      Cancelar
+    </button>
+    <button class="btn-flat-confirm" onclick="irACrearPerfil()">
+      <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+      Comenzar
+    </button>
+  </div>
 </div>
 
 
@@ -1390,8 +1395,16 @@ try{
       <div class="ob-label">Identificador del perfil</div>
       <input class="ob-input" id="inp-nombre" placeholder="Ej. Personal, Trabajo, Compartido..." maxlength="30" />
     </div>
-    <button class="primary-btn" onclick="guardarPerfil()">Continuar</button>
-    <button style="width:100%;padding:14px;border-radius:14px;border:1.5px solid #e0e0e0;background:#fff;font-size:15px;font-weight:600;color:#666;cursor:pointer;font-family:inherit;margin-top:8px" onclick="actualizarBotonesCancelar();showScreen('screen-welcome')">← Volver</button>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:6px">
+      <button class="btn-flat-cancel" onclick="actualizarBotonesCancelar();showScreen('screen-welcome')">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+        Volver
+      </button>
+      <button class="btn-flat-confirm" onclick="guardarPerfil()">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+        Continuar
+      </button>
+    </div>
   </div>
 </div>
 
@@ -1927,7 +1940,9 @@ window.showScreen = function(id){
 window.actualizarBotonesCancelar = function actualizarBotonesCancelar(){
   const hayUsuarios = getUsuarios().length > 0 || pendingUser !== null;
   const bc1 = document.getElementById('btn-cancelar-welcome');
+  const grid1 = document.getElementById('welcome-btns-grid');
   if(bc1) bc1.style.display = hayUsuarios ? 'flex' : 'none';
+  if(grid1) grid1.style.gridTemplateColumns = hayUsuarios ? '1fr 1fr' : '1fr';
 }
 
 window.cancelarRegistro = function(){
