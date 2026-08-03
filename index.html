@@ -31,6 +31,7 @@ input[type="password"]::-webkit-strong-password-auto-fill-button{display:none !i
   --text-dim:#888888;
   --border:#e0e0e0;
   --btn-border-detalle:#e0e0e0;
+  --btn-border-hist:#e0e0e0;
   --input-bg:#ffffff;
   --icon-bg:#f0f0f0;
   --nav-bg:rgba(238,238,238,0.96);
@@ -43,14 +44,14 @@ input[type="password"]::-webkit-strong-password-auto-fill-button{display:none !i
   --toggle-pill-border:rgba(0,0,0,0.10);
 }
 html.dark-mode{
-  --bg:#121212;
+  --bg:#090909;
   --card-bg:#1e1e1e;
   --card-bg-soft:#232323;
   --text:#f0f0f0;
   --text-dim:#999999;
   --border:#3a3a3a;
   --btn-border-detalle:rgba(255,255,255,0.09);
-  --input-bg:#242424;
+  --input-bg:#090909;
   --icon-bg:#2a2a2a;
   --nav-bg:rgba(30,30,30,0.9);
   --dot-inactive:#4a4a4a;
@@ -231,15 +232,15 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .card-stats-dias{display:flex;align-items:center;gap:4px;font-size:12px;color:rgba(255,255,255,0.75)}
 
 /* Colores de tarjetas — negro y gris para genéricos, corporativos para bancos */
-.card-color-0{background:#111111}
-.card-color-1{background:#111111}
-.card-color-2{background:#111111}
-.card-color-3{background:#111111}
-.card-color-4{background:#111111}
-.card-color-5{background:#111111}
-.card-color-invex{background:#111111}
-.card-color-bbva{background:#111111}
-.card-color-santander{background:#111111}
+.card-color-0{background:#090909}
+.card-color-1{background:#090909}
+.card-color-2{background:#090909}
+.card-color-3{background:#090909}
+.card-color-4{background:#090909}
+.card-color-5{background:#090909}
+.card-color-invex{background:#090909}
+.card-color-bbva{background:#090909}
+.card-color-santander{background:#090909}
 
 /* PROMO / CARGO — tarjetas oscuras estilo bank-card */
 .promo-dark-card{background:linear-gradient(165deg,#3a3a3a,#111 65%);border-radius:20px;padding:18px;margin-bottom:12px;color:#fff;box-shadow:0 10px 30px rgba(0,0,0,0.28);cursor:pointer;transition:transform 0.15s,filter 0.15s;position:relative}
@@ -277,9 +278,22 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .mov-item:last-child{margin-bottom:0}
 html.dark-mode .mov-item{background:#111111;border-color:rgba(255,255,255,0.09);box-shadow:0 2px 6px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.06)}
 #tarjetas-mov-section{border:1px solid rgba(0,0,0,0.08)}
-html.dark-mode #tarjetas-mov-section{background:#090909;border-color:rgba(255,255,255,0.08)}
-html.dark-mode #cuentas-mov-section{background:#090909;border:1px solid #2a2a2a}
+#cuentas-mov-section{border:1px solid rgba(0,0,0,0.08)}
+#recuadro-movimientos{border:1px solid rgba(0,0,0,0.08)}
+#deb-recuadro-movimientos{border:1px solid rgba(0,0,0,0.08)}
+html.dark-mode #tarjetas-mov-section{background:#090909;border-color:rgba(255,255,255,0.08);box-shadow:0 2px 6px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.06)}
+html.dark-mode #cuentas-mov-section{background:#090909;border-color:rgba(255,255,255,0.08);box-shadow:0 2px 6px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.06)}
+html.dark-mode #recuadro-movimientos{background:#090909;border-color:rgba(255,255,255,0.08)}
+html.dark-mode #deb-recuadro-movimientos{background:#090909;border-color:rgba(255,255,255,0.08)}
 html.dark-mode .bank-card{border:1px solid rgba(255,255,255,0.08)}
+html.dark-mode .banco-selector-btn,html.dark-mode .banco-selector-btn.selected{background:#090909}
+html.dark-mode [id$="-scroll-wrap"],html.dark-mode #corte-edit-tarjeta-wrap{background:var(--input-bg)}
+html.dark-mode .hist-step.dd-open > .hist-step-head{background:linear-gradient(180deg,#1c1c1c,#0a0a0a)}
+html.dark-mode .hist-dd-panel{background:#0a0a0a !important}
+html.dark-mode .hist-dd-item{background:#0a0a0a}
+html.dark-mode #corte-resumen-card{background:#090909;border:1px solid rgba(255,255,255,0.08)}
+html.dark-mode #corte-resumen-card .corte-resumen-box{background:#111111!important;border:1px solid rgba(255,255,255,0.09)!important}
+html.dark-mode #resumen-seleccion,html.dark-mode #deb-resumen{background:#111111;border:1px solid rgba(255,255,255,0.08)}
 .mov-item.selected{background:linear-gradient(180deg,var(--mov-selected-grad-start),var(--mov-selected-grad-end));border-bottom-color:transparent;box-shadow:0 4px 14px var(--mov-selected-shadow);transform:scale(1.01);border-radius:12px;z-index:1;position:relative;color:var(--mov-selected-text)}
 .mov-item.selected .mov-date{color:var(--mov-selected-text) !important}
 .mov-item.selected .mov-amount{color:var(--mov-selected-text) !important}
@@ -324,16 +338,72 @@ html.dark-mode #modal-detalle-gasto.open{background:rgba(0,0,0,0.85);backdrop-fi
 html.dark-mode #modal-resumen-promo.open{background:rgba(0,0,0,0.85)}
 html.dark-mode #modal-resumen-promo .modal{--card-bg:#070707;--card-bg-soft:#0e0e0e;--icon-bg:#202020;--border:#1c1c1c}
 html.dark-mode #modal-confirm-hist.open{background:rgba(0,0,0,0.85)}
-html.dark-mode #modal-confirm-hist .modal{--card-bg:#070707;--card-bg-soft:#0e0e0e;--icon-bg:#202020;--border:#1c1c1c}
+html.dark-mode #hist-toggle-slider,
+html.dark-mode #perfil-tab-slider,
+html.dark-mode #nuevo-toggle-slider,
+html.dark-mode #promo-tab-slider,
+html.dark-mode #debito-tipo-slider,
+html.dark-mode #cargo-toggle-slider{background:#2a2a2a!important}
+html.dark-mode #nuevo-btn-registro-nuevo,
+html.dark-mode #nuevo-btn-registro-ext,
+html.dark-mode #nuevo-btn-registro-deb-nuevo,
+html.dark-mode #nuevo-btn-registro-deb-ext{background:#111111!important;border:1px solid rgba(255,255,255,0.09)!important;box-shadow:0 2px 6px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.06)!important}
+html.dark-mode #confirm-hist-panel,
+html.dark-mode #confirm-hist-cancel-btn,
+html.dark-mode #confirm-hist-accept-btn{box-shadow:0 2px 6px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.06)!important}
+html.dark-mode #corte-resumen-card .corte-resumen-box{box-shadow:0 2px 6px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.06)!important}
+html.dark-mode #deb-btn-nueva-busqueda,
+html.dark-mode #btn-nueva-busqueda{background:#090909!important;border:1px solid rgba(255,255,255,0.08)!important}
+html.dark-mode #modal-confirm-mov-box{--card-bg:#090909;--card-bg-soft:#111111;--border:rgba(255,255,255,0.09);border:1px solid rgba(255,255,255,0.08)}
+html.dark-mode #confirm-mov-panel{box-shadow:0 2px 6px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.06)!important}
+html.dark-mode #modal-confirm-mov-box .btn-flat-cancel,
+html.dark-mode #confirm-mov-ok-btn{background:#111111!important;border-color:rgba(255,255,255,0.09)!important;box-shadow:0 2px 6px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.06)!important}
+html.dark-mode #modal-promo-overlay .modal{--card-bg:#090909;--card-bg-soft:#111111;--input-bg:#111111;--border:rgba(255,255,255,0.09);border:1px solid rgba(255,255,255,0.08)}
+html.dark-mode #modal-promo-overlay .inp,
+html.dark-mode #modal-promo-overlay .amount-inp,
+html.dark-mode #promo-banco-btn,
+html.dark-mode #promo-tarjeta-btn,
+html.dark-mode #promo-meses-display{box-shadow:0 2px 6px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.06)!important}
+html.dark-mode #modal-promo-overlay .btn-flat-cancel,
+html.dark-mode #promo-save-btn{background:#111111!important;border:1px solid rgba(255,255,255,0.09)!important;box-shadow:0 2px 6px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.06)!important}
+html.dark-mode #btn-nuevo-cargo-recurrente{background:#111111!important;border:1px solid rgba(255,255,255,0.09)!important}
+html.dark-mode #modal-cargo-recurrente .modal{--card-bg:#090909;--card-bg-soft:#111111;--input-bg:#111111;--border:rgba(255,255,255,0.09);border:1px solid rgba(255,255,255,0.08)}
+html.dark-mode #modal-cargo-recurrente .inp,
+html.dark-mode #modal-cargo-recurrente .amount-inp,
+html.dark-mode #cargo-banco-btn,
+html.dark-mode #cargo-tarjeta-btn,
+html.dark-mode #cargo-banco-deb-btn,
+html.dark-mode #cargo-cuenta-btn,
+html.dark-mode #cargo-dia-btn{box-shadow:0 2px 6px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.06)!important}
+html.dark-mode #modal-cargo-recurrente .btn-flat-cancel,
+html.dark-mode #cargo-save-btn{background:#111111!important;border:1px solid rgba(255,255,255,0.09)!important;box-shadow:0 2px 6px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.06)!important}
+html.dark-mode #btn-nueva-promo-msi{background:#111111!important;border:1px solid rgba(255,255,255,0.09)!important}
+html.dark-mode #modal-debito-overlay .modal{--card-bg:#090909;--card-bg-soft:#111111;--input-bg:#111111;--border:rgba(255,255,255,0.09);border:1px solid rgba(255,255,255,0.08)}
+html.dark-mode #modal-debito-overlay .inp,
+html.dark-mode #modal-debito-overlay .amount-inp,
+html.dark-mode #modal-debito-overlay #debito-banco-display,
+html.dark-mode #modal-debito-overlay #debito-cuenta-display,
+html.dark-mode #modal-debito-overlay #debito-fecha-display{box-shadow:0 2px 6px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.06)!important}
+html.dark-mode #modal-debito-overlay .btn-flat-cancel,
+html.dark-mode #debito-save-btn{background:#111111!important;border:1px solid rgba(255,255,255,0.09)!important;box-shadow:0 2px 6px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.06)!important}
+html.dark-mode #modal-ext-overlay .modal{--card-bg:#090909;--card-bg-soft:#111111;--icon-bg:#1c1c1c;--input-bg:#111111;--border:rgba(255,255,255,0.09);border:1px solid rgba(255,255,255,0.08)}
+html.dark-mode #modal-ext-overlay .btn-flat-cancel,
+html.dark-mode #modal-ext-overlay .btn-flat-confirm{background:#111111!important;border-color:rgba(255,255,255,0.09)!important}
+html.dark-mode #modal-confirm-hist .modal{--card-bg:#090909;--card-bg-soft:#111111;--icon-bg:#202020;--border:rgba(255,255,255,0.08);--btn-border-hist:rgba(255,255,255,0.09)}
+html.dark-mode #modal-resumen-movimiento .modal{--card-bg:#090909;--card-bg-soft:#111111;--icon-bg:#1c1c1c;--border:rgba(255,255,255,0.09);border:1px solid rgba(255,255,255,0.08)}
+html.dark-mode #modal-resumen-movimiento .btn-flat-cancel,
+html.dark-mode #modal-resumen-movimiento .btn-flat-confirm{background:#111111;border-color:rgba(255,255,255,0.09);box-shadow:0 2px 6px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.06)}
+html.dark-mode #modal-resumen-movimiento #resumen-mov-body div[style*="background:var(--card-bg-soft)"],
+html.dark-mode #modal-resumen-movimiento #resumen-mov-body div[style*="linear-gradient(180deg,var(--card-bg-soft)"]{box-shadow:0 2px 6px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.06)}
 html.dark-mode #modal-detalle-gasto .modal{--card-bg:#090909;--card-bg-soft:#111111;--icon-bg:#1c1c1c;--border:rgba(255,255,255,0.08)}
-html.dark-mode #modal-edit-cred .modal{--card-bg:#090909;--card-bg-soft:#111111;--icon-bg:#1c1c1c;--border:#212121;--input-bg:#111111;--bg:#090909}
+html.dark-mode #modal-edit-cred .modal{--card-bg:#090909;--card-bg-soft:#111111;--icon-bg:#1c1c1c;--border:#212121;--input-bg:#090909;--bg:#090909}
 html.dark-mode #modal-edit-cred .modal .btn-flat-cancel,
 html.dark-mode #modal-edit-cred .modal #modal-save-btn{background:var(--card-bg-soft)!important;box-shadow:0 2px 6px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.06)}
 html.dark-mode #confirm-elim-overlay .modal{--card-bg:#090909;--card-bg-soft:#111111;--icon-bg:#1c1c1c;--border:#212121}
 html.dark-mode #confirm-elim-overlay .modal #confirm-elim-rows{box-shadow:0 3px 10px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.05)}
 html.dark-mode #confirm-elim-overlay .modal #confirm-elim-cancel-btn,
 html.dark-mode #confirm-elim-overlay .modal #confirm-elim-btn{background:var(--card-bg-soft)!important;color:var(--text)!important;box-shadow:0 2px 6px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.06)}
-html.dark-mode #modal-edit-deb .modal{--card-bg:#090909;--card-bg-soft:#111111;--icon-bg:#1c1c1c;--border:#212121;--input-bg:#111111;--bg:#090909}
+html.dark-mode #modal-edit-deb .modal{--card-bg:#090909;--card-bg-soft:#111111;--icon-bg:#1c1c1c;--border:#212121;--input-bg:#090909;--bg:#090909}
 html.dark-mode #modal-edit-deb .modal #deb-edit-cancel-btn,
 html.dark-mode #modal-edit-deb .modal #deb-edit-save-btn{background:var(--card-bg-soft)!important;color:var(--text)!important;box-shadow:0 2px 6px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.06)}
 .modal{background:var(--card-bg);border-radius:24px;padding:24px 20px 40px;width:100%;max-width:430px;transform:translateY(100%);transition:transform 0.3s,background 0.25s ease;box-shadow:0 -4px 32px rgba(0,0,0,0.12)}
@@ -6909,7 +6979,7 @@ window.verDetalleDebito = function(id){
     : '<svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><polyline points="19 12 12 19 5 12"/></svg>';
 
   const dkPanel  = 'var(--card-bg-soft)';
-  const dkPanelShadow = '0 3px 10px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.05)';
+  const dkPanelShadow = '0 2px 6px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.06)';
   const dkIcon   = 'var(--icon-bg)';
   const dkBorder = 'var(--border)';
   const dkDivider = 'var(--border)';
@@ -6959,7 +7029,7 @@ window.verDetalleDebito = function(id){
     + '<button onclick="cerrarDetalleGasto();setTimeout(()=>pedirConfirmEditar(\'' + m.id + '\'),300)" style="padding:13px;border-radius:12px;border:1px solid ' + dkBtnBorder + ';background:' + dkBtn + ';color:' + dkText + ';font-size:15px;font-weight:600;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:8px;box-shadow:' + dkBtnShadow + '"><svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>Editar</button>'
     + '<button onclick="cerrarDetalleGasto();setTimeout(()=>pedirConfirmEliminar(\'' + m.id + '\'),300)" style="padding:13px;border-radius:12px;border:1px solid ' + dkBtnBorder + ';background:' + dkBtn + ';color:' + dkText + ';font-size:15px;font-weight:600;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:8px;box-shadow:' + dkBtnShadow + '"><svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/></svg>Eliminar</button>'
     + '</div>'
-    + '<button onclick="cerrarDetalleGasto()" style="width:100%;padding:13px;border-radius:12px;background:var(--card-bg-soft);border:1.5px solid var(--border);font-size:15px;font-weight:600;cursor:pointer;font-family:inherit;color:var(--text);box-shadow:0 2px 5px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.05)">Cerrar</button>';
+    + '<button onclick="cerrarDetalleGasto()" style="width:100%;padding:13px;border-radius:12px;background:' + dkBtn + ';border:1px solid ' + dkBtnBorder + ';font-size:15px;font-weight:600;cursor:pointer;font-family:inherit;color:' + dkText + ';box-shadow:' + dkBtnShadow + '">Cerrar</button>';
   document.getElementById('modal-detalle-gasto').classList.add('open');
 }
 
@@ -8549,7 +8619,7 @@ window.verDetalleGasto = function(id){
 
   // Paleta adaptable al tema (usa variables CSS de light/dark mode)
   const dkPanel  = 'var(--card-bg-soft)';
-  const dkPanelShadow = '0 3px 10px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.05)';
+  const dkPanelShadow = '0 2px 6px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.06)';
   const dkIcon   = 'var(--icon-bg)';
   const dkBorder = 'var(--border)';
   const dkDivider = 'var(--border)';
@@ -8840,18 +8910,18 @@ window.aceptarConfirmHist = function(){
       const _totalGastosCorte = d.reduce((s,m)=>s+(m.monto||0),0);
       const _totalGeneralCorte = _totalPromosCorte + _totalGastosCorte;
       _recSum.innerHTML = `
-        <div class="section-card" style="margin:0 0 12px">
+        <div class="section-card" id="corte-resumen-card" style="margin:0 0 12px">
           <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:0 0 10px">
-            <div style="background:var(--card-bg-soft);border-radius:14px;padding:12px 14px">
+            <div class="corte-resumen-box" style="background:var(--card-bg-soft);border-radius:14px;padding:12px 14px">
               <div style="font-size:10px;font-weight:700;color:var(--text-dim);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:4px">Promociones a meses</div>
               <div style="font-size:16px;font-weight:800;color:var(--text)">${fmt(_totalPromosCorte)}</div>
             </div>
-            <div style="background:var(--card-bg-soft);border-radius:14px;padding:12px 14px">
+            <div class="corte-resumen-box" style="background:var(--card-bg-soft);border-radius:14px;padding:12px 14px">
               <div style="font-size:10px;font-weight:700;color:var(--text-dim);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:4px">Total de gastos</div>
               <div style="font-size:16px;font-weight:800;color:var(--text)">${fmt(_totalGastosCorte)}</div>
             </div>
           </div>
-          <div style="background:#111111;border:1px solid var(--border);border-radius:14px;padding:14px 16px;display:flex;justify-content:space-between;align-items:center;box-shadow:0 4px 14px rgba(0,0,0,0.10), inset 0 1px 0 rgba(255,255,255,0.08)">
+          <div class="corte-resumen-box" style="background:#111111;border:1px solid var(--border);border-radius:14px;padding:14px 16px;display:flex;justify-content:space-between;align-items:center;box-shadow:0 4px 14px rgba(0,0,0,0.10), inset 0 1px 0 rgba(255,255,255,0.08)">
             <span style="font-size:13px;font-weight:700;color:var(--text-dim);text-transform:uppercase;letter-spacing:0.06em">Total del corte</span>
             <strong style="font-size:18px;color:var(--text)">${fmt(_totalGeneralCorte)}</strong>
           </div>
@@ -9675,7 +9745,7 @@ window.confirmarEliminarPerfil = async function(){
     <!-- Panel Crédito -->
     <div id="nuevo-vista-credito">
       <!-- Nuevo -->
-      <button onclick="openModal()" class="btn-registro" style="width:100%;padding:20px 24px;border-radius:20px;background:linear-gradient(180deg,#111,#444);color:#fff;border:none;font-size:16px;font-weight:700;cursor:pointer;font-family:inherit;display:flex;align-items:center;gap:16px;margin-bottom:14px;box-shadow:0 4px 16px rgba(0,0,0,0.25);text-align:left">
+      <button id="nuevo-btn-registro-nuevo" onclick="openModal()" class="btn-registro" style="width:100%;padding:20px 24px;border-radius:20px;background:linear-gradient(180deg,#111,#444);color:#fff;border:none;font-size:16px;font-weight:700;cursor:pointer;font-family:inherit;display:flex;align-items:center;gap:16px;margin-bottom:14px;box-shadow:0 4px 16px rgba(0,0,0,0.25);text-align:left">
         <div style="width:48px;height:48px;border-radius:14px;background:rgba(255,255,255,0.15);display:flex;align-items:center;justify-content:center;flex-shrink:0">
           <svg width="24" height="24" fill="none" stroke="#fff" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
         </div>
@@ -9686,7 +9756,7 @@ window.confirmarEliminarPerfil = async function(){
         <svg style="margin-left:auto;flex-shrink:0" width="18" height="18" fill="none" stroke="rgba(255,255,255,0.4)" stroke-width="2" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
       </button>
       <!-- Extemporáneo -->
-      <button onclick="openModalExt()" class="btn-registro" style="width:100%;padding:20px 24px;border-radius:20px;background:linear-gradient(180deg,#111,#444);color:#fff;border:none;font-size:16px;font-weight:700;cursor:pointer;font-family:inherit;display:flex;align-items:center;gap:16px;box-shadow:0 4px 16px rgba(0,0,0,0.25);text-align:left">
+      <button id="nuevo-btn-registro-ext" onclick="openModalExt()" class="btn-registro" style="width:100%;padding:20px 24px;border-radius:20px;background:linear-gradient(180deg,#111,#444);color:#fff;border:none;font-size:16px;font-weight:700;cursor:pointer;font-family:inherit;display:flex;align-items:center;gap:16px;box-shadow:0 4px 16px rgba(0,0,0,0.25);text-align:left">
         <div style="width:48px;height:48px;border-radius:14px;background:rgba(255,255,255,0.15);display:flex;align-items:center;justify-content:center;flex-shrink:0">
           <svg width="24" height="24" fill="none" stroke="#fff" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
         </div>
@@ -9701,7 +9771,7 @@ window.confirmarEliminarPerfil = async function(){
     <!-- Panel Débito -->
     <div id="nuevo-vista-debito" style="display:none">
       <!-- Ingreso -->
-      <button onclick="openModalDebitoIngreso()" class="btn-registro" style="width:100%;padding:20px 24px;border-radius:20px;background:linear-gradient(180deg,#111,#444);color:#fff;border:none;font-size:16px;font-weight:700;cursor:pointer;font-family:inherit;display:flex;align-items:center;gap:16px;margin-bottom:14px;box-shadow:0 4px 16px rgba(0,0,0,0.25);text-align:left">
+      <button id="nuevo-btn-registro-deb-nuevo" onclick="openModalDebitoIngreso()" class="btn-registro" style="width:100%;padding:20px 24px;border-radius:20px;background:linear-gradient(180deg,#111,#444);color:#fff;border:none;font-size:16px;font-weight:700;cursor:pointer;font-family:inherit;display:flex;align-items:center;gap:16px;margin-bottom:14px;box-shadow:0 4px 16px rgba(0,0,0,0.25);text-align:left">
         <div style="width:48px;height:48px;border-radius:14px;background:rgba(255,255,255,0.15);display:flex;align-items:center;justify-content:center;flex-shrink:0">
           <svg width="24" height="24" fill="none" stroke="#fff" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
         </div>
@@ -9712,7 +9782,7 @@ window.confirmarEliminarPerfil = async function(){
         <svg style="margin-left:auto;flex-shrink:0" width="18" height="18" fill="none" stroke="rgba(255,255,255,0.4)" stroke-width="2" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
       </button>
       <!-- Extemporáneo -->
-      <button onclick="openModalDebitoExtemporaneo()" class="btn-registro" style="width:100%;padding:20px 24px;border-radius:20px;background:linear-gradient(180deg,#111,#444);color:#fff;border:none;font-size:16px;font-weight:700;cursor:pointer;font-family:inherit;display:flex;align-items:center;gap:16px;box-shadow:0 4px 16px rgba(0,0,0,0.25);text-align:left">
+      <button id="nuevo-btn-registro-deb-ext" onclick="openModalDebitoExtemporaneo()" class="btn-registro" style="width:100%;padding:20px 24px;border-radius:20px;background:linear-gradient(180deg,#111,#444);color:#fff;border:none;font-size:16px;font-weight:700;cursor:pointer;font-family:inherit;display:flex;align-items:center;gap:16px;box-shadow:0 4px 16px rgba(0,0,0,0.25);text-align:left">
         <div style="width:48px;height:48px;border-radius:14px;background:rgba(255,255,255,0.15);display:flex;align-items:center;justify-content:center;flex-shrink:0">
           <svg width="24" height="24" fill="none" stroke="#fff" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
         </div>
@@ -9738,8 +9808,8 @@ window.confirmarEliminarPerfil = async function(){
       <div style="width:72px;height:72px;border-radius:24px;background:linear-gradient(180deg,#111,#444);display:flex;align-items:center;justify-content:center;margin:0 auto 24px;box-shadow:0 8px 32px rgba(0,0,0,0.15)">
         <svg width="32" height="32" fill="none" stroke="#fff" stroke-width="2" viewBox="0 0 24 24"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/><line x1="5" y1="15" x2="9" y2="15"/></svg>
       </div>
-      <div style="font-size:22px;font-weight:800;color:#111;margin-bottom:8px">Sin cuentas de débito</div>
-      <div style="font-size:14px;color:#aaa;line-height:1.6">No agregaste ninguna cuenta de débito.<br>Puedes añadirla desde la pestaña de <strong style="color:#111">Perfiles</strong>.</div>
+      <div style="font-size:22px;font-weight:800;color:var(--text);margin-bottom:8px">Sin cuentas de débito</div>
+      <div style="font-size:14px;color:var(--text-dim);line-height:1.6">No agregaste ninguna cuenta de débito.<br>Puedes añadirla desde la pestaña de <strong style="color:var(--text)">Perfiles</strong>.</div>
     </div>
 
     <!-- Carrusel débito -->
@@ -9781,7 +9851,7 @@ window.confirmarEliminarPerfil = async function(){
 
     <!-- Panel MSI -->
     <div id="promo-panel-msi">
-      <button onclick="abrirModalPromo()" style="width:100%;padding:14px;border-radius:14px;background:linear-gradient(180deg,#111,#444);color:#fff;border:none;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:16px">
+      <button id="btn-nueva-promo-msi" onclick="abrirModalPromo()" style="width:100%;padding:14px;border-radius:14px;background:linear-gradient(180deg,#111,#444);color:#fff;border:none;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:16px">
         <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
         Nueva promoción MSI
       </button>
@@ -9790,7 +9860,7 @@ window.confirmarEliminarPerfil = async function(){
 
     <!-- Panel Cargos Recurrentes -->
     <div id="promo-panel-cargos" style="display:none">
-      <button onclick="abrirModalCargoRecurrente()" style="width:100%;padding:14px;border-radius:14px;background:linear-gradient(180deg,#111,#444);color:#fff;border:none;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:16px">
+      <button id="btn-nuevo-cargo-recurrente" onclick="abrirModalCargoRecurrente()" style="width:100%;padding:14px;border-radius:14px;background:linear-gradient(180deg,#111,#444);color:#fff;border:none;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:16px">
         <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg>
         Nuevo cargo recurrente
       </button>
@@ -9902,7 +9972,7 @@ window.confirmarEliminarPerfil = async function(){
     <!-- Botones -->
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:8px">
       <button class="btn-flat-cancel" onclick="cerrarModalPromo()">Cancelar</button>
-      <button onclick="guardarPromo()" class="modal-save" style="margin-top:0;background:linear-gradient(180deg,var(--card-bg-soft),var(--bg));color:var(--text);border:1.5px solid var(--border)">Guardar</button>
+      <button id="promo-save-btn" onclick="guardarPromo()" class="modal-save" style="margin-top:0;background:linear-gradient(180deg,var(--card-bg-soft),var(--bg));color:var(--text);border:1.5px solid var(--border)">Guardar</button>
     </div>
   </div>
 </div>
@@ -11572,27 +11642,27 @@ window.confirmarEliminarPerfil = async function(){
   <div class="modal" style="border:1.5px solid var(--border)">
     <div class="modal-handle"></div>
     <div style="font-size:16px;font-weight:700;color:var(--text);margin-bottom:16px">¿Confirmar búsqueda?</div>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:20px">
-      <div style="background:var(--card-bg-soft);border-radius:12px;padding:12px">
+    <div id="confirm-hist-panel" style="background:#111111;border:1px solid var(--btn-border-hist);border-radius:16px;padding:14px 12px;margin-bottom:20px;display:grid;grid-template-columns:1fr 1fr;gap:14px 10px">
+      <div>
         <div style="font-size:10px;font-weight:700;color:var(--text-dim);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:3px">Banco</div>
         <div style="font-size:14px;font-weight:700;color:var(--text)" id="confirm-hist-banco">—</div>
       </div>
-      <div style="background:var(--card-bg-soft);border-radius:12px;padding:12px">
+      <div>
         <div style="font-size:10px;font-weight:700;color:var(--text-dim);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:3px">Tarjeta</div>
         <div style="font-size:14px;font-weight:700;color:var(--text)" id="confirm-hist-tarjeta">—</div>
       </div>
-      <div style="background:var(--card-bg-soft);border-radius:12px;padding:12px">
+      <div>
         <div style="font-size:10px;font-weight:700;color:var(--text-dim);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:3px">Año</div>
         <div style="font-size:14px;font-weight:700;color:var(--text)" id="confirm-hist-anio">—</div>
       </div>
-      <div style="background:var(--card-bg-soft);border-radius:12px;padding:12px">
+      <div>
         <div style="font-size:10px;font-weight:700;color:var(--text-dim);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:3px">Corte</div>
         <div style="font-size:14px;font-weight:700;color:var(--text)" id="confirm-hist-corte">—</div>
       </div>
     </div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
-      <button onclick="cancelarConfirmHist()" style="padding:13px;border-radius:12px;border:1.5px solid var(--border);background:var(--card-bg-soft);font-size:15px;font-weight:600;cursor:pointer;font-family:inherit;color:var(--text);box-shadow:0 2px 5px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.05)">Cancelar</button>
-      <button onclick="aceptarConfirmHist()" style="padding:13px;border-radius:12px;border:1.5px solid var(--border);background:var(--card-bg-soft);color:var(--text);font-size:15px;font-weight:600;cursor:pointer;font-family:inherit;box-shadow:0 2px 5px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.05)">Aceptar</button>
+      <button id="confirm-hist-cancel-btn" onclick="cancelarConfirmHist()" style="padding:13px;border-radius:12px;border:1.5px solid var(--btn-border-hist);background:#111111;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit;color:var(--text);box-shadow:0 2px 5px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.05)">Cancelar</button>
+      <button id="confirm-hist-accept-btn" onclick="aceptarConfirmHist()" style="padding:13px;border-radius:12px;border:1.5px solid var(--btn-border-hist);background:#111111;color:var(--text);font-size:15px;font-weight:600;cursor:pointer;font-family:inherit;box-shadow:0 2px 5px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.05)">Aceptar</button>
     </div>
   </div>
 </div>
@@ -12110,7 +12180,7 @@ function _actualizarFechaDebito() {
       <div id="confirm-mov-titulo" style="font-size:18px;font-weight:800;color:var(--text);margin-bottom:4px">¿Es correcta la información?</div>
       <div style="font-size:13px;color:var(--text-dim)">Revisa los datos antes de guardar</div>
     </div>
-    <div style="background:var(--card-bg-soft);border-radius:16px;padding:16px 18px;margin-bottom:20px;display:flex;flex-direction:column;gap:10px">
+    <div id="confirm-mov-panel" style="background:var(--card-bg-soft);border-radius:16px;padding:16px 18px;margin-bottom:20px;display:flex;flex-direction:column;gap:10px">
       <div id="confirm-mov-row-tarjeta" style="display:flex;justify-content:space-between;align-items:center">
         <span id="confirm-mov-tarjeta-label" style="font-size:13px;color:var(--text-dim);font-weight:500">Tarjeta / Cuenta</span>
         <span id="confirm-mov-tarjeta" style="font-size:14px;font-weight:400;color:var(--text);text-align:right;max-width:180px"></span>
@@ -12371,7 +12441,7 @@ document.addEventListener('DOMContentLoaded', function(){
 
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:8px">
       <button class="btn-flat-cancel" onclick="cerrarCargoRecurrente()">Cancelar</button>
-      <button class="modal-save" onclick="guardarCargoRecurrente()" style="margin-top:0;background:linear-gradient(180deg,var(--card-bg-soft),var(--bg));color:var(--text);border:1.5px solid var(--border)">Guardar</button>
+      <button id="cargo-save-btn" class="modal-save" onclick="guardarCargoRecurrente()" style="margin-top:0;background:linear-gradient(180deg,var(--card-bg-soft),var(--bg));color:var(--text);border:1.5px solid var(--border)">Guardar</button>
     </div>
   </div>
 </div>
