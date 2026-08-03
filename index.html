@@ -366,6 +366,14 @@ html.dark-mode #promo-tarjeta-btn,
 html.dark-mode #promo-meses-display{box-shadow:0 2px 6px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.06)!important}
 html.dark-mode #modal-promo-overlay .btn-flat-cancel,
 html.dark-mode #promo-save-btn{background:#111111!important;border:1px solid rgba(255,255,255,0.09)!important;box-shadow:0 2px 6px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.06)!important}
+html.dark-mode #modal-perfil-acciones .modal{--card-bg:#090909;--card-bg-soft:#111111;border:1px solid rgba(255,255,255,0.08)!important}
+html.dark-mode #perfil-accion-editar,
+html.dark-mode #perfil-accion-eliminar,
+html.dark-mode #perfil-accion-cancelar{background:#111111!important;border:1px solid rgba(255,255,255,0.09)!important}
+html.dark-mode #perfil-accion-resumen > div{border:1px solid rgba(255,255,255,0.09)}
+html.dark-mode #perfil-activo-badge{background:#090909!important}
+html.dark-mode #perfil-header-card{background:#111111!important;border:1px solid rgba(255,255,255,0.09)!important;box-shadow:0 2px 6px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.06)!important}
+html.dark-mode #btn-agregar-tarjeta-fuera{background:#111111!important;border:1px solid rgba(255,255,255,0.09)!important}
 html.dark-mode #btn-nuevo-cargo-recurrente{background:#111111!important;border:1px solid rgba(255,255,255,0.09)!important}
 html.dark-mode #modal-cargo-recurrente .modal{--card-bg:#090909;--card-bg-soft:#111111;--input-bg:#111111;--border:rgba(255,255,255,0.09);border:1px solid rgba(255,255,255,0.08)}
 html.dark-mode #modal-cargo-recurrente .inp,
@@ -5222,7 +5230,7 @@ window.renderPerfiles = function(){
   lista.innerHTML = `
 
     <!-- ── Header de perfil ── -->
-    <div style="background:var(--card-bg);border-radius:16px;padding:16px 18px;box-shadow:0 1px 6px rgba(0,0,0,0.08);margin-bottom:12px;display:flex;align-items:center;gap:14px">
+    <div id="perfil-header-card" style="background:var(--card-bg);border-radius:16px;padding:16px 18px;box-shadow:0 1px 6px rgba(0,0,0,0.08);margin-bottom:12px;display:flex;align-items:center;gap:14px">
       <div style="width:48px;height:48px;border-radius:14px;background:linear-gradient(180deg,#111,#444);display:flex;align-items:center;justify-content:center;color:#fff;font-size:20px;font-weight:700;flex-shrink:0">
         ${perfil.nombre.charAt(0).toUpperCase()}
       </div>
@@ -5230,11 +5238,11 @@ window.renderPerfiles = function(){
         <div style="font-size:16px;font-weight:700;color:var(--text)">${perfil.nombre}</div>
         <div style="font-size:12px;color:var(--text-dim);margin-top:2px">${(perfil.tarjetas||[]).length} tarjeta${(perfil.tarjetas||[]).length!==1?'s':''} · ${(perfil.cuentasDebito||[]).length} débito${(perfil.cuentasDebito||[]).length!==1?'s':''}</div>
       </div>
-      <div style="background:#111;color:#fff;font-size:11px;font-weight:600;padding:4px 10px;border-radius:20px">Activo</div>
+      <div id="perfil-activo-badge" style="background:#111;color:#fff;font-size:11px;font-weight:600;padding:4px 10px;border-radius:20px">Activo</div>
     </div>
 
     <!-- ── RECUADRO UNIFICADO: Tarjetas con Toggle Crédito / Débito ── -->
-    <div id="perfil-cards-box" style="background:var(--card-bg);border-radius:16px;padding:18px;box-shadow:0 1px 6px rgba(0,0,0,0.08);margin-bottom:12px;overflow:hidden">
+    <div id="perfil-cards-box" style="margin-bottom:12px;overflow:hidden">
 
       <!-- Toggle Crédito / Débito -->
       <div id="perfil-tab-toggle" style="display:flex;background:var(--toggle-pill-bg);border:1px solid var(--toggle-pill-border);border-radius:16px;padding:4px;margin-bottom:16px;position:relative">
@@ -5248,6 +5256,12 @@ window.renderPerfiles = function(){
           Débito <span style="font-size:11px;font-weight:500;opacity:0.8">${(perfil.cuentasDebito||[]).length}</span>
         </button>
       </div>
+
+      <!-- Botón agregar tarjeta/cuenta (justo debajo del toggle) -->
+      <button id="btn-agregar-tarjeta-fuera" onclick="window._perfilTabActivo==='credito'?abrirFormNuevaTarjeta():abrirFormNuevaCuenta()"
+        style="width:100%;padding:12px;border-radius:10px;border:none;background:linear-gradient(180deg,#111,#444);color:#fff;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;margin-bottom:16px">
+        ${_perfilTabActivo==='credito' ? '+ Agregar tarjeta de crédito' : '+ Agregar cuenta de débito'}
+      </button>
 
       <!-- ── Panel Crédito ── -->
       <div id="perfil-panel-credito" style="display:${_perfilTabActivo==='credito'?'block':'none'}">
@@ -10816,10 +10830,6 @@ window.confirmarEliminarPerfil = async function(){
   <div style="width:100%;max-width:390px;padding:0 4px">
     <div style="margin-bottom:20px"></div>
     <div id="perfiles-lista"></div>
-    <button id="btn-agregar-tarjeta-fuera" onclick="window._perfilTabActivo==='credito'?abrirFormNuevaTarjeta():abrirFormNuevaCuenta()"
-      style="width:100%;padding:12px;border-radius:10px;border:none;background:linear-gradient(180deg,#111,#444);color:#fff;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;margin-top:10px;display:none">
-      + Agregar tarjeta de crédito
-    </button>
   </div>
 </div>
 
@@ -12281,7 +12291,7 @@ document.addEventListener('DOMContentLoaded', function(){
         Eliminar
       </button>
     </div>
-    <button onclick="cerrarAccionesPerfil()" style="width:100%;padding:13px;border-radius:12px;border:1.5px solid var(--border);background:var(--card-bg);font-size:15px;font-weight:600;cursor:pointer;font-family:inherit;color:var(--text)">Cancelar</button>
+    <button id="perfil-accion-cancelar" onclick="cerrarAccionesPerfil()" style="width:100%;padding:13px;border-radius:12px;border:1.5px solid var(--border);background:var(--card-bg);font-size:15px;font-weight:600;cursor:pointer;font-family:inherit;color:var(--text)">Cancelar</button>
   </div>
 </div>
 
