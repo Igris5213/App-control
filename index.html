@@ -243,7 +243,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .card-color-santander{background:#090909}
 
 /* PROMO / CARGO — tarjetas oscuras estilo bank-card */
-.promo-dark-card{background:linear-gradient(165deg,#3a3a3a,#111 65%);border-radius:20px;padding:18px;margin-bottom:12px;color:#fff;box-shadow:0 10px 30px rgba(0,0,0,0.28);cursor:pointer;transition:transform 0.15s,filter 0.15s;position:relative}
+.promo-dark-card{background:#111111;border:1px solid rgba(255,255,255,0.09);border-radius:20px;padding:18px;margin-bottom:12px;color:#fff;box-shadow:0 2px 6px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.06);cursor:pointer;transition:transform 0.15s,filter 0.15s;position:relative}
 .promo-dark-card:active{transform:scale(0.98)}
 .promo-dark-top{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;margin-bottom:4px}
 .promo-dark-title{font-size:16.5px;font-weight:800;color:#fff;line-height:1.25;letter-spacing:-0.2px;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
@@ -366,7 +366,25 @@ html.dark-mode #promo-tarjeta-btn,
 html.dark-mode #promo-meses-display{box-shadow:0 2px 6px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.06)!important}
 html.dark-mode #modal-promo-overlay .btn-flat-cancel,
 html.dark-mode #promo-save-btn{background:#111111!important;border:1px solid rgba(255,255,255,0.09)!important;box-shadow:0 2px 6px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.06)!important}
+html.dark-mode #modal-detalle-cargo .modal{--card-bg:#090909;--card-bg-soft:#111111;border:1px solid rgba(255,255,255,0.08)!important}
+html.dark-mode #detalle-cargo-panel{background:#111111!important;border-color:rgba(255,255,255,0.09)!important}
+html.dark-mode #detalle-cargo-monto-box{box-shadow:0 2px 6px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.06)!important}
+html.dark-mode #detalle-cargo-panel > div > div{background:#090909!important;border:1px solid rgba(255,255,255,0.08);box-shadow:0 2px 6px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.06)!important}
+html.dark-mode #detalle-cargo-editar-btn,
+html.dark-mode #detalle-cargo-eliminar-btn,
+html.dark-mode #detalle-cargo-cerrar-btn{background:#111111!important;border:1px solid rgba(255,255,255,0.09)!important;box-shadow:0 2px 6px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.06)!important}
+html.dark-mode #modal-nueva-tarjeta .modal{--card-bg:#090909;--card-bg-soft:#111111;--input-bg:#111111;--border:rgba(255,255,255,0.09);border:1px solid rgba(255,255,255,0.08)}
+html.dark-mode #modal-nueva-tarjeta .ob-input,
+html.dark-mode #modal-nueva-tarjeta #banco-ob-prf-display,
+html.dark-mode #modal-nueva-tarjeta #corte-ob-prf-display{box-shadow:0 2px 6px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.06)!important}
+html.dark-mode #modal-nueva-tarjeta .btn-flat-cancel,
+html.dark-mode #modal-nueva-tarjeta .btn-flat-confirm{background:#111111!important;border:1px solid rgba(255,255,255,0.09)!important;box-shadow:0 2px 6px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.06)!important}
 html.dark-mode #modal-perfil-acciones .modal{--card-bg:#090909;--card-bg-soft:#111111;border:1px solid rgba(255,255,255,0.08)!important}
+html.dark-mode #modal-nueva-cuenta .modal{--card-bg:#090909;--card-bg-soft:#111111;--input-bg:#111111;--border:rgba(255,255,255,0.09);border:1px solid rgba(255,255,255,0.08)}
+html.dark-mode #modal-nueva-cuenta .ob-input,
+html.dark-mode #modal-nueva-cuenta #banco-nc-display{box-shadow:0 2px 6px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.06)!important}
+html.dark-mode #modal-nueva-cuenta .btn-flat-cancel,
+html.dark-mode #modal-nueva-cuenta .btn-flat-confirm{background:#111111!important;border:1px solid rgba(255,255,255,0.09)!important;box-shadow:0 2px 6px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.06)!important}
 html.dark-mode #perfil-accion-editar,
 html.dark-mode #perfil-accion-eliminar,
 html.dark-mode #perfil-accion-cancelar{background:#111111!important;border:1px solid rgba(255,255,255,0.09)!important}
@@ -404,6 +422,12 @@ html.dark-mode #modal-resumen-movimiento .btn-flat-confirm{background:#111111;bo
 html.dark-mode #modal-resumen-movimiento #resumen-mov-body div[style*="background:var(--card-bg-soft)"],
 html.dark-mode #modal-resumen-movimiento #resumen-mov-body div[style*="linear-gradient(180deg,var(--card-bg-soft)"]{box-shadow:0 2px 6px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.06)}
 html.dark-mode #modal-detalle-gasto .modal{--card-bg:#090909;--card-bg-soft:#111111;--icon-bg:#1c1c1c;--border:rgba(255,255,255,0.08)}
+html.dark-mode #modal-detalle-promo .modal{--card-bg:#090909;--card-bg-soft:#111111;--border:rgba(255,255,255,0.09);border:1px solid rgba(255,255,255,0.08)!important}
+html.dark-mode #modal-detalle-promo .modal div[style*="background:var(--card-bg-soft)"]{box-shadow:0 2px 6px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.06)!important}
+html.dark-mode #detalle-promo-falta-box{background:#111111!important;box-shadow:0 2px 6px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.06)!important}
+html.dark-mode #detalle-promo-editar-btn,
+html.dark-mode #detalle-promo-cerrar-btn{background:#111111!important;border:1px solid rgba(255,255,255,0.09)!important;color:var(--text)!important;box-shadow:0 2px 6px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.06)!important}
+html.dark-mode #detalle-promo-eliminar-btn{background:#111111!important;border:1px solid rgba(255,255,255,0.09)!important;box-shadow:0 2px 6px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.06)!important}
 html.dark-mode #modal-edit-cred .modal{--card-bg:#090909;--card-bg-soft:#111111;--icon-bg:#1c1c1c;--border:#212121;--input-bg:#090909;--bg:#090909}
 html.dark-mode #modal-edit-cred .modal .btn-flat-cancel,
 html.dark-mode #modal-edit-cred .modal #modal-save-btn{background:var(--card-bg-soft)!important;box-shadow:0 2px 6px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.06)}
@@ -7498,7 +7522,8 @@ window.verDetalleCargo = function(id){
   const montoFmt = '$' + Number(c.monto).toLocaleString('es-MX',{minimumFractionDigits:2,maximumFractionDigits:2});
 
   document.getElementById('detalle-cargo-content').innerHTML = `
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:20px">
+    <div id="detalle-cargo-panel" style="background:var(--card-bg);border:1px solid var(--border);border-radius:16px;padding:14px;margin-bottom:20px">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
       <div style="background:var(--card-bg-soft);border-radius:12px;padding:12px;text-align:center">
         <div style="font-size:10px;font-weight:700;color:var(--text-dim);text-transform:uppercase;margin-bottom:4px">Banco</div>
         <div style="font-size:14px;font-weight:700;color:var(--text)">${c.banco||'—'}</div>
@@ -7515,24 +7540,25 @@ window.verDetalleCargo = function(id){
         <div style="font-size:10px;font-weight:700;color:var(--text-dim);text-transform:uppercase;margin-bottom:4px">Comercio</div>
         <div style="font-size:14px;font-weight:700;color:var(--text)">${c.nombre}</div>
       </div>
-      <div style="background:linear-gradient(180deg,#111,#444);border-radius:12px;padding:14px;text-align:center;grid-column:1/-1">
-        <div style="font-size:10px;font-weight:700;color:rgba(255,255,255,0.55);text-transform:uppercase;margin-bottom:4px">Monto mensual</div>
-        <div style="font-size:22px;font-weight:800;color:#fff">${montoFmt}</div>
+      <div style="background:var(--card-bg-soft);border-radius:12px;padding:14px;text-align:center;grid-column:1/-1" id="detalle-cargo-monto-box">
+        <div style="font-size:10px;font-weight:700;color:var(--text-dim);text-transform:uppercase;margin-bottom:4px">Monto mensual</div>
+        <div style="font-size:22px;font-weight:800;color:var(--text)">${montoFmt}</div>
       </div>
     </div>
+    </div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px">
-      <button onclick="document.getElementById('modal-detalle-cargo').classList.remove('open');editarCargoRecurrente(window._cargoAccionId)"
+      <button id="detalle-cargo-editar-btn" onclick="document.getElementById('modal-detalle-cargo').classList.remove('open');editarCargoRecurrente(window._cargoAccionId)"
         style="padding:13px;border-radius:12px;border:1.5px solid var(--border);background:var(--card-bg);color:var(--text);font-size:15px;font-weight:600;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:8px">
         <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
         Editar
       </button>
-      <button onclick="eliminarCargoRecurrente(window._cargoAccionId)"
+      <button id="detalle-cargo-eliminar-btn" onclick="eliminarCargoRecurrente(window._cargoAccionId)"
         style="padding:13px;border-radius:12px;border:none;background:linear-gradient(180deg,#333,#666);color:#fff;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:8px">
         <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/></svg>
         Eliminar
       </button>
     </div>
-    <button onclick="document.getElementById('modal-detalle-cargo').classList.remove('open')"
+    <button id="detalle-cargo-cerrar-btn" onclick="document.getElementById('modal-detalle-cargo').classList.remove('open')"
       style="width:100%;padding:13px;border-radius:12px;border:1.5px solid var(--border);background:var(--card-bg);color:var(--text);font-size:15px;font-weight:600;cursor:pointer;font-family:inherit">
       Cerrar
     </button>`;
@@ -8529,7 +8555,7 @@ window.verPromo = async function(id){
           <div style="font-size:10px;font-weight:700;color:var(--text-dim);text-transform:uppercase;margin-bottom:4px">Meses restantes</div>
           <div style="font-size:14px;font-weight:700;color:var(--text)">${mesesFaltantes}</div>
         </div>
-        <div style="background:linear-gradient(180deg,#111,#444);border-radius:12px;padding:12px;text-align:center">
+        <div id="detalle-promo-falta-box" style="background:linear-gradient(180deg,#111,#444);border-radius:12px;padding:12px;text-align:center">
           <div style="font-size:10px;font-weight:700;color:rgba(255,255,255,0.6);text-transform:uppercase;margin-bottom:4px">Falta pagar</div>
           <div style="font-size:14px;font-weight:700;color:#fff">${fmt(importeFaltante)}</div>
         </div>
@@ -8549,18 +8575,18 @@ window.verPromo = async function(id){
 
       <!-- Botones acción -->
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px">
-        <button ${mesesTranscurridos>=p.meses?'disabled':'onclick="abrirEditarPromo(\''+p.id+'\')"'}
+        <button id="detalle-promo-editar-btn" ${mesesTranscurridos>=p.meses?'disabled':'onclick="abrirEditarPromo(\''+p.id+'\')"'}
           style="padding:13px;border-radius:12px;border:1.5px solid #e0e0e0;background:#fff;color:${mesesTranscurridos>=p.meses?'#aaa':'#111'};font-size:15px;font-weight:600;cursor:${mesesTranscurridos>=p.meses?'not-allowed':'pointer'};font-family:inherit;display:flex;align-items:center;justify-content:center;gap:8px">
           <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
           Editar
         </button>
-        <button onclick="pedirConfirmEliminarPromo('${p.id}')"
+        <button id="detalle-promo-eliminar-btn" onclick="pedirConfirmEliminarPromo('${p.id}')"
           style="padding:13px;border-radius:12px;border:none;background:linear-gradient(180deg,#333,#666);color:#fff;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:8px">
           <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/></svg>
           Eliminar
         </button>
       </div>
-      <button onclick="cerrarDetallePromo()"
+      <button id="detalle-promo-cerrar-btn" onclick="cerrarDetallePromo()"
         style="width:100%;padding:13px;border-radius:12px;border:1.5px solid #e0e0e0;background:#fff;color:#111;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit">
         Cerrar
       </button>
