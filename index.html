@@ -214,9 +214,11 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 
 /* CSS tarjeta */
 .card-top-row{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:16px}
-.card-bank-name{font-size:26px;font-weight:800;color:#fff;letter-spacing:-0.5px}
+.card-bank-name{font-size:20px;font-weight:800;color:#fff;letter-spacing:-0.3px;text-align:left}
+.card-menu-btn{width:30px;height:30px;border-radius:9px;background:rgba(255,255,255,0.14);display:flex;align-items:center;justify-content:center;flex-shrink:0;color:#fff;cursor:pointer;border:none;flex-shrink:0}
+.card-sub{font-size:12.5px;color:rgba(255,255,255,0.62);margin-bottom:16px}
 .card-badge{display:none;align-items:center;gap:5px;background:rgba(255,255,255,0.18);border:1.5px solid rgba(255,255,255,0.55);border-radius:20px;padding:5px 12px;font-size:12px;font-weight:600;color:#fff}
-.card-lim-label{font-size:12px;color:rgba(255,255,255,0.75);margin-bottom:4px}
+.card-lim-label{font-size:11px;font-weight:700;color:rgba(255,255,255,0.58);text-transform:uppercase;letter-spacing:0.07em;margin-bottom:4px}
 .card-lim-val{font-size:28px;font-weight:700;color:#fff;margin-bottom:12px}
 .card-use-row{display:flex;justify-content:space-between;font-size:12px;color:rgba(255,255,255,0.85);margin-bottom:8px}
 .card-use-bar{height:7px;background:rgba(255,255,255,0.22);border-radius:4px;overflow:hidden;margin-bottom:8px}
@@ -850,17 +852,18 @@ input[type=number]{-moz-appearance:textfield}
 /* ── NAVBAR INFERIOR ── */
 .bottom-nav{
   position:fixed;
-  bottom:30px;
+  bottom:16px;
   left:50%;
   transform:translateX(-50%);
   width:calc(100% - 32px);
   max-width:420px;
   height:52px;
-  background:var(--nav-bg);
+  background:#111111;
+  border:1px solid rgba(255,255,255,0.09);
   backdrop-filter:blur(20px);
   -webkit-backdrop-filter:blur(20px);
   border-radius:100px;
-  box-shadow:0 4px 28px rgba(0,0,0,0.13), 0 1px 0 rgba(255,255,255,0.95) inset;
+  box-shadow:0 4px 28px rgba(0,0,0,0.35);
   display:none;
   justify-content:space-around;
   align-items:center;
@@ -3022,9 +3025,16 @@ function buildCarrusel(){
   perfil.tarjetas.forEach((t,i)=>{
     const card = document.createElement('div');
     card.className = `bank-card ${t.color || COLORS[i % COLORS.length]}`;
+    const _titulo = t.apodo || t.nombre;
+    const _sub = t.apodo ? t.nombre : '';
     card.innerHTML = `
-      <div class="card-bank-name" style="text-align:center;margin-bottom:${t.apodo?'6px':'18px'};font-size:26px;font-weight:800">${t.nombre}</div>
-      ${t.apodo ? `<div style="text-align:center;font-size:15px;opacity:0.85;margin-bottom:14px">${t.apodo}</div>` : ''}
+      <div class="card-top-row" style="margin-bottom:${_sub?'2px':'16px'}">
+        <div class="card-bank-name">${_titulo}</div>
+        <button type="button" class="card-menu-btn" onclick="event.stopPropagation();abrirEditarTarjeta('${t.id}')">
+          <svg width="14" height="14" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" viewBox="0 0 24 24"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+        </button>
+      </div>
+      ${_sub ? `<div class="card-sub">${_sub}</div>` : ''}
       <div class="card-lim-label">Límite total</div>
       <div class="card-lim-val" id="lim-${i}">$${t.limite.toLocaleString('es-MX',{minimumFractionDigits:2})}</div>
       <div class="card-use-row">
@@ -3040,7 +3050,7 @@ function buildCarrusel(){
       <div class="card-corte-row" style="justify-content:space-between">
         <div style="display:flex;align-items:center;gap:6px">
           <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-          <strong>Fecha de corte: Día ${t.corte}</strong>
+          <strong>Día ${t.corte}</strong>
         </div>
         <div style="display:flex;align-items:center;gap:6px">
           <strong>Gasto por día: <span id="xdia-${i}">0.00</span></strong>
@@ -3378,8 +3388,7 @@ function renderMovimientos(){
       const fb = b.fecha || '';
       if(fb !== fa) return fb.localeCompare(fa);
       return (b.creadoEn||0) - (a.creadoEn||0);
-    })
-    .slice(0, 10);
+    });
 
   if(!filtrados.length){ el.innerHTML=`<div class="empty-mov">Sin movimientos en el corte actual</div>`; return; }
   el.innerHTML = filtrados.map((m,idx)=>{
@@ -9467,9 +9476,16 @@ function buildCarruselDebito(){
     const card = document.createElement('div');
     card.className = `bank-card ${c.color || 'card-color-0'}`;
     const disp = typeof c.disponible === 'number' ? c.disponible : 0;
+    const _titulo = c.apodo || c.nombre;
+    const _sub = c.apodo ? c.nombre : '';
     card.innerHTML = `
-      <div class="card-bank-name" style="text-align:center;margin-bottom:${c.apodo?'6px':'18px'};font-size:26px;font-weight:800">${c.nombre}</div>
-      ${c.apodo ? `<div style="text-align:center;font-size:15px;opacity:0.85;margin-bottom:14px">${c.apodo}</div>` : ''}
+      <div class="card-top-row" style="margin-bottom:${_sub?'2px':'16px'}">
+        <div class="card-bank-name">${_titulo}</div>
+        <button type="button" class="card-menu-btn" onclick="event.stopPropagation();abrirEditarDebito('${c.id}')">
+          <svg width="14" height="14" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" viewBox="0 0 24 24"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+        </button>
+      </div>
+      ${_sub ? `<div class="card-sub">${_sub}</div>` : ''}
       <div class="card-lim-label">Saldo disponible</div>
       <div class="card-lim-val" id="deb-disp-${i}">$${disp.toLocaleString('es-MX',{minimumFractionDigits:2})}</div>
       <div class="card-use-row">
@@ -9483,7 +9499,7 @@ function buildCarruselDebito(){
       <div class="card-corte-row" style="justify-content:space-between">
         <div style="display:flex;align-items:center;gap:6px">
           <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-          <strong>Fecha de corte: Día 1</strong>
+          <strong>Día 1</strong>
         </div>
         <div style="display:flex;align-items:center;gap:6px">
           <strong>Gasto por día: <span id="deb-xdia-${i}">0.00</span></strong>
@@ -9640,8 +9656,7 @@ function _renderDebMovimientos(){
       const fb = b.fecha || '';
       if(fb !== fa) return fb.localeCompare(fa);
       return (b.creadoEn||0) - (a.creadoEn||0);
-    })
-    .slice(0, 10);
+    });
 
   if(!movC.length){
     el.innerHTML = `<div class="empty-mov">Sin cortes disponibles</div>`;
