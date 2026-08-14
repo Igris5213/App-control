@@ -2190,7 +2190,7 @@ try{
     <!-- Últimos movimientos -->
     <div class="section-card" id="tarjetas-mov-section" style="margin:0 0 32px">
       <div class="section-card-title">Últimos movimientos</div>
-      <div id="mov-list" style="max-height:588px;overflow-y:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none"></div>
+      <div id="mov-list" style="max-height:none;overflow-y:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none"></div>
     </div>
   </div>
 </div>
@@ -3390,7 +3390,7 @@ function renderMovimientos(){
       return (b.creadoEn||0) - (a.creadoEn||0);
     });
 
-  if(!filtrados.length){ el.innerHTML=`<div class="empty-mov">Sin movimientos en el corte actual</div>`; return; }
+  if(!filtrados.length){ el.innerHTML=`<div class="empty-mov">Sin movimientos en el corte actual</div>`; el.style.maxHeight='none'; return; }
   el.innerHTML = filtrados.map((m,idx)=>{
     const _c3 = m.comercio || m.concepto || m.detalle || 'Gasto';
     return `<div class="mov-item" onclick="resaltarMov(this)" onmousedown="startLongPress(this)" onmouseup="cancelLongPress()" onmouseleave="cancelLongPress()" ontouchstart="startLongPress(this)" ontouchend="cancelLongPress()" ontouchmove="cancelLongPress()" data-id="${m.id}">
@@ -3402,6 +3402,21 @@ function renderMovimientos(){
       <div class="mov-amount" style="color:var(--text-dim)">-${fmt(m.monto)}</div>
     </div>`;
   }).join('');
+
+  // Mostrar como máximo 7 movimientos completos; el resto con scroll
+  requestAnimationFrame(()=>{
+    const _items = el.querySelectorAll('.mov-item');
+    if(_items.length > 7){
+      let _h = 0;
+      for(let k=0;k<7;k++){
+        _h += _items[k].getBoundingClientRect().height;
+        _h += parseFloat(getComputedStyle(_items[k]).marginBottom)||0;
+      }
+      el.style.maxHeight = _h + 'px';
+    } else {
+      el.style.maxHeight = 'none';
+    }
+  });
 }
 
 
