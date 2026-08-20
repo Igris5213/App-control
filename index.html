@@ -3137,7 +3137,6 @@ function buildCarrusel(){
         </div>
         <div class="card-use-bar"><div class="card-use-fill" id="bar-${i}" style="width:0%"></div></div>
         <div class="card-usage-pct-row">
-          <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" stroke-dasharray="42 14" transform="rotate(-90 12 12)"/></svg>
           <span id="pct-${i}">0% utilizado</span>
         </div>
       </div>
@@ -9834,28 +9833,58 @@ function buildCarruselDebito(){
     const _titulo = c.apodo || c.nombre;
     const _sub = c.apodo ? c.nombre : '';
     card.innerHTML = `
-      <div class="card-top-row" style="margin-bottom:${_sub?'2px':'16px'}">
-        <div class="card-bank-name">${_titulo}</div>
-      </div>
-      ${_sub ? `<div class="card-sub">${_sub}</div>` : ''}
-      <div class="card-lim-label">Saldo disponible</div>
-      <div class="card-lim-val" id="deb-disp-${i}">$${disp.toLocaleString('es-MX',{minimumFractionDigits:2})}</div>
-      <div class="card-use-row">
-        <span>Ingresos: <strong id="deb-ing-${i}">$0.00</strong></span>
-        <span>Egresos: <strong id="deb-egr-${i}">$0.00</strong></span>
-      </div>
-      <div class="card-use-bar"><div class="card-use-fill" id="deb-bar-${i}" style="width:0%"></div></div>
-      <div class="card-use-pct" id="deb-pct-${i}">0% gastado</div>
-      <div id="deb-promos-${i}" style="font-size:12px;color:rgba(255,255,255,0.8);margin-bottom:8px;display:none"></div>
-      <div class="card-divider"></div>
-      <div class="card-corte-row" style="justify-content:space-between">
-        <div style="display:flex;align-items:center;gap:6px">
-          <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-          <strong>Día 1</strong>
+      <div class="card-unified-box">
+      <div class="card-header-box">
+        <div class="card-top-row" style="margin-bottom:0">
+          <div class="card-top-left">
+            <div class="card-bank-name">${_titulo}</div>
+            ${_sub ? `<div class="card-sub">${_sub}</div>` : ''}
+          </div>
         </div>
-        <div style="display:flex;align-items:center;gap:6px">
-          <strong>Gasto por día: <span id="deb-xdia-${i}">0.00</span></strong>
+      </div>
+      <div class="card-usage-box">
+        <div class="card-usage-stats">
+          <div class="card-stat-cell">
+            <div class="card-stat-label">Disponible</div>
+            <div class="card-stat-value" id="deb-disp-${i}">$${disp.toLocaleString('es-MX',{minimumFractionDigits:2})}</div>
+          </div>
+          <div class="card-info-divider"></div>
+          <div class="card-stat-cell">
+            <div class="card-stat-label">Ingresos</div>
+            <div class="card-stat-value" id="deb-ing-${i}">$0.00</div>
+          </div>
+          <div class="card-info-divider"></div>
+          <div class="card-stat-cell">
+            <div class="card-stat-label">Egresos</div>
+            <div class="card-stat-value" id="deb-egr-${i}">$0.00</div>
+          </div>
         </div>
+        <div class="card-use-bar"><div class="card-use-fill" id="deb-bar-${i}" style="width:0%"></div></div>
+        <div class="card-usage-pct-row">
+          <span id="deb-pct-${i}">0% gastado</span>
+        </div>
+      </div>
+      <div class="card-info-box">
+        <div class="card-info-cell">
+          <div class="card-info-icon">
+            <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+          </div>
+          <div class="card-info-text">
+            <div class="card-info-label">Fecha de corte</div>
+            <div class="card-info-value">Día 1</div>
+          </div>
+        </div>
+        <div class="card-info-divider"></div>
+        <div class="card-info-cell">
+          <div class="card-info-icon">
+            <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><polyline points="3 17 9 11 13 15 21 7"/><polyline points="14 7 21 7 21 14"/></svg>
+          </div>
+          <div class="card-info-text">
+            <div class="card-info-label">Gasto por día</div>
+            <div class="card-info-value">$<span id="deb-xdia-${i}">0.00</span></div>
+          </div>
+        </div>
+      </div>
       </div>`;
     outer.appendChild(card);
 
@@ -9976,12 +10005,6 @@ function _updateDebCards(){
       const pct = ingMes > 0 ? Math.min(100, Math.round((egrMes / ingMes) * 100)) : (egrMes > 0 ? 100 : 0);
       barEl.style.width = pct + '%';
       pctEl.textContent = pct + '% gastado';
-    }
-    // Promociones — monto mensual de los cargos recurrentes de débito de esta cuenta
-    const promosEl = document.getElementById('deb-promos-' + i);
-    if(promosEl){
-      promosEl.innerHTML = 'Promociones: <strong style="color:#fff">$' + fmt2(_totalCargosDeb) + '</strong>';
-      promosEl.style.display = '';
     }
     // Gasto por día
     const xdiaEl = document.getElementById('deb-xdia-' + i);
