@@ -227,6 +227,31 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .card-use-pct{font-size:13px;font-weight:500;color:rgba(255,255,255,0.9);margin-bottom:14px}
 .card-divider{height:1px;background:rgba(255,255,255,0.2);margin-bottom:14px}
 .card-corte-row{display:flex;align-items:center;gap:8px;font-size:13px;color:rgba(255,255,255,0.85);margin-bottom:0}
+.card-info-box{display:flex;align-items:stretch;background:#111111;border:1px solid rgba(255,255,255,0.1);border-radius:14px;padding:9px 12px;gap:10px}
+.card-info-cell{display:flex;align-items:center;gap:8px;flex:1;min-width:0}
+.card-info-icon{width:26px;height:26px;border-radius:8px;background:#111111;border:1px solid rgba(255,255,255,0.09);display:flex;align-items:center;justify-content:center;flex-shrink:0;color:#fff}
+.card-info-icon.icon-amber{color:#f0b429}
+.card-info-icon.icon-green{color:#4ade80}
+.card-info-icon-plain{flex-shrink:0;color:rgba(255,255,255,0.65)}
+.card-info-divider{width:1px;align-self:stretch;background:rgba(255,255,255,0.15)}
+.card-info-text{min-width:0}
+.card-info-label{font-size:10.5px;color:rgba(255,255,255,0.6);font-weight:500;line-height:1.3}
+.card-info-value{font-size:14px;font-weight:700;color:#fff;line-height:1.3;white-space:nowrap}
+.card-stat-row{display:flex;justify-content:space-between;margin-bottom:10px}
+.card-stat-cell{display:flex;flex-direction:column;flex:1;min-width:0}
+.card-stat-cell.right{align-items:flex-end;text-align:right}
+.card-stat-label{font-size:11px;color:rgba(255,255,255,0.55);font-weight:600;margin-bottom:2px}
+.card-stat-value{font-size:19px;font-weight:800;color:#fff}
+/* ── Recuadro unificado: Usado / Disponible / barra / % utilizado ── */
+.card-usage-box{background:#111111;border:1px solid rgba(255,255,255,0.1);border-radius:14px;padding:12px 14px 11px;margin-bottom:8px}
+.card-usage-stats{display:flex;align-items:stretch;gap:12px;margin-bottom:10px}
+.card-usage-box .card-use-bar{margin-bottom:8px}
+.card-usage-pct-row{display:flex;align-items:center;gap:7px;font-size:12.5px;font-weight:600;color:rgba(255,255,255,0.85)}
+.card-usage-pct-row svg{flex-shrink:0}
+.card-link-box{display:flex;align-items:center;gap:10px;background:#111111;border:1px solid rgba(255,255,255,0.1);border-radius:14px;padding:9px 12px;margin-bottom:8px}
+.card-link-icon{flex-shrink:0;color:rgba(255,255,255,0.85);display:flex;align-items:center;justify-content:center}
+.card-link-text{flex:1;font-size:12.5px;color:rgba(255,255,255,0.85);min-width:0}
+.card-link-chevron{flex-shrink:0;color:rgba(255,255,255,0.35)}
 .card-stats-row{display:flex;align-items:center;gap:12px}
 .card-stats-icon{width:40px;height:40px;border-radius:50%;background:rgba(255,255,255,0.15);display:flex;align-items:center;justify-content:center;flex-shrink:0;color:#fff}
 .card-stats-info{font-size:13px;color:#fff}
@@ -3053,23 +3078,48 @@ function buildCarrusel(){
       ${_sub ? `<div class="card-sub">${_sub}</div>` : ''}
       <div class="card-lim-label">Límite total</div>
       <div class="card-lim-val" id="lim-${i}">$${t.limite.toLocaleString('es-MX',{minimumFractionDigits:2})}</div>
-      <div class="card-use-row">
-        <span>Usado: <strong id="usado-${i}">$0.00</strong></span>
-        <span>Disponible: <strong id="disp-${i}">$${t.limite.toLocaleString('es-MX',{minimumFractionDigits:2})}</strong></span>
-      </div>
-      <div class="card-use-bar"><div class="card-use-fill" id="bar-${i}" style="width:0%"></div></div>
-      <div class="card-use-pct" id="pct-${i}">0% utilizado</div>
-      <div style="font-size:12px;color:rgba(255,255,255,0.8);margin-bottom:8px">
-        Promociones: <strong id="total-con-msi-${i}" style="color:#fff">$0.00</strong>
-      </div>
-      <div class="card-divider"></div>
-      <div class="card-corte-row" style="justify-content:space-between">
-        <div style="display:flex;align-items:center;gap:6px">
-          <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-          <strong>Día ${t.corte}</strong>
+      <div class="card-usage-box">
+        <div class="card-usage-stats">
+          <div class="card-stat-cell">
+            <div class="card-stat-label">Usado</div>
+            <div class="card-stat-value" id="usado-${i}">$0.00</div>
+          </div>
+          <div class="card-info-divider"></div>
+          <div class="card-stat-cell right">
+            <div class="card-stat-label">Disponible</div>
+            <div class="card-stat-value" id="disp-${i}">$${t.limite.toLocaleString('es-MX',{minimumFractionDigits:2})}</div>
+          </div>
         </div>
-        <div style="display:flex;align-items:center;gap:6px">
-          <strong>Gasto por día: <span id="xdia-${i}">0.00</span></strong>
+        <div class="card-use-bar"><div class="card-use-fill" id="bar-${i}" style="width:0%"></div></div>
+        <div class="card-usage-pct-row">
+          <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" stroke-dasharray="42 14" transform="rotate(-90 12 12)"/></svg>
+          <span id="pct-${i}">0% utilizado</span>
+        </div>
+      </div>
+      <div class="card-link-box">
+        <div class="card-link-icon"><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M20.59 13.41 11 3.83A2 2 0 0 0 9.5 3H4a1 1 0 0 0-1 1v5.5a2 2 0 0 0 .83 1.5l9.58 9.59a2 2 0 0 0 2.83 0l5.35-5.35a2 2 0 0 0 0-2.83z"/><circle cx="7.5" cy="7.5" r="1.5"/></svg></div>
+        <div class="card-link-text">Promociones: <strong id="total-con-msi-${i}" style="color:#fff">$0.00</strong></div>
+        <svg class="card-link-chevron" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
+      </div>
+      <div class="card-info-box">
+        <div class="card-info-cell">
+          <div class="card-info-icon icon-amber">
+            <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+          </div>
+          <div class="card-info-text">
+            <div class="card-info-value">Día ${t.corte}</div>
+            <div class="card-info-label">Fecha de corte</div>
+          </div>
+        </div>
+        <div class="card-info-divider"></div>
+        <div class="card-info-cell">
+          <div class="card-info-icon icon-green">
+            <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><polyline points="3 17 9 11 13 15 21 7"/><polyline points="14 7 21 7 21 14"/></svg>
+          </div>
+          <div class="card-info-text">
+            <div class="card-info-label">Gasto por día</div>
+            <div class="card-info-value">$<span id="xdia-${i}">0.00</span></div>
+          </div>
         </div>
       </div>`;
     outer.appendChild(card);
@@ -3275,7 +3325,7 @@ function updateCards(){
     if(pctEl){
       let pctHtml;
       if(sobregiro){
-        pctHtml = `<svg width="13" height="13" fill="none" stroke="rgba(255,255,255,0.9)" stroke-width="2" viewBox="0 0 24 24" style="vertical-align:middle;margin-right:4px"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>Sobregiro: ${Math.round(exceso/t.limite*100)}% del límite`;
+        pctHtml = `Sobregiro: ${Math.round(exceso/t.limite*100)}% del límite`;
       } else {
         pctHtml = `${pct}% utilizado`;
       }
