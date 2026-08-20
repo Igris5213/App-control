@@ -216,7 +216,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 /* CSS tarjeta */
 .card-unified-box{background:transparent;border:none;border-radius:0;padding:0;margin-bottom:0;display:flex;flex-direction:column;gap:3px}
 .card-unified-divider{display:none}
-.card-top-row{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:16px}
+.card-top-row{display:flex;align-items:flex-start;justify-content:center;gap:50px;margin-bottom:16px}
 .card-header-box{background:#111111;border:1px solid rgba(255,255,255,0.1);border-radius:14px;padding:12px 14px;margin-bottom:0}
 .card-top-left{display:flex;flex-direction:column;min-width:0}
 .card-top-right{display:flex;flex-direction:column;align-items:flex-end;text-align:right;flex-shrink:0;margin-left:12px}
@@ -3110,6 +3110,7 @@ function buildCarrusel(){
             <div class="card-bank-name">${_titulo}</div>
             ${_sub ? `<div class="card-sub">${_sub}</div>` : ''}
           </div>
+          <div class="card-info-divider"></div>
           <div class="card-top-right">
             <div class="card-lim-label">Límite total</div>
             <div class="card-lim-val" id="lim-${i}">$${t.limite.toLocaleString('es-MX',{minimumFractionDigits:2})}</div>
