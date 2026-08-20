@@ -203,7 +203,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
   color:#fff;
   box-sizing:border-box;
   min-height:240px;
-  box-shadow:0 12px 40px rgba(0,0,0,0.22);
+  background:transparent;
+  box-shadow:none;
 }
 .bank-card.active-card{
   display:flex;
@@ -250,8 +251,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 /* ── Recuadro unificado: Usado / Disponible / barra / % utilizado ── */
 .card-usage-box{background:#111111;border:1px solid rgba(255,255,255,0.1);border-radius:14px;padding:12px 14px 11px;margin-bottom:8px}
 .card-usage-stats{display:flex;align-items:stretch;gap:3px;margin-bottom:10px}
-.card-usage-stats .card-stat-label{font-size:9.5px}
-.card-usage-stats .card-stat-value{font-size:13.5px}
+.card-usage-stats .card-stat-label{font-size:11.5px}
+.card-usage-stats .card-stat-value{font-size:18px}
 .card-usage-box .card-use-bar{margin-bottom:8px}
 .card-usage-pct-row{display:flex;align-items:center;gap:7px;font-size:12.5px;font-weight:600;color:rgba(255,255,255,0.85)}
 .card-usage-pct-row svg{flex-shrink:0}
@@ -266,12 +267,12 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .card-stats-dias{display:flex;align-items:center;gap:4px;font-size:12px;color:rgba(255,255,255,0.75)}
 
 /* Colores de tarjetas — negro y gris para genéricos, corporativos para bancos */
-.card-color-0{background:#090909}
-.card-color-1{background:#090909}
-.card-color-2{background:#090909}
-.card-color-3{background:#090909}
-.card-color-4{background:#090909}
-.card-color-5{background:#090909}
+.card-color-0{background:transparent}
+.card-color-1{background:transparent}
+.card-color-2{background:transparent}
+.card-color-3{background:transparent}
+.card-color-4{background:transparent}
+.card-color-5{background:transparent}
 .card-color-invex{background:#090909}
 .card-color-bbva{background:#090909}
 .card-color-santander{background:#090909}
@@ -740,6 +741,7 @@ input[type=number]{-moz-appearance:textfield}
 #modified-overlay .success-icon{
   width:88px;height:88px;background:none;border:none;border-radius:0;margin:0 auto 20px;
 }
+#success-overlay .success-title{max-width:300px;margin-left:auto;margin-right:auto}
 #success-overlay .success-icon svg,
 #delete-overlay .success-icon svg,
 #modified-overlay .success-icon svg{ width:50px;height:50px; }
@@ -764,6 +766,23 @@ input[type=number]{-moz-appearance:textfield}
 #success-overlay{background:var(--bg);pointer-events:none}
 #success-overlay.show{pointer-events:none}
 #success-overlay .success-box{background:transparent;box-shadow:none;padding:0}
+
+/* ── Variante sin paloma (recuadro Disponible/Gastos/Total): sin ícono, título con efecto de escritura ── */
+#success-overlay.fijo-mode .success-icon{display:none}
+#success-overlay.fijo-mode .success-title::after{
+  content:'';display:inline-block;width:2px;height:15px;margin-left:2px;vertical-align:-2px;
+  background:var(--text);opacity:0;animation:typeCursorBlink 0.9s steps(1) infinite;
+}
+#success-overlay.fijo-mode.typing-done .success-title::after{ opacity:0 !important; animation:none; }
+#success-overlay.fijo-mode .success-title::after{ opacity:1; }
+@keyframes typeCursorBlink{0%,49%{opacity:1}50%,100%{opacity:0}}
+
+/* ── Recuadros del detalle (Disponible/Gastos/Promociones/Cargos/Total): aparecen uno por uno ── */
+#success-overlay .fijo-row{
+  opacity:0;transform:translateY(14px) scale(0.94);filter:blur(3px);
+  transition:opacity 0.65s cubic-bezier(0.16,1,0.3,1), transform 0.65s cubic-bezier(0.16,1,0.3,1), filter 0.65s ease;
+}
+#success-overlay .fijo-row.show{opacity:1;transform:translateY(0) scale(1);filter:blur(0)}
 
 .spark{position:absolute;top:50%;left:50%;width:5px;height:5px;border-radius:50%;background:var(--text);opacity:0;pointer-events:none}
 
@@ -3037,11 +3056,15 @@ async function iniciarApp(){
   _unsubMovimientos = onSnapshot(q, snap=>{
     movimientos = snap.docs.map(d=>({id:d.id,...d.data()}));
     window.movimientos = movimientos; // sync
-    // Cargar promociones para el cálculo de mensualidades
-    getDocs(query(collection(db,'usuarios', currentUser.uid, 'promociones'))).then(ps=>{
+    // Cargar promociones y cargos recurrentes para el cálculo del total
+    Promise.all([
+      getDocs(query(collection(db,'usuarios', currentUser.uid, 'promociones'))),
+      getDocs(query(collection(db,'usuarios', currentUser.uid, 'cargosRecurrentes'), orderBy('creadoEn','desc')))
+    ]).then(([ps, cs])=>{
       const tarjetaIdsAct = (perfil?.tarjetas||[]).map(t=>t.id);
       promocionesCache = ps.docs.map(d=>({id:d.id,...d.data()})).filter(p=>tarjetaIdsAct.includes(p.tarjetaId));
       window.promocionesCache = promocionesCache; // sync
+      cargosRecurrentesCache = cs.docs.map(d=>({id:d.id,...d.data()}));
       updateCards();
     }).catch(()=>updateCards());
     renderMovimientos();
@@ -3092,7 +3115,7 @@ function buildCarrusel(){
         </div>
       </div>
       <div class="card-usage-box">
-        <div class="card-usage-stats">
+        <div class="card-usage-stats" style="position:relative">
           <div class="card-stat-cell">
             <div class="card-stat-label" id="disp-label-${i}">Disponible</div>
             <div class="card-stat-value" id="disp-${i}">$${t.limite.toLocaleString('es-MX',{minimumFractionDigits:2})}</div>
@@ -3104,14 +3127,10 @@ function buildCarrusel(){
           </div>
           <div class="card-info-divider"></div>
           <div class="card-stat-cell">
-            <div class="card-stat-label">Promociones</div>
-            <div class="card-stat-value" id="total-con-msi-${i}">$0.00</div>
-          </div>
-          <div class="card-info-divider"></div>
-          <div class="card-stat-cell">
             <div class="card-stat-label">Total</div>
             <div class="card-stat-value" id="total-general-${i}">$0.00</div>
           </div>
+          <div onmousedown="startLongPressDisponible(this,'${t.id}',${i})" onmouseup="cancelLongPressDisponible()" onmouseleave="cancelLongPressDisponible()" ontouchstart="startLongPressDisponible(this,'${t.id}',${i})" ontouchend="cancelLongPressDisponible()" ontouchmove="cancelLongPressDisponibleIfMoved(event)" style="position:absolute;inset:0;cursor:pointer;z-index:1"></div>
         </div>
         <div class="card-use-bar"><div class="card-use-fill" id="bar-${i}" style="width:0%"></div></div>
         <div class="card-usage-pct-row">
@@ -3150,6 +3169,157 @@ function buildCarrusel(){
 
   setupSwipe();
   goTo(0, false);
+}
+
+// ── Long Press en recuadro "Disponible" de la tarjeta ──────────────
+let _longPressDispTimer = null;
+let _longPressDispStartX = 0, _longPressDispStartY = 0;
+
+window.startLongPressDisponible = function(el, tarjetaId, i){
+  const touch = event?.touches?.[0];
+  _longPressDispStartX = touch?.clientX || 0;
+  _longPressDispStartY = touch?.clientY || 0;
+  _longPressDispTimer = setTimeout(()=>{
+    _longPressDispTimer = null;
+    mostrarResumenDisponible(tarjetaId, i);
+  }, 600);
+};
+window.cancelLongPressDisponible = function(){
+  if(_longPressDispTimer){ clearTimeout(_longPressDispTimer); _longPressDispTimer = null; }
+};
+window.cancelLongPressDisponibleIfMoved = function(e){
+  if(!_longPressDispTimer) return;
+  const touch = e.touches?.[0];
+  if(!touch){ window.cancelLongPressDisponible(); return; }
+  const dx = Math.abs(touch.clientX - _longPressDispStartX);
+  const dy = Math.abs(touch.clientY - _longPressDispStartY);
+  if(dx > 8 || dy > 8) window.cancelLongPressDisponible();
+};
+
+function _fijoRowHTML(id, label, valTxt, labelStyle, valStyle){
+  return `<div class="fijo-row" id="${id}" style="background:var(--card-bg-soft);border:1px solid rgba(255,255,255,0.09);border-radius:12px;padding:12px 16px;display:flex;justify-content:space-between;align-items:center;gap:14px;box-shadow:0 2px 6px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.06)">
+    <span style="${labelStyle}">${label}</span>
+    <span class="fijo-row-val" style="${valStyle}">${valTxt}</span>
+  </div>`;
+}
+
+function _fijoAnimarNumero(el, desde, hasta, duracion){
+  if(!el) return;
+  const t0 = performance.now();
+  function step(now){
+    const p = Math.min(1, (now - t0) / duracion);
+    const eased = 1 - Math.pow(1 - p, 3); // ease-out
+    el.textContent = fmt(desde + (hasta - desde) * eased);
+    if(p < 1) requestAnimationFrame(step);
+    else el.textContent = fmt(hasta);
+  }
+  requestAnimationFrame(step);
+}
+
+// Revela el detalle de gastos paso a paso: primero el Total en $0, luego Disponible,
+// y después Gastos / Promociones / Cargos recurrentes uno por uno, sumándose en vivo al Total.
+function _animarDetalleDisponible(dispLbl, dispTxt, gastosVal, promosVal, cargosVal){
+  const overlay = document.getElementById('success-overlay');
+  const subEl   = overlay.querySelector('.success-sub');
+  const LBL_STYLE  = 'font-size:13px;color:var(--text-dim);font-weight:600;white-space:nowrap';
+  const VAL_STYLE  = 'font-size:15px;font-weight:700;color:var(--text);white-space:nowrap';
+  const LBL_TOTAL  = 'font-size:14px;color:var(--text);font-weight:700;white-space:nowrap';
+  const VAL_TOTAL  = 'font-size:20px;font-weight:800;color:var(--text);white-space:nowrap';
+
+  if(window._successRowTimers){ window._successRowTimers.forEach(clearTimeout); }
+  window._successRowTimers = [];
+
+  subEl.style.display = '';
+  subEl.style.opacity = '1';
+  subEl.innerHTML = `<div id="fijo-rows-wrap" style="max-width:300px;margin:0 auto;display:flex;flex-direction:column;gap:8px"></div>`;
+  const wrap = document.getElementById('fijo-rows-wrap');
+
+  let acumulado = 0;
+  const PASO = 1250; // ms entre cada recuadro
+  const DUR_CONTEO = 550; // ms que tarda en sumarse el número del total
+
+  // 1) Total solo, en $0
+  wrap.innerHTML = _fijoRowHTML('fijo-row-total', 'Total', fmt(0), LBL_TOTAL, VAL_TOTAL);
+  requestAnimationFrame(()=>{ const r = document.getElementById('fijo-row-total'); if(r) r.classList.add('show'); });
+
+  // 2) Disponible se agrega arriba del Total (no se suma al total)
+  window._successRowTimers.push(setTimeout(()=>{
+    const tmpEl = document.createElement('div');
+    tmpEl.innerHTML = _fijoRowHTML('fijo-row-disp', dispLbl, dispTxt, LBL_STYLE, VAL_STYLE);
+    const el = tmpEl.firstElementChild;
+    wrap.insertBefore(el, wrap.firstChild);
+    requestAnimationFrame(()=>el.classList.add('show'));
+  }, PASO));
+
+  // 3) Gastos se agrega antes del Total -> Total = Gastos
+  window._successRowTimers.push(setTimeout(()=>{
+    const tmpEl = document.createElement('div');
+    tmpEl.innerHTML = _fijoRowHTML('fijo-row-gastos', 'Gastos', fmt(gastosVal), LBL_STYLE, VAL_STYLE);
+    const el = tmpEl.firstElementChild;
+    const totalRow = document.getElementById('fijo-row-total');
+    wrap.insertBefore(el, totalRow);
+    requestAnimationFrame(()=>el.classList.add('show'));
+    _fijoAnimarNumero(document.getElementById('fijo-row-total')?.querySelector('.fijo-row-val'), acumulado, acumulado + gastosVal, DUR_CONTEO);
+    acumulado += gastosVal;
+  }, PASO * 2));
+
+  // 4) Promociones se agrega antes del Total -> Total += Promociones
+  window._successRowTimers.push(setTimeout(()=>{
+    const tmpEl = document.createElement('div');
+    tmpEl.innerHTML = _fijoRowHTML('fijo-row-promos', 'Promociones', fmt(promosVal), LBL_STYLE, VAL_STYLE);
+    const el = tmpEl.firstElementChild;
+    const totalRow = document.getElementById('fijo-row-total');
+    wrap.insertBefore(el, totalRow);
+    requestAnimationFrame(()=>el.classList.add('show'));
+    _fijoAnimarNumero(document.getElementById('fijo-row-total')?.querySelector('.fijo-row-val'), acumulado, acumulado + promosVal, DUR_CONTEO);
+    acumulado += promosVal;
+  }, PASO * 3));
+
+  // 5) Cargos recurrentes se agrega antes del Total -> Total += Cargos recurrentes
+  window._successRowTimers.push(setTimeout(()=>{
+    const tmpEl = document.createElement('div');
+    tmpEl.innerHTML = _fijoRowHTML('fijo-row-cargos', 'Cargos recurrentes', fmt(cargosVal), LBL_STYLE, VAL_STYLE);
+    const el = tmpEl.firstElementChild;
+    const totalRow = document.getElementById('fijo-row-total');
+    wrap.insertBefore(el, totalRow);
+    requestAnimationFrame(()=>el.classList.add('show'));
+    _fijoAnimarNumero(document.getElementById('fijo-row-total')?.querySelector('.fijo-row-val'), acumulado, acumulado + cargosVal, DUR_CONTEO);
+    acumulado += cargosVal;
+  }, PASO * 4));
+}
+
+async function mostrarResumenDisponible(tarjetaId, i){
+  const t = (perfil?.tarjetas||[]).find(x=>x.id===tarjetaId);
+  if(!t) return;
+
+  const dispEl      = document.getElementById(`disp-${i}`);
+  const dispLabelEl = document.getElementById(`disp-label-${i}`);
+  const usadoEl     = document.getElementById(`usado-${i}`);
+
+  const dispTxt   = dispEl ? dispEl.textContent : '$0.00';
+  const dispLbl   = dispLabelEl ? dispLabelEl.textContent : 'Disponible';
+  const gastosVal = usadoEl ? (parseFloat((usadoEl.textContent||'0').replace(/[^0-9.\-]/g,'')) || 0) : 0;
+
+  // Promociones activas de esta tarjeta
+  const promosActivas = (promocionesCache||[]).filter(p=>p.tarjetaId===tarjetaId && (p.mesesPagados||0) < p.meses);
+  const totalPromos = promosActivas.reduce((s,p)=>s+p.mensualidad,0);
+
+  // Cargos recurrentes activos de esta tarjeta
+  if(!cargosRecurrentesCache.length){
+    try{
+      const snap = await getDocs(query(collection(db,'usuarios', currentUser.uid, 'cargosRecurrentes'), orderBy('creadoEn','desc')));
+      cargosRecurrentesCache = snap.docs.map(d=>({id:d.id,...d.data()}));
+    }catch(e){}
+  }
+  const cargosActivos = cargosRecurrentesCache.filter(c=>c.tipo==='credito' && c.tarjetaId===tarjetaId && c.activo!==false);
+  const totalCargos = cargosActivos.reduce((s,c)=>s+parseFloat(c.monto||0),0);
+
+  const nombreTarjeta = t.apodo || t.nombre;
+  const tituloTxt = `Detalle de gastos de la tarjeta "${nombreTarjeta}"`;
+
+  window.showSuccessFijo(tituloTxt, '', ()=>{
+    _animarDetalleDisponible(dispLbl, dispTxt, gastosVal, totalPromos, totalCargos);
+  });
 }
 
 // Variables globales del swipe para poder remover listeners
@@ -3336,10 +3506,13 @@ function updateCards(){
       .filter(p=>p.tarjetaId===t.id)
       .filter(p=>(p.mesesPagados||0) < p.meses)
       .reduce((s,p)=>s+p.mensualidad, 0);
+    const cargosTotal = (cargosRecurrentesCache||[])
+      .filter(c=>c.tipo==='credito' && c.tarjetaId===t.id && c.activo!==false)
+      .reduce((s,c)=>s+parseFloat(c.monto||0), 0);
     const totalMsiEl = document.getElementById(`total-con-msi-${i}`);
     if(totalMsiEl) smoothSetText(totalMsiEl, fmt(msiTotal));
     const totalGeneralEl = document.getElementById(`total-general-${i}`);
-    if(totalGeneralEl) smoothSetText(totalGeneralEl, fmt(usadoMovsSolo + msiTotal));
+    if(totalGeneralEl) smoothSetText(totalGeneralEl, fmt(usadoMovsSolo + msiTotal + cargosTotal));
     if(barEl){
       barEl.style.width = pct+'%';
       barEl.style.backgroundColor = sobregiro ? 'rgba(255,255,255,0.5)' : '#fff';
@@ -3992,14 +4165,97 @@ window.showLoginSuccess = function(tipo, titulo, callback){
 window.showSuccess = function showSuccess(titulo='Movimiento guardado', subtitulo='Tu gasto fue registrado correctamente', duracion=3200){
   const overlay = document.getElementById('success-overlay');
   const subEl = overlay.querySelector('.success-sub');
+  const cancelBtn = document.getElementById('success-cancel-btn');
+  // Por si el overlay quedó en modo "fijo sin paloma" de un uso anterior, lo limpiamos
+  if(window._successTypeTimer){ clearTimeout(window._successTypeTimer); window._successTypeTimer = null; }
+  if(window._successRowTimers){ window._successRowTimers.forEach(clearTimeout); window._successRowTimers = []; }
+  overlay.classList.remove('fijo-mode','typing-done');
+  subEl.style.transition = '';
+  subEl.style.opacity = '';
   overlay.querySelector('.success-title').textContent = titulo;
-  subEl.textContent = subtitulo;
+  subEl.innerHTML = subtitulo;
   subEl.style.display = subtitulo ? '' : 'none';
+  if(cancelBtn) cancelBtn.style.display = 'none';
+  if(window._successHideTimer){ clearTimeout(window._successHideTimer); window._successHideTimer = null; }
   // Reiniciar animaciones aunque el overlay ya estuviera visible momentos antes
   overlay.classList.remove('show');
   void overlay.offsetWidth; // fuerza reflow para reiniciar las keyframes
   overlay.classList.add('show');
-  setTimeout(()=>{ overlay.classList.remove('show'); subEl.style.display = ''; }, duracion);
+  window._successHideTimer = setTimeout(()=>{ overlay.classList.remove('show'); subEl.style.display = ''; }, duracion);
+}
+
+// Igual que showSuccess pero se queda fijo en pantalla (sin auto-cerrar) y muestra botón Cancelar.
+// Sin efecto de "paloma" (ícono oculto): el título aparece con efecto de máquina de escribir,
+// y el detalle (tabla) se desvanece hacia adentro una vez que termina de escribirse el título.
+window.showSuccessFijo = function showSuccessFijo(titulo, subtitulo, onReady){
+  const overlay  = document.getElementById('success-overlay');
+  const subEl    = overlay.querySelector('.success-sub');
+  const titleEl  = overlay.querySelector('.success-title');
+  const cancelBtn= document.getElementById('success-cancel-btn');
+
+  if(window._successTypeTimer){ clearTimeout(window._successTypeTimer); window._successTypeTimer = null; }
+  if(window._successRowTimers){ window._successRowTimers.forEach(clearTimeout); }
+  window._successRowTimers = [];
+
+  overlay.classList.add('fijo-mode');
+  overlay.classList.remove('typing-done');
+
+  subEl.innerHTML = subtitulo || '';
+  subEl.style.display = (subtitulo || onReady) ? '' : 'none';
+  // El contenedor se muestra de inmediato; cada recuadro interno ("fijo-row")
+  // se revela de forma individual y escalonada una vez termina de escribirse el título.
+  subEl.style.transition = '';
+  subEl.style.opacity = '1';
+
+  if(window._successHideTimer){ clearTimeout(window._successHideTimer); window._successHideTimer = null; }
+  overlay.classList.remove('show');
+  void overlay.offsetWidth; // fuerza reflow para reiniciar las keyframes
+  overlay.classList.add('show');
+  if(cancelBtn) cancelBtn.style.display = 'inline-block';
+
+  // Texto plano del título (por si trae HTML) para el efecto de escritura
+  const tmp = document.createElement('div');
+  tmp.innerHTML = titulo;
+  const textoPlano = tmp.textContent || tmp.innerText || '';
+  titleEl.textContent = '';
+  let _ci = 0;
+  function _typeStep(){
+    titleEl.textContent = textoPlano.slice(0, _ci);
+    _ci++;
+    if(_ci <= textoPlano.length){
+      window._successTypeTimer = setTimeout(_typeStep, 48); // escritura más lenta
+    } else {
+      window._successTypeTimer = null;
+      overlay.classList.add('typing-done');
+      if(typeof onReady === 'function'){
+        // Flujo personalizado (p.ej. detalle de gastos con suma progresiva del Total)
+        onReady();
+        return;
+      }
+      // Revelar los recuadros del detalle uno por uno
+      const rows = subEl.querySelectorAll('.fijo-row');
+      rows.forEach((row, idx)=>{
+        const tmr = setTimeout(()=>{ row.classList.add('show'); }, 220 + idx*170);
+        window._successRowTimers.push(tmr);
+      });
+    }
+  }
+  _typeStep();
+}
+
+window.hideSuccessOverlay = function(){
+  const overlay = document.getElementById('success-overlay');
+  const subEl = overlay.querySelector('.success-sub');
+  const cancelBtn = document.getElementById('success-cancel-btn');
+  if(window._successHideTimer){ clearTimeout(window._successHideTimer); window._successHideTimer = null; }
+  if(window._successTypeTimer){ clearTimeout(window._successTypeTimer); window._successTypeTimer = null; }
+  if(window._successRowTimers){ window._successRowTimers.forEach(clearTimeout); window._successRowTimers = []; }
+  overlay.classList.remove('fijo-mode','typing-done');
+  subEl.style.transition = '';
+  subEl.style.opacity = '';
+  overlay.classList.remove('show');
+  subEl.style.display = '';
+  if(cancelBtn) cancelBtn.style.display = 'none';
 }
 
 window.showDeleted = function showDeleted(titulo='Elemento eliminado', subtitulo=''){
@@ -11594,6 +11850,7 @@ window.confirmarEliminarPerfil = async function(){
     </div>
     <div class="success-title">Movimiento guardado</div>
     <div class="success-sub">Tu gasto fue registrado correctamente</div>
+    <button id="success-cancel-btn" onclick="window.hideSuccessOverlay()" style="display:none;pointer-events:auto;margin-top:22px;padding:12px 28px;border-radius:12px;border:1.5px solid var(--border);background:var(--card-bg-soft);color:var(--text);font-size:14px;font-weight:600;cursor:pointer;font-family:inherit">Cancelar</button>
   </div>
 </div>
 
