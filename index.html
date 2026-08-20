@@ -249,7 +249,9 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .card-stat-value{font-size:19px;font-weight:800;color:#fff}
 /* ── Recuadro unificado: Usado / Disponible / barra / % utilizado ── */
 .card-usage-box{background:#111111;border:1px solid rgba(255,255,255,0.1);border-radius:14px;padding:12px 14px 11px;margin-bottom:8px}
-.card-usage-stats{display:flex;align-items:stretch;gap:12px;margin-bottom:10px}
+.card-usage-stats{display:flex;align-items:stretch;gap:6px;margin-bottom:10px}
+.card-usage-stats .card-stat-label{font-size:9px}
+.card-usage-stats .card-stat-value{font-size:12.5px}
 .card-usage-box .card-use-bar{margin-bottom:8px}
 .card-usage-pct-row{display:flex;align-items:center;gap:7px;font-size:12.5px;font-weight:600;color:rgba(255,255,255,0.85)}
 .card-usage-pct-row svg{flex-shrink:0}
@@ -3092,13 +3094,23 @@ function buildCarrusel(){
       <div class="card-usage-box">
         <div class="card-usage-stats">
           <div class="card-stat-cell">
-            <div class="card-stat-label">Usado</div>
+            <div class="card-stat-label" id="disp-label-${i}">Disponible</div>
+            <div class="card-stat-value" id="disp-${i}">$${t.limite.toLocaleString('es-MX',{minimumFractionDigits:2})}</div>
+          </div>
+          <div class="card-info-divider"></div>
+          <div class="card-stat-cell">
+            <div class="card-stat-label">Gastos</div>
             <div class="card-stat-value" id="usado-${i}">$0.00</div>
           </div>
           <div class="card-info-divider"></div>
-          <div class="card-stat-cell right">
-            <div class="card-stat-label">Disponible</div>
-            <div class="card-stat-value" id="disp-${i}">$${t.limite.toLocaleString('es-MX',{minimumFractionDigits:2})}</div>
+          <div class="card-stat-cell">
+            <div class="card-stat-label">Promociones</div>
+            <div class="card-stat-value" id="total-con-msi-${i}">$0.00</div>
+          </div>
+          <div class="card-info-divider"></div>
+          <div class="card-stat-cell">
+            <div class="card-stat-label">Total</div>
+            <div class="card-stat-value" id="total-general-${i}">$0.00</div>
           </div>
         </div>
         <div class="card-use-bar"><div class="card-use-fill" id="bar-${i}" style="width:0%"></div></div>
@@ -3106,11 +3118,6 @@ function buildCarrusel(){
           <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" stroke-dasharray="42 14" transform="rotate(-90 12 12)"/></svg>
           <span id="pct-${i}">0% utilizado</span>
         </div>
-      </div>
-      <div class="card-link-box">
-        <div class="card-link-icon"><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M20.59 13.41 11 3.83A2 2 0 0 0 9.5 3H4a1 1 0 0 0-1 1v5.5a2 2 0 0 0 .83 1.5l9.58 9.59a2 2 0 0 0 2.83 0l5.35-5.35a2 2 0 0 0 0-2.83z"/><circle cx="7.5" cy="7.5" r="1.5"/></svg></div>
-        <div class="card-link-text">Promociones: <strong id="total-con-msi-${i}" style="color:#fff">$0.00</strong></div>
-        <svg class="card-link-chevron" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
       </div>
       <div class="card-info-box">
         <div class="card-info-cell">
@@ -3317,10 +3324,12 @@ function updateCards(){
     const diasTxt = dias===0?'Hoy es día de corte':`Faltan ${dias} día${dias!==1?'s':''} para corte`;
     const usadoEl=document.getElementById(`usado-${i}`);
     const dispEl=document.getElementById(`disp-${i}`);
+    const dispLabelEl=document.getElementById(`disp-label-${i}`);
     const barEl=document.getElementById(`bar-${i}`);
     const pctEl=document.getElementById(`pct-${i}`);
     if(usadoEl) smoothSetText(usadoEl, fmt(usado));
-    if(dispEl) smoothSetText(dispEl, sobregiro ? `Sobregiro: ${fmt(exceso)}` : fmt(disp));
+    if(dispEl) smoothSetText(dispEl, sobregiro ? fmt(exceso) : fmt(disp));
+    if(dispLabelEl) smoothSetText(dispLabelEl, sobregiro ? 'Sobregiro' : 'Disponible');
     // Importe + Meses: gastos del corte + mensualidades de promos activas
     const usadoMovsSolo = movimientos.filter(m=>m.tarjetaId===t.id&&new Date(m.fecha+'T12:00:00')>=inicio&&new Date(m.fecha+'T12:00:00')<=fin).reduce((s,m)=>s+m.monto,0);
     const msiTotal = promocionesCache
@@ -3328,7 +3337,9 @@ function updateCards(){
       .filter(p=>(p.mesesPagados||0) < p.meses)
       .reduce((s,p)=>s+p.mensualidad, 0);
     const totalMsiEl = document.getElementById(`total-con-msi-${i}`);
-    if(totalMsiEl) smoothSetText(totalMsiEl, fmt(usadoMovsSolo + msiTotal));
+    if(totalMsiEl) smoothSetText(totalMsiEl, fmt(msiTotal));
+    const totalGeneralEl = document.getElementById(`total-general-${i}`);
+    if(totalGeneralEl) smoothSetText(totalGeneralEl, fmt(usadoMovsSolo + msiTotal));
     if(barEl){
       barEl.style.width = pct+'%';
       barEl.style.backgroundColor = sobregiro ? 'rgba(255,255,255,0.5)' : '#fff';
