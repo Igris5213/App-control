@@ -214,12 +214,17 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 
 /* CSS tarjeta */
 .card-top-row{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:16px}
+.card-header-box{background:#111111;border:1px solid rgba(255,255,255,0.1);border-radius:14px;padding:12px 14px;margin-bottom:8px}
+.card-top-left{display:flex;flex-direction:column;min-width:0}
+.card-top-right{display:flex;flex-direction:column;align-items:flex-end;text-align:right;flex-shrink:0;margin-left:12px}
+.card-top-left .card-sub{margin-bottom:0}
+.card-top-right .card-lim-val{margin-bottom:0}
 .card-bank-name{font-size:20px;font-weight:800;color:#fff;letter-spacing:-0.3px;text-align:left}
 .card-menu-btn{width:30px;height:30px;border-radius:9px;background:#111111;border:1px solid rgba(255,255,255,0.09);display:flex;align-items:center;justify-content:center;flex-shrink:0;color:#fff;cursor:pointer;flex-shrink:0}
-.card-sub{font-size:12.5px;color:rgba(255,255,255,0.62);margin-bottom:16px}
+.card-sub{font-size:11.5px;color:rgba(255,255,255,0.62);margin-bottom:16px}
 .card-badge{display:none;align-items:center;gap:5px;background:rgba(255,255,255,0.18);border:1.5px solid rgba(255,255,255,0.55);border-radius:20px;padding:5px 12px;font-size:12px;font-weight:600;color:#fff}
-.card-lim-label{font-size:11px;font-weight:700;color:rgba(255,255,255,0.58);text-transform:uppercase;letter-spacing:0.07em;margin-bottom:4px}
-.card-lim-val{font-size:28px;font-weight:700;color:#fff;margin-bottom:12px}
+.card-lim-label{font-size:11.5px;font-weight:700;color:rgba(255,255,255,0.58);text-transform:uppercase;letter-spacing:0.07em;margin-bottom:4px}
+.card-lim-val{font-size:20px;font-weight:800;color:#fff;margin-bottom:12px}
 .card-use-row{display:flex;justify-content:space-between;font-size:12px;color:rgba(255,255,255,0.85);margin-bottom:8px}
 .card-use-bar{height:7px;background:rgba(255,255,255,0.22);border-radius:4px;overflow:hidden;margin-bottom:8px}
 .card-use-fill{height:100%;background:#fff;border-radius:4px;transition:width 0.6s cubic-bezier(0.4,0,0.2,1),background-color 0.5s ease}
@@ -228,18 +233,18 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .card-divider{height:1px;background:rgba(255,255,255,0.2);margin-bottom:14px}
 .card-corte-row{display:flex;align-items:center;gap:8px;font-size:13px;color:rgba(255,255,255,0.85);margin-bottom:0}
 .card-info-box{display:flex;align-items:stretch;background:#111111;border:1px solid rgba(255,255,255,0.1);border-radius:14px;padding:9px 12px;gap:10px}
-.card-info-cell{display:flex;align-items:center;gap:8px;flex:1;min-width:0}
+.card-info-cell{display:flex;align-items:center;justify-content:center;gap:8px;flex:1;min-width:0}
 .card-info-icon{width:26px;height:26px;border-radius:8px;background:#111111;border:1px solid rgba(255,255,255,0.09);display:flex;align-items:center;justify-content:center;flex-shrink:0;color:#fff}
 .card-info-icon.icon-amber{color:#f0b429}
 .card-info-icon.icon-green{color:#4ade80}
 .card-info-icon-plain{flex-shrink:0;color:rgba(255,255,255,0.65)}
 .card-info-divider{width:1px;align-self:stretch;background:rgba(255,255,255,0.15)}
-.card-info-text{min-width:0}
+.card-info-text{min-width:0;text-align:center}
 .card-info-label{font-size:10.5px;color:rgba(255,255,255,0.6);font-weight:500;line-height:1.3}
 .card-info-value{font-size:14px;font-weight:700;color:#fff;line-height:1.3;white-space:nowrap}
 .card-stat-row{display:flex;justify-content:space-between;margin-bottom:10px}
-.card-stat-cell{display:flex;flex-direction:column;flex:1;min-width:0}
-.card-stat-cell.right{align-items:flex-end;text-align:right}
+.card-stat-cell{display:flex;flex-direction:column;flex:1;min-width:0;align-items:center;text-align:center}
+.card-stat-cell.right{align-items:center;text-align:center}
 .card-stat-label{font-size:11px;color:rgba(255,255,255,0.55);font-weight:600;margin-bottom:2px}
 .card-stat-value{font-size:19px;font-weight:800;color:#fff}
 /* ── Recuadro unificado: Usado / Disponible / barra / % utilizado ── */
@@ -3072,12 +3077,18 @@ function buildCarrusel(){
     const _titulo = t.apodo || t.nombre;
     const _sub = t.apodo ? t.nombre : '';
     card.innerHTML = `
-      <div class="card-top-row" style="margin-bottom:${_sub?'2px':'16px'}">
-        <div class="card-bank-name">${_titulo}</div>
+      <div class="card-header-box">
+        <div class="card-top-row" style="margin-bottom:0">
+          <div class="card-top-left">
+            <div class="card-bank-name">${_titulo}</div>
+            ${_sub ? `<div class="card-sub">${_sub}</div>` : ''}
+          </div>
+          <div class="card-top-right">
+            <div class="card-lim-label">Límite total</div>
+            <div class="card-lim-val" id="lim-${i}">$${t.limite.toLocaleString('es-MX',{minimumFractionDigits:2})}</div>
+          </div>
+        </div>
       </div>
-      ${_sub ? `<div class="card-sub">${_sub}</div>` : ''}
-      <div class="card-lim-label">Límite total</div>
-      <div class="card-lim-val" id="lim-${i}">$${t.limite.toLocaleString('es-MX',{minimumFractionDigits:2})}</div>
       <div class="card-usage-box">
         <div class="card-usage-stats">
           <div class="card-stat-cell">
