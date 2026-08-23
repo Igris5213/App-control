@@ -9902,18 +9902,33 @@ function buildCarruselDebito(){
       <div class="card-usage-box">
         <div class="card-usage-stats">
           <div class="card-stat-cell">
-            <div class="card-stat-label">Disponible</div>
-            <div class="card-stat-value" id="deb-disp-${i}">$${disp.toLocaleString('es-MX',{minimumFractionDigits:2})}</div>
+            <div class="card-stat-icon">
+              <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 12V7a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-5"/><path d="M21 12h-6a2 2 0 0 0 0 4h6"/></svg>
+            </div>
+            <div class="card-stat-text">
+              <div class="card-stat-label">Disponible</div>
+              <div class="card-stat-value" id="deb-disp-${i}">$${disp.toLocaleString('es-MX',{minimumFractionDigits:2})}</div>
+            </div>
           </div>
           <div class="card-info-divider"></div>
           <div class="card-stat-cell">
-            <div class="card-stat-label">Ingresos</div>
-            <div class="card-stat-value" id="deb-ing-${i}">$0.00</div>
+            <div class="card-stat-icon">
+              <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><line x1="12" y1="19" x2="12" y2="5"/><polyline points="5 12 12 5 19 12"/></svg>
+            </div>
+            <div class="card-stat-text">
+              <div class="card-stat-label">Ingresos</div>
+              <div class="card-stat-value" id="deb-ing-${i}">$0.00</div>
+            </div>
           </div>
           <div class="card-info-divider"></div>
           <div class="card-stat-cell">
-            <div class="card-stat-label">Egresos</div>
-            <div class="card-stat-value" id="deb-egr-${i}">$0.00</div>
+            <div class="card-stat-icon">
+              <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><polyline points="5 12 12 19 19 12"/></svg>
+            </div>
+            <div class="card-stat-text">
+              <div class="card-stat-label">Egresos</div>
+              <div class="card-stat-value" id="deb-egr-${i}">$0.00</div>
+            </div>
           </div>
         </div>
         <div class="card-use-bar"><div class="card-use-fill" id="deb-bar-${i}" style="width:0%"></div></div>
