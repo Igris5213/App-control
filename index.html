@@ -2411,6 +2411,7 @@ try{
     <div class="gw-progress" id="gw-progress"></div>
     <input type="hidden" id="gw-h-banco"/>
     <input type="hidden" id="gw-h-tarjeta"/>
+    <input type="hidden" id="bus-banco"/><input type="hidden" id="bus-tarjeta"/><input type="hidden" id="bus-anio"/><input type="hidden" id="bus-corte"/><input type="hidden" id="bus-mes"/>
     <div class="gw-body" id="gw-body"></div>
     <div class="gw-actions" id="gw-actions">
       <button type="button" class="btn-flat-cancel" id="gw-back" onclick="gwAtras()">Cancelar</button>
@@ -7092,6 +7093,11 @@ function debCargarListaBancos(){
 }
 
 window.debToggleDD = function(id){
+  // Búsqueda guiada: el primer selector (Banco) abre el asistente
+  if(id === 'deb-dd-bancos' && typeof window.gwAbrir === 'function' && document.getElementById('modal-gasto-wizard')){
+    window.gwAbrir('busquedadeb');
+    return;
+  }
   const orden      = ['deb-dd-bancos','deb-dd-tarjetas','deb-dd-anios','deb-dd-meses'];
   const pasos      = ['deb-paso-banco','deb-paso-tarjeta','deb-paso-anio','deb-paso-mes'];
   const textos_ids = ['deb-banco-txt','deb-tarjeta-txt','deb-anio-txt','deb-mes-txt'];
@@ -7416,7 +7422,9 @@ window.startLongPressDebHist = function(el, id){
 
 window.debNuevaBusqueda = function(){
   debResetPanel();
+  if(typeof window.gwAbrir === 'function' && document.getElementById('modal-gasto-wizard')) window.gwAbrir('busquedadeb');
 }
+window.debResetBusqueda = function(){ debResetPanel(); }
 
 window.irMovimientos = function(){
   _resetEdicionPerfiles();
@@ -7580,6 +7588,11 @@ window.toggleBanco = function(){
 }
 
 window.toggleDropdown = function(id){
+  // Búsqueda guiada: el primer selector (Banco) abre el asistente
+  if(id === 'dd-bancos' && typeof window.gwAbrir === 'function' && document.getElementById('modal-gasto-wizard')){
+    window.gwAbrir('busqueda');
+    return;
+  }
   const orden = ['dd-bancos','dd-tarjetas','dd-anios','dd-cortes'];
   const pasos  = ['paso-banco-hist','paso-apodo','paso-anio','paso-corte'];
   const textos_ids = ['banco-seleccionado-txt','tarjeta-seleccionada-txt','anio-seleccionado-txt','corte-seleccionado-txt'];
@@ -7869,6 +7882,8 @@ window.nuevaBusqueda = function(){
   cargarBancosFiltro();
   // Mantener panel crédito activo
   selHistTipo('credito');
+  // Búsqueda guiada: abrir el asistente
+  if(typeof window.gwAbrir === 'function' && document.getElementById('modal-gasto-wizard')) window.gwAbrir('busqueda');
 }
 
 // Long press para ver detalle del gasto
@@ -11770,11 +11785,62 @@ window.openModalClasico = function(){
     apodoOb:     {k:'texto', campo:'apodo', titulo:'Tarjeta', hint:'¿Cómo le llamas a esta tarjeta? (opcional)', ph:'Ej. Personal, Nómina...', max:30},
     limiteOb:    {k:'monto',    titulo:'Límite de gasto', hint:'¿Cuál es el límite de la tarjeta?'},
     otra:        {k:'otra', titulo:'¿Agregar otra tarjeta?', sinProgreso:true, sinBotones:true},
+    bancoBus:    {k:'banco',   titulo:'Banco',   hint:'¿De qué banco es la tarjeta que quieres consultar?'},
+    tarjetaBus:  {k:'tarjeta', titulo:'Tarjeta', hint:'¿Cuál tarjeta quieres consultar?'},
+    anioBus:     {k:'lista', campo:'busAnio',  titulo:'Año',   hint:'¿De qué año?',   vacio:'Esta tarjeta aún no tiene movimientos', opciones:()=>busOpciones('anio')},
+    corteBus:    {k:'lista', campo:'busCorte', titulo:'Corte', hint:'¿De qué corte?', vacio:'No hay cortes disponibles en este año', opciones:()=>busOpciones('corte')},
+    bancoBusDeb: {k:'banco',   titulo:'Banco',   hint:'¿De qué banco es la cuenta que quieres consultar?'},
+    cuentaBus:   {k:'tarjeta', titulo:'Cuenta',  hint:'¿Cuál cuenta quieres consultar?', alSalirAsync:()=>busCargarDeb()},
+    anioBusDeb:  {k:'lista', campo:'busAnio', titulo:'Año', hint:'¿De qué año?', vacio:'Esta cuenta aún no tiene movimientos', opciones:()=>busOpciones('anioDeb')},
+    mesBusDeb:   {k:'lista', campo:'busMes',  titulo:'Mes', hint:'¿De qué mes?', vacio:'No hay movimientos en este año', opciones:()=>busOpciones('mesDeb')},
     clave2:      {k:'clave', campo:'pass2', titulo:'Confirmar contraseña', hint:'Repite la contraseña', ph:'Repite la contraseña', req:true, msgReq:'Repite la contraseña',
                   valida:v=>v !== $(ids().pass).value ? 'Las contraseñas no coinciden' : ''}
   };
   const credLista = () => (window.perfil && window.perfil.tarjetas) ? window.perfil.tarjetas : [];
   const debLista  = () => (window.perfil && window.perfil.cuentasDebito) ? window.perfil.cuentasDebito : [];
+
+  // ── Búsqueda de movimientos (historial): opciones de cada rueda ──
+  const NOM_MES = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+  function busOpciones(tipo){
+    const t = window._busSel;
+    if(!t) return [];
+    if(tipo === 'anio'){
+      const a = typeof window.getAniosDisponibles === 'function' ? window.getAniosDisponibles(t.id, t.corte) : [];
+      return a.map(x=>({v:String(x), t:String(x)}));
+    }
+    if(tipo === 'corte'){
+      const a = parseInt($('bus-anio').value, 10);
+      if(!a || typeof window.getCortesDisponibles !== 'function') return [];
+      return window.getCortesDisponibles(t.id, t.corte, a).map(c=>{
+        const n = String(c.nombre || c.key);
+        return {v:c.key, t:n.charAt(0).toUpperCase() + n.slice(1)};
+      });
+    }
+    const movs = Array.isArray(window._debMovsCache) ? window._debMovsCache.filter(m=>m && m.fecha) : [];
+    if(tipo === 'anioDeb'){
+      return [...new Set(movs.map(m=>m.fecha.substring(0,4)))].sort().map(a=>({v:a, t:a}));
+    }
+    if(tipo === 'mesDeb'){
+      const a = $('bus-anio').value;
+      if(!a) return [];
+      return [...new Set(movs.filter(m=>m.fecha.startsWith(a + '-')).map(m=>parseInt(m.fecha.substring(5,7), 10) - 1))]
+        .sort((x,y)=>x-y).map(i=>({v:String(i), t:NOM_MES[i]}));
+    }
+    return [];
+  }
+  // Débito: al salir del paso Cuenta se trae el historial de esa cuenta (años y meses con datos)
+  function busCargarDeb(){
+    const t = window._busSel;
+    if(!t) return null;
+    if(typeof window.debSelBanco === 'function') window.debSelBanco(t.nombre);
+    return typeof window.debSelTarjeta === 'function' ? window.debSelTarjeta(t.id) : null;
+  }
+  const busRecap = i => {
+    const t = window._busSel;
+    if(!t || i < 2) return null;
+    const base = t.nombre + (t.apodo ? ' · ' + t.apodo : '');
+    return i > 2 ? base + ' · ' + ($('bus-anio').value || '') : base;
+  };
   const MODOS = {
     nuevo: {
       titulo:'Movimiento nuevo', icono:()=>'',
@@ -11913,6 +11979,42 @@ window.openModalClasico = function(){
       recap:()=>gw.editInfo || null,
       finalizar:()=>{ cerrarOverlay(); window.guardarEditDeb(); }
     },
+    busqueda: {
+      titulo:'Buscar movimientos', icono:()=>'',
+      pasos:[P.bancoBus, P.tarjetaBus, P.anioBus, P.corteBus],
+      ids:{banco:'bus-banco', tarjeta:'bus-tarjeta', busAnio:'bus-anio', busCorte:'bus-corte'},
+      lista:credLista,
+      getSel:()=>window._busSel, setSel:t=>{ window._busSel = t; },
+      sinLista:'Agrega una tarjeta de crédito primero',
+      recap:i=>busRecap(i),
+      finalizar:()=>{
+        cerrarOverlay();
+        const t = window._busSel, key = $('bus-corte').value, anio = parseInt($('bus-anio').value, 10);
+        if(!t || !key || !anio) return;
+        // Se reproduce la selección del historial; el último paso abre "¿Confirmar búsqueda?"
+        window.seleccionarBancoMov(t.nombre);
+        window.seleccionarApodoMov(t.id, t.apodo || t.nombre, t.corte);
+        window.seleccionarAnioMov(anio);
+        window.seleccionarCorteMov(t.id, t.corte, key);
+      }
+    },
+    busquedadeb: {
+      titulo:'Buscar movimientos', icono:()=>'',
+      pasos:[P.bancoBusDeb, P.cuentaBus, P.anioBusDeb, P.mesBusDeb],
+      ids:{banco:'bus-banco', tarjeta:'bus-tarjeta', busAnio:'bus-anio', busMes:'bus-mes'},
+      lista:debLista,
+      getSel:()=>window._busSel, setSel:t=>{ window._busSel = t; },
+      sinLista:'No hay cuentas de débito configuradas',
+      etiquetaFinal:'Buscar',
+      recap:i=>busRecap(i),
+      finalizar:()=>{
+        cerrarOverlay();
+        const anio = parseInt($('bus-anio').value, 10), mes = parseInt($('bus-mes').value, 10);
+        if(isNaN(anio) || isNaN(mes)) return;
+        window.debSelAnio(anio);
+        window.debSelMes(mes);
+      }
+    },
     debext: {
       titulo:'Movimiento extemporáneo', icono:()=>'',
       pasos:[P.tipo, P.bancoDeb, P.cuenta, P.conceptoDeb, P.detalleDeb, P.monto, P.fechaDeb],
@@ -11927,7 +12029,7 @@ window.openModalClasico = function(){
   const tituloAct = () => typeof cfg().titulo === 'function' ? cfg().titulo() : cfg().titulo;
   const esDeb = () => gw.modo === 'deb' || gw.modo === 'debext';
   const esCargo = () => gw.modo === 'cargo' || gw.modo === 'cargodeb';
-  const esDebCarrusel = () => gw.modo === 'deb' || gw.modo === 'debext' || gw.modo === 'cargodeb';
+  const esDebCarrusel = () => gw.modo === 'deb' || gw.modo === 'debext' || gw.modo === 'cargodeb' || gw.modo === 'busquedadeb';
   const gw = window._gw = { modo:'nuevo', paso:0, tarjetasFilt:[], f:null };
   const $ = id => document.getElementById(id);
   const cfg = () => MODOS[gw.modo];
@@ -12201,7 +12303,8 @@ window.openModalClasico = function(){
     $('gw-title').innerHTML = cfg().icono() + tituloAct();
     renderProgreso();
     $('gw-back').textContent = i === 0 ? 'Cancelar' : 'Atrás';
-    $('gw-next').textContent = ultimo ? 'Continuar' : 'Siguiente';
+    $('gw-next').textContent = ultimo ? (cfg().etiquetaFinal || 'Continuar') : 'Siguiente';
+    $('gw-next').disabled = false;
 
     const t = getSel();
     const idxSel = pasos.findIndex(p=>p.k === 'tarjeta');
@@ -12273,6 +12376,18 @@ window.openModalClasico = function(){
     } else if(paso.k === 'fecha'){
       html += fechaHTML();
       init = iniciarFecha;
+    } else if(paso.k === 'lista'){
+      // Rueda genérica: las opciones dependen de lo elegido en pasos anteriores; por defecto, la más reciente
+      const opts = paso.opciones(), campo = $(ids()[paso.campo]);
+      if(!opts.length){
+        campo.value = '';
+        html += '<div class="gw-hint" style="margin:14px 0 0;text-align:center">'+esc(paso.vacio || 'Sin opciones disponibles')+'</div>';
+      } else {
+        let sel = opts.findIndex(o=>o.v === campo.value);
+        if(sel < 0){ sel = opts.length - 1; campo.value = opts[sel].v; }
+        html += ruedaHTML(opts.map(o=>o.t), sel);
+        init = ()=>activarRueda(sel, idx=>{ campo.value = opts[idx].v; });
+      }
     }
 
     const body = $('gw-body');
@@ -12318,7 +12433,7 @@ window.openModalClasico = function(){
     const I = ids();
     gw.otro = false;
     if(modo === 'onbcred'){ gw.onbPerfil = true; resetOnb(); }
-    ['monto','comercio','concepto','detalle','fecha','nombre','meses','dia','apodo','marca','terminacion','bancoOtro','user','pass','pass2','perfil'].forEach(k=>{ if(I[k] && $(I[k])) $(I[k]).value = ''; });
+    ['monto','comercio','concepto','detalle','fecha','nombre','meses','dia','apodo','marca','terminacion','bancoOtro','user','pass','pass2','perfil','busAnio','busCorte','busMes'].forEach(k=>{ if(I[k] && $(I[k])) $(I[k]).value = ''; });
     if(modo === 'deb' || modo === 'debext'){
       _debitoTipo = tipo === 'egreso' ? 'egreso' : 'ingreso';
       _debitoEsExtemporaneo = modo === 'debext';
@@ -12350,6 +12465,7 @@ window.openModalClasico = function(){
     // En edición, cancelar vuelve al detalle del movimiento (igual que el formulario clásico)
     if(gw.modo === 'editcred' && typeof window.cancelarModalMovimiento === 'function') window.cancelarModalMovimiento();
     else if(gw.modo === 'editdeb' && typeof window.cerrarEditDeb === 'function') window.cerrarEditDeb();
+    else if(gw.modo === 'busquedadeb' && typeof window.debResetBusqueda === 'function') window.debResetBusqueda();
   };
 
   // Abre el asistente para EDITAR un movimiento. Los inputs ocultos ya vienen precargados por openEdit / openEditDeb.
@@ -12384,6 +12500,8 @@ window.openModalClasico = function(){
       }
     } else if(k === 'fecha'){
       if(!$(ids().fecha).value){ toast('Selecciona la fecha'); return; }
+    } else if(k === 'lista'){
+      if(!$(ids()[pasos[gw.paso].campo]).value){ toast(pasos[gw.paso].vacio || 'Sin opciones disponibles'); return; }
     } else {
       persistirPaso();
       const paso = pasos[gw.paso];
@@ -12395,6 +12513,19 @@ window.openModalClasico = function(){
       if(paso.alSalir) paso.alSalir();
     }
     if(ultimo){ cfg().finalizar(); return; } // abre la confirmación y cierra el asistente
+    const pasoAct = pasos[gw.paso];
+    if(pasoAct.alSalirAsync){
+      // Paso que necesita cargar datos antes de continuar (p. ej. historial de la cuenta de débito)
+      const btn = $('gw-next'), modo0 = gw.modo, paso0 = gw.paso;
+      btn.disabled = true; btn.textContent = 'Cargando...';
+      Promise.resolve().then(()=>pasoAct.alSalirAsync()).catch(()=>{}).then(()=>{
+        btn.disabled = false;
+        if(gw.modo !== modo0 || gw.paso !== paso0 || !$('modal-gasto-wizard').classList.contains('open')) return;
+        gw.paso++;
+        render('next');
+      });
+      return;
+    }
     gw.paso++;
     render('next');
   };
@@ -12665,8 +12796,8 @@ window.confirmarEliminarPerfil = async function(){
       <div id="deb-paso-banco" class="hist-step" style="margin:0 0 12px;border-radius:16px;overflow:hidden;background:linear-gradient(180deg,#1c1c1c,#0a0a0a);border:1px solid var(--border);box-shadow:0 8px 22px rgba(0,0,0,0.38), 0 2px 6px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.10), inset 0 -1px 0 rgba(0,0,0,0.5)">
         <div class="hist-step-head" onclick="debToggleDD('deb-dd-bancos')" style="display:flex;align-items:center;justify-content:space-between;padding:16px 18px;cursor:pointer">
           <div>
-            <div style="font-size:11px;font-weight:700;color:var(--text-dim);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:4px">Banco</div>
-            <div id="deb-banco-txt" style="font-size:16px;font-weight:700;color:var(--text)">Seleccionar banco</div>
+            <div style="font-size:16px;font-weight:700;color:var(--text)">Búsqueda</div>
+            <div id="deb-banco-txt" style="display:none">Seleccionar banco</div>
           </div>
           <svg id="deb-dd-bancos-icon" width="20" height="20" fill="none" stroke="var(--text-dim)" stroke-width="2" viewBox="0 0 24 24" style="transition:transform 0.2s;flex-shrink:0"><polyline points="6 9 12 15 18 9"/></svg>
         </div>
@@ -12767,8 +12898,8 @@ window.confirmarEliminarPerfil = async function(){
     <div id="paso-banco-hist" class="hist-step" style="margin:0 0 12px;border-radius:16px;overflow:hidden;background:linear-gradient(180deg,#1c1c1c,#0a0a0a);border:1px solid var(--border);box-shadow:0 8px 22px rgba(0,0,0,0.38), 0 2px 6px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.10), inset 0 -1px 0 rgba(0,0,0,0.5)">
       <div class="hist-step-head" onclick="toggleDropdown('dd-bancos')" style="display:flex;align-items:center;justify-content:space-between;padding:16px 18px;cursor:pointer">
         <div>
-          <div style="font-size:11px;font-weight:700;color:var(--text-dim);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:4px">Banco</div>
-          <div id="banco-seleccionado-txt" style="font-size:16px;font-weight:700;color:var(--text)">Seleccionar banco</div>
+          <div style="font-size:16px;font-weight:700;color:var(--text)">Búsqueda</div>
+            <div id="banco-seleccionado-txt" style="display:none">Seleccionar banco</div>
         </div>
         <svg id="dd-bancos-icon" width="20" height="20" fill="none" stroke="var(--text-dim)" stroke-width="2" viewBox="0 0 24 24" style="transition:transform 0.2s;flex-shrink:0"><polyline points="6 9 12 15 18 9"/></svg>
       </div>
