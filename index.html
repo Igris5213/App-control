@@ -728,6 +728,31 @@ input[type=number]{-moz-appearance:textfield}
 .btn-flat-confirm{background:linear-gradient(180deg,var(--card-bg-soft),var(--bg))}
 .btn-flat-cancel:active,.btn-flat-confirm:active{transform:scale(0.98)}
 
+/* ── Asistente "Nuevo gasto" (crédito): un modal por cada campo ── */
+html.dark-mode #modal-gasto-wizard.open{background:rgba(0,0,0,0.95);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}
+html.dark-mode #modal-gasto-wizard .modal{--card-bg:#090909;--card-bg-soft:#111111;--icon-bg:#1c1c1c;--border:#212121;--input-bg:#090909;--bg:#090909}
+html.dark-mode #modal-gasto-wizard .modal .btn-flat-cancel,
+html.dark-mode #modal-gasto-wizard .modal .btn-flat-confirm{background:var(--card-bg-soft)!important;box-shadow:0 2px 6px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.06)}
+#modal-gasto-wizard .modal{transform:scale(0.92);transition:transform 0.3s cubic-bezier(0.34,1.3,0.64,1),background 0.25s ease;width:calc(100% - 40px);max-width:390px;padding:22px 20px 24px;border-radius:24px;max-height:90vh;overflow-x:hidden;overflow-y:auto;-webkit-overflow-scrolling:touch}
+#modal-gasto-wizard.open .modal{transform:scale(1)}
+#modal-gasto-wizard .gw-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
+#modal-gasto-wizard .gw-head .modal-title{margin-bottom:0;flex:1;min-width:0;font-size:17px;line-height:1.2}
+#modal-gasto-wizard .gw-head .gw-close{margin-left:10px}
+#modal-gasto-wizard .gw-close{width:32px;height:32px;border-radius:50%;border:1.5px solid var(--border);background:var(--card-bg-soft);color:var(--text-dim);display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;padding:0}
+#modal-gasto-wizard .gw-progress{display:flex;gap:6px;margin-bottom:18px}
+#modal-gasto-wizard .gw-dot{flex:1;height:4px;border-radius:2px;background:var(--border);transition:background 0.25s ease}
+#modal-gasto-wizard .gw-dot.done{background:var(--text-dim)}
+#modal-gasto-wizard .gw-dot.active{background:var(--text)}
+#modal-gasto-wizard .gw-stepno{font-size:11px;font-weight:700;color:var(--text-dim);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:6px}
+#modal-gasto-wizard .gw-titulo{font-size:22px;font-weight:800;color:var(--text);margin-bottom:4px}
+#modal-gasto-wizard .gw-hint{font-size:13px;color:var(--text-dim);margin-bottom:16px}
+#modal-gasto-wizard .gw-recap{display:inline-block;max-width:100%;font-size:12px;font-weight:600;color:var(--text-dim);background:var(--card-bg-soft);border:1px solid var(--border);border-radius:8px;padding:6px 10px;margin-bottom:14px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#modal-gasto-wizard .gw-body.in-next{animation:gwInNext 0.28s ease both}
+#modal-gasto-wizard .gw-body.in-prev{animation:gwInPrev 0.28s ease both}
+@keyframes gwInNext{from{opacity:0;transform:translateX(26px)}to{opacity:1;transform:none}}
+@keyframes gwInPrev{from{opacity:0;transform:translateX(-26px)}to{opacity:1;transform:none}}
+#modal-gasto-wizard .gw-actions{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:22px}
+
 /* ── Login feedback toast ── */
 #login-toast{position:fixed;bottom:120px;left:50%;transform:translateX(-50%) translateY(20px);z-index:9999;opacity:0;transition:opacity 0.25s,transform 0.25s;pointer-events:none;min-width:220px;max-width:280px}
 #login-toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
@@ -2366,6 +2391,24 @@ try{
   </div>
 </div>
 
+<!-- ══ ASISTENTE NUEVO GASTO (CRÉDITO): un modal por campo ══ -->
+<div class="modal-overlay" id="modal-gasto-wizard" style="align-items:center">
+  <div class="modal" onclick="event.stopPropagation()">
+    <div class="gw-head">
+      <div class="modal-title" id="gw-title"><div style="width:34px;height:34px;border-radius:10px;background:#111111;border:1px solid rgba(255,255,255,0.09);display:flex;align-items:center;justify-content:center;flex-shrink:0"><svg width="18" height="18" fill="none" stroke="#fff" stroke-width="2.2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg></div>Movimiento nuevo</div>
+      <button type="button" class="gw-close" onclick="gwCancelar()" aria-label="Cerrar">
+        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div class="gw-progress" id="gw-progress"></div>
+    <div class="gw-body" id="gw-body"></div>
+    <div class="gw-actions">
+      <button type="button" class="btn-flat-cancel" id="gw-back" onclick="gwAtras()">Cancelar</button>
+      <button type="button" class="btn-flat-confirm" id="gw-next" onclick="gwSiguiente()">Siguiente</button>
+    </div>
+  </div>
+</div>
+
 <!-- ══ APP PRINCIPAL ══ -->
 <div class="main-app" id="main-app">
   <div class="top-section">
@@ -2512,7 +2555,7 @@ let selectedBancoNombre = '';
 let selectedCorte = null;
 
 function cerrarTodosLosPopups(){
-  ['banco-popup-overlay','corte-popup-overlay','tarjeta-promo-popup','modal-edit-cred']
+  ['banco-popup-overlay','corte-popup-overlay','tarjeta-promo-popup','modal-edit-cred','modal-gasto-wizard']
     .forEach(id=>{ const el=document.getElementById(id); if(el) el.classList.remove('open'); });
   ['banco-promo-scroll-wrap','tarjeta-promo-scroll-wrap','meses-scroll-wrap']
     .forEach(id=>{ const el=document.getElementById(id); if(el) el.style.display='none'; });
@@ -3949,6 +3992,8 @@ window.openEdit = function(id){
   document.getElementById('modal-edit-cred').classList.add('open');
 }
 
+window._resetEditingId = function(){ editingId = null; };
+
 window.cancelarModalMovimiento = function(){
   const idAlCancelar = editingId;
   editingId = null;
@@ -4138,8 +4183,10 @@ window.guardar = async function(){
   document.getElementById('confirm-mov-comercio').textContent = comercio;
   document.getElementById('confirm-mov-concepto').textContent = concepto;
 
-  // Cerrar modal formulario y abrir confirmación
+  // Cerrar modal formulario (y asistente) y abrir confirmación
   document.getElementById('modal-edit-cred').classList.remove('open');
+  const _gwOv = document.getElementById('modal-gasto-wizard');
+  if(_gwOv) _gwOv.classList.remove('open');
   _aplicarColorConfirmMov();
   document.getElementById('modal-confirm-mov').classList.add('open');
 }
@@ -11544,7 +11591,7 @@ window.toggleScrollTarjetaExt = function(){
   }
 };
 
-window.openModal = function(){
+window.openModalClasico = function(){
   if(typeof cerrarTodosLosPopups === 'function') cerrarTodosLosPopups();
   window.editingId = null;
   document.getElementById('modal-title').innerHTML = '<div style="width:34px;height:34px;border-radius:10px;background:#111111;border:1px solid rgba(255,255,255,0.09);display:flex;align-items:center;justify-content:center;flex-shrink:0"><svg width="18" height="18" fill="none" stroke="#fff" stroke-width="2.2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg></div>Movimiento nuevo';
@@ -11571,15 +11618,311 @@ window.openModal = function(){
   document.getElementById('modal-edit-cred').classList.add('open');
 };
 
-// Reabre el modal de crédito sin limpiar campos (usado al presionar Corregir)
+// (el reabrir del modal de crédito ahora lo maneja el asistente; ver más abajo)
+
+// ══ ASISTENTE DE CAPTURA (CRÉDITO): un modal por cada campo ═════════════════
+// Dos modos: 'nuevo' (movimiento del período) y 'ext' (extemporáneo). Reutiliza los inputs
+// ocultos de los formularios clásicos para que guardar()/guardarExt() y la confirmación
+// sigan funcionando igual.
+(function(){
+  const ICONO_NUEVO = '<div style="width:34px;height:34px;border-radius:10px;background:#111111;border:1px solid rgba(255,255,255,0.09);display:flex;align-items:center;justify-content:center;flex-shrink:0"><svg width="18" height="18" fill="none" stroke="#fff" stroke-width="2.2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg></div>';
+  const ICONO_EXT   = '<div style="width:34px;height:34px;border-radius:10px;background:#111111;border:1px solid rgba(255,255,255,0.09);display:flex;align-items:center;justify-content:center;flex-shrink:0"><svg width="18" height="18" fill="none" stroke="#fff" stroke-width="2.2" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div>';
+
+  const P = {
+    banco:    {k:'banco',    titulo:'Banco',    hint:'¿En qué banco hiciste el gasto?'},
+    tarjeta:  {k:'tarjeta',  titulo:'Tarjeta',  hint:'¿Con cuál tarjeta?'},
+    comercio: {k:'comercio', titulo:'Comercio', hint:'¿En qué comercio? (opcional)'},
+    concepto: {k:'concepto', titulo:'Concepto', hint:'¿Para qué fue el gasto? (opcional)'},
+    monto:    {k:'monto',    titulo:'Monto',    hint:'¿Cuál fue el importe?'},
+    fecha:    {k:'fecha',    titulo:'Fecha',    hint:'¿Cuándo se hizo el gasto?'}
+  };
+  const MODOS = {
+    nuevo: {
+      titulo:'Movimiento nuevo', icono:ICONO_NUEVO,
+      pasos:[P.banco, P.tarjeta, P.comercio, P.concepto, P.monto],
+      ids:{banco:'inp-banco-modal', tarjeta:'inp-tarjeta-modal', comercio:'inp-comercio', concepto:'inp-concepto', monto:'inp-monto', fecha:null},
+      selVar:'_tarjetaModalSel',
+      finalizar:()=>window.guardar()
+    },
+    ext: {
+      titulo:'Movimiento extemporáneo', icono:ICONO_EXT,
+      pasos:[P.banco, P.tarjeta, P.comercio, P.concepto, P.monto, P.fecha],
+      ids:{banco:'inp-banco-ext', tarjeta:'inp-tarjeta-ext', comercio:'inp-comercio-ext', concepto:'inp-concepto-ext', monto:'inp-monto-ext', fecha:'inp-fecha-ext'},
+      selVar:'_tarjetaExtSel',
+      finalizar:()=>window.guardarExt()
+    }
+  };
+  const gw = window._gw = { modo:'nuevo', paso:0, tarjetasFilt:[], f:null };
+  const $ = id => document.getElementById(id);
+  const cfg = () => MODOS[gw.modo];
+  const ids = () => cfg().ids;
+  const getSel = () => window[cfg().selVar];
+  const setSel = t => { window[cfg().selVar] = t; };
+  const esc = v => String(v == null ? '' : v).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+  const tarjetas = () => (window.perfil && window.perfil.tarjetas) ? window.perfil.tarjetas : [];
+  const toast = m => { if(typeof showToast === 'function') showToast(m); };
+  const pad = n => String(n).padStart(2,'0');
+
+  // ── Rueda de selección (banco / tarjeta) ──
+  function ruedaHTML(items, sel){
+    return '<div style="background:var(--card-bg-soft);border-radius:14px;overflow:hidden">'
+      + '<div style="font-size:10px;font-weight:700;color:var(--text-dim);text-align:center;text-transform:uppercase;letter-spacing:0.08em;padding:8px 0 4px">Desliza para seleccionar</div>'
+      + '<div style="position:relative;height:132px;margin:0 8px">'
+      + '<div style="position:absolute;left:0;right:0;top:50%;transform:translateY(-50%);height:41px;border-radius:10px;background:var(--bg);border:1.5px solid var(--border);pointer-events:none;z-index:1"></div>'
+      + '<div id="gw-scroll" style="position:absolute;inset:0;overflow-y:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch;z-index:2">'
+      + '<div style="height:44px"></div><div id="gw-items">'
+      + items.map((t,i)=>'<div class="scroll-item'+(i===sel?' sel':'')+'" style="color:'+(i===sel?'var(--text)':'var(--text-dim)')+'" onclick="gwTapRueda('+i+')">'+esc(t)+'</div>').join('')
+      + '</div><div style="height:44px"></div></div></div><div style="height:8px"></div></div>';
+  }
+  function activarRueda(sel, onSel){
+    const sc = $('gw-scroll'), cont = $('gw-items');
+    if(!sc || !cont) return;
+    setTimeout(()=>{ sc.scrollTop = sel * 44; }, 50);
+    snapScrollConInicio(sc, 44, sel, idx=>{
+      cont.querySelectorAll('.scroll-item').forEach((el,i)=>{
+        const on = i === idx;
+        el.classList.toggle('sel', on);
+        el.style.color = on ? 'var(--text)' : 'var(--text-dim)';
+      });
+      onSel(idx);
+    });
+  }
+  window.gwTapRueda = function(i){
+    const sc = $('gw-scroll');
+    if(sc) sc.scrollTo({top:i*44, behavior:'smooth'});
+  };
+
+  function selBanco(idx){
+    const bancos = [...new Set(tarjetas().map(t=>t.nombre))];
+    const b = bancos[idx];
+    if(!b) return;
+    $(ids().banco).value = b;
+    const actual = getSel();
+    if(!actual || actual.nombre !== b){
+      const t = tarjetas().find(x=>x.nombre === b);
+      if(t){ setSel(t); $(ids().tarjeta).value = t.id; }
+    }
+  }
+  function selTarjeta(idx){
+    const t = gw.tarjetasFilt[idx];
+    if(!t) return;
+    setSel(t);
+    $(ids().tarjeta).value = t.id;
+  }
+
+  // ── Paso de fecha (Año / Mes / Día; sin fechas futuras) ──
+  function fechaHTML(){
+    const col = id => '<div id="'+id+'" style="flex:1;overflow-y:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch"><div style="height:44px"></div><div id="'+id+'-items"></div><div style="height:44px"></div></div>';
+    const lbl = t => '<div style="flex:1;font-size:10px;font-weight:700;color:var(--text-dim);text-transform:uppercase;letter-spacing:0.06em;text-align:center">'+t+'</div>';
+    return '<div style="background:var(--card-bg-soft);border-radius:14px;overflow:hidden">'
+      + '<div style="display:flex;gap:4px;padding:8px 8px 0">'+lbl('Año')+lbl('Mes')+lbl('Día')+'</div>'
+      + '<div style="position:relative;height:132px;margin:4px 8px 0">'
+      + '<div style="position:absolute;left:0;right:0;top:50%;transform:translateY(-50%);height:41px;border-radius:10px;background:var(--bg);border:1.5px solid var(--border);pointer-events:none;z-index:1"></div>'
+      + '<div style="position:absolute;inset:0;display:flex;z-index:2">'+col('gw-f-anio')+col('gw-f-mes')+col('gw-f-dia')+'</div>'
+      + '</div><div style="height:8px"></div></div>'
+      + '<div id="gw-fecha-txt" style="margin-top:12px;text-align:center;font-size:14px;font-weight:600;color:var(--text)"></div>';
+  }
+  function iniciarFecha(){
+    const hoy = new Date(), hA = hoy.getFullYear(), hM = hoy.getMonth() + 1, hD = hoy.getDate();
+    const g = $(ids().fecha).value;
+    const f = gw.f = {a:hA, m:hM, d:hD};
+    if(g){ const p = g.split('-').map(Number); if(p.length === 3 && p[0] && p[1] && p[2]){ f.a = p[0]; f.m = p[1]; f.d = p[2]; } }
+    const anios = [hA - 1, hA];
+    if(anios.indexOf(f.a) === -1) f.a = hA;
+    if(f.a === hA && f.m > hM) f.m = hM;
+    const diasN = () => (f.a === hA && f.m === hM) ? hD : new Date(f.a, f.m, 0).getDate();
+    if(f.d > diasN()) f.d = diasN();
+
+    function guardarFecha(){
+      $(ids().fecha).value = f.a + '-' + pad(f.m) + '-' + pad(f.d);
+      const t = $('gw-fecha-txt');
+      if(t) t.textContent = pad(f.d) + ' de ' + MESES[f.m - 1] + ' ' + f.a;
+    }
+    function col(scrollId, items, sel, onSel){
+      const sc = $(scrollId), it = $(scrollId + '-items');
+      if(!sc || !it) return;
+      it.innerHTML = items.map((v,i)=>'<div class="dp-item'+(i===sel?' sel':'')+'" style="color:'+(i===sel?'var(--text)':'var(--text-dim)')+'">'+v+'</div>').join('');
+      sc.scrollTop = sel * 44;
+      snapScrollConInicio(sc, 44, sel, idx=>{
+        it.querySelectorAll('.dp-item').forEach((el,i)=>{
+          const on = i === idx;
+          el.classList.toggle('sel', on);
+          el.style.color = on ? 'var(--text)' : 'var(--text-dim)';
+        });
+        onSel(idx);
+      });
+    }
+    function colDia(){
+      const n = diasN();
+      if(f.d > n) f.d = n;
+      col('gw-f-dia', Array.from({length:n},(_,i)=>pad(i+1)), f.d - 1, idx=>{ if(idx + 1 === f.d) return; f.d = idx + 1; guardarFecha(); });
+    }
+    function colMes(){
+      const meses = MESES.slice(0, f.a === hA ? hM : 12).map(m=>m.substring(0,3));
+      col('gw-f-mes', meses, f.m - 1, idx=>{ if(idx + 1 === f.m) return; f.m = idx + 1; colDia(); guardarFecha(); });
+    }
+    function colAnio(){
+      col('gw-f-anio', anios.map(String), anios.indexOf(f.a), idx=>{
+        const a = anios[Math.min(idx, anios.length - 1)];
+        if(a === f.a) return;
+        f.a = a;
+        if(f.a === hA && f.m > hM) f.m = hM;
+        colMes(); colDia(); guardarFecha();
+      });
+    }
+    setTimeout(()=>{ colAnio(); colMes(); colDia(); guardarFecha(); }, 50);
+  }
+
+  // Guarda en los inputs ocultos lo escrito en el paso actual
+  function persistirPaso(){
+    const k = cfg().pasos[gw.paso].k, inp = $('gw-inp');
+    if(!inp) return;
+    if(k === 'comercio') $(ids().comercio).value = inp.value.trim();
+    if(k === 'concepto') $(ids().concepto).value = inp.value.trim();
+    if(k === 'monto')    $(ids().monto).value    = inp.value;
+  }
+
+  function render(dir){
+    const pasos = cfg().pasos, i = gw.paso, paso = pasos[i], ultimo = i === pasos.length - 1;
+    $('gw-title').innerHTML = cfg().icono + cfg().titulo;
+    $('gw-progress').innerHTML = pasos.map((_,n)=>'<div class="gw-dot'+(n<i?' done':(n===i?' active':''))+'"></div>').join('');
+    $('gw-back').textContent = i === 0 ? 'Cancelar' : 'Atrás';
+    $('gw-next').textContent = ultimo ? 'Continuar' : 'Siguiente';
+
+    const t = getSel();
+    let html = '<div class="gw-stepno">Paso '+(i+1)+' de '+pasos.length+'</div>'
+             + '<div class="gw-titulo">'+paso.titulo+'</div>'
+             + '<div class="gw-hint">'+paso.hint+'</div>';
+    if(i >= 2 && t){
+      html += '<div class="gw-recap">'+esc(t.nombre + (t.apodo ? ' · ' + t.apodo : ''))+'</div>';
+    }
+
+    let init = null;
+    if(paso.k === 'banco'){
+      const bancos = [...new Set(tarjetas().map(x=>x.nombre))];
+      const actual = $(ids().banco).value || (t && t.nombre) || bancos[0] || '';
+      const sel = Math.max(0, bancos.indexOf(actual));
+      html += ruedaHTML(bancos, sel);
+      init = ()=>activarRueda(sel, selBanco);
+    } else if(paso.k === 'tarjeta'){
+      const banco = $(ids().banco).value;
+      gw.tarjetasFilt = banco ? tarjetas().filter(x=>x.nombre === banco) : tarjetas();
+      const idActual = $(ids().tarjeta).value;
+      const idx = gw.tarjetasFilt.findIndex(x=>x.id === idActual);
+      const sel = idx >= 0 ? idx : 0;
+      html += ruedaHTML(gw.tarjetasFilt.map(x=>(x.apodo || x.nombre) + (x.terminacion ? '  ••• ' + x.terminacion : '')), sel);
+      init = ()=>activarRueda(sel, selTarjeta);
+    } else if(paso.k === 'comercio' || paso.k === 'concepto'){
+      const esCom = paso.k === 'comercio';
+      const val = $(esCom ? ids().comercio : ids().concepto).value;
+      html += '<input class="inp" id="gw-inp" type="text" autocomplete="off" value="'+esc(val)+'" placeholder="'+(esCom ? 'Ej. Walmart, OXXO...' : 'Ej. Despensa, gasolina...')+'" maxlength="'+(esCom ? 50 : 80)+'" onkeydown="if(event.key===\'Enter\'){event.preventDefault();gwSiguiente()}"/>';
+      init = ()=>setTimeout(()=>{ const e = $('gw-inp'); if(e) e.focus(); }, 320);
+    } else if(paso.k === 'monto'){
+      const val = $(ids().monto).value;
+      html += '<div class="amount-wrap"><span class="amount-prefix" style="font-size:18px;left:16px">$</span>'
+            + '<input class="amount-inp" id="gw-inp" type="number" inputmode="decimal" placeholder="0.00" min="0" step="0.01" value="'+esc(val)+'" style="font-size:22px;font-weight:700;padding:16px 14px 16px 34px" onkeydown="if(event.key===\'Enter\'){event.preventDefault();gwSiguiente()}"/></div>';
+      init = ()=>setTimeout(()=>{ const e = $('gw-inp'); if(e) e.focus(); }, 320);
+    } else if(paso.k === 'fecha'){
+      html += fechaHTML();
+      init = iniciarFecha;
+    }
+
+    const body = $('gw-body');
+    body.classList.remove('in-next','in-prev');
+    body.innerHTML = html;
+    void body.offsetWidth; // reinicia la animación
+    body.classList.add(dir === 'prev' ? 'in-prev' : 'in-next');
+    if(init) init();
+  }
+
+  function abrirOverlay(){ $('modal-gasto-wizard').classList.add('open'); }
+  function cerrarOverlay(){ $('modal-gasto-wizard').classList.remove('open'); }
+
+  window.gwAbrir = function(modo){
+    if(modo !== 'ext') modo = 'nuevo';
+    if(typeof cerrarTodosLosPopups === 'function') cerrarTodosLosPopups();
+    const lista = tarjetas();
+    if(!lista.length){ toast('Agrega una tarjeta de crédito primero'); return; }
+    gw.modo = modo;
+    if(modo === 'nuevo' && typeof window._resetEditingId === 'function') window._resetEditingId();
+    const I = ids();
+    $(I.monto).value = '';
+    $(I.comercio).value = '';
+    $(I.concepto).value = '';
+    if(I.fecha) $(I.fecha).value = '';
+    // Por defecto: la tarjeta que se está viendo en el carrusel
+    const cur = lista[window.current || 0] || lista[0];
+    setSel(cur);
+    $(I.banco).value = cur.nombre;
+    $(I.tarjeta).value = cur.id;
+    gw.paso = 0;
+    render('next');
+    abrirOverlay();
+  };
+
+  // Reabre el asistente en el último paso conservando lo capturado (botón "Corregir" de la confirmación)
+  window.gwReabrir = function(modo){
+    if(modo) gw.modo = modo === 'ext' ? 'ext' : 'nuevo';
+    gw.paso = cfg().pasos.length - 1;
+    render('prev');
+    abrirOverlay();
+  };
+
+  window.gwCancelar = function(){ cerrarOverlay(); };
+
+  window.gwAtras = function(){
+    if(gw.paso === 0){ window.gwCancelar(); return; }
+    persistirPaso();
+    gw.paso--;
+    render('prev');
+  };
+
+  window.gwSiguiente = function(){
+    const pasos = cfg().pasos, k = pasos[gw.paso].k, ultimo = gw.paso === pasos.length - 1;
+    if(k === 'monto'){
+      const inp = $('gw-inp');
+      const m = parseFloat(inp ? inp.value : '');
+      if(!m || m <= 0){ toast('Ingresa el importe'); if(inp) inp.focus(); return; }
+      $(ids().monto).value = String(m);
+    } else if(k === 'fecha'){
+      if(!$(ids().fecha).value){ toast('Selecciona la fecha'); return; }
+    } else {
+      persistirPaso();
+    }
+    if(ultimo){ cfg().finalizar(); return; } // abre la confirmación y cierra el asistente
+    gw.paso++;
+    render('next');
+  };
+
+  // Puntos de entrada
+  window.openModal    = function(){ window.gwAbrir('nuevo'); };
+  window.openModalExt = function(){ window.gwAbrir('ext'); };
+})();
+
+// Reabrir tras "Corregir" en la confirmación de un movimiento de crédito (nuevo / extemporáneo)
 window._reabrirModalCredito = function(){
+  if(document.getElementById('modal-gasto-wizard') && typeof window.gwReabrir === 'function'){
+    window.gwReabrir('nuevo');
+    return;
+  }
   document.getElementById('modal-tarjeta-scroll-wrap').style.display = 'none';
   const overlay = document.getElementById('modal-edit-cred');
   overlay.style.zIndex = '1200';
   overlay.classList.add('open');
 };
+window._reabrirModalExt = function(){
+  if(document.getElementById('modal-gasto-wizard') && typeof window.gwReabrir === 'function'){
+    window.gwReabrir('ext');
+    return;
+  }
+  document.getElementById('ext-tarjeta-scroll-wrap').style.display = 'none';
+  document.getElementById('fecha-ext-scroll-wrap').style.display = 'none';
+  const overlay = document.getElementById('modal-ext-overlay');
+  overlay.style.zIndex = '1200';
+  overlay.classList.add('open');
+};
 
-window.openModalExt = function(){
+window.openModalExtClasico = function(){
   document.getElementById('inp-comercio-ext').value = '';
   document.getElementById('inp-concepto-ext').value = '';
   document.getElementById('inp-monto-ext').value = '';
@@ -11599,14 +11942,7 @@ window.openModalExt = function(){
   document.getElementById('modal-ext-overlay').classList.add('open');
 };
 
-// Reabre el modal extemporáneo sin limpiar campos (usado al presionar Corregir)
-window._reabrirModalExt = function(){
-  document.getElementById('ext-tarjeta-scroll-wrap').style.display = 'none';
-  document.getElementById('fecha-ext-scroll-wrap').style.display = 'none';
-  const overlay = document.getElementById('modal-ext-overlay');
-  overlay.style.zIndex = '1200';
-  overlay.classList.add('open');
-};
+// (el reabrir del modal extemporáneo ahora lo maneja el asistente)
 
 window.closeModalExtOut = function(e){
   if(e.target === document.getElementById('modal-ext-overlay')){
@@ -11645,6 +11981,8 @@ window.guardarExt = async function(){
   document.getElementById('confirm-mov-concepto').textContent = concepto;
 
   document.getElementById('modal-ext-overlay').classList.remove('open');
+  const _gwOvExt = document.getElementById('modal-gasto-wizard');
+  if(_gwOvExt) _gwOvExt.classList.remove('open');
   _aplicarColorConfirmMov();
   document.getElementById('modal-confirm-mov').classList.add('open');
 };
@@ -13771,7 +14109,7 @@ document.addEventListener('DOMContentLoaded', function(){
 
 <script>
 (function(){
-  var openIds = ['modal-detalle-gasto','modal-edit-cred','modal-edit-deb','confirm-elim-overlay','modal-confirm-mov','modal-resumen-movimiento','modal-detalle-promo','modal-edit-promo','confirm-promo-overlay','modal-detalle-cargo','modal-cargo-recurrente','confirm-cargo-overlay','modal-debito-overlay','modal-ext-overlay'];
+  var openIds = ['modal-detalle-gasto','modal-edit-cred','modal-gasto-wizard','modal-edit-deb','confirm-elim-overlay','modal-confirm-mov','modal-resumen-movimiento','modal-detalle-promo','modal-edit-promo','confirm-promo-overlay','modal-detalle-cargo','modal-cargo-recurrente','confirm-cargo-overlay','modal-debito-overlay','modal-ext-overlay'];
   var showIds = ['success-overlay','modified-overlay','delete-overlay'];
   var backdrop = document.getElementById('shared-modal-backdrop');
   function sync(){
@@ -13795,5 +14133,85 @@ document.addEventListener('DOMContentLoaded', function(){
 })();
 </script>
 
+<script>
+// ══ IMPORTES CON SEPARADOR DE MILES ═══════════════════════════════════════
+// Todos los inputs numéricos de la app son importes. Se convierten a texto con teclado
+// decimal y se formatean al escribir (1,234,567.89). El valor que lee el resto del código
+// (input.value) sigue siendo el número sin comas, y al asignar input.value se muestra con comas.
+(function(){
+  const desc = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value');
+  if(!desc || !desc.get || !desc.set || window.__moneyInit) return;
+  window.__moneyInit = true;
+  const nativeGet = desc.get, nativeSet = desc.set;
+
+  // Formatea texto que se está escribiendo (no redondea)
+  function fmtTyping(str){
+    let t = String(str == null ? '' : str).replace(/[^\d.]/g, '');
+    const i = t.indexOf('.');
+    let ent = i === -1 ? t : t.slice(0, i);
+    const dec = i === -1 ? null : t.slice(i + 1).replace(/\./g, '').slice(0, 2);
+    ent = ent.replace(/^0+(?=\d)/, '');
+    if(i !== -1 && ent === '') ent = '0';
+    ent = ent.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+    return dec === null ? ent : ent + '.' + dec;
+  }
+  // Formatea un valor asignado por código (redondea a 2 decimales)
+  function fmtSet(v){
+    if(v === null || v === undefined || v === '') return '';
+    const raw = String(v).replace(/,/g, '').trim();
+    const n = Number(raw);
+    if(raw !== '' && isFinite(n)) return fmtTyping(String(Math.round(n * 100) / 100));
+    return fmtTyping(raw);
+  }
+  const esMoney = el => el.hasAttribute && el.hasAttribute('data-money');
+
+  Object.defineProperty(HTMLInputElement.prototype, 'value', {
+    configurable: true,
+    enumerable: desc.enumerable,
+    get(){
+      const v = nativeGet.call(this);
+      return esMoney(this) ? v.replace(/,/g, '') : v;
+    },
+    set(v){
+      nativeSet.call(this, esMoney(this) ? fmtSet(v) : v);
+    }
+  });
+
+  function convertir(el){
+    if(!el || el.tagName !== 'INPUT' || el.type !== 'number' || esMoney(el)) return;
+    const actual = nativeGet.call(el);
+    el.setAttribute('data-money', '');
+    el.type = 'text';
+    el.setAttribute('inputmode', 'decimal');
+    el.setAttribute('autocomplete', 'off');
+    if(actual !== '') nativeSet.call(el, fmtSet(actual));
+  }
+  function convertirTodo(root){
+    if(!root) return;
+    if(root.tagName === 'INPUT') convertir(root);
+    if(root.querySelectorAll) root.querySelectorAll('input[type="number"]').forEach(convertir);
+  }
+
+  // Formato en vivo mientras se escribe, conservando la posición del cursor
+  document.addEventListener('input', function(e){
+    const el = e.target;
+    if(!el || el.tagName !== 'INPUT' || !esMoney(el)) return;
+    const antes = nativeGet.call(el);
+    const pos = el.selectionStart == null ? antes.length : el.selectionStart;
+    const sig = antes.slice(0, pos).replace(/[^\d.]/g, '').length;
+    const despues = fmtTyping(antes);
+    if(despues === antes) return;
+    nativeSet.call(el, despues);
+    let n = 0, idx = 0;
+    while(idx < despues.length && n < sig){ if(/[\d.]/.test(despues[idx])) n++; idx++; }
+    try{ el.setSelectionRange(idx, idx); }catch(_){}
+  }, true);
+
+  convertirTodo(document);
+  new MutationObserver(muts=>{
+    muts.forEach(m=>m.addedNodes.forEach(n=>{ if(n.nodeType === 1) convertirTodo(n); }));
+  }).observe(document.documentElement, {childList:true, subtree:true});
+})();
+</script>
 </body>
 </html>
