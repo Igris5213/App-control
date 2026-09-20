@@ -15,7 +15,7 @@
 <link rel="apple-touch-icon" href="icon-192.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,400;0,500;0,600;0,700;0,800;1,800&display=swap" rel="stylesheet">
 <style>
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;outline:none;user-select:none;-webkit-user-select:none;-moz-user-select:none;-ms-user-select:none;-webkit-touch-callout:none}
 input,textarea{-webkit-user-select:text;user-select:text;-webkit-touch-callout:default}
@@ -217,8 +217,10 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
 }
 
 /* CSS tarjeta */
-.card-unified-box{background:transparent;border:none;border-radius:0;padding:0;margin-bottom:0;display:flex;flex-direction:column;gap:3px}
+.card-unified-box{background:transparent;border:none;border-radius:0;padding:0;margin-bottom:0;display:flex;flex-direction:column;gap:10px}
 .card-unified-divider{display:none}
+.card-merged-box{background:#111111;border:1px solid rgba(255,255,255,0.1);border-radius:14px;overflow:hidden}
+.card-merged-divider{height:1px;background:rgba(255,255,255,0.1)}
 .card-top-row{display:flex;align-items:flex-start;justify-content:center;gap:50px;margin-bottom:16px}
 .card-header-box{background:#111111;border:1px solid rgba(255,255,255,0.1);border-radius:14px;padding:12px 14px;margin-bottom:0}
 .card-top-left{display:flex;flex-direction:column;min-width:0;align-items:center;text-align:center}
@@ -226,6 +228,32 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
 .card-top-left .card-sub{margin-bottom:0}
 .card-top-right .card-lim-val{margin-bottom:0}
 .card-bank-name{font-size:11.5px;font-weight:700;color:rgba(255,255,255,0.58);text-transform:uppercase;letter-spacing:0.07em;text-align:center;margin-bottom:4px}
+/* ── Recuadro estilo tarjeta física ── */
+.cc-header-box{position:relative;overflow:hidden;border-radius:18px;padding:16px 18px 14px;min-height:132px;display:flex;flex-direction:column;justify-content:space-between;background:
+  radial-gradient(130% 160% at 100% -10%, rgba(255,255,255,0.12), transparent 55%),
+  radial-gradient(110% 140% at -10% 115%, rgba(255,255,255,0.05), transparent 55%),
+  linear-gradient(135deg,#232323 0%,#111111 55%,#050505 100%);
+  box-shadow:0 12px 28px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.05);
+  border:1px solid rgba(255,255,255,0.08)}
+.cc-header-box::before{content:'';position:absolute;top:-40%;right:-25%;width:75%;height:180%;background:linear-gradient(115deg,transparent 40%,rgba(255,255,255,0.05) 48%,rgba(255,255,255,0.09) 52%,transparent 60%);pointer-events:none}
+.cc-header-top{position:relative;z-index:1;display:flex;align-items:flex-start;justify-content:space-between}
+.cc-bank-name{font-size:15px;font-weight:800;color:#fff;letter-spacing:0.2px;line-height:1.2}
+.cc-bank-subtitle{font-size:10.5px;color:rgba(255,255,255,0.5);margin-top:2px}
+.cc-contactless{color:rgba(255,255,255,0.55);flex-shrink:0;margin-top:1px}
+.cc-alias-row{position:relative;z-index:1}
+.cc-alias{font-size:13px;font-weight:700;color:rgba(255,255,255,0.85);letter-spacing:0.3px;text-align:right}
+.cc-number-row{position:absolute;left:18px;bottom:40px;z-index:1;font-size:14px;font-weight:600;color:rgba(255,255,255,0.75);letter-spacing:1.5px}
+.cc-brand-visa{font-size:17px;font-weight:800;font-style:italic;color:#fff;letter-spacing:-0.5px;font-family:'Inter',sans-serif}
+.cc-brand-mc{display:flex;align-items:center;width:34px;height:20px;position:relative}
+.cc-mc-circle{position:absolute;width:20px;height:20px;border-radius:50%;top:0;background:#fff}
+.cc-mc-circle.cc-mc-red{left:0;opacity:0.85}
+.cc-mc-circle.cc-mc-orange{left:14px;opacity:0.45}
+.cc-header-bottom{position:relative;z-index:1;display:flex;align-items:flex-end;justify-content:space-between}
+.cc-chip{color:rgba(255,255,255,0.6)}
+.cc-saldo-block{text-align:right}
+.cc-saldo-label{font-size:10px;color:rgba(255,255,255,0.5);font-weight:600;margin-bottom:2px}
+.cc-saldo-val{font-size:19px;font-weight:800;color:#fff;white-space:nowrap}
+.cc-limite-sub{font-size:10.5px;color:rgba(255,255,255,0.5);margin-top:3px;white-space:nowrap}
 .card-menu-btn{width:30px;height:30px;border-radius:9px;background:#111111;border:1px solid rgba(255,255,255,0.09);display:flex;align-items:center;justify-content:center;flex-shrink:0;color:#fff;cursor:pointer;flex-shrink:0}
 .card-sub{font-size:20px;font-weight:800;color:#fff;margin-bottom:16px}
 .card-badge{display:none;align-items:center;gap:5px;background:rgba(255,255,255,0.18);border:1.5px solid rgba(255,255,255,0.55);border-radius:20px;padding:5px 12px;font-size:12px;font-weight:600;color:#fff}
@@ -238,7 +266,7 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
 .card-use-pct{font-size:13px;font-weight:500;color:rgba(255,255,255,0.9);margin-bottom:14px}
 .card-divider{height:1px;background:rgba(255,255,255,0.2);margin-bottom:14px}
 .card-corte-row{display:flex;align-items:center;gap:8px;font-size:13px;color:rgba(255,255,255,0.85);margin-bottom:0}
-.card-info-box{display:flex;align-items:stretch;background:#111111;border:1px solid rgba(255,255,255,0.1);border-radius:14px;padding:12px 14px;gap:10px}
+.card-info-box{display:flex;align-items:stretch;padding:12px 14px;gap:10px}
 .card-info-cell{display:flex;align-items:center;justify-content:center;gap:8px;flex:1;min-width:0}
 .card-info-icon{width:34px;height:34px;border-radius:10px;background:#111111;border:1px solid rgba(255,255,255,0.09);display:flex;align-items:center;justify-content:center;flex-shrink:0;color:#fff}
 .card-info-icon.icon-amber{color:#f0b429}
@@ -256,7 +284,8 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
 .card-stat-label{font-size:10px;color:rgba(255,255,255,0.55);font-weight:600;margin-bottom:1px;white-space:nowrap}
 .card-stat-value{font-size:14.5px;font-weight:800;color:#fff;white-space:nowrap}
 /* ── Recuadro unificado: Usado / Disponible / barra / % utilizado ── */
-.card-usage-box{background:#111111;border:1px solid rgba(255,255,255,0.1);border-radius:14px;padding:12px 14px;margin-bottom:0}
+.card-usage-box{padding:12px 14px;margin-bottom:0}
+.card-usage-title{font-size:12px;font-weight:700;color:rgba(255,255,255,0.55);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:10px}
 .card-usage-stats{display:flex;align-items:stretch;gap:3px;margin-bottom:10px}
 .card-usage-stats .card-stat-label{font-size:10px}
 .card-usage-stats .card-stat-value{font-size:14.5px;overflow:hidden;text-overflow:ellipsis}
@@ -2106,6 +2135,25 @@ try{
       <div id="apodo-edit-tarjeta-txt" style="padding:12px 14px;border-radius:12px;border:1.5px solid var(--border);font-size:15px;background:var(--card-bg-soft);color:var(--text-dim);cursor:default;font-weight:600"></div>
       <input type="hidden" id="apodo-edit-tarjeta"/>
     </div>
+    <div class="field-wrap">
+      <div class="field-label">Marca</div>
+      <div style="display:flex;gap:8px">
+        <button type="button" id="marca-visa-edit-tarjeta" onclick="seleccionarMarcaEditTarjeta('visa')"
+          style="flex:1;padding:12px;border-radius:12px;border:1.5px solid var(--border);background:var(--input-bg);color:var(--text-dim);font-size:14px;font-weight:700;font-style:italic;cursor:pointer;font-family:inherit">VISA</button>
+        <button type="button" id="marca-mc-edit-tarjeta" onclick="seleccionarMarcaEditTarjeta('mastercard')"
+          style="flex:1;padding:12px;border-radius:12px;border:1.5px solid var(--border);background:var(--input-bg);color:var(--text-dim);font-size:13px;font-weight:700;cursor:pointer;font-family:inherit">Mastercard</button>
+      </div>
+      <input type="hidden" id="inp-marca-edit-tarjeta" value=""/>
+    </div>
+    <div class="field-wrap">
+      <div class="field-label">Terminación (opcional)</div>
+      <div style="display:flex;align-items:center;gap:8px;padding:12px 14px;border-radius:12px;border:1.5px solid var(--border);background:var(--input-bg)">
+        <span style="color:var(--text-dim);font-size:15px;font-weight:600">••••</span>
+        <input id="inp-terminacion-edit-tarjeta" type="text" inputmode="numeric" maxlength="4" placeholder="0000"
+          style="border:none;background:transparent;outline:none;font-size:15px;font-weight:600;color:var(--text);letter-spacing:2px;width:70px;font-family:inherit"
+          oninput="this.value=this.value.replace(/\D/g,'').slice(0,4)"/>
+      </div>
+    </div>
     <!-- Fecha de corte (editable) -->
     <div class="field-wrap">
       <div class="field-label">Fecha de corte</div>
@@ -2270,6 +2318,20 @@ try{
 <div class="main-app" id="main-app">
   <div class="top-section">
     <div style="height:16px"></div>
+
+    <!-- Saludo -->
+    <div id="saludo-header" style="display:flex;align-items:center;gap:12px;margin-bottom:16px">
+      <div style="width:42px;height:42px;border-radius:50%;background:#181818;border:1px solid rgba(255,255,255,0.08);display:flex;align-items:center;justify-content:center;color:#fff;font-size:15px;font-weight:700;flex-shrink:0" id="saludo-avatar">SP</div>
+      <div style="flex:1;min-width:0">
+        <div style="font-size:14px;font-weight:500;color:var(--text)" id="saludo-nombre">Hola, Usuario</div>
+        <div style="font-size:10px;color:var(--text-dim);margin-top:2px">Aquí tienes el resumen de tus finanzas</div>
+      </div>
+      <div style="height:38px;padding:0;display:flex;align-items:center;justify-content:center;gap:6px;color:var(--text);flex-shrink:0">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+        <span style="font-size:13px;font-weight:700;white-space:nowrap" id="saludo-corte">Día —</span>
+      </div>
+    </div>
+
     <!-- Sin tarjetas de crédito -->
     <div id="tarjetas-empty" style="display:none;text-align:center;padding:60px 24px">
       <div style="width:72px;height:72px;border-radius:24px;background:#111111;border:1px solid rgba(255,255,255,0.09);display:flex;align-items:center;justify-content:center;margin:0 auto 24px;box-shadow:0 8px 32px rgba(0,0,0,0.15)">
@@ -2283,6 +2345,7 @@ try{
     <div id="tarjetas-carrusel-wrap" style="margin-bottom:16px">
       <div class="cards-outer" id="cards-outer" style="margin:0;border-radius:16px"></div>
       <div class="dots" id="dots"></div>
+      <div class="cards-outer" id="cards-outer-detail" style="margin:0;border-radius:16px"></div>
     </div>
 
     <!-- Últimos movimientos -->
@@ -3107,8 +3170,22 @@ async function iniciarApp(){
 function buildCarrusel(){
   const dotsEl  = document.getElementById('dots');
   const outer   = document.getElementById('cards-outer');
+  const outerDet= document.getElementById('cards-outer-detail');
   const emptyEl = document.getElementById('tarjetas-empty');
   const wrapEl  = document.getElementById('tarjetas-carrusel-wrap');
+
+  if(loginUsuarioActivo){
+    const nombreEl = document.getElementById('saludo-nombre');
+    const avatarEl = document.getElementById('saludo-avatar');
+    if(nombreEl) nombreEl.textContent = `Hola, ${loginUsuarioActivo}`;
+    if(avatarEl){
+      const partes = loginUsuarioActivo.trim().split(/\s+/);
+      const iniciales = partes.length > 1
+        ? (partes[0].charAt(0) + partes[1].charAt(0))
+        : loginUsuarioActivo.slice(0,2);
+      avatarEl.textContent = iniciales.toUpperCase();
+    }
+  }
 
   if(!perfil || !perfil.tarjetas || !perfil.tarjetas.length){
     if(emptyEl) emptyEl.style.display = 'block';
@@ -3119,6 +3196,7 @@ function buildCarrusel(){
   if(wrapEl)  wrapEl.style.display  = '';
 
   outer.innerHTML  = '';
+  if(outerDet) outerDet.innerHTML = '';
   dotsEl.innerHTML = '';
   current = 0;
 
@@ -3130,30 +3208,38 @@ function buildCarrusel(){
     const _titulo = t.nombre;
     const _sub = t.apodo || '';
     card.innerHTML = `
-      <div class="card-unified-box">
-      <div class="card-header-box">
-        <div class="card-top-row" style="margin-bottom:0">
-          <div class="card-top-left">
-            <div class="card-bank-name">${_titulo}</div>
-            ${_sub ? `<div class="card-sub">${_sub}</div>` : ''}
+      <div class="cc-header-box">
+        <div class="cc-header-top">
+          <div>
+            <div class="cc-bank-name">${_titulo}</div>
+            <div class="cc-bank-subtitle">Tarjeta de Crédito</div>
           </div>
-          <div class="card-info-divider"></div>
-          <div class="card-top-right">
-            <div class="card-lim-label">Límite total</div>
-            <div class="card-lim-val" id="lim-${i}">$${t.limite.toLocaleString('es-MX',{minimumFractionDigits:2})}</div>
+          <div style="display:flex;flex-direction:column;align-items:flex-end;gap:3px">
+            ${_sub ? `<div class="cc-alias">${_sub}</div>` : ''}
           </div>
         </div>
-      </div>
-      <div class="card-unified-divider"></div>
-      <div class="card-usage-box">
-        <div class="card-usage-stats" style="position:relative">
-          <div class="card-stat-cell">
-            <div class="card-stat-text">
-              <div class="card-stat-label" id="disp-label-${i}">Disponible</div>
-              <div class="card-stat-value" id="disp-${i}">$${t.limite.toLocaleString('es-MX',{minimumFractionDigits:2})}</div>
-            </div>
+        ${t.terminacion ? `<div class="cc-number-row">•••• ${t.terminacion}</div>` : ''}
+        <div class="cc-header-bottom">
+          <div>
+            ${t.marca === 'visa' ? '<div class="cc-brand-visa">VISA</div>' : t.marca === 'mastercard' ? '<div class="cc-brand-mc"><span class="cc-mc-circle cc-mc-red"></span><span class="cc-mc-circle cc-mc-orange"></span></div>' : ''}
           </div>
-          <div class="card-info-divider"></div>
+          <div class="cc-saldo-block">
+            <div class="cc-saldo-label" id="header-disp-label-${i}">Saldo disponible</div>
+            <div class="cc-saldo-val" id="header-disp-${i}">$${t.limite.toLocaleString('es-MX',{minimumFractionDigits:2})}</div>
+            <div class="cc-limite-sub">Límite total: <span id="lim-${i}">$${t.limite.toLocaleString('es-MX',{minimumFractionDigits:2})}</span></div>
+          </div>
+        </div>
+      </div>`;
+    outer.appendChild(card);
+
+    const det = document.createElement('div');
+    det.className = 'bank-card';
+    det.innerHTML = `
+      <div class="card-unified-box">
+      <div class="card-merged-box">
+      <div class="card-usage-box">
+        <div class="card-usage-title">Resumen general</div>
+        <div class="card-usage-stats">
           <div class="card-stat-cell">
             <div class="card-stat-text">
               <div class="card-stat-label">Gastos</div>
@@ -3163,41 +3249,22 @@ function buildCarrusel(){
           <div class="card-info-divider"></div>
           <div class="card-stat-cell">
             <div class="card-stat-text">
-              <div class="card-stat-label">Total</div>
-              <div class="card-stat-value" id="total-general-${i}">$0.00</div>
+              <div class="card-stat-label">Promociones</div>
+              <div class="card-stat-value" id="promos-resumen-${i}">$0.00</div>
             </div>
           </div>
-          <div onmousedown="startLongPressDisponible(this,'${t.id}',${i})" onmouseup="cancelLongPressDisponible()" onmouseleave="cancelLongPressDisponible()" ontouchstart="startLongPressDisponible(this,'${t.id}',${i})" ontouchend="cancelLongPressDisponible()" ontouchmove="cancelLongPressDisponibleIfMoved(event)" style="position:absolute;inset:0;cursor:pointer;z-index:1"></div>
-        </div>
-        <div class="card-use-bar"><div class="card-use-fill" id="bar-${i}" style="width:0%"></div></div>
-        <div class="card-usage-pct-row">
-          <span id="pct-${i}">0% utilizado</span>
+          <div class="card-info-divider"></div>
+          <div class="card-stat-cell">
+            <div class="card-stat-text">
+              <div class="card-stat-label">Cargos recurrentes</div>
+              <div class="card-stat-value" id="cargos-resumen-${i}">$0.00</div>
+            </div>
+          </div>
         </div>
       </div>
-      <div class="card-unified-divider"></div>
-      <div class="card-info-box">
-        <div class="card-info-cell">
-          <div class="card-info-icon">
-            <svg width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-          </div>
-          <div class="card-info-text">
-            <div class="card-info-label">Fecha de corte</div>
-            <div class="card-info-value">Día ${t.corte}</div>
-          </div>
-        </div>
-        <div class="card-info-divider"></div>
-        <div class="card-info-cell">
-          <div class="card-info-icon">
-            <svg width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><polyline points="3 17 9 11 13 15 21 7"/><polyline points="14 7 21 7 21 14"/></svg>
-          </div>
-          <div class="card-info-text">
-            <div class="card-info-label">Gasto por día</div>
-            <div class="card-info-value">$<span id="xdia-${i}">0.00</span></div>
-          </div>
-        </div>
       </div>
       </div>`;
-    outer.appendChild(card);
+    if(outerDet) outerDet.appendChild(det);
 
     const dot = document.createElement('div');
     dot.className = 'dot' + (i===0 ? ' active' : '');
@@ -3409,10 +3476,15 @@ window.goTo = function(idx, animate=true){
   idx = Math.max(0, Math.min(idx, n-1));
   current = idx;
   window.current = current;
-  document.querySelectorAll('.bank-card').forEach((c,i)=>{
+  document.querySelectorAll('#cards-outer .bank-card').forEach((c,i)=>{
+    c.classList.toggle('active-card', i === idx);
+  });
+  document.querySelectorAll('#cards-outer-detail .bank-card').forEach((c,i)=>{
     c.classList.toggle('active-card', i === idx);
   });
   document.querySelectorAll('.dot').forEach((d,i)=>d.classList.toggle('active',i===idx));
+  const corteEl = document.getElementById('saludo-corte');
+  if(corteEl && perfil.tarjetas[idx]) corteEl.textContent = `Día ${perfil.tarjetas[idx].corte}`;
   renderMovimientos();
   updateCards();
 }
@@ -3573,17 +3645,23 @@ function updateCards(){
     const diasTxt = dias===0?'Hoy es día de corte':`Faltan ${dias} día${dias!==1?'s':''} para corte`;
     const usadoEl=document.getElementById(`usado-${i}`);
     const dispEl=document.getElementById(`disp-${i}`);
+    const headerDispEl=document.getElementById(`header-disp-${i}`);
+    const headerDispLabelEl=document.getElementById(`header-disp-label-${i}`);
     const dispLabelEl=document.getElementById(`disp-label-${i}`);
     const barEl=document.getElementById(`bar-${i}`);
     const pctEl=document.getElementById(`pct-${i}`);
     if(usadoEl) smoothSetText(usadoEl, fmt(usado));
     if(dispEl) smoothSetText(dispEl, sobregiro ? fmt(exceso) : fmt(disp));
+    if(headerDispEl) smoothSetText(headerDispEl, sobregiro ? fmt(exceso) : fmt(disp));
+    if(headerDispLabelEl) smoothSetText(headerDispLabelEl, sobregiro ? 'Sobregiro' : 'Saldo disponible');
     if(dispLabelEl) smoothSetText(dispLabelEl, sobregiro ? 'Sobregiro' : 'Disponible');
     const usadoMovsSolo = usadoMovs;
     const totalMsiEl = document.getElementById(`total-con-msi-${i}`);
     if(totalMsiEl) smoothSetText(totalMsiEl, fmt(msiTotal));
-    const totalGeneralEl = document.getElementById(`total-general-${i}`);
-    if(totalGeneralEl) smoothSetText(totalGeneralEl, fmt(totalGeneral));
+    const promosResumenEl = document.getElementById(`promos-resumen-${i}`);
+    if(promosResumenEl) smoothSetText(promosResumenEl, fmt(msiTotal));
+    const cargosResumenEl = document.getElementById(`cargos-resumen-${i}`);
+    if(cargosResumenEl) smoothSetText(cargosResumenEl, fmt(cargosTotal));
     if(barEl){
       barEl.style.width = pct+'%';
       barEl.style.backgroundColor = sobregiro ? 'rgba(255,255,255,0.5)' : '#fff';
@@ -5578,6 +5656,9 @@ window.abrirFormNuevaTarjeta = function(){
   document.getElementById('corte-ob-prf-scroll-wrap').style.display = 'none';
   document.getElementById('inp-apodo-ob-prf').value = '';
   document.getElementById('inp-limite-ob-prf').value = '';
+  document.getElementById('inp-marca-ob-prf').value = '';
+  document.getElementById('inp-terminacion-ob-prf').value = '';
+  window.seleccionarMarcaObPrf('');
   document.getElementById('modal-nueva-tarjeta').classList.add('open');
 };
 
@@ -5645,9 +5726,27 @@ window.cerrarModalNuevaTarjeta = function(){
   document.getElementById('modal-nueva-tarjeta').classList.remove('open');
 };
 
+window.seleccionarMarcaObPrf = function(marca){
+  document.getElementById('inp-marca-ob-prf').value = marca;
+  const visaBtn = document.getElementById('marca-visa-ob-prf');
+  const mcBtn = document.getElementById('marca-mc-ob-prf');
+  [visaBtn, mcBtn].forEach(btn=>{
+    btn.style.background = 'var(--input-bg)';
+    btn.style.borderColor = 'var(--border)';
+    btn.style.color = 'var(--text-dim)';
+  });
+  if(!marca) return;
+  const activo = marca === 'visa' ? visaBtn : mcBtn;
+  activo.style.background = 'linear-gradient(180deg,var(--card-bg-soft),var(--bg))';
+  activo.style.borderColor = 'var(--text)';
+  activo.style.color = 'var(--text)';
+};
+
 window.guardarNuevaTarjetaModal = async function(){
   const banco = document.getElementById('inp-banco-ob-prf').value.trim() || document.getElementById('inp-banco-ob-prf-otro').value.trim();
   const apodo = document.getElementById('inp-apodo-ob-prf').value.trim();
+  const marca = document.getElementById('inp-marca-ob-prf').value;
+  const terminacion = document.getElementById('inp-terminacion-ob-prf').value.trim();
   const corte = parseInt(document.getElementById('inp-corte-ob-prf').value) || 0;
   const limite = parseFloat(document.getElementById('inp-limite-ob-prf').value) || 0;
   if(!banco){ showToast('Selecciona el banco'); return; }
@@ -5658,6 +5757,8 @@ window.guardarNuevaTarjetaModal = async function(){
   const valores = [
     {campo:'Banco', valor: banco},
     {campo:'Apodo', valor: apodo || '—'},
+    ...(marca ? [{campo:'Marca', valor: marca === 'visa' ? 'VISA' : 'Mastercard'}] : []),
+    ...(terminacion ? [{campo:'Terminación', valor: '•••• ' + terminacion}] : []),
     {campo:'Fecha de corte', valor: 'Día ' + corte},
     {campo:'Límite', valor: fmt(limite), resaltar:true}
   ];
@@ -5665,7 +5766,7 @@ window.guardarNuevaTarjetaModal = async function(){
     if(!perfil.tarjetas) perfil.tarjetas = [];
     const nueva = {
       id: Date.now()+'_'+Math.random().toString(36).substr(2,9),
-      nombre: banco, apodo, corte, limite
+      nombre: banco, apodo, corte, limite, marca, terminacion
     };
     perfil.tarjetas.push(nueva);
     try{
@@ -6039,6 +6140,22 @@ function limitarListaPerfilA4Tarjetas(){
 
 let editandoTarjetaId = null;
 
+window.seleccionarMarcaEditTarjeta = function(marca){
+  document.getElementById('inp-marca-edit-tarjeta').value = marca;
+  const visaBtn = document.getElementById('marca-visa-edit-tarjeta');
+  const mcBtn = document.getElementById('marca-mc-edit-tarjeta');
+  [visaBtn, mcBtn].forEach(btn=>{
+    btn.style.background = 'var(--input-bg)';
+    btn.style.borderColor = 'var(--border)';
+    btn.style.color = 'var(--text-dim)';
+  });
+  if(!marca) return;
+  const activo = marca === 'visa' ? visaBtn : mcBtn;
+  activo.style.background = 'linear-gradient(180deg,var(--card-bg-soft),var(--bg))';
+  activo.style.borderColor = 'var(--text)';
+  activo.style.color = 'var(--text)';
+};
+
 window.abrirEditarTarjeta = function(id){
   const t = perfil.tarjetas.find(x=>x.id===id);
   if(!t) return;
@@ -6053,6 +6170,8 @@ window.abrirEditarTarjeta = function(id){
   document.getElementById('corte-edit-tarjeta-txt').textContent = 'Día ' + t.corte;
   document.getElementById('corte-edit-tarjeta-wrap').style.display = 'none';
   document.getElementById('limite-edit-tarjeta').value = t.limite || '';
+  window.seleccionarMarcaEditTarjeta(t.marca || '');
+  document.getElementById('inp-terminacion-edit-tarjeta').value = t.terminacion || '';
   document.getElementById('edit-tarjeta-overlay').classList.add('open');
 }
 
@@ -6073,10 +6192,12 @@ window.guardarEdicionTarjeta = async function(){
   const apodoEdit = tarjetaOrig ? (tarjetaOrig.apodo || '') : '';
   const corte   = parseInt(document.getElementById('inp-corte-edit-tarjeta').value) || selectedCorteEdit;
   const limite  = parseFloat(document.getElementById('limite-edit-tarjeta').value);
+  const marca = document.getElementById('inp-marca-edit-tarjeta').value;
+  const terminacion = document.getElementById('inp-terminacion-edit-tarjeta').value.trim();
   if(!corte){  showToast('Selecciona fecha de corte'); return; }
   if(!limite || limite <= 0){ showToast('Ingresa un límite válido'); return; }
 
-  await _ejecutarGuardadoTarjeta(nombre, corte, limite, apodoEdit);
+  await _ejecutarGuardadoTarjeta(nombre, corte, limite, apodoEdit, false, undefined, marca, terminacion);
 }
 
 let _pendingEditTarjeta = null;
@@ -6097,12 +6218,12 @@ window._cancelarCambioBanco = function(){
 window._confirmarCambioBanco = async function(){
   document.getElementById('modal-confirm-banco-cambio').classList.remove('open');
   if(!_pendingEditTarjeta) return;
-  const { nombre, corte, limite, apodoEdit, bancoOrig } = _pendingEditTarjeta;
+  const { nombre, corte, limite, apodoEdit, bancoOrig, marca, terminacion } = _pendingEditTarjeta;
   _pendingEditTarjeta = null;
-  await _ejecutarGuardadoTarjeta(nombre, corte, limite, apodoEdit, true, bancoOrig);
+  await _ejecutarGuardadoTarjeta(nombre, corte, limite, apodoEdit, true, bancoOrig, marca, terminacion);
 }
 
-async function _ejecutarGuardadoTarjeta(nombre, corte, limite, apodoEdit, isCambioBanco, bancoOrig){
+async function _ejecutarGuardadoTarjeta(nombre, corte, limite, apodoEdit, isCambioBanco, bancoOrig, marca, terminacion){
   // Guardar estado anterior ANTES de modificar perfil
   const tarjetaAntes = perfil.tarjetas.find(t => t.id === editandoTarjetaId);
   const antes = tarjetaAntes ? {
@@ -6116,7 +6237,7 @@ async function _ejecutarGuardadoTarjeta(nombre, corte, limite, apodoEdit, isCamb
   const limiteNum = parseFloat(limite);
 
   perfil.tarjetas = perfil.tarjetas.map(t =>
-    t.id === editandoTarjetaId ? {...t, nombre, apodo: apodoEdit, corte: corteNum, limite: limiteNum} : t
+    t.id === editandoTarjetaId ? {...t, nombre, apodo: apodoEdit, corte: corteNum, limite: limiteNum, marca, terminacion} : t
   );
   try{
     await setDoc(doc(db,'usuarios', currentUser.uid, 'perfil','datos'), perfil);
@@ -13106,6 +13227,25 @@ document.addEventListener('DOMContentLoaded', function(){
       <div class="ob-label">Tarjeta</div>
       <input class="ob-input" id="inp-apodo-ob-prf" placeholder="Ej. Personal, Nómina..." maxlength="30"
         onfocus="document.getElementById('banco-ob-prf-scroll-wrap').style.display='none';document.getElementById('corte-ob-prf-scroll-wrap').style.display='none';"/>
+    </div>
+    <div class="ob-field">
+      <div class="ob-label">Marca</div>
+      <div style="display:flex;gap:8px">
+        <button type="button" id="marca-visa-ob-prf" onclick="seleccionarMarcaObPrf('visa')"
+          style="flex:1;padding:12px;border-radius:12px;border:1.5px solid var(--border);background:var(--input-bg);color:var(--text-dim);font-size:14px;font-weight:700;font-style:italic;cursor:pointer;font-family:inherit">VISA</button>
+        <button type="button" id="marca-mc-ob-prf" onclick="seleccionarMarcaObPrf('mastercard')"
+          style="flex:1;padding:12px;border-radius:12px;border:1.5px solid var(--border);background:var(--input-bg);color:var(--text-dim);font-size:13px;font-weight:700;cursor:pointer;font-family:inherit">Mastercard</button>
+      </div>
+      <input type="hidden" id="inp-marca-ob-prf" value=""/>
+    </div>
+    <div class="ob-field">
+      <div class="ob-label">Terminación (opcional)</div>
+      <div style="display:flex;align-items:center;gap:8px;padding:12px 14px;border-radius:12px;border:1.5px solid var(--border);background:var(--input-bg)">
+        <span style="color:var(--text-dim);font-size:15px;font-weight:600">••••</span>
+        <input id="inp-terminacion-ob-prf" type="text" inputmode="numeric" maxlength="4" placeholder="0000"
+          style="border:none;background:transparent;outline:none;font-size:15px;font-weight:600;color:var(--text);letter-spacing:2px;width:70px;font-family:inherit"
+          oninput="this.value=this.value.replace(/\D/g,'').slice(0,4)"/>
+      </div>
     </div>
     <div class="ob-field">
       <div class="ob-label">Fecha de corte</div>
