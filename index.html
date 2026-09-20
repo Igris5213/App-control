@@ -603,7 +603,6 @@ html.dark-mode #modal-edit-cred .modal .btn-flat-cancel,
 html.dark-mode #modal-edit-cred .modal #modal-save-btn{background:var(--card-bg-soft)!important;box-shadow:0 2px 6px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.06)}
 html.dark-mode #confirm-elim-overlay.open{background:rgba(0,0,0,0.95);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}
 html.dark-mode #confirm-elim-overlay .modal{--card-bg:#090909;--card-bg-soft:#111111;--icon-bg:#1c1c1c;--border:#212121}
-html.dark-mode #confirm-elim-overlay .modal #confirm-elim-rows{box-shadow:0 3px 10px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.05)}
 html.dark-mode #confirm-elim-overlay .modal #confirm-elim-cancel-btn,
 html.dark-mode #confirm-elim-overlay .modal #confirm-elim-btn{background:var(--card-bg-soft)!important;color:var(--text)!important;box-shadow:0 2px 6px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.06)}
 html.dark-mode #modal-edit-deb.open{background:rgba(0,0,0,0.95);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}
@@ -638,7 +637,8 @@ html.dark-mode #modal-edit-deb .modal #deb-edit-save-btn{background:var(--card-b
 .dp-item.sel{color:var(--text)!important;font-size:18px;font-weight:700}
 .scroll-item.sel{color:var(--text) !important;font-size:17px;font-weight:700}
 #scroll-meses-cont::-webkit-scrollbar{display:none}
-.modal-handle{width:40px;height:4px;background:var(--border);border-radius:2px;margin:0 auto 20px}
+/* Barra superior de los modales: oculta en todos */
+.modal-handle{display:none}
 .modal-title{font-size:18px;font-weight:700;color:var(--text);margin-bottom:20px;display:flex;align-items:center;gap:10px}
 .field-label{font-size:13px;color:var(--text-dim);margin-bottom:6px;font-weight:500}
 .field-wrap{margin-bottom:14px}
@@ -735,10 +735,14 @@ html.dark-mode #modal-gasto-wizard .modal .btn-flat-cancel,
 html.dark-mode #modal-gasto-wizard .modal .btn-flat-confirm{background:var(--card-bg-soft)!important;box-shadow:0 2px 6px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.06)}
 #modal-gasto-wizard .modal{transform:scale(0.92);transition:transform 0.3s cubic-bezier(0.34,1.3,0.64,1),background 0.25s ease;width:calc(100% - 40px);max-width:390px;padding:22px 20px 24px;border-radius:24px;max-height:90vh;overflow-x:hidden;overflow-y:auto;-webkit-overflow-scrolling:touch}
 #modal-gasto-wizard.open .modal{transform:scale(1)}
+#confirm-elim-overlay .modal{transform:scale(0.92);transition:transform 0.3s cubic-bezier(0.34,1.3,0.64,1),background 0.25s ease;width:calc(100% - 40px);max-width:390px;margin-bottom:0;padding:22px 20px 24px;border-radius:24px;max-height:90vh;overflow-x:hidden;overflow-y:auto;-webkit-overflow-scrolling:touch}
+#confirm-elim-overlay.open .modal{transform:scale(1)}
 #modal-gasto-wizard .gw-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
 #modal-gasto-wizard .gw-head .modal-title{margin-bottom:0;flex:1;min-width:0;font-size:17px;line-height:1.2}
 #modal-gasto-wizard .gw-head .gw-close{margin-left:10px}
 #modal-gasto-wizard .gw-close{width:32px;height:32px;border-radius:50%;border:1.5px solid var(--border);background:var(--card-bg-soft);color:var(--text-dim);display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;padding:0}
+#modal-detalle-gasto .dg-close{width:32px;height:32px;border-radius:50%;border:1.5px solid var(--border);background:var(--card-bg-soft);color:var(--text-dim);display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;padding:0}
+#modal-detalle-gasto .dg-close:active{transform:scale(0.92)}
 #modal-gasto-wizard .gw-progress{display:flex;gap:6px;margin-bottom:18px}
 #modal-gasto-wizard .gw-dot{flex:1;height:4px;border-radius:2px;background:var(--border);transition:background 0.25s ease}
 #modal-gasto-wizard .gw-dot.done{background:var(--text-dim)}
@@ -1912,6 +1916,8 @@ try{
 
     <!-- ── FORMULARIO CRÉDITO ── -->
     <div id="form-tarjeta">
+      <input type="hidden" id="inp-marca-ob" value=""/>
+      <input type="hidden" id="inp-terminacion-ob" value=""/>
       <!-- 1. Banco -->
       <div class="ob-field">
         <div class="ob-label">Banco</div>
@@ -2277,17 +2283,14 @@ try{
 
 <!-- ══ MODAL ELIMINAR ══ -->
 <!-- ══ MODAL CONFIRMAR ELIMINAR MOVIMIENTO (compartido crédito / débito) ══ -->
-<div class="modal-overlay" id="confirm-elim-overlay" onclick="cerrarConfirmEliminar(event)">
-  <div class="modal">
+<div class="modal-overlay modal-overlay-blur" id="confirm-elim-overlay" onclick="cerrarConfirmEliminar(event)" style="align-items:center">
+  <div class="modal" style="border:1.5px solid var(--border)">
     <div class="modal-handle"></div>
     <div style="text-align:center;padding:10px 0 20px">
-      <div style="width:56px;height:56px;border-radius:50%;background:var(--card-bg-soft);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;margin:0 auto 16px">
-        <svg width="26" height="26" fill="none" stroke="var(--text)" stroke-width="2" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></svg>
-      </div>
       <div style="font-size:18px;font-weight:700;color:var(--text);margin-bottom:4px">¿Deseas eliminar el movimiento?</div>
       <div style="font-size:13px;color:var(--text-dim)">Esta acción no se puede deshacer</div>
     </div>
-    <div id="confirm-elim-rows" style="background:var(--card-bg-soft);border:1px solid var(--border);border-radius:16px;padding:16px 18px;margin-bottom:20px;display:flex;flex-direction:column;gap:10px"></div>
+    <div id="confirm-elim-rows" style="margin-bottom:20px"></div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:8px">
       <button id="confirm-elim-cancel-btn" onclick="cerrarConfirmEliminar()" style="padding:13px;border-radius:12px;border:1.5px solid var(--border);background:var(--card-bg);font-size:15px;font-weight:600;cursor:pointer;font-family:inherit;color:var(--text)">Cancelar</button>
       <button id="confirm-elim-btn" onclick="confirmarEliminarUnificado()" class="hold-btn" style="padding:13px;border-radius:12px;border:none;background:linear-gradient(180deg,var(--mov-selected-grad-start),var(--mov-selected-grad-end));color:#fff;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit">Eliminar</button>
@@ -2409,7 +2412,7 @@ try{
     <input type="hidden" id="gw-h-banco"/>
     <input type="hidden" id="gw-h-tarjeta"/>
     <div class="gw-body" id="gw-body"></div>
-    <div class="gw-actions">
+    <div class="gw-actions" id="gw-actions">
       <button type="button" class="btn-flat-cancel" id="gw-back" onclick="gwAtras()">Cancelar</button>
       <button type="button" class="btn-flat-confirm" id="gw-next" onclick="gwSiguiente()">Siguiente</button>
     </div>
@@ -2524,6 +2527,10 @@ window.cancelarRegistro = function(){
 window.irACrearPerfil = function(){
   document.getElementById('inp-nombre').value = '';
   actualizarBotonesCancelar();
+  if(typeof window.gwAbrir === 'function' && document.getElementById('modal-gasto-wizard')){
+    window.gwAbrir('onbcred');   // asistente de un modal por campo (la pantalla de bienvenida queda debajo)
+    return;
+  }
   showScreen('screen-perfil');
 }
 
@@ -2728,10 +2735,12 @@ window.agregarTarjetaOb = function(){
   if(!limite||limite<=0){ document.getElementById('inp-limite-ob').focus(); return; }
 
   const apodo = document.getElementById('inp-apodo-ob').value.trim();
+  const marca = document.getElementById('inp-marca-ob').value;
+  const terminacion = document.getElementById('inp-terminacion-ob').value.trim();
   const colorMapaOb = {'Invex':'card-color-invex','BBVA':'card-color-bbva','Santander':'card-color-santander'};
   const colorOb = colorMapaOb[nombre] || COLORS[tarjetasOb.length % COLORS.length];
   const nuevaId = Date.now()+'_'+Math.random().toString(36).substr(2,9);
-  tarjetasOb.push({ id: nuevaId, nombre, apodo, corte, limite, color: colorOb });
+  tarjetasOb.push({ id: nuevaId, nombre, apodo, corte, limite, marca, terminacion, color: colorOb });
 
   // Reset
   selectedBancoNombre = '';
@@ -2802,6 +2811,8 @@ function resetFormTarjeta(){
   document.getElementById('inp-banco-ob-otro').style.display = 'none';
   document.getElementById('inp-apodo-ob').value = '';
   document.getElementById('inp-limite-ob').value = '';
+  document.getElementById('inp-marca-ob').value = '';
+  document.getElementById('inp-terminacion-ob').value = '';
   document.getElementById('inp-corte-ob').value = '';
   document.getElementById('corte-ob-txt').textContent = 'Seleccionar día...';
   document.getElementById('corte-ob-txt').style.color = 'var(--text-dim)';
@@ -2819,6 +2830,7 @@ window.mostrarFormTarjeta = function(){
 // ── TOGGLE CRÉDITO / DÉBITO ──────────────────────────────
 let _obTipoActivo = 'credito'; // 'credito' | 'debito'
 let tarjetasDebOb = []; // cuentas débito del onboarding
+window._obTotal = function(){ return tarjetasOb.length + tarjetasDebOb.length; };
 let selectedBancoDebNombre = '';
 
 window.obSwitchTipo = function(tipo){
@@ -3997,6 +4009,9 @@ window.openEdit = function(id){
     document.getElementById('modal-fecha-txt').textContent = 'Seleccionar fecha';
     document.getElementById('modal-fecha-txt').style.color = 'var(--text-dim)';
   }
+  // Asistente de edición (un modal por campo); si no está disponible, formulario clásico
+  if(typeof window.gwEditar === 'function' && document.getElementById('modal-gasto-wizard')
+     && window.gwEditar('editcred', banco + (apodo ? ' · ' + apodo : ''))) return;
   document.getElementById('modal-edit-cred').classList.add('open');
 }
 
@@ -4272,29 +4287,55 @@ window._ejecutarGuardarMov = async function(){
 // ('credito' | 'debito') decide a qué función/colección manda cada acción.
 window._confirmEliminarCtx = null;
 
+// HTML del resumen de eliminar: mismo diseño que el detalle del movimiento
+// (encabezado banco/apodo, recuadro de datos con iconos y recuadro aparte para el importe)
+window._htmlResumenMov = function(o){
+  const esc = v => String(v == null ? '' : v).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  const ico = d => '<svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">' + d + '</svg>';
+  const icoTipo  = ico('<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="8" y1="13" x2="16" y2="13"/><line x1="8" y1="17" x2="16" y2="17"/>');
+  const icoFecha = ico('<rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>');
+  const icoTag   = ico('<path d="M20.59 13.41 11 3.83A2 2 0 0 0 9.5 3H4a1 1 0 0 0-1 1v5.5a2 2 0 0 0 .83 1.5l9.58 9.59a2 2 0 0 0 2.83 0l5.35-5.35a2 2 0 0 0 0-2.83z"/><circle cx="7.5" cy="7.5" r="1.5"/>');
+  const icoMsg   = ico('<path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>');
+  const icoMon   = ico('<path d="M9 14c0 1.657 2.686 3 6 3s6-1.343 6-3-2.686-3-6-3-6 1.343-6 3z"/><path d="M9 14v4c0 1.656 2.686 3 6 3s6-1.344 6-3v-4"/><path d="M3 6c0 1.072 1.144 2.062 3 2.598s4.144.536 6 0c1.856-.536 3-1.526 3-2.598 0-1.072-1.144-2.062-3-2.598s-4.144-.536-6 0C4.144 3.938 3 4.928 3 6z"/><path d="M3 6v10c0 .888.772 1.45 2 2"/><path d="M3 11c0 .888.772 1.45 2 2"/>');
+  const flecha = o.esIngreso
+    ? '<svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><line x1="12" y1="19" x2="12" y2="5"/><polyline points="5 12 12 5 19 12"/></svg>'
+    : '<svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><polyline points="19 12 12 19 5 12"/></svg>';
+  const panel = 'background:var(--card-bg-soft);border:1px solid var(--border);border-radius:16px;padding:2px 16px;box-shadow:0 2px 6px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.06)';
+  const fila = (icono, label, valor, conBorde) =>
+      '<div style="display:flex;align-items:center;justify-content:space-between;gap:12px;padding:8px 0' + (conBorde ? ';border-bottom:1px solid var(--border)' : '') + '">'
+    + '<div style="display:flex;align-items:center;gap:12px;color:var(--text-dim)">'
+    + '<div style="width:20px;height:20px;display:flex;align-items:center;justify-content:center;flex-shrink:0;color:var(--text-dim)">' + icono + '</div>'
+    + '<span style="font-size:14px;font-weight:500;color:var(--text-dim)">' + label + '</span>'
+    + '</div>'
+    + '<span style="font-size:14px;font-weight:700;color:var(--text);text-align:right;max-width:55%">' + esc(valor) + '</span>'
+    + '</div>';
+  const filas = fila(icoTipo, 'Tipo', o.tipoTxt, true)
+              + fila(icoFecha, 'Fecha', o.fecha, true)
+              + fila(icoTag, 'Concepto', o.concepto || '—', !!o.detalle)
+              + (o.detalle ? fila(icoMsg, 'Detalle', o.detalle, false) : '');
+  return (o.pillTipo ? '<div style="display:flex;align-items:center;justify-content:flex-end;margin-bottom:14px">'
+      + '<div style="display:flex;align-items:center;gap:6px;font-size:13px;font-weight:700;color:var(--text-dim);padding:6px 12px;border-radius:20px;border:1px solid var(--border);flex-shrink:0">' + flecha + esc(o.tipoTxt) + '</div>'
+      + '</div>' : '')
+    + '<div style="' + panel + ';margin-bottom:12px">' + filas + '</div>'
+    + '<div style="' + panel + '">' + fila(icoMon, 'Importe', o.importe, false) + '</div>';
+};
+
 window.eliminar = function(id){
   deletingId=id;
   window._confirmEliminarCtx = 'credito';
   const m = movimientos.find(x=>x.id===id);
   const rows = document.getElementById('confirm-elim-rows');
   if(m && rows){
-    const comercio = m.comercio || '—';
-    const concepto = m.concepto || m.detalle || '—';
-    const MESES_DEL = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
-    let fechaLeg = '—';
-    if(m.fecha){ const [a,me,d]=m.fecha.split('-'); fechaLeg=parseInt(d)+' de '+MESES_DEL[parseInt(me)-1]+' '+a; }
-    const monto = (m.monto||0).toLocaleString('es-MX',{minimumFractionDigits:2,maximumFractionDigits:2});
-    const tObj  = (perfil && perfil.tarjetas) ? perfil.tarjetas.find(t=>t.id===m.tarjetaId) : null;
-    const banco   = m.banco || (tObj ? tObj.nombre : '') || '—';
-    const tarjeta = m.apodo || (tObj ? tObj.apodo : '') || '—';
-    rows.innerHTML =
-      '<div style="display:flex;justify-content:space-between;align-items:center"><span style="font-size:13px;color:var(--text-dim);font-weight:500">Banco</span><span style="font-size:14px;font-weight:600;color:var(--text)">'+banco+'</span></div>'
-      + '<div style="display:flex;justify-content:space-between;align-items:center"><span style="font-size:13px;color:var(--text-dim);font-weight:500">Tarjeta</span><span style="font-size:14px;font-weight:600;color:var(--text)">'+tarjeta+'</span></div>'
-      + '<div style="display:flex;justify-content:space-between;align-items:center"><span style="font-size:13px;color:var(--text-dim);font-weight:500">Comercio</span><span style="font-size:14px;font-weight:600;color:var(--text)">'+comercio+'</span></div>'
-      + '<div style="display:flex;justify-content:space-between;align-items:center"><span style="font-size:13px;color:var(--text-dim);font-weight:500">Concepto</span><span style="font-size:14px;font-weight:600;color:var(--text)">'+concepto+'</span></div>'
-      + '<div style="display:flex;justify-content:space-between;align-items:center"><span style="font-size:13px;color:var(--text-dim);font-weight:500">Fecha</span><span style="font-size:14px;font-weight:600;color:var(--text)">'+fechaLeg+'</span></div>'
-      + '<div style="height:1px;background:var(--border)"></div>'
-      + '<div style="display:flex;justify-content:space-between;align-items:center"><span style="font-size:14px;color:var(--text);font-weight:600">Importe</span><span style="font-size:20px;font-weight:800;color:var(--text)">$'+monto+'</span></div>';
+    const comercio = m.comercio || '';
+    const concepto = m.concepto || '';
+    const esIng    = m.tipo === 'ingreso';
+    rows.innerHTML = window._htmlResumenMov({
+      tipoTxt:  esIng ? 'Ingreso' : 'Egreso',
+      fecha:    fmtDateShort(m.fecha, m.creadoEn),
+      concepto: comercio || concepto || '—',
+      detalle:  (comercio && concepto) ? concepto : (m.detalle || ''),
+      importe:  (esIng ? '+' : '-') + fmt(m.monto)
+    });
   } else if(rows){
     rows.innerHTML = '';
   }
@@ -4781,7 +4822,15 @@ window.toggleDarkMode = function(){
 }
 
 // Modal nuevo usuario
+window._usuarioExiste = function(user){
+  const u = String(user || '').trim().toLowerCase();
+  return getUsuarios().some(x=>String(x.user).toLowerCase() === u);
+};
 window.mostrarFormNuevoUsuario = function(){
+  if(typeof window.gwAbrir === 'function' && document.getElementById('modal-gasto-wizard')){
+    window.gwAbrir('usuario');
+    return;
+  }
   document.getElementById('nuevo-user-name').value = '';
   document.getElementById('nuevo-user-pass').value = '';
   document.getElementById('nuevo-user-pass2').value = '';
@@ -4808,6 +4857,10 @@ window.guardarNuevoUsuario = async function(){
 
   const lista = getUsuarios();
   if(lista.find(u=>u.user.toLowerCase()===user.toLowerCase())){ errEl.textContent = 'Ese usuario ya existe'; return; }
+
+  // Cerrar el asistente (si se usó) — las validaciones ya pasaron
+  const _gwOvUsuario = document.getElementById('modal-gasto-wizard');
+  if(_gwOvUsuario) _gwOvUsuario.classList.remove('open');
 
   // Guardar temporalmente — NO guardar en localStorage todavía
   pendingUser = { user, hash: hashSimple(user+pass) };
@@ -6561,10 +6614,13 @@ window._confirmarResumenMovimiento = function(){
 window._corregirResumenMovimiento = function(){
   document.getElementById('modal-resumen-movimiento').classList.remove('open');
   // Reabre el formulario correspondiente al contexto
+  const _hayGw = typeof window.gwReabrir === 'function' && document.getElementById('modal-gasto-wizard');
   if(window._resumenMovCtx === 'credito'){
-    document.getElementById('modal-edit-cred').classList.add('open');
+    if(_hayGw) window.gwReabrir('editcred');
+    else document.getElementById('modal-edit-cred').classList.add('open');
   } else if(window._resumenMovCtx === 'debito'){
-    document.getElementById('modal-edit-deb').classList.add('open');
+    if(_hayGw) window.gwReabrir('editdeb');
+    else document.getElementById('modal-edit-deb').classList.add('open');
   } else if(window._resumenMovCtx === 'admin'){
     document.getElementById('modal-admin-editar').classList.add('open');
   } else if(window._resumenMovCtx === 'nueva-tarjeta'){
@@ -7913,7 +7969,7 @@ window.verDetalleDebito = function(id){
     return '<div style="display:flex;align-items:center;justify-content:space-between;gap:12px;padding:8px 0'
       + (conBorde ? ';border-bottom:1px solid ' + dkDivider : '') + '">'
       + '<div style="display:flex;align-items:center;gap:12px;color:' + dkDim + '">'
-      + '<div style="width:34px;height:34px;border-radius:10px;background:' + dkIcon + ';border:1px solid ' + dkBorder + ';display:flex;align-items:center;justify-content:center;flex-shrink:0;color:' + dkIconColor + '">' + icono + '</div>'
+      + '<div style="width:20px;height:20px;display:flex;align-items:center;justify-content:center;flex-shrink:0;color:' + dkIconColor + '">' + icono + '</div>'
       + '<span style="font-size:14px;font-weight:500;color:' + dkDim + '">' + label + '</span>'
       + '</div>'
       + '<span style="font-size:14px;font-weight:700;color:' + dkText + ';text-align:right;max-width:55%">' + valor + '</span>'
@@ -7923,32 +7979,32 @@ window.verDetalleDebito = function(id){
   const filas =
     fila(icoTipo, 'Tipo', tipoTxt, true)
     + fila(icoFecha, 'Fecha', fechaStr, true)
-    + fila(icoTag, 'Concepto', concepto || '—', true)
-    + (detalle ? fila(icoMsg, 'Detalle', detalle, true) : '');
+    + fila(icoTag, 'Concepto', concepto || '—', !!detalle)
+    + (detalle ? fila(icoMsg, 'Detalle', detalle, false) : '');
 
   document.getElementById('detalle-gasto-content').innerHTML =
     '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:18px">'
     + '<div style="display:flex;align-items:center;gap:12px">'
-    + '<div style="width:46px;height:46px;border-radius:50%;background:' + dkIcon + ';border:1px solid ' + dkBorder + ';display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:17px;font-weight:800;color:' + dkText + '">' + inicial + '</div>'
     + '<div>'
     + '<div style="font-size:17px;font-weight:800;color:' + dkText + '">' + banco + '</div>'
     + (apodo ? '<div style="font-size:13px;color:' + dkDim + ';margin-top:6px;display:inline-block;padding:3px 10px;border-radius:8px;border:1px solid ' + dkBtnBorder + '">' + apodo + '</div>' : '')
     + '</div>'
     + '</div>'
+    + '<div style="display:flex;align-items:center;gap:8px;flex-shrink:0">'
     + '<div style="display:flex;align-items:center;gap:6px;font-size:13px;font-weight:700;color:' + dkDim + ';padding:6px 12px;border-radius:20px;border:1px solid ' + dkBorder + ';flex-shrink:0">' + icoFlecha + tipoTxt + '</div>'
+    + '<button type="button" class="dg-close" onclick="cerrarDetalleGasto()" aria-label="Cerrar">' + '<svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>'
+    + '</div>'
+    + '</div>'
+    + '<div style="background:' + dkPanel + ';border:1px solid ' + dkBorder + ';border-radius:16px;padding:2px 16px;margin-bottom:12px;box-shadow:' + dkPanelShadow + '">'
+    + filas
     + '</div>'
     + '<div style="background:' + dkPanel + ';border:1px solid ' + dkBorder + ';border-radius:16px;padding:2px 16px;margin-bottom:20px;box-shadow:' + dkPanelShadow + '">'
-    + filas
-    + '<div style="display:flex;align-items:center;justify-content:space-between;padding:15px 0 13px">'
-    + '<span style="font-size:15px;font-weight:700;color:' + dkText + '">Importe</span>'
-    + '<span style="font-size:24px;font-weight:800;color:' + dkText + '">' + signo + '$' + monto + '</span>'
+    + fila('<svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M9 14c0 1.657 2.686 3 6 3s6-1.343 6-3-2.686-3-6-3-6 1.343-6 3z"/><path d="M9 14v4c0 1.656 2.686 3 6 3s6-1.344 6-3v-4"/><path d="M3 6c0 1.072 1.144 2.062 3 2.598s4.144.536 6 0c1.856-.536 3-1.526 3-2.598 0-1.072-1.144-2.062-3-2.598s-4.144-.536-6 0C4.144 3.938 3 4.928 3 6z"/><path d="M3 6v10c0 .888.772 1.45 2 2"/><path d="M3 11c0 .888.772 1.45 2 2"/></svg>', 'Importe', signo + '$' + monto, false)
     + '</div>'
-    + '</div>'
-    + '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px">'
+    + '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:0">'
     + '<button onclick="cerrarDetalleGasto();pedirConfirmEditar(\'' + m.id + '\')" style="padding:13px;border-radius:12px;border:1px solid ' + dkBtnBorder + ';background:' + dkBtn + ';color:' + dkText + ';font-size:15px;font-weight:600;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:8px;box-shadow:' + dkBtnShadow + '"><svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>Editar</button>'
     + '<button onclick="cerrarDetalleGasto();pedirConfirmEliminar(\'' + m.id + '\')" style="padding:13px;border-radius:12px;border:1px solid ' + dkBtnBorder + ';background:' + dkBtn + ';color:' + dkText + ';font-size:15px;font-weight:600;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:8px;box-shadow:' + dkBtnShadow + '"><svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/></svg>Eliminar</button>'
-    + '</div>'
-    + '<button onclick="cerrarDetalleGasto()" style="width:100%;padding:13px;border-radius:12px;background:' + dkBtn + ';border:1px solid ' + dkBtnBorder + ';font-size:15px;font-weight:600;cursor:pointer;font-family:inherit;color:' + dkText + ';box-shadow:' + dkBtnShadow + '">Cerrar</button>';
+    + '</div>';
   document.getElementById('modal-detalle-gasto').classList.add('open');
 }
 
@@ -7975,6 +8031,10 @@ window.openEditDeb = function(id){
     document.getElementById('deb-edit-fecha-txt').textContent = 'Seleccionar fecha';
     document.getElementById('deb-edit-fecha-txt').style.color = 'var(--text-dim)';
   }
+  // Asistente de edición (un modal por campo); si no está disponible, formulario clásico
+  const _infoDeb = (m.tipo === 'ingreso' ? 'Ingreso' : 'Egreso') + ' · ' + (m.banco || 'Cuenta') + (m.apodo ? ' · ' + m.apodo : '');
+  if(typeof window.gwEditar === 'function' && document.getElementById('modal-gasto-wizard')
+     && window.gwEditar('editdeb', _infoDeb)) return;
   document.getElementById('modal-edit-deb').classList.add('open');
 }
 
@@ -8133,27 +8193,18 @@ window.pedirConfirmEditar = function(id){
 window.pedirConfirmEliminar = function(id){
   const m = _debMovimientos.find(x=>x.id===id);
   if(!m) return;
-  const concepto = m.concepto || (m.tipo==='ingreso' ? 'Ingreso' : 'Egreso');
-  const detalle  = m.detalle || '—';
-  const MESES_R = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
-  let fechaLeg = '—';
-  if(m.fecha){ const [a,me,d]=m.fecha.split('-'); fechaLeg=parseInt(d)+' de '+MESES_R[parseInt(me)-1]+' '+a; }
+  const esIngreso = m.tipo === 'ingreso';
   const monto = (m.monto||0).toLocaleString('es-MX',{minimumFractionDigits:2,maximumFractionDigits:2});
-  const cObj  = (perfil && perfil.cuentasDebito) ? perfil.cuentasDebito.find(c=>c.id===m.cuentaId) : null;
-  const banco   = m.banco || (cObj ? cObj.nombre : '') || '—';
-  const tarjeta = m.apodo || (cObj ? cObj.apodo : '') || '—';
-  const tipo    = m.tipo === 'ingreso' ? 'Ingreso' : 'Egreso';
-
   const rows = document.getElementById('confirm-elim-rows');
-  rows.innerHTML =
-    '<div style="display:flex;justify-content:space-between;align-items:center"><span style="font-size:13px;color:var(--text-dim);font-weight:500">Tipo</span><span style="font-size:14px;font-weight:600;color:var(--text)">'+tipo+'</span></div>'
-    + '<div style="display:flex;justify-content:space-between;align-items:center"><span style="font-size:13px;color:var(--text-dim);font-weight:500">Banco</span><span style="font-size:14px;font-weight:600;color:var(--text)">'+banco+'</span></div>'
-    + '<div style="display:flex;justify-content:space-between;align-items:center"><span style="font-size:13px;color:var(--text-dim);font-weight:500">Tarjeta</span><span style="font-size:14px;font-weight:600;color:var(--text)">'+tarjeta+'</span></div>'
-    + '<div style="display:flex;justify-content:space-between;align-items:center"><span style="font-size:13px;color:var(--text-dim);font-weight:500">Concepto</span><span style="font-size:14px;font-weight:600;color:var(--text)">'+concepto+'</span></div>'
-    + '<div style="display:flex;justify-content:space-between;align-items:center"><span style="font-size:13px;color:var(--text-dim);font-weight:500">Detalle</span><span style="font-size:14px;font-weight:600;color:var(--text)">'+detalle+'</span></div>'
-    + '<div style="display:flex;justify-content:space-between;align-items:center"><span style="font-size:13px;color:var(--text-dim);font-weight:500">Fecha</span><span style="font-size:14px;font-weight:600;color:var(--text)">'+fechaLeg+'</span></div>'
-    + '<div style="height:1px;background:var(--border)"></div>'
-    + '<div style="display:flex;justify-content:space-between;align-items:center"><span style="font-size:14px;color:var(--text);font-weight:600">Importe</span><span style="font-size:20px;font-weight:800;color:var(--text)">$'+monto+'</span></div>';
+  rows.innerHTML = window._htmlResumenMov({
+    tipoTxt:  esIngreso ? 'Ingreso' : 'Egreso',
+    esIngreso,
+    pillTipo: true,
+    fecha:    m.fecha ? m.fecha.split('-').reverse().join('/') : '—',
+    concepto: m.concepto || (esIngreso ? 'Ingreso' : 'Egreso'),
+    detalle:  m.detalle || '',
+    importe:  (esIngreso ? '+' : '-') + '$' + monto
+  });
 
   _deletingDebId = id;
   window._confirmEliminarCtx = 'debito';
@@ -9612,7 +9663,7 @@ window.verDetalleGasto = function(id){
     return '<div style="display:flex;align-items:center;justify-content:space-between;gap:12px;padding:8px 0'
       + (conBorde ? ';border-bottom:1px solid ' + dkDivider : '') + '">'
       + '<div style="display:flex;align-items:center;gap:12px;color:' + dkDim + '">'
-      + '<div style="width:34px;height:34px;border-radius:10px;background:' + dkIcon + ';border:1px solid ' + dkBorder + ';display:flex;align-items:center;justify-content:center;flex-shrink:0;color:' + dkIconColor + '">' + icono + '</div>'
+      + '<div style="width:20px;height:20px;display:flex;align-items:center;justify-content:center;flex-shrink:0;color:' + dkIconColor + '">' + icono + '</div>'
       + '<span style="font-size:14px;font-weight:500;color:' + dkDim + '">' + label + '</span>'
       + '</div>'
       + '<span style="font-size:14px;font-weight:700;color:' + dkText + ';text-align:right;max-width:55%">' + valor + '</span>'
@@ -9622,31 +9673,29 @@ window.verDetalleGasto = function(id){
   const filas =
     fila(icoTipo, 'Tipo', tipoTxt, true)
     + fila(icoFecha, 'Fecha', fechaStr, true)
-    + fila(icoTag, 'Concepto', comercio || concepto || '—', true)
-    + (detalleTxt ? fila(icoMsg, 'Detalle', detalleTxt, true) : '');
+    + fila(icoTag, 'Concepto', comercio || concepto || '—', !!detalleTxt)
+    + (detalleTxt ? fila(icoMsg, 'Detalle', detalleTxt, false) : '');
 
   document.getElementById('detalle-gasto-content').innerHTML =
     '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:18px">'
     + '<div style="display:flex;align-items:center;gap:12px">'
-    + '<div style="width:46px;height:46px;border-radius:50%;background:' + dkIcon + ';border:1px solid ' + dkBorder + ';display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:17px;font-weight:800;color:' + dkText + '">' + inicial + '</div>'
     + '<div>'
     + '<div style="font-size:17px;font-weight:800;color:' + dkText + '">' + banco + '</div>'
     + '<div style="font-size:13px;color:' + dkDim + ';margin-top:6px;display:inline-block;padding:3px 10px;border-radius:8px;border:1px solid ' + dkBtnBorder + '">' + apodo + '</div>'
     + '</div>'
     + '</div>'
+    + '<button type="button" class="dg-close" onclick="cerrarDetalleGasto()" aria-label="Cerrar">' + '<svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>'
+    + '</div>'
+    + '<div style="background:' + dkPanel + ';border:1px solid ' + dkBorder + ';border-radius:16px;padding:2px 16px;margin-bottom:12px;box-shadow:' + dkPanelShadow + '">'
+    + filas
     + '</div>'
     + '<div style="background:' + dkPanel + ';border:1px solid ' + dkBorder + ';border-radius:16px;padding:2px 16px;margin-bottom:20px;box-shadow:' + dkPanelShadow + '">'
-    + filas
-    + '<div style="display:flex;align-items:center;justify-content:space-between;padding:15px 0 13px">'
-    + '<span style="font-size:15px;font-weight:700;color:' + dkText + '">Importe</span>'
-    + '<span style="font-size:24px;font-weight:800;color:' + dkText + '">' + signoG + fmt(m.monto) + '</span>'
+    + fila('<svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M9 14c0 1.657 2.686 3 6 3s6-1.343 6-3-2.686-3-6-3-6 1.343-6 3z"/><path d="M9 14v4c0 1.656 2.686 3 6 3s6-1.344 6-3v-4"/><path d="M3 6c0 1.072 1.144 2.062 3 2.598s4.144.536 6 0c1.856-.536 3-1.526 3-2.598 0-1.072-1.144-2.062-3-2.598s-4.144-.536-6 0C4.144 3.938 3 4.928 3 6z"/><path d="M3 6v10c0 .888.772 1.45 2 2"/><path d="M3 11c0 .888.772 1.45 2 2"/></svg>', 'Importe', signoG + fmt(m.monto), false)
     + '</div>'
-    + '</div>'
-    + '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px">'
+    + '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:0">'
     + '<button onclick="cerrarDetalleGasto();openEdit(\'' + m.id + '\')" style="padding:13px;border-radius:12px;border:1px solid ' + dkBtnBorder + ';background:' + dkBtn + ';color:' + dkText + ';font-size:15px;font-weight:600;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:8px;box-shadow:' + dkBtnShadow + '"><svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.12 2.12 0 0 1 3 3L12 15l-4 1 1-4z"/></svg>Editar</button>'
     + '<button onclick="cerrarDetalleGasto();eliminar(\'' + m.id + '\')" style="padding:13px;border-radius:12px;border:1px solid ' + dkBtnBorder + ';background:' + dkBtn + ';color:' + dkText + ';font-size:15px;font-weight:600;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:8px;box-shadow:' + dkBtnShadow + '"><svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/></svg>Eliminar</button>'
-    + '</div>'
-    + '<button onclick="cerrarDetalleGasto()" style="width:100%;padding:13px;border-radius:12px;border:1px solid ' + dkBtnBorder + ';background:' + dkBtn + ';font-size:15px;font-weight:600;cursor:pointer;font-family:inherit;color:' + dkText + ';display:flex;align-items:center;justify-content:center;gap:8px;box-shadow:' + dkBtnShadow + '"><svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.4" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>Cerrar</button>';
+    + '</div>';
   document.getElementById('modal-detalle-gasto').classList.add('open');
 }
 
@@ -11667,17 +11716,13 @@ window.openModalClasico = function(){
 // guardarDebito() y la confirmación sigan funcionando igual.
 (function(){
   const caja = svg => '<div style="width:34px;height:34px;border-radius:10px;background:#111111;border:1px solid rgba(255,255,255,0.09);display:flex;align-items:center;justify-content:center;flex-shrink:0"><svg width="18" height="18" fill="none" stroke="#fff" stroke-width="2.2" viewBox="0 0 24 24">'+svg+'</svg></div>';
-  const ICONO_NUEVO = caja('<circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/>');
-  const ICONO_EXT   = caja('<rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>');
   const SVG_ING = '<line x1="12" y1="19" x2="12" y2="5"/><polyline points="5 12 12 5 19 12"/>';
   const SVG_EGR = '<line x1="12" y1="5" x2="12" y2="19"/><polyline points="19 12 12 19 5 12"/>';
-  const iconoDeb = t => caja(t === 'egreso' ? SVG_EGR : SVG_ING);
   const ICONO_TARJETA = caja('<rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/><circle cx="18" cy="15" r="2"/>');
   const BANCOS_TARJETA = ['BBVA','Banorte','Citibanamex','Santander','HSBC','Scotiabank','Invex','Banamex'];
   const ICONO_CUENTA = caja('<rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/><line x1="5" y1="15" x2="9" y2="15"/>');
   const BANCOS_CUENTA = ['BBVA','Banorte','Citibanamex','Santander','HSBC','Scotiabank','Inbursa','Invex','Hey Banco','Nu','Otro'];
-  const ICONO_CARGO = caja('<g stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/><path d="M3 21v-5h5"/></g>');
-  const ICONO_PROMO = caja('<path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/>');
+  const ICONO_USUARIO = caja('<path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>');
 
   const P = {
     tipo:        {k:'tipo',     titulo:'Tipo',     hint:'¿Es un ingreso o un egreso?'},
@@ -11713,13 +11758,26 @@ window.openModalClasico = function(){
     bancoOtro:   {k:'texto', campo:'bancoOtro', titulo:'Nombre del banco', hint:'Escribe el nombre del banco', ph:'Nombre del banco...', max:20, req:true, msgReq:'Escribe el nombre del banco', cond:()=>gw.otro === true},
     apodoCuenta: {k:'texto', campo:'apodo', titulo:'Cuenta', hint:'¿Cómo le llamas a esta cuenta? (opcional)', ph:'Ej. Nómina, Ahorros...', max:30},
     marcaCuenta: {k:'marca',    titulo:'Marca',    hint:'¿Cuál es la marca de la tarjeta? (opcional)'},
-    saldo:       {k:'monto',    titulo:'Saldo disponible', hint:'¿Cuál es el saldo disponible? (opcional)', opc:true}
+    saldo:       {k:'monto',    titulo:'Saldo disponible', hint:'¿Cuál es el saldo disponible? (opcional)', opc:true},
+    usuario:     {k:'texto', campo:'user', titulo:'Nombre de usuario', hint:'¿Cómo se llamará el usuario?', ph:'Ej. Juan', max:30, req:true, msgReq:'Escribe el nombre de usuario',
+                  valida:v=>(typeof window._usuarioExiste === 'function' && window._usuarioExiste(v)) ? 'Ese usuario ya existe' : ''},
+    clave:       {k:'clave', campo:'pass', titulo:'Contraseña', hint:'Mínimo 4 caracteres', ph:'Contraseña', req:true, msgReq:'Escribe la contraseña',
+                  valida:v=>v.length < 4 ? 'La contraseña debe tener al menos 4 caracteres' : ''},
+    perfilOb:    {k:'texto', campo:'perfil', titulo:'Identificador del perfil', hint:'Ponle un identificador a tu perfil.', ph:'Ej. Personal, Trabajo, Compartido...', max:30, req:true, msgReq:'Escribe el identificador del perfil',
+                  cond:()=>gw.onbPerfil === true, alSalir:()=>{ if(typeof window.guardarPerfil === 'function') window.guardarPerfil(); }},
+    tipoOb:      {k:'tipo', variante:'onb', titulo:'Tipo de tarjeta', hint:'¿Qué tipo de tarjeta quieres agregar?'},
+    bancoOb:     {k:'banco',    titulo:'Banco',    hint:'¿De qué banco es la tarjeta?'},
+    apodoOb:     {k:'texto', campo:'apodo', titulo:'Tarjeta', hint:'¿Cómo le llamas a esta tarjeta? (opcional)', ph:'Ej. Personal, Nómina...', max:30},
+    limiteOb:    {k:'monto',    titulo:'Límite de gasto', hint:'¿Cuál es el límite de la tarjeta?'},
+    otra:        {k:'otra', titulo:'¿Agregar otra tarjeta?', sinProgreso:true, sinBotones:true},
+    clave2:      {k:'clave', campo:'pass2', titulo:'Confirmar contraseña', hint:'Repite la contraseña', ph:'Repite la contraseña', req:true, msgReq:'Repite la contraseña',
+                  valida:v=>v !== $(ids().pass).value ? 'Las contraseñas no coinciden' : ''}
   };
   const credLista = () => (window.perfil && window.perfil.tarjetas) ? window.perfil.tarjetas : [];
   const debLista  = () => (window.perfil && window.perfil.cuentasDebito) ? window.perfil.cuentasDebito : [];
   const MODOS = {
     nuevo: {
-      titulo:'Movimiento nuevo', icono:()=>ICONO_NUEVO,
+      titulo:'Movimiento nuevo', icono:()=>'',
       pasos:[P.banco, P.tarjeta, P.comercio, P.concepto, P.monto],
       ids:{banco:'inp-banco-modal', tarjeta:'inp-tarjeta-modal', comercio:'inp-comercio', concepto:'inp-concepto', monto:'inp-monto'},
       lista:credLista,
@@ -11728,7 +11786,7 @@ window.openModalClasico = function(){
       finalizar:()=>window.guardar()
     },
     ext: {
-      titulo:'Movimiento extemporáneo', icono:()=>ICONO_EXT,
+      titulo:'Movimiento extemporáneo', icono:()=>'',
       pasos:[P.banco, P.tarjeta, P.comercio, P.concepto, P.monto, P.fecha],
       ids:{banco:'inp-banco-ext', tarjeta:'inp-tarjeta-ext', comercio:'inp-comercio-ext', concepto:'inp-concepto-ext', monto:'inp-monto-ext', fecha:'inp-fecha-ext'},
       lista:credLista,
@@ -11737,7 +11795,7 @@ window.openModalClasico = function(){
       finalizar:()=>window.guardarExt()
     },
     deb: {
-      titulo:'Movimiento nuevo', icono:()=>iconoDeb(_debitoTipo),
+      titulo:'Movimiento nuevo', icono:()=>'',
       pasos:[P.tipo, P.bancoDeb, P.cuenta, P.conceptoDeb, P.detalleDeb, P.monto],
       ids:{banco:'gw-h-banco', tarjeta:'debito-inp-cuenta-id', concepto:'debito-inp-concepto', detalle:'debito-inp-detalle', monto:'debito-inp-monto'},
       lista:()=>(window.perfil && window.perfil.cuentasDebito) ? window.perfil.cuentasDebito : [],
@@ -11746,7 +11804,7 @@ window.openModalClasico = function(){
       finalizar:()=>window.guardarDebito()
     },
     promo: {
-      titulo:'Nueva promoción MSI', icono:()=>ICONO_PROMO,
+      titulo:'Nueva promoción MSI', icono:()=>'',
       pasos:[P.banco, P.tarjeta, P.comercioPromo, P.compra, P.meses, P.importe],
       ids:{banco:'gw-h-banco', tarjeta:'gw-h-tarjeta', comercio:'promo-comercio', nombre:'promo-nombre', meses:'promo-meses', monto:'promo-importe'},
       lista:credLista,
@@ -11765,6 +11823,45 @@ window.openModalClasico = function(){
       recap:(i)=>{ if(i < 2) return null; const b = $('inp-banco-ob-prf').value, a = $('inp-apodo-ob-prf').value; return b ? (b + (a ? ' · ' + a : '')) : null; },
       finalizar:()=>window.guardarNuevaTarjetaModal()
     },
+    onbcred: {
+      titulo:()=> (gw.onbPerfil && gw.paso === 0) ? 'Crea tu perfil' : 'Agrega tu tarjeta', icono:()=>ICONO_TARJETA,
+      pasos:[P.perfilOb, P.tipoOb, P.bancoOb, P.apodoOb, P.marca, P.terminacion, P.corte, P.limiteOb],
+      ids:{perfil:'inp-nombre', banco:'inp-banco-ob', apodo:'inp-apodo-ob', marca:'inp-marca-ob', terminacion:'inp-terminacion-ob', dia:'inp-corte-ob', monto:'inp-limite-ob'},
+      bancos:()=>window.BANCOS_OB || BANCOS_TARJETA,
+      nueva:true, lista:()=>[], getSel:()=>null, setSel:()=>{},
+      recap:(i, paso)=>{ if(paso.campo === 'perfil') return null; const n = $('inp-nombre').value.trim(); return n ? 'Perfil: ' + n : null; },
+      finalizar:()=>onbAgregar('credito')
+    },
+    onbdeb: {
+      titulo:()=> (gw.onbPerfil && gw.paso === 0) ? 'Crea tu perfil' : 'Agrega tu cuenta', icono:()=>ICONO_CUENTA,
+      pasos:[P.perfilOb, P.tipoOb, P.bancoCuenta, P.bancoOtro, P.apodoCuenta, P.marcaCuenta, P.terminacion, P.saldo],
+      ids:{perfil:'inp-nombre', banco:'inp-banco-deb-ob', bancoOtro:'inp-banco-deb-ob-otro', apodo:'inp-apodo-deb-ob', marca:'inp-marca-deb-ob', terminacion:'inp-terminacion-deb-ob', monto:'inp-disponible-deb-ob'},
+      bancos:()=>window._BANCOS_LIST || BANCOS_CUENTA,
+      otroBanco:true,
+      nueva:true, lista:()=>[], getSel:()=>null, setSel:()=>{},
+      recap:(i, paso)=>{ if(paso.campo === 'perfil') return null; const n = $('inp-nombre').value.trim(); return n ? 'Perfil: ' + n : null; },
+      finalizar:()=>onbAgregar('debito')
+    },
+    onbotra: {
+      titulo:'Configuración inicial', icono:()=>ICONO_TARJETA,
+      pasos:[P.otra], ids:{},
+      nueva:true, lista:()=>[], getSel:()=>null, setSel:()=>{},
+      finalizar:()=>{}
+    },
+    usuario: {
+      titulo:'Nuevo usuario', icono:()=>ICONO_USUARIO,
+      pasos:[P.usuario, P.clave, P.clave2],
+      ids:{user:'nuevo-user-name', pass:'nuevo-user-pass', pass2:'nuevo-user-pass2'},
+      nueva:true,
+      lista:()=>[], getSel:()=>null, setSel:()=>{},
+      recap:(i)=> i >= 1 ? ('Usuario: ' + $('nuevo-user-name').value.trim()) : null,
+      finalizar:()=>{
+        const err = $('nuevo-user-error');
+        if(err) err.textContent = '';
+        window.guardarNuevoUsuario();   // valida de forma síncrona; si todo está bien cierra el asistente
+        if(err && err.textContent) toast(err.textContent);
+      }
+    },
     cuenta: {
       titulo:'Nueva cuenta de débito', icono:()=>ICONO_CUENTA,
       pasos:[P.bancoCuenta, P.bancoOtro, P.apodoCuenta, P.marcaCuenta, P.terminacion, P.saldo],
@@ -11781,7 +11878,7 @@ window.openModalClasico = function(){
       finalizar:()=>window.guardarNuevaCuentaModal()
     },
     cargo: {
-      titulo:'Cargo recurrente', icono:()=>ICONO_CARGO,
+      titulo:'Cargo recurrente', icono:()=>'',
       pasos:[P.tipoCargo, P.bancoCargo, P.tarjetaCargo, P.nombreCargo, P.dia, P.montoCargo],
       ids:{banco:'gw-h-banco', tarjeta:'gw-h-tarjeta', nombre:'cargo-nombre', dia:'cargo-dia-val', monto:'cargo-monto'},
       lista:credLista,
@@ -11791,7 +11888,7 @@ window.openModalClasico = function(){
       finalizar:()=>window.guardarCargoRecurrente()
     },
     cargodeb: {
-      titulo:'Cargo recurrente', icono:()=>ICONO_CARGO,
+      titulo:'Cargo recurrente', icono:()=>'',
       pasos:[P.tipoCargo, P.bancoCargo, P.cuentaCargo, P.nombreCargo, P.dia, P.montoCargo],
       ids:{banco:'gw-h-banco', tarjeta:'gw-h-tarjeta', nombre:'cargo-nombre', dia:'cargo-dia-val', monto:'cargo-monto'},
       lista:debLista,
@@ -11800,8 +11897,24 @@ window.openModalClasico = function(){
       sinLista:'Agrega una cuenta de débito primero',
       finalizar:()=>window.guardarCargoRecurrente()
     },
+    editcred: {
+      titulo:'Editar movimiento', icono:()=>'',
+      pasos:[P.comercio, P.concepto, P.monto, P.fecha],
+      ids:{banco:'inp-banco-modal', tarjeta:'inp-tarjeta-modal', comercio:'inp-comercio', concepto:'inp-concepto', monto:'inp-monto', fecha:'inp-fecha-modal'},
+      nueva:true, edicion:true, lista:()=>[], getSel:()=>null, setSel:()=>{},
+      recap:()=>gw.editInfo || null,
+      finalizar:()=>{ cerrarOverlay(); window.guardar(); }   // guardar() detecta editingId y abre el resumen de cambios
+    },
+    editdeb: {
+      titulo:'Editar movimiento', icono:()=>'',
+      pasos:[P.conceptoDeb, P.detalleDeb, P.monto, P.fechaDeb],
+      ids:{concepto:'deb-edit-concepto', detalle:'deb-edit-detalle', monto:'deb-edit-monto', fecha:'deb-edit-fecha'},
+      nueva:true, edicion:true, lista:()=>[], getSel:()=>null, setSel:()=>{},
+      recap:()=>gw.editInfo || null,
+      finalizar:()=>{ cerrarOverlay(); window.guardarEditDeb(); }
+    },
     debext: {
-      titulo:'Movimiento extemporáneo', icono:()=>iconoDeb(_debitoTipo),
+      titulo:'Movimiento extemporáneo', icono:()=>'',
       pasos:[P.tipo, P.bancoDeb, P.cuenta, P.conceptoDeb, P.detalleDeb, P.monto, P.fechaDeb],
       ids:{banco:'gw-h-banco', tarjeta:'debito-inp-cuenta-id', concepto:'debito-inp-concepto', detalle:'debito-inp-detalle', monto:'debito-inp-monto', fecha:'debito-inp-fecha'},
       lista:()=>(window.perfil && window.perfil.cuentasDebito) ? window.perfil.cuentasDebito : [],
@@ -11811,6 +11924,7 @@ window.openModalClasico = function(){
     }
   };
   const pasosAct = () => cfg().pasos.filter(p=>!p.cond || p.cond());
+  const tituloAct = () => typeof cfg().titulo === 'function' ? cfg().titulo() : cfg().titulo;
   const esDeb = () => gw.modo === 'deb' || gw.modo === 'debext';
   const esCargo = () => gw.modo === 'cargo' || gw.modo === 'cargodeb';
   const esDebCarrusel = () => gw.modo === 'deb' || gw.modo === 'debext' || gw.modo === 'cargodeb';
@@ -11891,12 +12005,11 @@ window.openModalClasico = function(){
   }
   function tipoCargoHTML(){
     const actual = gw.modo === 'cargodeb' ? 'debito' : 'credito';
-    const opc = (v, titulo, sub, svg) =>
+    const opc = (v, titulo, sub) =>
       '<button type="button" class="gw-tipo'+(actual === v ? ' sel' : '')+'" data-tipo="'+v+'" onclick="gwSelTipoCargo(\''+v+'\')">'
-      + '<span class="gw-tipo-ic"><svg width="18" height="18" fill="none" stroke="#fff" stroke-width="2.2" viewBox="0 0 24 24">'+svg+'</svg></span>'
       + '<span><span class="gw-tipo-t">'+titulo+'</span><span class="gw-tipo-s">'+sub+'</span></span></button>';
-    return opc('credito','Crédito','Cargo a una tarjeta de crédito','<rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/><circle cx="18" cy="15" r="2"/>')
-         + opc('debito','Débito','Cargo a una cuenta de débito','<rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/><line x1="5" y1="15" x2="9" y2="15"/>');
+    return opc('credito','Crédito','Cargo a una tarjeta de crédito')
+         + opc('debito','Débito','Cargo a una cuenta de débito');
   }
   function marcaHTML(){
     const actual = $(ids().marca).value;
@@ -11907,11 +12020,71 @@ window.openModalClasico = function(){
     return opc('visa','VISA','Tarjeta VISA') + opc('mastercard','Mastercard','Tarjeta Mastercard')
          + '<div class="gw-hint" style="margin:4px 0 0;font-size:12px">Toca la marca otra vez para quitar la selección</div>';
   }
+  window.gwTogglePass = function(){
+    const e = $('gw-inp');
+    if(e) e.type = e.type === 'password' ? 'text' : 'password';
+  };
   window.gwSelMarca = function(v){
     const h = $(ids().marca);
     h.value = h.value === v ? '' : v;
     document.querySelectorAll('#gw-body .gw-tipo').forEach(b=>b.classList.toggle('sel', b.getAttribute('data-marca') === h.value));
   };
+  function resetOnb(){
+    ['inp-banco-ob','inp-apodo-ob','inp-marca-ob','inp-terminacion-ob','inp-corte-ob','inp-limite-ob','inp-banco-deb-ob','inp-banco-deb-ob-otro','inp-apodo-deb-ob','inp-marca-deb-ob','inp-terminacion-deb-ob','inp-disponible-deb-ob']
+      .forEach(id=>{ const e = $(id); if(e) e.value = ''; });
+    gw.otro = false;
+  }
+  function tipoOnbHTML(){
+    const actual = gw.modo === 'onbdeb' ? 'debito' : 'credito';
+    const opc = (v, titulo, sub, svg) =>
+      '<button type="button" class="gw-tipo'+(actual === v ? ' sel' : '')+'" data-tipo="'+v+'" onclick="gwSelTipoOnb(\''+v+'\')">'
+      + '<span class="gw-tipo-ic"><svg width="18" height="18" fill="none" stroke="#fff" stroke-width="2.2" viewBox="0 0 24 24">'+svg+'</svg></span>'
+      + '<span><span class="gw-tipo-t">'+titulo+'</span><span class="gw-tipo-s">'+sub+'</span></span></button>';
+    return opc('credito','Crédito','Con banco, fecha de corte y límite','<rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/><circle cx="18" cy="15" r="2"/>')
+         + opc('debito','Débito','Con banco y saldo disponible','<rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/><line x1="5" y1="15" x2="9" y2="15"/>');
+  }
+  window.gwSelTipoOnb = function(v){
+    const nuevo = v === 'debito' ? 'onbdeb' : 'onbcred';
+    if(gw.modo !== nuevo){
+      gw.modo = nuevo;
+      resetOnb();
+      renderProgreso();
+    }
+    document.querySelectorAll('#gw-body .gw-tipo').forEach(b=>b.classList.toggle('sel', b.getAttribute('data-tipo') === v));
+  };
+  function otraHTML(){
+    const n = typeof window._obTotal === 'function' ? window._obTotal() : 0;
+    const opc = (fn, titulo, sub, svg) =>
+      '<button type="button" class="gw-tipo" onclick="'+fn+'">'
+      + '<span class="gw-tipo-ic"><svg width="18" height="18" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">'+svg+'</svg></span>'
+      + '<span><span class="gw-tipo-t">'+titulo+'</span><span class="gw-tipo-s">'+sub+'</span></span></button>';
+    return '<div class="gw-hint">' + (n === 1 ? 'Ya agregaste 1 tarjeta.' : 'Ya agregaste ' + n + ' tarjetas.') + ' Puedes agregar más o terminar.</div>'
+         + opc('gwOtraSi()', 'Agregar otra', 'Crédito o débito', '<line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>')
+         + opc('gwOtraNo()', 'Terminar', 'Guardar y entrar a la app', '<polyline points="20 6 9 17 4 12"/>');
+  }
+  window.gwOtraSi = function(){
+    gw.onbPerfil = false;
+    gw.modo = 'onbcred';
+    resetOnb();
+    gw.paso = 0;
+    render('next');
+  };
+  window.gwOtraNo = function(){
+    cerrarOverlay();
+    if(typeof window.finalizarOnboarding === 'function') window.finalizarOnboarding();
+  };
+  // Agrega la tarjeta / cuenta capturada con las funciones del onboarding y pregunta si se agrega otra
+  function onbAgregar(tipo){
+    const antes = typeof window._obTotal === 'function' ? window._obTotal() : 0;
+    cerrarOverlay();
+    if(tipo === 'credito') window.agregarTarjetaOb(); else window.agregarDebitoOb();
+    setTimeout(()=>{
+      const ok = typeof window._obTotal !== 'function' || window._obTotal() > antes;
+      if(ok){ gw.modo = 'onbotra'; gw.paso = 0; render('next'); }
+      else { gw.paso = pasosAct().length - 1; render('prev'); }   // faltó algún dato: vuelve al último paso
+      abrirOverlay();
+    }, 1250); // espera a que termine la animación de éxito
+  }
   window.gwSelTipoCargo = function(v){
     const nuevo = v === 'debito' ? 'cargodeb' : 'cargo';
     if(gw.modo !== nuevo){
@@ -11926,7 +12099,7 @@ window.openModalClasico = function(){
   window.gwSelTipo = function(v){
     _debitoTipo = v;
     document.querySelectorAll('#gw-body .gw-tipo').forEach(b=>b.classList.toggle('sel', b.getAttribute('data-tipo') === v));
-    $('gw-title').innerHTML = cfg().icono() + cfg().titulo;
+    $('gw-title').innerHTML = cfg().icono() + tituloAct();
   };
 
   // ── Paso de fecha (Año / Mes / Día; sin fechas futuras) ──
@@ -11946,7 +12119,10 @@ window.openModalClasico = function(){
     const g = $(ids().fecha).value;
     const f = gw.f = {a:hA, m:hM, d:hD};
     if(g){ const p = g.split('-').map(Number); if(p.length === 3 && p[0] && p[1] && p[2]){ f.a = p[0]; f.m = p[1]; f.d = p[2]; } }
-    const anios = [hA - 1, hA];
+    let anioMin = hA - 1;
+    if(g){ const ga = parseInt(g.split('-')[0], 10); if(ga && ga < anioMin) anioMin = ga; }
+    const anios = [];
+    for(let y = anioMin; y <= hA; y++) anios.push(y);
     if(anios.indexOf(f.a) === -1) f.a = hA;
     if(f.a === hA && f.m > hM) f.m = hM;
     const diasN = () => (f.a === hA && f.m === hM) ? hD : new Date(f.a, f.m, 0).getDate();
@@ -11997,6 +12173,7 @@ window.openModalClasico = function(){
     const paso = pasosAct()[gw.paso], inp = $('gw-inp');
     if(!inp) return;
     if(paso.k === 'texto') $(ids()[paso.campo]).value = inp.value.trim();
+    if(paso.k === 'clave') $(ids()[paso.campo]).value = inp.value;
     if(paso.k === 'monto') $(ids().monto).value = inp.value;
     if(paso.k === 'terminacion') $(ids().terminacion).value = inp.value.trim();
   }
@@ -12021,16 +12198,18 @@ window.openModalClasico = function(){
 
   function render(dir){
     const pasos = pasosAct(), i = gw.paso, paso = pasos[i], ultimo = i === pasos.length - 1;
-    $('gw-title').innerHTML = cfg().icono() + cfg().titulo;
+    $('gw-title').innerHTML = cfg().icono() + tituloAct();
     renderProgreso();
     $('gw-back').textContent = i === 0 ? 'Cancelar' : 'Atrás';
     $('gw-next').textContent = ultimo ? 'Continuar' : 'Siguiente';
 
     const t = getSel();
     const idxSel = pasos.findIndex(p=>p.k === 'tarjeta');
-    let html = '<div class="gw-stepno">Paso '+(i+1)+' de '+pasos.length+'</div>'
+    let html = (paso.sinProgreso ? '' : '<div class="gw-stepno">Paso '+(i+1)+' de '+pasos.length+'</div>')
              + '<div class="gw-titulo">'+paso.titulo+'</div>'
-             + '<div class="gw-hint">'+paso.hint+'</div>';
+             + (paso.hint ? '<div class="gw-hint">'+paso.hint+'</div>' : '');
+    $('gw-progress').style.display = paso.sinProgreso ? 'none' : '';
+    $('gw-actions').style.display  = paso.sinBotones ? 'none' : '';
     const recapTxt = cfg().recap ? cfg().recap(i, paso) : ((i > idxSel && t) ? textoRecap(t) : null);
     if(recapTxt){
       html += '<div class="gw-recap">'+esc(recapTxt)+'</div>';
@@ -12038,7 +12217,7 @@ window.openModalClasico = function(){
 
     let init = null;
     if(paso.k === 'tipo'){
-      html += paso.variante === 'cargo' ? tipoCargoHTML() : tipoHTML();
+      html += paso.variante === 'cargo' ? tipoCargoHTML() : (paso.variante === 'onb' ? tipoOnbHTML() : tipoHTML());
     } else if(paso.k === 'banco'){
       const bancos = cfg().bancos ? cfg().bancos() : [...new Set(lista().map(x=>x.nombre))];
       const actual = (cfg().otroBanco && gw.otro) ? 'Otro' : ($(ids().banco).value || (t && t.nombre) || bancos[0] || '');
@@ -12061,6 +12240,13 @@ window.openModalClasico = function(){
       const val = $(ids().monto).value;
       html += '<div class="amount-wrap"><span class="amount-prefix" style="font-size:18px;left:16px">$</span>'
             + '<input class="amount-inp" id="gw-inp" type="number" inputmode="decimal" placeholder="0.00" min="0" step="0.01" value="'+esc(val)+'" style="font-size:22px;font-weight:700;padding:16px 14px 16px 34px" onkeydown="if(event.key===\'Enter\'){event.preventDefault();gwSiguiente()}"/></div>';
+      init = ()=>setTimeout(()=>{ const e = $('gw-inp'); if(e) e.focus(); }, 320);
+    } else if(paso.k === 'otra'){
+      html += otraHTML();
+    } else if(paso.k === 'clave'){
+      html += '<div style="position:relative">'
+            + '<input class="inp" id="gw-inp" type="password" autocomplete="new-password" value="'+esc($(ids()[paso.campo]).value)+'" placeholder="'+esc(paso.ph)+'" style="padding-right:46px" onkeydown="if(event.key===\'Enter\'){event.preventDefault();gwSiguiente()}"/>'
+            + '<button type="button" onclick="gwTogglePass()" aria-label="Mostrar u ocultar contraseña" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--text-dim);padding:6px"><svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button></div>';
       init = ()=>setTimeout(()=>{ const e = $('gw-inp'); if(e) e.focus(); }, 320);
     } else if(paso.k === 'marca'){
       html += marcaHTML();
@@ -12116,7 +12302,7 @@ window.openModalClasico = function(){
   }
 
   window.gwAbrir = function(modo, tipo){
-    if(modo !== 'ext' && modo !== 'deb' && modo !== 'debext' && modo !== 'promo' && modo !== 'cargo' && modo !== 'cargodeb' && modo !== 'tarjeta' && modo !== 'cuenta') modo = 'nuevo';
+    if(!MODOS[modo]) modo = 'nuevo';
     if(typeof cerrarTodosLosPopups === 'function') cerrarTodosLosPopups();
     if(modo === 'cargo' || modo === 'cargodeb'){
       const hayC = credLista().length > 0, hayD = debLista().length > 0;
@@ -12131,7 +12317,8 @@ window.openModalClasico = function(){
     if(modo === 'nuevo' && typeof window._resetEditingId === 'function') window._resetEditingId();
     const I = ids();
     gw.otro = false;
-    ['monto','comercio','concepto','detalle','fecha','nombre','meses','dia','apodo','marca','terminacion','bancoOtro'].forEach(k=>{ if(I[k] && $(I[k])) $(I[k]).value = ''; });
+    if(modo === 'onbcred'){ gw.onbPerfil = true; resetOnb(); }
+    ['monto','comercio','concepto','detalle','fecha','nombre','meses','dia','apodo','marca','terminacion','bancoOtro','user','pass','pass2','perfil'].forEach(k=>{ if(I[k] && $(I[k])) $(I[k]).value = ''; });
     if(modo === 'deb' || modo === 'debext'){
       _debitoTipo = tipo === 'egreso' ? 'egreso' : 'ingreso';
       _debitoEsExtemporaneo = modo === 'debext';
@@ -12143,7 +12330,7 @@ window.openModalClasico = function(){
       $('debito-error').textContent = '';
     }
     if(esCargo() && window._cargoState){ window._cargoState.editId = null; window._cargoState.tipo = modo === 'cargodeb' ? 'debito' : 'credito'; }
-    if(cfg().nueva){ $(I.banco).value = ''; }
+    if(cfg().nueva){ if(I.banco && $(I.banco)) $(I.banco).value = ''; }
     else preseleccionar();
     gw.paso = 0;
     render('next');
@@ -12152,13 +12339,30 @@ window.openModalClasico = function(){
 
   // Reabre el asistente en el último paso conservando lo capturado (botón "Corregir" de la confirmación)
   window.gwReabrir = function(modo){
-    if(modo) gw.modo = (modo === 'ext' || modo === 'deb' || modo === 'debext' || modo === 'promo' || modo === 'cargo' || modo === 'cargodeb' || modo === 'tarjeta' || modo === 'cuenta') ? modo : 'nuevo';
+    if(modo) gw.modo = MODOS[modo] ? modo : 'nuevo';
     gw.paso = pasosAct().length - 1;
     render('prev');
     abrirOverlay();
   };
 
-  window.gwCancelar = function(){ cerrarOverlay(); };
+  window.gwCancelar = function(){
+    cerrarOverlay();
+    // En edición, cancelar vuelve al detalle del movimiento (igual que el formulario clásico)
+    if(gw.modo === 'editcred' && typeof window.cancelarModalMovimiento === 'function') window.cancelarModalMovimiento();
+    else if(gw.modo === 'editdeb' && typeof window.cerrarEditDeb === 'function') window.cerrarEditDeb();
+  };
+
+  // Abre el asistente para EDITAR un movimiento. Los inputs ocultos ya vienen precargados por openEdit / openEditDeb.
+  window.gwEditar = function(modo, info){
+    if(!MODOS[modo] || !MODOS[modo].edicion) return false;
+    gw.modo = modo;
+    gw.otro = false;
+    gw.editInfo = info || '';
+    gw.paso = 0;
+    render('next');
+    abrirOverlay();
+    return true;
+  };
 
   window.gwAtras = function(){
     if(gw.paso === 0){ window.gwCancelar(); return; }
@@ -12184,6 +12388,11 @@ window.openModalClasico = function(){
       persistirPaso();
       const paso = pasos[gw.paso];
       if(paso.req && !$(ids()[paso.campo]).value.trim()){ toast(paso.msgReq || 'Completa este campo'); const e = $('gw-inp'); if(e) e.focus(); return; }
+      if(paso.valida){
+        const msg = paso.valida($(ids()[paso.campo]).value);
+        if(msg){ toast(msg); const e = $('gw-inp'); if(e) e.focus(); return; }
+      }
+      if(paso.alSalir) paso.alSalir();
     }
     if(ultimo){ cfg().finalizar(); return; } // abre la confirmación y cierra el asistente
     gw.paso++;
