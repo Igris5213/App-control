@@ -291,6 +291,15 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
 .card-usage-stats .card-stat-value{font-size:14.5px;overflow:hidden;text-overflow:ellipsis}
 .card-usage-stats .card-stat-label{overflow:hidden;text-overflow:ellipsis}
 .card-usage-box .card-use-bar{margin-bottom:8px}
+/* ── Resumen general contraíble ── */
+.card-usage-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px;cursor:pointer;transition:margin-bottom .25s ease}
+.card-usage-head .card-usage-title{margin-bottom:0}
+.card-usage-chev{width:18px;height:18px;flex-shrink:0;color:rgba(255,255,255,0.6);transition:transform .25s ease}
+.resumen-collapse{display:grid;grid-template-rows:1fr;transition:grid-template-rows .25s ease}
+.resumen-collapse > .resumen-inner{overflow:hidden;min-height:0}
+.resumen-box.resumen-col .card-usage-head{margin-bottom:0}
+.resumen-box.resumen-col .card-usage-chev{transform:rotate(-90deg)}
+.resumen-box.resumen-col .resumen-collapse{grid-template-rows:0fr}
 .card-usage-pct-row{display:flex;align-items:center;justify-content:center;gap:7px;font-size:12.5px;font-weight:600;color:rgba(255,255,255,0.85)}
 .card-usage-pct-row svg{flex-shrink:0}
 .card-link-box{display:flex;align-items:center;gap:10px;background:#111111;border:1px solid rgba(255,255,255,0.1);border-radius:14px;padding:9px 12px;margin-bottom:8px}
@@ -993,7 +1002,7 @@ html.dark-mode .success-overlay.show{background:rgba(0,0,0,0.95);backdrop-filter
   align-items:center;
   z-index:500;
   padding:0 8px;
-  overflow:hidden;
+  overflow:visible;
 }
 
 .nav-item{
@@ -1037,6 +1046,30 @@ html.dark-mode .success-overlay.show{background:rgba(0,0,0,0.95);backdrop-filter
   width:24px;
   height:24px;
   transition:all 0.32s cubic-bezier(0.34,1.5,0.64,1);
+}
+
+/* Botón central "+" (Nuevo gasto): círculo elevado con aro, como en el diseño de referencia */
+.bottom-nav .nav-item#nav-plus,
+.bottom-nav .nav-item#nav-plus.active{
+  box-sizing:border-box;
+  width:52px;
+  height:52px;
+  padding:0;
+  flex-shrink:0;
+  border-radius:50%;
+  border:4px solid var(--bg);
+  background:linear-gradient(180deg,#26272c,#17181b);
+  color:#fff;
+  box-shadow:0 6px 16px rgba(0,0,0,0.45), inset 0 1px 0 rgba(255,255,255,0.06);
+  transform:translateY(-12px);
+}
+.bottom-nav .nav-item#nav-plus svg,
+.bottom-nav .nav-item#nav-plus.active svg{
+  width:24px;
+  height:24px;
+}
+.bottom-nav .nav-item#nav-plus:active{
+  transform:translateY(-12px) scale(0.94);
 }
 
 .main-app{
@@ -1955,6 +1988,25 @@ try{
         <input class="ob-input" id="inp-apodo-deb-ob" placeholder="Ej. Nómina, Ahorros..." maxlength="30"
           onfocus="document.getElementById('banco-deb-ob-scroll-wrap').style.display='none';" />
       </div>
+      <div class="ob-field">
+        <div class="ob-label">Marca <span style="font-weight:400;color:var(--text-dim)">(opcional)</span></div>
+        <div style="display:flex;gap:8px">
+          <button type="button" id="marca-visa-deb-ob" onclick="seleccionarMarcaDeb('deb-ob','visa')"
+            style="flex:1;padding:12px;border-radius:12px;border:1.5px solid var(--border);background:var(--input-bg);color:var(--text-dim);font-size:14px;font-weight:700;font-style:italic;cursor:pointer;font-family:inherit">VISA</button>
+          <button type="button" id="marca-mc-deb-ob" onclick="seleccionarMarcaDeb('deb-ob','mastercard')"
+            style="flex:1;padding:12px;border-radius:12px;border:1.5px solid var(--border);background:var(--input-bg);color:var(--text-dim);font-size:13px;font-weight:700;cursor:pointer;font-family:inherit">Mastercard</button>
+        </div>
+        <input type="hidden" id="inp-marca-deb-ob" value=""/>
+      </div>
+      <div class="ob-field">
+        <div class="ob-label">Terminación (opcional)</div>
+        <div style="display:flex;align-items:center;gap:8px;padding:12px 14px;border-radius:12px;border:1.5px solid var(--border);background:var(--input-bg)">
+          <span style="color:var(--text-dim);font-size:15px;font-weight:600">••••</span>
+          <input id="inp-terminacion-deb-ob" type="text" inputmode="numeric" maxlength="4" placeholder="0000" onfocus="document.getElementById('banco-deb-ob-scroll-wrap').style.display='none';"
+            style="border:none;background:transparent;outline:none;font-size:15px;font-weight:600;color:var(--text);letter-spacing:2px;width:70px;font-family:inherit"
+            oninput="this.value=this.value.replace(/\D/g,'').slice(0,4)"/>
+        </div>
+      </div>
       <!-- 3. Disponible -->
       <div class="ob-field">
         <div class="ob-label">Saldo disponible</div>
@@ -2321,7 +2373,6 @@ try{
 
     <!-- Saludo -->
     <div id="saludo-header" style="display:flex;align-items:center;gap:12px;margin-bottom:16px">
-      <div style="width:42px;height:42px;border-radius:50%;background:#181818;border:1px solid rgba(255,255,255,0.08);display:flex;align-items:center;justify-content:center;color:#fff;font-size:15px;font-weight:700;flex-shrink:0" id="saludo-avatar">SP</div>
       <div style="flex:1;min-width:0">
         <div style="font-size:14px;font-weight:500;color:var(--text)" id="saludo-nombre">Hola, Usuario</div>
         <div style="font-size:10px;color:var(--text-dim);margin-top:2px">Aquí tienes el resumen de tus finanzas</div>
@@ -2805,6 +2856,8 @@ window.agregarDebitoOb = function(){
   const apodo    = document.getElementById('inp-apodo-deb-ob').value.trim();
   const dispStr  = document.getElementById('inp-disponible-deb-ob').value;
   const disponible = parseFloat(dispStr) || 0;
+  const marca       = document.getElementById('inp-marca-deb-ob').value;
+  const terminacion = document.getElementById('inp-terminacion-deb-ob').value.trim();
 
   if(!nombre){ showToast('Selecciona un banco'); return; }
 
@@ -2812,7 +2865,7 @@ window.agregarDebitoOb = function(){
   tarjetasDebOb.push({
     id: nuevaId,
     tipoCuenta: 'debito',
-    nombre, apodo, disponible,
+    nombre, apodo, disponible, marca, terminacion,
     color: 'card-color-0'
   });
 
@@ -2825,6 +2878,8 @@ window.agregarDebitoOb = function(){
   document.getElementById('inp-banco-deb-ob-otro').style.display = 'none';
   document.getElementById('inp-apodo-deb-ob').value = '';
   document.getElementById('inp-disponible-deb-ob').value = '';
+  window.seleccionarMarcaDeb('deb-ob', '');
+  document.getElementById('inp-terminacion-deb-ob').value = '';
 
   _actualizarBotonesTerminar();
   window.showSuccess('Cuenta agregada', '', 1100);
@@ -3237,8 +3292,12 @@ function buildCarrusel(){
     det.innerHTML = `
       <div class="card-unified-box">
       <div class="card-merged-box">
-      <div class="card-usage-box">
-        <div class="card-usage-title">Resumen general</div>
+      <div class="card-usage-box resumen-box${_resumenGetColapsado() ? ' resumen-col' : ''}">
+        <div class="card-usage-head" role="button" aria-label="Contraer o expandir resumen general">
+          <div class="card-usage-title">Resumen general</div>
+          <svg class="card-usage-chev" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
+        </div>
+        <div class="resumen-collapse"><div class="resumen-inner">
         <div class="card-usage-stats">
           <div class="card-stat-cell">
             <div class="card-stat-text">
@@ -3261,9 +3320,11 @@ function buildCarrusel(){
             </div>
           </div>
         </div>
+        </div></div>
       </div>
       </div>
       </div>`;
+    _resumenBind(det);
     if(outerDet) outerDet.appendChild(det);
 
     const dot = document.createElement('div');
@@ -3274,6 +3335,28 @@ function buildCarrusel(){
 
   setupSwipe();
   goTo(0, false);
+}
+
+// ── Resumen general: contraer / expandir (se recuerda la preferencia) ──
+function _resumenGetColapsado(){
+  try{ return localStorage.getItem('resumenGeneralColapsado') === '1'; }catch(e){ return false; }
+}
+function _resumenSetColapsado(v){
+  try{ localStorage.setItem('resumenGeneralColapsado', v ? '1' : '0'); }catch(e){}
+}
+function _resumenBind(root){
+  root.querySelectorAll('.card-usage-head').forEach(head=>{
+    head.setAttribute('aria-expanded', String(!_resumenGetColapsado()));
+    head.addEventListener('click', ()=>{
+      const colapsar = !_resumenGetColapsado();
+      _resumenSetColapsado(colapsar);
+      document.querySelectorAll('.resumen-box').forEach(b=>{
+        b.classList.toggle('resumen-col', colapsar);
+        const h = b.querySelector('.card-usage-head');
+        if(h) h.setAttribute('aria-expanded', String(!colapsar));
+      });
+    });
+  });
 }
 
 // ── Long Press en recuadro "Disponible" de la tarjeta ──────────────
@@ -5820,6 +5903,8 @@ window.abrirFormNuevaCuenta = function(){
   document.getElementById('banco-nc-scroll-wrap').style.display = 'none';
   document.getElementById('inp-apodo-nc').value = '';
   document.getElementById('inp-disponible-nc').value = '';
+  window.seleccionarMarcaDeb('nc', '');
+  document.getElementById('inp-terminacion-nc').value = '';
   document.getElementById('modal-nueva-cuenta').classList.add('open');
 };
 
@@ -5832,6 +5917,8 @@ window.guardarNuevaCuentaModal = async function(){
   const nombre = document.getElementById('inp-banco-nc').value.trim() || document.getElementById('inp-banco-nc-otro').value.trim();
   const apodo  = document.getElementById('inp-apodo-nc').value.trim();
   const disp   = parseFloat(document.getElementById('inp-disponible-nc').value) || 0;
+  const marca       = document.getElementById('inp-marca-nc').value;
+  const terminacion = document.getElementById('inp-terminacion-nc').value.trim();
   if(!nombre){ showToast('Selecciona el banco'); return; }
 
   document.getElementById('modal-nueva-cuenta').classList.remove('open');
@@ -5839,13 +5926,15 @@ window.guardarNuevaCuentaModal = async function(){
   const valores = [
     {campo:'Banco', valor: nombre},
     {campo:'Apodo', valor: apodo || '—'},
+    ...(marca ? [{campo:'Marca', valor: marca === 'visa' ? 'VISA' : 'Mastercard'}] : []),
+    ...(terminacion ? [{campo:'Terminación', valor: '•••• ' + terminacion}] : []),
     {campo:'Disponible', valor: fmt(disp), resaltar:true}
   ];
   _mostrarResumenSimple('Nueva tarjeta - Débito', 'Revisa los datos antes de guardar', valores, async function(){
     if(!perfil.cuentasDebito) perfil.cuentasDebito = [];
     const nueva = {
       id: Date.now()+'_'+Math.random().toString(36).substr(2,9),
-      tipoCuenta: 'debito', nombre, apodo, disponible: disp, color: 'card-color-0'
+      tipoCuenta: 'debito', nombre, apodo, disponible: disp, marca, terminacion, color: 'card-color-0'
     };
     perfil.cuentasDebito.push(nueva);
     try{
@@ -6084,6 +6173,21 @@ window.renderPerfiles = function(){
           <div style="font-size:11px;font-weight:700;color:var(--text-dim);text-transform:uppercase;margin-bottom:6px">Cuenta</div>
           <input id="inp-apodo-debito-nuevo" placeholder="Ej. Nómina, Ahorros..." maxlength="30" onfocus="cerrarScrollsPerfiles()"
             style="width:100%;padding:12px 14px;border-radius:10px;border:1.5px solid var(--border);font-size:14px;font-family:inherit;outline:none;background:var(--input-bg);margin-bottom:10px;color:var(--text)"/>
+          <div style="font-size:11px;font-weight:700;color:var(--text-dim);text-transform:uppercase;margin-bottom:6px">Marca <span style="font-weight:400;color:var(--text-dim)">(opcional)</span></div>
+          <div style="display:flex;gap:8px;margin-bottom:10px">
+            <button type="button" id="marca-visa-debito-nuevo" onclick="seleccionarMarcaDeb('debito-nuevo','visa')"
+              style="flex:1;padding:11px;border-radius:10px;border:1.5px solid var(--border);background:var(--input-bg);color:var(--text-dim);font-size:14px;font-weight:700;font-style:italic;cursor:pointer;font-family:inherit">VISA</button>
+            <button type="button" id="marca-mc-debito-nuevo" onclick="seleccionarMarcaDeb('debito-nuevo','mastercard')"
+              style="flex:1;padding:11px;border-radius:10px;border:1.5px solid var(--border);background:var(--input-bg);color:var(--text-dim);font-size:13px;font-weight:700;cursor:pointer;font-family:inherit">Mastercard</button>
+          </div>
+          <input type="hidden" id="inp-marca-debito-nuevo" value=""/>
+          <div style="font-size:11px;font-weight:700;color:var(--text-dim);text-transform:uppercase;margin-bottom:6px">Terminación <span style="font-weight:400;color:var(--text-dim)">(opcional)</span></div>
+          <div style="display:flex;align-items:center;gap:8px;padding:12px 14px;border-radius:10px;border:1.5px solid var(--border);background:var(--input-bg);margin-bottom:10px">
+            <span style="color:var(--text-dim);font-size:15px;font-weight:600">••••</span>
+            <input id="inp-terminacion-debito-nuevo" type="text" inputmode="numeric" maxlength="4" placeholder="0000" onfocus="cerrarScrollsPerfiles()"
+              style="border:none;background:transparent;outline:none;font-size:15px;font-weight:600;color:var(--text);letter-spacing:2px;width:70px;font-family:inherit"
+              oninput="this.value=this.value.split('').filter(function(ch){return ch>='0'&&ch<='9'}).join('').slice(0,4)"/>
+          </div>
           <div style="font-size:11px;font-weight:700;color:var(--text-dim);text-transform:uppercase;margin-bottom:6px">Saldo disponible <span style="font-weight:400;color:var(--text-dim)">(opcional)</span></div>
           <div style="position:relative;margin-bottom:14px">
             <span style="position:absolute;left:14px;top:50%;transform:translateY(-50%);color:var(--text-dim);font-size:15px">$</span>
@@ -6139,6 +6243,25 @@ function limitarListaPerfilA4Tarjetas(){
 }
 
 let editandoTarjetaId = null;
+
+window.seleccionarMarcaDeb = function(pref, marca){
+  const hid = document.getElementById('inp-marca-' + pref);
+  if(hid) hid.value = marca || '';
+  const visaBtn = document.getElementById('marca-visa-' + pref);
+  const mcBtn   = document.getElementById('marca-mc-' + pref);
+  [visaBtn, mcBtn].forEach(btn=>{
+    if(!btn) return;
+    btn.style.background = 'var(--input-bg)';
+    btn.style.borderColor = 'var(--border)';
+    btn.style.color = 'var(--text-dim)';
+  });
+  if(!marca) return;
+  const activo = marca === 'visa' ? visaBtn : mcBtn;
+  if(!activo) return;
+  activo.style.background = 'linear-gradient(180deg,var(--card-bg-soft),var(--bg))';
+  activo.style.borderColor = 'var(--text)';
+  activo.style.color = 'var(--text)';
+};
 
 window.seleccionarMarcaEditTarjeta = function(marca){
   document.getElementById('inp-marca-edit-tarjeta').value = marca;
@@ -6273,9 +6396,11 @@ window._listoResumenDebito = async function(){
   const nombre = window._pendienteDebitoNombre;
   const apodo  = window._pendienteDebitoApodo;
   const disp   = window._pendienteDebitoDisp;
+  const marca       = window._pendienteDebitoMarca || '';
+  const terminacion = window._pendienteDebitoTerminacion || '';
   if(id && nombre !== undefined && perfil.cuentasDebito){
     perfil.cuentasDebito = perfil.cuentasDebito.map(c=>
-      c.id===id ? {...c, nombre, apodo, disponible: disp} : c
+      c.id===id ? {...c, nombre, apodo, disponible: disp, marca, terminacion} : c
     );
     try{
       await setDoc(doc(db,'usuarios', currentUser.uid, 'perfil','datos'), perfil);
@@ -6397,6 +6522,8 @@ window._corregirDesdeResumenDebito = function(){
       document.getElementById('banco-debito-edit-txt-ro').textContent = window._pendienteDebitoNombre || '—';
       document.getElementById('apodo-debito-edit-txt-ro').textContent = window._pendienteDebitoApodo  || '—';
       document.getElementById('edit-debito-disponible').value = window._pendienteDebitoDisp !== undefined ? window._pendienteDebitoDisp : '';
+      window.seleccionarMarcaDeb('debito-edit', window._pendienteDebitoMarca || '');
+      document.getElementById('inp-terminacion-debito-edit').value = window._pendienteDebitoTerminacion || '';
       document.getElementById('edit-debito-overlay').classList.add('open');
     }
   }, 300);
@@ -6542,6 +6669,8 @@ window.mostrarFormAgregarDebito = function(){
   if(w) w.style.display = 'none';
   document.getElementById('inp-apodo-debito-nuevo').value = '';
   document.getElementById('inp-disponible-debito-nuevo').value = '';
+  window.seleccionarMarcaDeb('debito-nuevo', '');
+  document.getElementById('inp-terminacion-debito-nuevo').value = '';
 }
 
 window.ocultarFormAgregarDebito = function(){
@@ -6555,12 +6684,14 @@ window.guardarNuevaDebito = async function(){
   const nombre = document.getElementById('inp-banco-debito-nuevo').value.trim();
   const apodo  = document.getElementById('inp-apodo-debito-nuevo').value.trim();
   const disp   = parseFloat(document.getElementById('inp-disponible-debito-nuevo').value) || 0;
+  const marca       = document.getElementById('inp-marca-debito-nuevo').value;
+  const terminacion = document.getElementById('inp-terminacion-debito-nuevo').value.trim();
   if(!nombre){ showToast('Ingresa el nombre del banco'); return; }
   if(!perfil.cuentasDebito) perfil.cuentasDebito = [];
   const nueva = {
     id: Date.now()+'_'+Math.random().toString(36).substr(2,9),
     tipoCuenta: 'debito',
-    nombre, apodo, disponible: disp, color: 'card-color-0'
+    nombre, apodo, disponible: disp, marca, terminacion, color: 'card-color-0'
   };
   perfil.cuentasDebito.push(nueva);
   try{
@@ -6641,6 +6772,8 @@ window.abrirEditarDebito = function(id){
   document.getElementById('banco-debito-edit-txt-ro').textContent  = c.nombre || '—';
   document.getElementById('apodo-debito-edit-txt-ro').textContent  = c.apodo  || '—';
   document.getElementById('edit-debito-disponible').value = typeof c.disponible === 'number' ? c.disponible : '';
+  window.seleccionarMarcaDeb('debito-edit', c.marca || '');
+  document.getElementById('inp-terminacion-debito-edit').value = c.terminacion || '';
   window._ultimaDebitoEditadaId = id;
   document.getElementById('edit-debito-overlay').classList.add('open');
 }
@@ -6658,18 +6791,22 @@ window.guardarEdicionDebito = async function(){
   const nombre = document.getElementById('edit-debito-banco').value.trim();
   const apodo  = document.getElementById('edit-debito-apodo').value.trim();
   const disp   = parseFloat(document.getElementById('edit-debito-disponible').value) || 0;
+  const marca       = document.getElementById('inp-marca-debito-edit').value;
+  const terminacion = document.getElementById('inp-terminacion-debito-edit').value.trim();
   if(!nombre){ showToast('Ingresa el nombre del banco'); return; }
   if(!perfil.cuentasDebito) return;
 
   // Capturar estado anterior ANTES de modificar nada
   const cAntes = perfil.cuentasDebito.find(c=>c.id===id);
-  const antes = cAntes ? { disponible: parseFloat(cAntes.disponible)||0 } : null;
+  const antes = cAntes ? { disponible: parseFloat(cAntes.disponible)||0, marca: cAntes.marca || '', terminacion: cAntes.terminacion || '' } : null;
 
   // Guardar datos pendientes para confirmar después (sin tocar Firestore aún)
   window._pendienteDebitoId     = id;
   window._pendienteDebitoNombre = nombre;
   window._pendienteDebitoApodo  = apodo;
   window._pendienteDebitoDisp   = disp;
+  window._pendienteDebitoMarca  = marca;
+  window._pendienteDebitoTerminacion = terminacion;
   window._ultimaDebitoEditadaId = id;
 
   document.getElementById('edit-debito-overlay').classList.remove('open');
@@ -6680,11 +6817,16 @@ window.guardarEdicionDebito = async function(){
     const cambios = [];
     if(!isNaN(antes.disponible) && !isNaN(disp) && antes.disponible !== disp)
       cambios.push({campo:'Saldo disponible', antes:fmt$(antes.disponible), despues:fmt$(disp)});
+    const _lblMarca = m => m === 'visa' ? 'VISA' : (m === 'mastercard' ? 'Mastercard' : '—');
+    if(antes.marca !== marca)
+      cambios.push({campo:'Marca', antes:_lblMarca(antes.marca), despues:_lblMarca(marca)});
+    if(antes.terminacion !== terminacion)
+      cambios.push({campo:'Terminación', antes: antes.terminacion ? '•••• ' + antes.terminacion : '—', despues: terminacion ? '•••• ' + terminacion : '—'});
     setTimeout(()=>{ _mostrarResumenCambioDebito(titulo, cambios); }, 100);
   } else {
     // Sin cambios detectables, guardar directo
     perfil.cuentasDebito = perfil.cuentasDebito.map(c=>
-      c.id===id ? {...c, nombre, apodo, disponible: disp} : c
+      c.id===id ? {...c, nombre, apodo, disponible: disp, marca, terminacion} : c
     );
     try{
       await setDoc(doc(db,'usuarios', currentUser.uid, 'perfil','datos'), perfil);
@@ -9984,6 +10126,7 @@ window.irCuentas = function(){
   scr.style.display = 'flex';
   const outer = document.getElementById('deb-cards-outer');
   const mismasCuentas = outer && outer.children.length && _cuentasDebitoKey() === _debCarruselKey;
+  _debActualizarSaludo();
   if(mismasCuentas){
     // Ya está construido con las mismas cuentas: no recrear el DOM (evita que la barra
     // se reinicie a 0% y vuelva a animarse). Solo reubicar y refrescar valores reales.
@@ -10005,10 +10148,27 @@ function _cuentasDebitoKey(){
   return cuentas.map(c=>c.id).join('|');
 }
 
+// Saludo (avatar + "Hola, nombre") en la pantalla de cuentas de débito
+function _debActualizarSaludo(){
+  if(typeof loginUsuarioActivo === 'undefined' || !loginUsuarioActivo) return;
+  const nombreEl = document.getElementById('deb-saludo-nombre');
+  const avatarEl = document.getElementById('deb-saludo-avatar');
+  if(nombreEl) nombreEl.textContent = `Hola, ${loginUsuarioActivo}`;
+  if(avatarEl){
+    const partes = loginUsuarioActivo.trim().split(/\s+/);
+    const iniciales = partes.length > 1
+      ? (partes[0].charAt(0) + partes[1].charAt(0))
+      : loginUsuarioActivo.slice(0,2);
+    avatarEl.textContent = iniciales.toUpperCase();
+  }
+}
+
 function buildCarruselDebito(){
   const cuentas = (perfil && perfil.cuentasDebito) ? perfil.cuentasDebito : [];
   _debCarruselKey = _cuentasDebitoKey();
+  _debActualizarSaludo();
   const outer   = document.getElementById('deb-cards-outer');
+  const outerDet = document.getElementById('deb-cards-outer-detail');
   const dotsEl  = document.getElementById('deb-dots');
   const wrap    = document.getElementById('cuentas-carrusel-wrap');
   const empty   = document.getElementById('cuentas-empty');
@@ -10022,6 +10182,7 @@ function buildCarruselDebito(){
   empty.style.display = 'none';
 
   outer.innerHTML  = '';
+  if(outerDet) outerDet.innerHTML = '';
   dotsEl.innerHTML = '';
   _debCurrent = 0;
 
@@ -10029,27 +10190,42 @@ function buildCarruselDebito(){
     const card = document.createElement('div');
     card.className = `bank-card ${c.color || 'card-color-0'}`;
     const disp = typeof c.disponible === 'number' ? c.disponible : 0;
-    const _titulo = c.apodo || c.nombre;
-    const _sub = c.apodo ? c.nombre : '';
     card.innerHTML = `
-      <div class="card-unified-box">
-      <div class="card-header-box">
-        <div class="card-top-row" style="margin-bottom:0">
-          <div class="card-top-left">
-            <div class="card-bank-name">${_titulo}</div>
-            ${_sub ? `<div class="card-sub">${_sub}</div>` : ''}
+      <div class="cc-header-box">
+        <div class="cc-header-top">
+          <div>
+            <div class="cc-bank-name">${c.nombre}</div>
+            <div class="cc-bank-subtitle">Cuenta de Débito</div>
+          </div>
+          <div style="display:flex;flex-direction:column;align-items:flex-end;gap:3px">
+            ${c.apodo ? `<div class="cc-alias">${c.apodo}</div>` : ''}
           </div>
         </div>
-      </div>
-      <div class="card-usage-box">
-        <div class="card-usage-stats">
-          <div class="card-stat-cell">
-            <div class="card-stat-text">
-              <div class="card-stat-label">Disponible</div>
-              <div class="card-stat-value" id="deb-disp-${i}">$${disp.toLocaleString('es-MX',{minimumFractionDigits:2})}</div>
-            </div>
+        ${c.terminacion ? `<div class="cc-number-row">•••• ${c.terminacion}</div>` : ''}
+        <div class="cc-header-bottom">
+          <div>
+            ${c.marca === 'visa' ? '<div class="cc-brand-visa">VISA</div>' : c.marca === 'mastercard' ? '<div class="cc-brand-mc"><span class="cc-mc-circle cc-mc-red"></span><span class="cc-mc-circle cc-mc-orange"></span></div>' : ''}
           </div>
-          <div class="card-info-divider"></div>
+          <div class="cc-saldo-block">
+            <div class="cc-saldo-label">Saldo disponible</div>
+            <div class="cc-saldo-val" id="deb-disp-${i}">$${disp.toLocaleString('es-MX',{minimumFractionDigits:2})}</div>
+          </div>
+        </div>
+      </div>`;
+    outer.appendChild(card);
+
+    const det = document.createElement('div');
+    det.className = 'bank-card';
+    det.innerHTML = `
+      <div class="card-unified-box">
+      <div class="card-merged-box">
+      <div class="card-usage-box resumen-box${_resumenGetColapsado() ? ' resumen-col' : ''}">
+        <div class="card-usage-head" role="button" aria-label="Contraer o expandir resumen general">
+          <div class="card-usage-title">Resumen general</div>
+          <svg class="card-usage-chev" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
+        </div>
+        <div class="resumen-collapse"><div class="resumen-inner">
+        <div class="card-usage-stats">
           <div class="card-stat-cell">
             <div class="card-stat-text">
               <div class="card-stat-label">Ingresos</div>
@@ -10063,35 +10239,20 @@ function buildCarruselDebito(){
               <div class="card-stat-value" id="deb-egr-${i}">$0.00</div>
             </div>
           </div>
+          <div class="card-info-divider"></div>
+          <div class="card-stat-cell">
+            <div class="card-stat-text">
+              <div class="card-stat-label">Cargos recurrentes</div>
+              <div class="card-stat-value" id="deb-cargos-${i}">$0.00</div>
+            </div>
+          </div>
         </div>
-        <div class="card-use-bar"><div class="card-use-fill" id="deb-bar-${i}" style="width:0%"></div></div>
-        <div class="card-usage-pct-row">
-          <span id="deb-pct-${i}">0% gastado</span>
-        </div>
+        </div></div>
       </div>
-      <div class="card-info-box">
-        <div class="card-info-cell">
-          <div class="card-info-icon">
-            <svg width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-          </div>
-          <div class="card-info-text">
-            <div class="card-info-label">Fecha de corte</div>
-            <div class="card-info-value">Día 1</div>
-          </div>
-        </div>
-        <div class="card-info-divider"></div>
-        <div class="card-info-cell">
-          <div class="card-info-icon">
-            <svg width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><polyline points="3 17 9 11 13 15 21 7"/><polyline points="14 7 21 7 21 14"/></svg>
-          </div>
-          <div class="card-info-text">
-            <div class="card-info-label">Gasto por día</div>
-            <div class="card-info-value">$<span id="deb-xdia-${i}">0.00</span></div>
-          </div>
-        </div>
       </div>
       </div>`;
-    outer.appendChild(card);
+    _resumenBind(det);
+    if(outerDet) outerDet.appendChild(det);
 
     const dot = document.createElement('div');
     dot.className = 'dot' + (i === 0 ? ' active' : '');
@@ -10119,6 +10280,14 @@ window.debGoTo = function(idx){
     c.style.opacity   = '';
     c.style.transform = '';
   });
+  const outerDet = document.getElementById('deb-cards-outer-detail');
+  if(outerDet){
+    outerDet.querySelectorAll('.bank-card').forEach((c, i) => {
+      const isActive = i === idx;
+      c.classList.toggle('active-card', isActive);
+      c.style.display = isActive ? 'flex' : 'none';
+    });
+  }
   const dots = document.getElementById('deb-dots').querySelectorAll('.dot');
   dots.forEach((d, i) => d.classList.toggle('active', i === idx));
   _renderDebMovimientos();
@@ -10202,6 +10371,8 @@ function _updateDebCards(){
     const dispEl = document.getElementById('deb-disp-' + i);
     if(ingEl)  ingEl.textContent  = '$' + fmt2(ingMes);
     if(egrEl)  egrEl.textContent  = '$' + fmt2(egrMes);
+    const cargosEl = document.getElementById('deb-cargos-' + i);
+    if(cargosEl) cargosEl.textContent = '$' + fmt2(_totalCargosDeb);
     if(dispEl) dispEl.textContent = '$' + fmt2(saldo);
     // Barra: egresos vs ingresos del mes
     const barEl = document.getElementById('deb-bar-' + i);
@@ -10585,6 +10756,18 @@ window.confirmarEliminarPerfil = async function(){
 <!-- ══ PANTALLA CUENTAS ══ -->
 <div class="screen hidden" id="screen-cuentas">
   <div style="width:100%">
+    <!-- Saludo -->
+    <div id="deb-saludo-header" style="display:flex;align-items:center;gap:12px;margin-bottom:16px">
+      <div style="flex:1;min-width:0">
+        <div style="font-size:14px;font-weight:500;color:var(--text)" id="deb-saludo-nombre">Hola, Usuario</div>
+        <div style="font-size:10px;color:var(--text-dim);margin-top:2px">Aquí tienes el resumen de tus finanzas</div>
+      </div>
+      <div style="height:38px;padding:0;display:flex;align-items:center;justify-content:center;gap:6px;color:var(--text);flex-shrink:0">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+        <span style="font-size:13px;font-weight:700;white-space:nowrap" id="deb-saludo-corte">Día 1</span>
+      </div>
+    </div>
+
     <!-- Sin cuentas -->
     <div id="cuentas-empty" style="display:none;text-align:center;padding:60px 24px">
       <div style="width:72px;height:72px;border-radius:24px;background:#111111;border:1px solid rgba(255,255,255,0.09);display:flex;align-items:center;justify-content:center;margin:0 auto 24px;box-shadow:0 8px 32px rgba(0,0,0,0.15)">
@@ -10598,6 +10781,7 @@ window.confirmarEliminarPerfil = async function(){
     <div id="cuentas-carrusel-wrap" style="margin-bottom:16px">
       <div class="cards-outer" id="deb-cards-outer" style="margin:0;border-radius:16px"></div>
       <div class="dots" id="deb-dots"></div>
+      <div class="cards-outer" id="deb-cards-outer-detail" style="margin:0;border-radius:16px"></div>
     </div>
 
     <!-- Últimos movimientos -->
@@ -11854,6 +12038,25 @@ window.confirmarEliminarPerfil = async function(){
     <div class="field-wrap">
       <div class="field-label">Cuenta</div>
       <div id="apodo-debito-edit-txt-ro" style="padding:12px 14px;border-radius:12px;border:1.5px solid #e8e8e8;font-size:15px;background:#f5f5f5;color:#555;cursor:default;font-weight:600"></div>
+    </div>
+    <div class="field-wrap">
+      <div class="field-label">Marca <span style="font-weight:400;color:var(--text-dim)">(opcional)</span></div>
+      <div style="display:flex;gap:8px">
+        <button type="button" id="marca-visa-debito-edit" onclick="seleccionarMarcaDeb('debito-edit','visa')"
+          style="flex:1;padding:12px;border-radius:12px;border:1.5px solid var(--border);background:var(--input-bg);color:var(--text-dim);font-size:14px;font-weight:700;font-style:italic;cursor:pointer;font-family:inherit">VISA</button>
+        <button type="button" id="marca-mc-debito-edit" onclick="seleccionarMarcaDeb('debito-edit','mastercard')"
+          style="flex:1;padding:12px;border-radius:12px;border:1.5px solid var(--border);background:var(--input-bg);color:var(--text-dim);font-size:13px;font-weight:700;cursor:pointer;font-family:inherit">Mastercard</button>
+      </div>
+      <input type="hidden" id="inp-marca-debito-edit" value=""/>
+    </div>
+    <div class="field-wrap">
+      <div class="field-label">Terminación (opcional)</div>
+      <div style="display:flex;align-items:center;gap:8px;padding:12px 14px;border-radius:12px;border:1.5px solid var(--border);background:var(--input-bg)">
+        <span style="color:var(--text-dim);font-size:15px;font-weight:600">••••</span>
+        <input id="inp-terminacion-debito-edit" type="text" inputmode="numeric" maxlength="4" placeholder="0000"
+          style="border:none;background:transparent;outline:none;font-size:15px;font-weight:600;color:var(--text);letter-spacing:2px;width:70px;font-family:inherit"
+          oninput="this.value=this.value.replace(/\D/g,'').slice(0,4)"/>
+      </div>
     </div>
     <div class="field-wrap">
       <div class="field-label">Saldo disponible <span style="font-weight:400;color:#aaa">(opcional)</span></div>
@@ -13314,6 +13517,25 @@ document.addEventListener('DOMContentLoaded', function(){
       <div class="ob-label">Cuenta</div>
       <input class="ob-input" id="inp-apodo-nc" placeholder="Ej. Nómina, Ahorros..." maxlength="30"
         onfocus="document.getElementById('banco-nc-scroll-wrap').style.display='none';"/>
+    </div>
+    <div class="ob-field">
+      <div class="ob-label">Marca <span style="font-weight:400;color:var(--text-dim)">(opcional)</span></div>
+      <div style="display:flex;gap:8px">
+        <button type="button" id="marca-visa-nc" onclick="seleccionarMarcaDeb('nc','visa')"
+          style="flex:1;padding:12px;border-radius:12px;border:1.5px solid var(--border);background:var(--input-bg);color:var(--text-dim);font-size:14px;font-weight:700;font-style:italic;cursor:pointer;font-family:inherit">VISA</button>
+        <button type="button" id="marca-mc-nc" onclick="seleccionarMarcaDeb('nc','mastercard')"
+          style="flex:1;padding:12px;border-radius:12px;border:1.5px solid var(--border);background:var(--input-bg);color:var(--text-dim);font-size:13px;font-weight:700;cursor:pointer;font-family:inherit">Mastercard</button>
+      </div>
+      <input type="hidden" id="inp-marca-nc" value=""/>
+    </div>
+    <div class="ob-field">
+      <div class="ob-label">Terminación (opcional)</div>
+      <div style="display:flex;align-items:center;gap:8px;padding:12px 14px;border-radius:12px;border:1.5px solid var(--border);background:var(--input-bg)">
+        <span style="color:var(--text-dim);font-size:15px;font-weight:600">••••</span>
+        <input id="inp-terminacion-nc" type="text" inputmode="numeric" maxlength="4" placeholder="0000" onfocus="document.getElementById('banco-nc-scroll-wrap').style.display='none';"
+          style="border:none;background:transparent;outline:none;font-size:15px;font-weight:600;color:var(--text);letter-spacing:2px;width:70px;font-family:inherit"
+          oninput="this.value=this.value.replace(/\D/g,'').slice(0,4)"/>
+      </div>
     </div>
     <div class="ob-field">
       <div class="ob-label">Saldo disponible</div>
