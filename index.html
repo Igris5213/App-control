@@ -367,14 +367,16 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
 .mov-item{background:transparent;border-radius:14px;padding:14px 12px;margin-bottom:10px;display:flex;align-items:center;gap:12px;border:1px solid var(--border);cursor:pointer;transition:background 0.2s,box-shadow 0.2s,transform 0.15s}
 .mov-item:last-child{margin-bottom:0}
 html.dark-mode .mov-item{background:#111111;border-color:rgba(255,255,255,0.09);box-shadow:0 2px 6px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.06)}
-#tarjetas-mov-section{border:1px solid rgba(0,0,0,0.08)}
-#cuentas-mov-section{border:1px solid rgba(0,0,0,0.08)}
-#recuadro-movimientos{border:1px solid rgba(0,0,0,0.08)}
-#deb-recuadro-movimientos{border:1px solid rgba(0,0,0,0.08)}
-html.dark-mode #tarjetas-mov-section{background:#090909;border-color:rgba(255,255,255,0.08);box-shadow:0 2px 6px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.06)}
-html.dark-mode #cuentas-mov-section{background:#090909;border-color:rgba(255,255,255,0.08);box-shadow:0 2px 6px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.06)}
-html.dark-mode #recuadro-movimientos{background:#090909;border-color:rgba(255,255,255,0.08)}
-html.dark-mode #deb-recuadro-movimientos{background:#090909;border-color:rgba(255,255,255,0.08)}
+#tarjetas-mov-section{background:none;border:none;box-shadow:none;padding:0}
+#cuentas-mov-section{background:none;border:none;box-shadow:none;padding:0}
+#recuadro-movimientos{background:none;border:none;box-shadow:none;padding:0}
+#deb-recuadro-movimientos{background:none;border:none;box-shadow:none;padding:0}
+html.dark-mode #tarjetas-mov-section{background:none;border:none;box-shadow:none;padding:0}
+html.dark-mode #cuentas-mov-section{background:none;border:none;box-shadow:none;padding:0}
+#tarjetas-mov-section .section-card-title,#cuentas-mov-section .section-card-title{padding-left:4px}
+html.dark-mode #recuadro-movimientos{background:none;border:none;box-shadow:none;padding:0}
+html.dark-mode #deb-recuadro-movimientos{background:none;border:none;box-shadow:none;padding:0}
+#deb-recuadro-movimientos .section-card-title{padding-left:4px}
 html.dark-mode .banco-selector-btn,html.dark-mode .banco-selector-btn.selected{background:#090909}
 html.dark-mode [id$="-scroll-wrap"],html.dark-mode #corte-edit-tarjeta-wrap{background:var(--input-bg)}
 html.dark-mode .hist-step.dd-open > .hist-step-head{background:linear-gradient(180deg,#1c1c1c,#0a0a0a)}
@@ -393,10 +395,16 @@ html.dark-mode #resumen-seleccion,html.dark-mode #deb-resumen{background:#111111
 .mov-item.selected .del-btn2{color:var(--mov-selected-text) !important}
 .mov-item.selected .edit-btn svg,.mov-item.selected .del-btn2 svg{stroke:var(--mov-selected-text)}
 .mov-icon{width:38px;height:38px;border-radius:50%;background:var(--icon-bg);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.mov-icon{display:none !important}
 .mov-info{flex:1;min-width:0}
 .mov-name{color:var(--text)}
 .mov-date{font-size:13px;color:var(--text-dim);font-weight:500}
 .mov-amount{font-size:15px;font-weight:700;color:var(--text);margin-right:4px;white-space:nowrap}
+.mov-info .mov-date{margin-bottom:2px}
+.mov-right{display:flex;flex-direction:column;align-items:flex-end;gap:5px;flex-shrink:0;margin-right:4px}
+.mov-right .mov-amount{margin-right:0}
+.mov-badge{font-size:11px;font-weight:600;line-height:1;padding:4px 9px;border-radius:999px;background:rgba(127,127,127,0.16);color:var(--text-dim);white-space:nowrap}
+.mov-item.selected .mov-badge{background:rgba(255,255,255,0.18);color:var(--mov-selected-text)}
 .mov-actions{display:flex;gap:4px;flex-shrink:0}
 .edit-btn,.del-btn2{background:none;border:none;cursor:pointer;padding:6px;border-radius:8px}
 .edit-btn{color:var(--text-dim)}.del-btn2{color:var(--text)}
@@ -3953,10 +3961,10 @@ function renderMovimientos(){
     return `<div class="mov-item" onclick="resaltarMov(this)" onmousedown="startLongPress(this)" onmouseup="cancelLongPress()" onmouseleave="cancelLongPress()" ontouchstart="startLongPress(this)" ontouchend="cancelLongPress()" ontouchmove="cancelLongPress()" data-id="${m.id}">
       <div class="mov-icon"><svg width="16" height="16" fill="none" stroke="var(--text)" stroke-width="2.5" viewBox="0 0 24 24"><line x1="12" y1="19" x2="12" y2="5"/><polyline points="5 12 12 19 19 12"/></svg></div>
       <div class="mov-info">
-        <div class="mov-name" style="font-weight:700">${_c3}</div>
         <div class="mov-date">${fmtDateShort(m.fecha,m.creadoEn)}</div>
+        <div class="mov-name" style="font-weight:700">${_c3}</div>
       </div>
-      <div class="mov-amount" style="color:var(--text-dim)">-${fmt(m.monto)}</div>
+      <div class="mov-right"><span class="mov-badge">Gasto</span><div class="mov-amount" style="color:var(--text-dim)">-${fmt(m.monto)}</div></div>
     </div>`;
   }).join('');
 
@@ -7368,10 +7376,10 @@ window.debSelMes = async function(mes){
           <svg width="16" height="16" fill="none" stroke="var(--text)" stroke-width="2.5" viewBox="0 0 24 24"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg>
         </div>
         <div class="mov-info">
+          <div class="mov-date">${fechaCD}</div>
           <div class="mov-name" style="font-weight:700">${c.nombre}</div>
-          <div class="mov-date">${fechaCD} — Cargo recurrente</div>
         </div>
-        <div class="mov-amount" style="color:var(--text-dim)">-$${Number(c.monto).toLocaleString('es-MX',{minimumFractionDigits:2})}</div>
+        <div class="mov-right"><span class="mov-badge">Cargo recurrente</span><div class="mov-amount" style="color:var(--text-dim)">-$${Number(c.monto).toLocaleString('es-MX',{minimumFractionDigits:2})}</div></div>
       </div>`;
     }).join('');
 
@@ -7396,10 +7404,10 @@ window.debSelMes = async function(mes){
             <svg class="${esIngreso?'mov-icon-ingreso':'mov-icon-egreso'}" width="16" height="16" fill="none" stroke="var(--text)" stroke-width="2.5" viewBox="0 0 24 24">${iconPath}</svg>
           </div>
           <div class="mov-info">
-            <div class="mov-name" style="font-weight:700">${concepto}</div>
             <div class="mov-date">${fechaStr}</div>
+            <div class="mov-name" style="font-weight:700">${concepto}</div>
           </div>
-          <div class="mov-amount" style="color:${color}">${signo}$${monto}</div>
+          <div class="mov-right"><span class="mov-badge">${esIngreso?'Ingreso':'Egreso'}</span><div class="mov-amount" style="color:${color}">${signo}$${monto}</div></div>
         </div>`;
     }).join('');
   } catch(err) {
@@ -7558,10 +7566,10 @@ function renderMovimientosFull(tarjetaId){
     return `<div class="mov-item" onclick="resaltarMov(this)" onmousedown="startLongPress(this)" onmouseup="cancelLongPress()" onmouseleave="cancelLongPress()" ontouchstart="startLongPress(this)" ontouchend="cancelLongPress()" ontouchmove="cancelLongPress()" data-id="${m.id}">
       <div class="mov-icon"><svg width="16" height="16" fill="none" stroke="var(--text)" stroke-width="2.5" viewBox="0 0 24 24"><line x1="12" y1="19" x2="12" y2="5"/><polyline points="5 12 12 19 19 12"/></svg></div>
       <div class="mov-info">
-        <div class="mov-name" style="font-weight:700">${_c2}</div>
         <div class="mov-date">${fmtDateShort(m.fecha,m.creadoEn)}</div>
+        <div class="mov-name" style="font-weight:700">${_c2}</div>
       </div>
-      <div class="mov-amount" style="color:var(--text-dim)">-${fmt(m.monto)}</div>
+      <div class="mov-right"><span class="mov-badge">Gasto</span><div class="mov-amount" style="color:var(--text-dim)">-${fmt(m.monto)}</div></div>
     </div>`;
   }).join('');
 }
@@ -9810,10 +9818,10 @@ window.confirmarBusquedaHistorial = function(){
         <svg width="14" height="14" fill="none" stroke="#fff" stroke-width="2" viewBox="0 0 24 24"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/><circle cx="18" cy="15" r="2"/></svg>
       </div>
       <div class="mov-info">
-        <div class="mov-name" style="font-weight:700">${p.nombre||'Promoción'}</div>
         <div class="mov-date">${mesPago} de ${p.meses} — ${fmtDateShort(fechaPromoStr, null)}</div>
+        <div class="mov-name" style="font-weight:700">${p.nombre||'Promoción'}</div>
       </div>
-      <div class="mov-amount" style="color:var(--text)">-${fmt(p.mensualidad||p.importe/p.meses)}</div>
+      <div class="mov-right"><span class="mov-badge">Promoción a meses</span><div class="mov-amount" style="color:var(--text)">-${fmt(p.mensualidad||p.importe/p.meses)}</div></div>
     </div>`;
   }).join('');
 
@@ -9827,10 +9835,10 @@ window.confirmarBusquedaHistorial = function(){
     return `<div class="mov-item" onclick="resaltarMov(this)" onmousedown="startLongPress(this)" onmouseup="cancelLongPress()" onmouseleave="cancelLongPress()" ontouchstart="startLongPress(this)" ontouchend="cancelLongPress()" ontouchmove="cancelLongPress()" data-id="${m.id}">
       <div class="mov-icon"><svg width="16" height="16" fill="none" stroke="var(--text)" stroke-width="2.5" viewBox="0 0 24 24"><line x1="12" y1="19" x2="12" y2="5"/><polyline points="5 12 12 19 19 12"/></svg></div>
       <div class="mov-info">
-        <div class="mov-name" style="font-weight:700">${_cx}</div>
         <div class="mov-date">${fmtDateShort(m.fecha, m.creadoEn)}</div>
+        <div class="mov-name" style="font-weight:700">${_cx}</div>
       </div>
-      <div class="mov-amount" style="color:var(--text-dim)">-${fmt(m.monto)}</div>
+      <div class="mov-right"><span class="mov-badge">Gasto</span><div class="mov-amount" style="color:var(--text-dim)">-${fmt(m.monto)}</div></div>
     </div>`;
   }).join('');
 }
@@ -9997,10 +10005,10 @@ window.aceptarConfirmHist = function(){
           <svg width="16" height="16" fill="none" stroke="var(--text)" stroke-width="2.5" viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/></svg>
         </div>
         <div class="mov-info">
-          <div class="mov-name" style="font-weight:700">${p.nombre||'Promoción'}</div>
           <div class="mov-date">${fmtDateShort(_fpStr, null)} — ${_mp} de ${p.meses}</div>
+          <div class="mov-name" style="font-weight:700">${p.nombre||'Promoción'}</div>
         </div>
-        <div class="mov-amount" style="color:var(--text)">-${fmt(p.mensualidad||p.importe/p.meses)}</div>
+        <div class="mov-right"><span class="mov-badge">Promoción a meses</span><div class="mov-amount" style="color:var(--text)">-${fmt(p.mensualidad||p.importe/p.meses)}</div></div>
       </div>`;
     }).join('');
 
@@ -10036,10 +10044,10 @@ window.aceptarConfirmHist = function(){
           <svg width="16" height="16" fill="none" stroke="var(--text)" stroke-width="2.5" viewBox="0 0 24 24"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg>
         </div>
         <div class="mov-info">
+          <div class="mov-date">${_fechaC}</div>
           <div class="mov-name" style="font-weight:700">${c.nombre}</div>
-          <div class="mov-date">${_fechaC} — Cargo recurrente</div>
         </div>
-        <div class="mov-amount" style="color:var(--text)">-${fmt(c.monto)}</div>
+        <div class="mov-right"><span class="mov-badge">Cargo recurrente</span><div class="mov-amount" style="color:var(--text)">-${fmt(c.monto)}</div></div>
       </div>`;
     }).join('');
 
@@ -10052,10 +10060,10 @@ window.aceptarConfirmHist = function(){
       return `<div class="mov-item" onclick="resaltarMov(this)" onmousedown="startLongPress(this)" onmouseup="cancelLongPress()" onmouseleave="cancelLongPress()" ontouchstart="startLongPress(this)" ontouchend="cancelLongPress()" ontouchmove="cancelLongPress()" data-id="${m.id}">
         <div class="mov-icon"><svg width="16" height="16" fill="none" stroke="var(--text)" stroke-width="2.5" viewBox="0 0 24 24"><line x1="12" y1="19" x2="12" y2="5"/><polyline points="5 12 12 19 19 12"/></svg></div>
         <div class="mov-info">
-          <div class="mov-name" style="font-weight:700">${_cy}</div>
           <div class="mov-date">${fmtDateShort(m.fecha,m.creadoEn)}</div>
+          <div class="mov-name" style="font-weight:700">${_cy}</div>
         </div>
-        <div class="mov-amount" style="color:var(--text-dim)">-${fmt(m.monto)}</div>
+        <div class="mov-right"><span class="mov-badge">Gasto</span><div class="mov-amount" style="color:var(--text-dim)">-${fmt(m.monto)}</div></div>
       </div>`;
     }).join('');
 
@@ -10593,10 +10601,10 @@ function _renderDebMovimientos(){
           <svg class="${esIngreso?'mov-icon-ingreso':'mov-icon-egreso'}" width="16" height="16" fill="none" stroke="var(--text)" stroke-width="2.5" viewBox="0 0 24 24">${iconPath}</svg>
         </div>
         <div class="mov-info">
-          <div class="mov-name" style="font-weight:700">${concepto}</div>
           <div class="mov-date">${fechaStr}</div>
+          <div class="mov-name" style="font-weight:700">${concepto}</div>
         </div>
-        <div class="mov-amount" style="color:${esIngreso?'var(--text)':'var(--text-dim)'}">${signo}$${monto}</div>
+        <div class="mov-right"><span class="mov-badge">${esIngreso?'Ingreso':'Egreso'}</span><div class="mov-amount" style="color:${esIngreso?'var(--text)':'var(--text-dim)'}">${signo}$${monto}</div></div>
 
       </div>`;
   }).join('');
@@ -11880,7 +11888,7 @@ window.openModalClasico = function(){
       finalizar:()=>window.guardarPromo()
     },
     tarjeta: {
-      titulo:'Nueva tarjeta de crédito', icono:()=>ICONO_TARJETA,
+      titulo:'Nueva tarjeta de crédito', icono:()=>'',
       pasos:[P.bancoTarjeta, P.apodoTarjeta, P.marca, P.terminacion, P.corte, P.limite],
       ids:{banco:'inp-banco-ob-prf', apodo:'inp-apodo-ob-prf', marca:'inp-marca-ob-prf', terminacion:'inp-terminacion-ob-prf', dia:'inp-corte-ob-prf', monto:'inp-limite-ob-prf'},
       bancos:()=>window.BANCOS_OB || BANCOS_TARJETA,
@@ -11929,7 +11937,7 @@ window.openModalClasico = function(){
       }
     },
     cuenta: {
-      titulo:'Nueva cuenta de débito', icono:()=>ICONO_CUENTA,
+      titulo:'Nueva cuenta de débito', icono:()=>'',
       pasos:[P.bancoCuenta, P.bancoOtro, P.apodoCuenta, P.marcaCuenta, P.terminacion, P.saldo],
       ids:{banco:'inp-banco-nc', bancoOtro:'inp-banco-nc-otro', apodo:'inp-apodo-nc', marca:'inp-marca-nc', terminacion:'inp-terminacion-nc', monto:'inp-disponible-nc'},
       bancos:()=>window._BANCOS_LIST || BANCOS_CUENTA,
@@ -12101,7 +12109,6 @@ window.openModalClasico = function(){
   function tipoHTML(){
     const opc = (v, titulo, sub, svg) =>
       '<button type="button" class="gw-tipo'+(_debitoTipo === v ? ' sel' : '')+'" data-tipo="'+v+'" onclick="gwSelTipo(\''+v+'\')">'
-      + '<span class="gw-tipo-ic"><svg width="18" height="18" fill="none" stroke="#fff" stroke-width="2.4" viewBox="0 0 24 24">'+svg+'</svg></span>'
       + '<span><span class="gw-tipo-t">'+titulo+'</span><span class="gw-tipo-s">'+sub+'</span></span></button>';
     return opc('ingreso','Ingreso','Dinero que entra a la cuenta',SVG_ING) + opc('egreso','Egreso','Dinero que sale de la cuenta',SVG_EGR);
   }
