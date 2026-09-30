@@ -455,7 +455,6 @@ html.dark-mode #deb-btn-nueva-busqueda,
 html.dark-mode #btn-nueva-busqueda{background:#090909!important;border:1px solid rgba(255,255,255,0.08)!important}
 html.dark-mode #modal-confirm-mov.open{background:rgba(0,0,0,0.95);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}
 html.dark-mode #modal-confirm-mov-box{--card-bg:#090909;--card-bg-soft:#111111;--border:rgba(255,255,255,0.09);border:1px solid rgba(255,255,255,0.08)}
-html.dark-mode #confirm-mov-panel{box-shadow:0 2px 6px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.06)!important}
 html.dark-mode #modal-confirm-mov-box .btn-flat-cancel,
 html.dark-mode #confirm-mov-ok-btn{background:#111111!important;border-color:rgba(255,255,255,0.09)!important;box-shadow:0 2px 6px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.06)!important}
 html.dark-mode #modal-promo-overlay .modal{--card-bg:#090909;--card-bg-soft:#111111;--input-bg:#111111;--border:rgba(255,255,255,0.09);border:1px solid rgba(255,255,255,0.08)}
@@ -744,8 +743,8 @@ html.dark-mode #modal-gasto-wizard .modal .btn-flat-confirm{background:var(--car
 #modal-gasto-wizard .gw-head .modal-title{margin-bottom:0;flex:1;min-width:0;font-size:17px;line-height:1.2}
 #modal-gasto-wizard .gw-head .gw-close{margin-left:10px}
 #modal-gasto-wizard .gw-close{width:32px;height:32px;border-radius:50%;border:1.5px solid var(--border);background:var(--card-bg-soft);color:var(--text-dim);display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;padding:0}
-#modal-detalle-gasto .dg-close,#modal-detalle-promo .dg-close,#modal-detalle-cargo .dg-close,#modal-perfil-acciones .dg-close{width:32px;height:32px;border-radius:50%;border:1.5px solid var(--border);background:var(--card-bg-soft);color:var(--text-dim);display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;padding:0}
-#modal-detalle-gasto .dg-close:active,#modal-detalle-promo .dg-close:active,#modal-detalle-cargo .dg-close:active,#modal-perfil-acciones .dg-close:active{transform:scale(0.92)}
+#modal-detalle-gasto .dg-close,#modal-detalle-promo .dg-close,#modal-detalle-cargo .dg-close,#modal-perfil-acciones .dg-close,#modal-confirm-mov .dg-close{width:32px;height:32px;border-radius:50%;border:1.5px solid var(--border);background:var(--card-bg-soft);color:var(--text-dim);display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;padding:0}
+#modal-detalle-gasto .dg-close:active,#modal-detalle-promo .dg-close:active,#modal-detalle-cargo .dg-close:active,#modal-perfil-acciones .dg-close:active,#modal-confirm-mov .dg-close:active{transform:scale(0.92)}
 #modal-gasto-wizard .gw-progress{display:flex;gap:6px;margin-bottom:18px}
 #modal-gasto-wizard .gw-dot{flex:1;height:4px;border-radius:2px;background:var(--border);transition:background 0.25s ease}
 #modal-gasto-wizard .gw-dot.done{background:var(--text-dim)}
@@ -1131,6 +1130,11 @@ html.dark-mode .success-overlay.show{background:rgba(0,0,0,0.95);backdrop-filter
 .modal-overlay{
   z-index:1000;
 }
+
+/* ── iPhone: subir los modales por encima del teclado ── */
+.modal-overlay{padding-bottom:var(--kb,0px);box-sizing:border-box}
+html.kb-open .modal-overlay{transition:opacity 0.3s,padding-bottom 0.2s ease}
+html.kb-open .modal{margin-bottom:8px;max-height:calc(100% - 12px);overflow-y:auto;-webkit-overflow-scrolling:touch}
 
 
 .save-btn-main + .save-btn-main{
@@ -4102,7 +4106,7 @@ window._confirmMovCtx = null; // 'credito' | 'debito' | 'ext'
 window._aplicarColorConfirmMov = function _aplicarColorConfirmMov(){
   const btn = document.getElementById('confirm-mov-ok-btn');
   if(!btn) return;
-  if(window._confirmMovCtx === 'credito' || window._confirmMovCtx === 'ext'){
+  if(window._confirmMovCtx === 'credito' || window._confirmMovCtx === 'ext' || window._confirmMovCtx === 'nueva-tarjeta'){
     btn.style.background = 'linear-gradient(180deg,var(--card-bg-soft),var(--bg))';
     btn.style.color = 'var(--text)';
     btn.style.border = '1.5px solid var(--border)';
@@ -4194,21 +4198,18 @@ window.guardar = async function(){
 
   window._confirmMovCtx = 'credito';
 
-  // Llenar modal de confirmación
-  document.getElementById('confirm-mov-titulo').textContent = 'Nuevo movimiento - Crédito';
-  document.getElementById('confirm-mov-tarjeta-label').textContent = 'Tarjeta';
-  document.getElementById('confirm-mov-tarjeta').textContent = t.nombre + (t.apodo ? ' · ' + t.apodo : '');
-  document.getElementById('confirm-mov-fecha').textContent = fechaLegible;
-  document.getElementById('confirm-mov-monto').textContent = '$' + monto.toLocaleString('es-MX', {minimumFractionDigits:2, maximumFractionDigits:2});
-
-  const rowComercio = document.getElementById('confirm-mov-row-comercio');
-  const rowConcepto = document.getElementById('confirm-mov-row-concepto');
-  const rowDetallCC = document.getElementById('confirm-mov-row-detalle');
-  rowComercio.style.display = comercio ? 'flex' : 'none';
-  rowConcepto.style.display = concepto ? 'flex' : 'none';
-  if(rowDetallCC) rowDetallCC.style.display = 'none';
-  document.getElementById('confirm-mov-comercio').textContent = comercio;
-  document.getElementById('confirm-mov-concepto').textContent = concepto;
+  // Llenar modal de confirmación (mismo formato que el detalle de movimiento)
+  document.getElementById('confirm-mov-banco').textContent = t.nombre || 'Tarjeta';
+  const _apodoElC = document.getElementById('confirm-mov-apodo');
+  _apodoElC.textContent = t.apodo || '';
+  _apodoElC.style.display = t.apodo ? 'inline-block' : 'none';
+  document.getElementById('confirm-mov-body').innerHTML = window._htmlResumenMov({
+    tipoTxt:  'Gasto',
+    fecha:    fechaLegible,
+    concepto: comercio || concepto || '—',
+    detalle:  (comercio && concepto) ? concepto : '',
+    importe:  '$' + monto.toLocaleString('es-MX', {minimumFractionDigits:2, maximumFractionDigits:2})
+  });
 
   // Cerrar modal formulario (y asistente) y abrir confirmación
   document.getElementById('modal-edit-cred').classList.remove('open');
@@ -4235,6 +4236,22 @@ window._cancelarConfirmMov = function(e){
     document.getElementById('modal-debito-overlay').classList.add('open');
   }
   else if(ctx === 'ext')    window._reabrirModalExt();
+  else if(ctx === 'nueva-cuenta'){
+    if(document.getElementById('modal-gasto-wizard') && typeof window.gwReabrir === 'function') window.gwReabrir('cuenta');
+    else document.getElementById('modal-nueva-cuenta').classList.add('open');
+  }
+  else if(ctx === 'nueva-tarjeta'){
+    if(document.getElementById('modal-gasto-wizard') && typeof window.gwReabrir === 'function') window.gwReabrir('tarjeta');
+    else document.getElementById('modal-nueva-tarjeta').classList.add('open');
+  }
+  else if(ctx === 'promo'){
+    if(document.getElementById('modal-gasto-wizard') && typeof window.gwReabrir === 'function') window.gwReabrir('promo');
+    else document.getElementById('modal-promo-overlay').classList.add('open');
+  }
+  else if(ctx === 'cargo'){
+    if(document.getElementById('modal-gasto-wizard') && typeof window.gwReabrir === 'function') window.gwReabrir(_cargoTipo === 'debito' ? 'cargodeb' : 'cargo');
+    else document.getElementById('modal-cargo-recurrente').classList.add('open');
+  }
 }
 
 window._ejecutarGuardarMov = async function(){
@@ -4280,6 +4297,18 @@ window._ejecutarGuardarMov = async function(){
   } else if(window._confirmMovCtx === 'ext'){
     await _ejecutarGuardarExtDB();
     window.showSuccess('Movimiento registrado', '');
+  } else if(window._confirmMovCtx === 'nueva-cuenta'){
+    await window._confirmarNuevaCuentaDebito();
+    window.showSuccess('Cuenta registrada', '');
+  } else if(window._confirmMovCtx === 'nueva-tarjeta'){
+    await window._confirmarNuevaTarjetaCredito();
+    window.showSuccess('Tarjeta registrada', '');
+  } else if(window._confirmMovCtx === 'promo'){
+    await window._confirmarNuevaPromo();
+    window.showSuccess('Promoción guardada', '');
+  } else if(window._confirmMovCtx === 'cargo'){
+    await window._confirmarNuevoCargo();
+    window.showSuccess('Cargo recurrente guardado', '');
   }
 
   btn.disabled = false;
@@ -4359,6 +4388,34 @@ window._htmlResumenPromo = function(p){
 };
 
 // Resumen de eliminar cargo recurrente: mismo diseño que el de movimiento y promoción
+// Resumen de nueva tarjeta de crédito: mismo diseño que el detalle de movimiento
+// (banco/apodo en encabezado, recuadro de datos con iconos y recuadro aparte para el límite)
+window._htmlResumenNuevaTarjeta = function(t){
+  const esc = v => String(v == null ? '' : v).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  const ico = d => '<svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">' + d + '</svg>';
+  const icoCard = ico('<rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/>');
+  const icoHash = ico('<line x1="4" y1="9" x2="20" y2="9"/><line x1="4" y1="15" x2="20" y2="15"/><line x1="10" y1="3" x2="8" y2="21"/><line x1="16" y1="3" x2="14" y2="21"/>');
+  const icoCal  = ico('<rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>');
+  const icoWal  = ico('<path d="M21 12V7H5a2 2 0 0 1 0-4h14v4"/><path d="M3 5v14a2 2 0 0 0 2 2h16v-5"/><path d="M18 12a2 2 0 0 0 0 4h4v-4Z"/>');
+  const panel = 'background:var(--card-bg-soft);border:1px solid var(--border);border-radius:16px;padding:2px 16px;box-shadow:0 2px 6px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.06)';
+  const fila = (icono, label, valor, conBorde) =>
+      '<div style="display:flex;align-items:center;justify-content:space-between;gap:12px;padding:8px 0' + (conBorde ? ';border-bottom:1px solid var(--border)' : '') + '">'
+    + '<div style="display:flex;align-items:center;gap:12px;color:var(--text-dim)">'
+    + '<div style="width:20px;height:20px;display:flex;align-items:center;justify-content:center;flex-shrink:0;color:var(--text-dim)">' + icono + '</div>'
+    + '<span style="font-size:14px;font-weight:500;color:var(--text-dim)">' + label + '</span>'
+    + '</div>'
+    + '<span style="font-size:14px;font-weight:700;color:var(--text);text-align:right;max-width:55%">' + esc(valor) + '</span>'
+    + '</div>';
+  const marcaTxt = t.marca ? (t.marca === 'visa' ? 'VISA' : 'Mastercard') : '';
+  const items = [];
+  if(marcaTxt)       items.push([icoCard, 'Marca', marcaTxt]);
+  if(t.terminacion)  items.push([icoHash, 'Terminación', '•••• ' + t.terminacion]);
+  items.push([icoCal, 'Fecha de corte', t.corte ? 'Día ' + t.corte : '—']);
+  const filas = items.map((it,i)=>fila(it[0], it[1], it[2], i < items.length-1)).join('');
+  return '<div style="' + panel + ';margin-bottom:12px">' + filas + '</div>'
+       + '<div style="' + panel + '">' + fila(icoWal, 'Límite de gasto', fmt(t.limite || 0), false) + '</div>';
+};
+
 window._htmlResumenCargo = function(c){
   const esc = v => String(v == null ? '' : v).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
   const ico = d => '<svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">' + d + '</svg>';
@@ -4409,6 +4466,33 @@ window._htmlResumenTarjeta = function(t){
               + fila(icoCal, 'Fecha de corte', t.corte ? 'Día ' + t.corte : '—', false);
   return '<div style="' + panel + ';margin-bottom:12px">' + filas + '</div>'
        + '<div style="' + panel + '">' + fila(icoWal, 'Límite de gasto', fmt(t.limite || 0), false) + '</div>';
+};
+
+// Resumen de nueva tarjeta de débito: mismo diseño que el detalle de movimiento
+// (banco/apodo en encabezado, recuadro de datos con iconos y recuadro aparte para el disponible)
+window._htmlResumenNuevaCuenta = function(c){
+  const esc = v => String(v == null ? '' : v).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  const ico = d => '<svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">' + d + '</svg>';
+  const icoCard = ico('<rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/>');
+  const icoHash = ico('<line x1="4" y1="9" x2="20" y2="9"/><line x1="4" y1="15" x2="20" y2="15"/><line x1="10" y1="3" x2="8" y2="21"/><line x1="16" y1="3" x2="14" y2="21"/>');
+  const icoWal  = ico('<path d="M21 12V7H5a2 2 0 0 1 0-4h14v4"/><path d="M3 5v14a2 2 0 0 0 2 2h16v-5"/><path d="M18 12a2 2 0 0 0 0 4h4v-4Z"/>');
+  const panel = 'background:var(--card-bg-soft);border:1px solid var(--border);border-radius:16px;padding:2px 16px;box-shadow:0 2px 6px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.06)';
+  const fila = (icono, label, valor, conBorde) =>
+      '<div style="display:flex;align-items:center;justify-content:space-between;gap:12px;padding:8px 0' + (conBorde ? ';border-bottom:1px solid var(--border)' : '') + '">'
+    + '<div style="display:flex;align-items:center;gap:12px;color:var(--text-dim)">'
+    + '<div style="width:20px;height:20px;display:flex;align-items:center;justify-content:center;flex-shrink:0;color:var(--text-dim)">' + icono + '</div>'
+    + '<span style="font-size:14px;font-weight:500;color:var(--text-dim)">' + label + '</span>'
+    + '</div>'
+    + '<span style="font-size:14px;font-weight:700;color:var(--text);text-align:right;max-width:55%">' + esc(valor) + '</span>'
+    + '</div>';
+  const marcaTxt = c.marca ? (c.marca === 'visa' ? 'VISA' : 'Mastercard') : '';
+  const items = [];
+  if(marcaTxt)      items.push([icoCard, 'Marca', marcaTxt]);
+  if(c.terminacion) items.push([icoHash, 'Terminación', '•••• ' + c.terminacion]);
+  const datos = items.length
+    ? '<div style="' + panel + ';margin-bottom:12px">' + items.map((it,i)=>fila(it[0], it[1], it[2], i < items.length-1)).join('') + '</div>'
+    : '';
+  return datos + '<div style="' + panel + '">' + fila(icoWal, 'Saldo disponible', fmt(c.disponible || 0), false) + '</div>';
 };
 
 // Resumen de eliminar cuenta de débito: mismo diseño que el de movimiento, promoción, cargo y tarjeta
@@ -6119,30 +6203,34 @@ window.guardarNuevaTarjetaModal = async function(){
   document.getElementById('modal-nueva-tarjeta').classList.remove('open');
   const _gwOvTarjeta = document.getElementById('modal-gasto-wizard');
   if(_gwOvTarjeta) _gwOvTarjeta.classList.remove('open');
-  window._resumenMovCtx = 'nueva-tarjeta';
-  const valores = [
-    {campo:'Banco', valor: banco},
-    {campo:'Apodo', valor: apodo || '—'},
-    ...(marca ? [{campo:'Marca', valor: marca === 'visa' ? 'VISA' : 'Mastercard'}] : []),
-    ...(terminacion ? [{campo:'Terminación', valor: '•••• ' + terminacion}] : []),
-    {campo:'Fecha de corte', valor: 'Día ' + corte},
-    {campo:'Límite', valor: fmt(limite), resaltar:true}
-  ];
-  _mostrarResumenSimple('Nueva tarjeta - Crédito', 'Revisa los datos antes de guardar', valores, async function(){
-    if(!perfil.tarjetas) perfil.tarjetas = [];
-    const nueva = {
-      id: Date.now()+'_'+Math.random().toString(36).substr(2,9),
-      nombre: banco, apodo, corte, limite, marca, terminacion
-    };
-    perfil.tarjetas.push(nueva);
-    try{
-      await setDoc(doc(db,'usuarios', currentUser.uid, 'perfil','datos'), perfil);
-      window.perfil = perfil;
-      cerrarModalNuevaTarjeta();
-      buildCarrusel();
-      renderPerfiles();
-    } catch(e){ showToast('❌ Error al guardar'); }
-  }, 'Tarjeta registrada');
+  // Resumen con el mismo formato que el detalle de movimiento (banco/apodo + filas con iconos)
+  window._confirmMovCtx = 'nueva-tarjeta';
+  window._nuevaTarjetaPendiente = {
+    id: Date.now()+'_'+Math.random().toString(36).substr(2,9),
+    nombre: banco, apodo, corte, limite, marca, terminacion
+  };
+  document.getElementById('confirm-mov-banco').textContent = banco;
+  const _apodoElNT = document.getElementById('confirm-mov-apodo');
+  _apodoElNT.textContent = apodo || '';
+  _apodoElNT.style.display = apodo ? 'inline-block' : 'none';
+  document.getElementById('confirm-mov-body').innerHTML = window._htmlResumenNuevaTarjeta(window._nuevaTarjetaPendiente);
+  _aplicarColorConfirmMov();
+  document.getElementById('modal-confirm-mov').classList.add('open');
+};
+
+window._confirmarNuevaTarjetaCredito = async function(){
+  const nueva = window._nuevaTarjetaPendiente;
+  if(!nueva) return;
+  if(!perfil.tarjetas) perfil.tarjetas = [];
+  perfil.tarjetas.push(nueva);
+  try{
+    await setDoc(doc(db,'usuarios', currentUser.uid, 'perfil','datos'), perfil);
+    window.perfil = perfil;
+    cerrarModalNuevaTarjeta();
+    buildCarrusel();
+    renderPerfiles();
+  } catch(e){ showToast('❌ Error al guardar'); }
+  window._nuevaTarjetaPendiente = null;
 };
 
 window.toggleScrollBancoNuevaCuenta = function(){
@@ -6211,29 +6299,34 @@ window.guardarNuevaCuentaModal = async function(){
   document.getElementById('modal-nueva-cuenta').classList.remove('open');
   const _gwOvCuenta = document.getElementById('modal-gasto-wizard');
   if(_gwOvCuenta) _gwOvCuenta.classList.remove('open');
-  window._resumenMovCtx = 'nueva-cuenta';
-  const valores = [
-    {campo:'Banco', valor: nombre},
-    {campo:'Apodo', valor: apodo || '—'},
-    ...(marca ? [{campo:'Marca', valor: marca === 'visa' ? 'VISA' : 'Mastercard'}] : []),
-    ...(terminacion ? [{campo:'Terminación', valor: '•••• ' + terminacion}] : []),
-    {campo:'Disponible', valor: fmt(disp), resaltar:true}
-  ];
-  _mostrarResumenSimple('Nueva tarjeta - Débito', 'Revisa los datos antes de guardar', valores, async function(){
-    if(!perfil.cuentasDebito) perfil.cuentasDebito = [];
-    const nueva = {
-      id: Date.now()+'_'+Math.random().toString(36).substr(2,9),
-      tipoCuenta: 'debito', nombre, apodo, disponible: disp, marca, terminacion, color: 'card-color-0'
-    };
-    perfil.cuentasDebito.push(nueva);
-    try{
-      await setDoc(doc(db,'usuarios', currentUser.uid, 'perfil','datos'), perfil);
-      window.perfil = perfil;
-      cerrarModalNuevaCuenta();
-      buildCarruselDebito();
-      renderPerfiles();
-    } catch(e){ showToast('❌ Error al guardar'); }
-  }, 'Cuenta registrada');
+  // Resumen con el mismo formato que el detalle de movimiento (banco/apodo + filas con iconos)
+  window._confirmMovCtx = 'nueva-cuenta';
+  window._nuevaCuentaPendiente = {
+    id: Date.now()+'_'+Math.random().toString(36).substr(2,9),
+    tipoCuenta: 'debito', nombre, apodo, disponible: disp, marca, terminacion, color: 'card-color-0'
+  };
+  document.getElementById('confirm-mov-banco').textContent = nombre;
+  const _apodoElNC = document.getElementById('confirm-mov-apodo');
+  _apodoElNC.textContent = apodo || '';
+  _apodoElNC.style.display = apodo ? 'inline-block' : 'none';
+  document.getElementById('confirm-mov-body').innerHTML = window._htmlResumenNuevaCuenta(window._nuevaCuentaPendiente);
+  _aplicarColorConfirmMov();
+  document.getElementById('modal-confirm-mov').classList.add('open');
+};
+
+window._confirmarNuevaCuentaDebito = async function(){
+  const nueva = window._nuevaCuentaPendiente;
+  if(!nueva) return;
+  if(!perfil.cuentasDebito) perfil.cuentasDebito = [];
+  perfil.cuentasDebito.push(nueva);
+  try{
+    await setDoc(doc(db,'usuarios', currentUser.uid, 'perfil','datos'), perfil);
+    window.perfil = perfil;
+    cerrarModalNuevaCuenta();
+    buildCarruselDebito();
+    renderPerfiles();
+  } catch(e){ showToast('❌ Error al guardar'); }
+  window._nuevaCuentaPendiente = null;
 };
 
 window.toggleEdicionCredito = function(){
@@ -8929,15 +9022,28 @@ window.guardarCargoRecurrente = async function(){
     return;
   }
 
-  _mostrarResumenSimple('Cargo recurrente · ' + (_cargoTipo === 'credito' ? 'Crédito' : 'Débito'), 'Revisa los datos antes de guardar', valores, async function(){
-    try{
-      const datos = { nombre, monto, dia, tipo, banco, tarjetaId, cuentaId, creadoEn: Date.now(), activo: true };
-      const docRef = await addDoc(collection(db,'usuarios', currentUser.uid, 'cargosRecurrentes'), datos);
-      cargosRecurrentesCache = [...cargosRecurrentesCache, {...datos, id: docRef.id}];
-      cerrarCargoRecurrente();
-      renderCargosRecurrentes();
-    }catch(e){ showToast('❌ Error al guardar'); }
-  }, 'Cargo recurrente guardado');
+  // Resumen con el mismo formato que el detalle de movimiento (banco/tarjeta + X, filas con iconos)
+  window._confirmMovCtx = 'cargo';
+  window._cargoDatosPendiente = { nombre, monto, dia, tipo, banco, tarjetaId, cuentaId, creadoEn: Date.now(), activo: true };
+  document.getElementById('confirm-mov-banco').textContent = banco || 'Banco';
+  const _apodoElCg = document.getElementById('confirm-mov-apodo');
+  _apodoElCg.textContent = cuentaTxt !== '—' ? cuentaTxt : '';
+  _apodoElCg.style.display = (cuentaTxt !== '—') ? 'inline-block' : 'none';
+  document.getElementById('confirm-mov-body').innerHTML = window._htmlResumenCargo(window._cargoDatosPendiente);
+  _aplicarColorConfirmMov();
+  document.getElementById('modal-confirm-mov').classList.add('open');
+};
+
+window._confirmarNuevoCargo = async function(){
+  const datos = window._cargoDatosPendiente;
+  if(!datos) return;
+  try{
+    const docRef = await addDoc(collection(db,'usuarios', currentUser.uid, 'cargosRecurrentes'), datos);
+    cargosRecurrentesCache = [...cargosRecurrentesCache, {...datos, id: docRef.id}];
+    cerrarCargoRecurrente();
+    renderCargosRecurrentes();
+  }catch(e){ showToast('❌ Error al guardar'); }
+  window._cargoDatosPendiente = null;
 };
 
 async function renderCargosRecurrentes(){
@@ -9254,30 +9360,38 @@ window.guardarPromo = async function(){
   document.getElementById('modal-promo-overlay').classList.remove('open');
   const _gwOvPromo = document.getElementById('modal-gasto-wizard');
   if(_gwOvPromo) _gwOvPromo.classList.remove('open');
-  window._resumenMovCtx = 'nueva-promo';
-  const valores = [
-    {campo:'Banco', valor: promoBancoSel},
-    {campo:'Tarjeta', valor: t?.apodo||t?.nombre||'—'},
-    {campo:'Comercio', valor: comercio || '—'},
-    {campo:'Compra', valor: nombre},
-    {campo:'Meses sin intereses', valor: meses + ' meses'},
-    {campo:'Importe total', valor: fmt(importe), resaltar:true}
-  ];
-  _mostrarResumenSimple('Nueva promoción MSI', 'Revisa los datos antes de guardar', valores, async function(){
-    try{
-      const docRef = await addDoc(collection(db,'usuarios', currentUser.uid, 'promociones'), datos);
-      // Agregar al cache local inmediatamente con el id real
-      const nuevaPromo = {...datos, id: docRef.id};
-      promocionesCache = [...promocionesCache, nuevaPromo];
-      window.promocionesCache = promocionesCache;
-      cerrarModalPromo();
-      // Actualizar historial si está visible
-      setTimeout(()=>{
-        if(typeof window._renderHistorialActivo === 'function') window._renderHistorialActivo();
-      }, 300);
-      renderPromociones(true);
-    }catch(e){ showToast('❌ Error al guardar'); }
-  }, 'Promoción guardada');
+  document.getElementById('modal-promo-overlay').classList.remove('open');
+
+  // Resumen con el mismo formato que el detalle de movimiento (banco/tarjeta + X, filas con iconos)
+  window._confirmMovCtx = 'promo';
+  window._promoDatosPendiente = datos;
+  document.getElementById('confirm-mov-banco').textContent = promoBancoSel || 'Tarjeta';
+  const _apodoElP = document.getElementById('confirm-mov-apodo');
+  const _tarjetaTxtP = t?.apodo || t?.nombre || '';
+  _apodoElP.textContent = _tarjetaTxtP;
+  _apodoElP.style.display = _tarjetaTxtP ? 'inline-block' : 'none';
+  document.getElementById('confirm-mov-body').innerHTML = window._htmlResumenPromo(datos);
+  _aplicarColorConfirmMov();
+  document.getElementById('modal-confirm-mov').classList.add('open');
+}
+
+window._confirmarNuevaPromo = async function(){
+  const datos = window._promoDatosPendiente;
+  if(!datos) return;
+  try{
+    const docRef = await addDoc(collection(db,'usuarios', currentUser.uid, 'promociones'), datos);
+    // Agregar al cache local inmediatamente con el id real
+    const nuevaPromo = {...datos, id: docRef.id};
+    promocionesCache = [...promocionesCache, nuevaPromo];
+    window.promocionesCache = promocionesCache;
+    cerrarModalPromo();
+    // Actualizar historial si está visible
+    setTimeout(()=>{
+      if(typeof window._renderHistorialActivo === 'function') window._renderHistorialActivo();
+    }, 300);
+    renderPromociones(true);
+  }catch(e){ showToast('❌ Error al guardar'); }
+  window._promoDatosPendiente = null;
 }
 
 window.eliminarPromo = async function(id){
@@ -12788,16 +12902,17 @@ window.guardarExt = async function(){
 
   window._confirmMovCtx = 'ext';
 
-  document.getElementById('confirm-mov-titulo').textContent = 'Nuevo movimiento extemporáneo - Crédito';
-  document.getElementById('confirm-mov-tarjeta-label').textContent = 'Tarjeta';
-  document.getElementById('confirm-mov-tarjeta').textContent = t.nombre + (t.apodo ? ' · ' + t.apodo : '');
-  document.getElementById('confirm-mov-fecha').textContent = fechaLegibleE;
-  document.getElementById('confirm-mov-monto').textContent = '$' + monto.toLocaleString('es-MX', {minimumFractionDigits:2, maximumFractionDigits:2});
-
-  document.getElementById('confirm-mov-row-comercio').style.display = comercio ? 'flex' : 'none';
-  document.getElementById('confirm-mov-row-concepto').style.display = concepto ? 'flex' : 'none';
-  document.getElementById('confirm-mov-comercio').textContent = comercio;
-  document.getElementById('confirm-mov-concepto').textContent = concepto;
+  document.getElementById('confirm-mov-banco').textContent = t.nombre || 'Tarjeta';
+  const _apodoElE = document.getElementById('confirm-mov-apodo');
+  _apodoElE.textContent = t.apodo || '';
+  _apodoElE.style.display = t.apodo ? 'inline-block' : 'none';
+  document.getElementById('confirm-mov-body').innerHTML = window._htmlResumenMov({
+    tipoTxt:  'Gasto extemporáneo',
+    fecha:    fechaLegibleE,
+    concepto: comercio || concepto || '—',
+    detalle:  (comercio && concepto) ? concepto : '',
+    importe:  '$' + monto.toLocaleString('es-MX', {minimumFractionDigits:2, maximumFractionDigits:2})
+  });
 
   document.getElementById('modal-ext-overlay').classList.remove('open');
   const _gwOvExt = document.getElementById('modal-gasto-wizard');
@@ -14005,27 +14120,20 @@ window.guardarDebito = async function() {
   const MESES_ESP2 = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
   const [anioD, mesD, diaD] = fecha.split('-');
   const fechaLegibleD = `${parseInt(diaD)} de ${MESES_ESP2[parseInt(mesD)-1]} ${anioD}`;
-  const tipoLabel = (_debitoTipo === 'egreso') ? 'Gasto · Débito' : 'Ingreso · Débito';
+  const _esIngresoD = _debitoTipo !== 'egreso';
+  const _tipoTxtD = (_esIngresoD ? 'Ingreso' : 'Egreso') + (_debitoEsExtemporaneo ? ' extemporáneo' : '');
 
-  {
-    const _tipoTxt = (_debitoTipo === 'egreso') ? 'egreso' : 'ingreso';
-    document.getElementById('confirm-mov-titulo').textContent = _debitoEsExtemporaneo
-      ? `Nuevo ${_tipoTxt} extemporáneo - Débito`
-      : `Nuevo ${_tipoTxt} - Débito`;
-  }
-  document.getElementById('confirm-mov-tarjeta-label').textContent = 'Cuenta';
-  document.getElementById('confirm-mov-tarjeta').textContent = _debitoCuentaSel.apodo || _debitoCuentaSel.nombre;
-  document.getElementById('confirm-mov-fecha').textContent = fechaLegibleD;
-  document.getElementById('confirm-mov-monto').textContent = '$' + monto.toLocaleString('es-MX', {minimumFractionDigits:2, maximumFractionDigits:2});
-
-  const rowComercio = document.getElementById('confirm-mov-row-comercio');
-  const rowConcepto = document.getElementById('confirm-mov-row-concepto');
-  const rowDetalle  = document.getElementById('confirm-mov-row-detalle');
-  rowComercio.style.display = 'none';
-  rowConcepto.style.display = concepto ? 'flex' : 'none';
-  rowDetalle.style.display  = detalle  ? 'flex' : 'none';
-  document.getElementById('confirm-mov-concepto').textContent = concepto;
-  document.getElementById('confirm-mov-detalle').textContent  = detalle;
+  document.getElementById('confirm-mov-banco').textContent = _debitoCuentaSel.nombre || 'Cuenta';
+  const _apodoElD = document.getElementById('confirm-mov-apodo');
+  _apodoElD.textContent = _debitoCuentaSel.apodo || '';
+  _apodoElD.style.display = _debitoCuentaSel.apodo ? 'inline-block' : 'none';
+  document.getElementById('confirm-mov-body').innerHTML = window._htmlResumenMov({
+    tipoTxt:  _tipoTxtD,
+    fecha:    fechaLegibleD,
+    concepto: concepto || _tipoTxtD,
+    detalle:  detalle || '',
+    importe:  (_esIngresoD ? '+' : '-') + '$' + monto.toLocaleString('es-MX', {minimumFractionDigits:2, maximumFractionDigits:2})
+  });
 
   // Cerrar modal formulario (y asistente) y abrir confirmación
   document.getElementById('modal-debito-overlay').classList.remove('open');
@@ -14272,45 +14380,27 @@ function _actualizarFechaDebito() {
 
 <!-- ══ MODAL CONFIRMAR NUEVO MOVIMIENTO (CC y Débito) ══ -->
 <div class="modal-overlay modal-overlay-blur" id="modal-confirm-mov" style="z-index:1100;align-items:center" onclick="_cancelarConfirmMov(event)">
-  <div class="modal" onclick="event.stopPropagation()" style="padding-bottom:32px;transform:scale(0.9);transition:transform 0.3s cubic-bezier(0.34,1.3,0.64,1);border-radius:24px;width:calc(100% - 40px);max-width:390px" id="modal-confirm-mov-box">
+  <div class="modal" onclick="event.stopPropagation()" style="border-radius:24px;width:calc(100% - 40px);max-width:390px;border:1.5px solid var(--border)" id="modal-confirm-mov-box">
     <div class="modal-handle"></div>
-    <div style="text-align:center;padding:6px 0 18px">
-      <div style="width:56px;height:56px;border-radius:50%;background:#111111;border:1px solid rgba(255,255,255,0.09);display:flex;align-items:center;justify-content:center;margin:0 auto 14px">
-        <svg width="26" height="26" fill="none" stroke="#fff" stroke-width="2.2" viewBox="0 0 24 24"><path d="M9 12l2 2 4-4"/><circle cx="12" cy="12" r="10"/></svg>
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:18px">
+      <div style="display:flex;align-items:center;gap:12px">
+        <div>
+          <div id="confirm-mov-banco" style="font-size:17px;font-weight:800;color:var(--text)"></div>
+          <div id="confirm-mov-apodo" style="font-size:13px;color:var(--text-dim);margin-top:6px;display:none;padding:3px 10px;border-radius:8px;border:1px solid var(--btn-border-detalle)"></div>
+        </div>
       </div>
-      <div id="confirm-mov-titulo" style="font-size:18px;font-weight:800;color:var(--text);margin-bottom:4px">¿Es correcta la información?</div>
-      <div style="font-size:13px;color:var(--text-dim)">Revisa los datos antes de guardar</div>
+      <button type="button" class="dg-close" onclick="_cancelarConfirmMov()" aria-label="Cerrar"><svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
     </div>
-    <div id="confirm-mov-panel" style="background:var(--card-bg-soft);border-radius:16px;padding:16px 18px;margin-bottom:20px;display:flex;flex-direction:column;gap:10px">
-      <div id="confirm-mov-row-tarjeta" style="display:flex;justify-content:space-between;align-items:center">
-        <span id="confirm-mov-tarjeta-label" style="font-size:13px;color:var(--text-dim);font-weight:500">Tarjeta / Cuenta</span>
-        <span id="confirm-mov-tarjeta" style="font-size:14px;font-weight:400;color:var(--text);text-align:right;max-width:180px"></span>
-      </div>
-      <div id="confirm-mov-row-comercio" style="display:flex;justify-content:space-between;align-items:center">
-        <span style="font-size:13px;color:var(--text-dim);font-weight:500">Comercio</span>
-        <span id="confirm-mov-comercio" style="font-size:14px;font-weight:400;color:var(--text);text-align:right;max-width:180px"></span>
-      </div>
-      <div id="confirm-mov-row-concepto" style="display:flex;justify-content:space-between;align-items:center">
-        <span style="font-size:13px;color:var(--text-dim);font-weight:500">Concepto</span>
-        <span id="confirm-mov-concepto" style="font-size:14px;font-weight:400;color:var(--text);text-align:right;max-width:180px"></span>
-      </div>
-      <div id="confirm-mov-row-detalle" style="display:flex;justify-content:space-between;align-items:center">
-        <span style="font-size:13px;color:var(--text-dim);font-weight:500">Detalle</span>
-        <span id="confirm-mov-detalle" style="font-size:14px;font-weight:400;color:var(--text);text-align:right;max-width:180px"></span>
-      </div>
-      <div id="confirm-mov-row-fecha" style="display:flex;justify-content:space-between;align-items:center">
-        <span style="font-size:13px;color:var(--text-dim);font-weight:500">Fecha</span>
-        <span id="confirm-mov-fecha" style="font-size:14px;font-weight:400;color:var(--text)"></span>
-      </div>
-      <div style="height:1px;background:var(--border)"></div>
-      <div style="display:flex;justify-content:space-between;align-items:center">
-        <span style="font-size:14px;color:var(--text);font-weight:600">Monto</span>
-        <span id="confirm-mov-monto" style="font-size:20px;font-weight:800;color:var(--text)"></span>
-      </div>
-    </div>
+    <div id="confirm-mov-body" style="margin-bottom:20px"></div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
-      <button onclick="_cancelarConfirmMov()" class="btn-flat-cancel">Corregir</button>
-      <button id="confirm-mov-ok-btn" class="hold-btn" onclick="_ejecutarGuardarMov()" style="padding:14px;border-radius:12px;color:#fff;border:none;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit">Confirmar</button>
+      <button onclick="_cancelarConfirmMov()" class="btn-flat-cancel">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
+        Corregir
+      </button>
+      <button id="confirm-mov-ok-btn" onclick="_ejecutarGuardarMov()" class="hold-btn btn-flat-confirm">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+        <span class="hold-label">Confirmar</span>
+      </button>
     </div>
   </div>
 </div>
@@ -15017,6 +15107,36 @@ document.addEventListener('DOMContentLoaded', function(){
   new MutationObserver(muts=>{
     muts.forEach(m=>m.addedNodes.forEach(n=>{ if(n.nodeType === 1) convertirTodo(n); }));
   }).observe(document.documentElement, {childList:true, subtree:true});
+})();
+</script>
+
+<script>
+/* iPhone: el teclado no reduce el viewport, así que los modales (fijos al fondo)
+   quedaban tapados. Se mide la altura del teclado con visualViewport y se
+   sube el modal por encima de él. */
+(function(){
+  var vv = window.visualViewport;
+  if(!vv) return;
+  var root = document.documentElement, raf = 0;
+  function esCampo(el){
+    return el && /^(INPUT|TEXTAREA|SELECT)$/.test(el.tagName) && !/^(checkbox|radio|button|submit|range|file)$/i.test(el.type||'');
+  }
+  function actualizar(){
+    raf = 0;
+    var kb = Math.round(window.innerHeight - vv.height - vv.offsetTop);
+    var abierto = kb > 80 && esCampo(document.activeElement);
+    root.style.setProperty('--kb', abierto ? kb + 'px' : '0px');
+    root.classList.toggle('kb-open', abierto);
+    if(abierto){
+      var el = document.activeElement;
+      setTimeout(function(){ try{ el.scrollIntoView({block:'nearest'}); }catch(_){} }, 60);
+    }
+  }
+  function pedir(){ if(!raf) raf = requestAnimationFrame(actualizar); }
+  vv.addEventListener('resize', pedir);
+  vv.addEventListener('scroll', pedir);
+  document.addEventListener('focusin', function(){ setTimeout(pedir, 50); setTimeout(pedir, 350); });
+  document.addEventListener('focusout', function(){ setTimeout(pedir, 50); });
 })();
 </script>
 </body>
