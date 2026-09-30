@@ -5019,7 +5019,10 @@ window.abrirLoginPass = function(user){
   passEl.type = 'password';
   document.getElementById('modal-login-error').textContent = '';
   document.getElementById('modal-login-pass').classList.add('open');
-  setTimeout(()=>passEl.focus(), 300);
+  // iOS solo muestra el teclado si el focus ocurre dentro del toque del usuario:
+  // se enfoca de inmediato (sin esperar) y se deja un respaldo por si falla.
+  try{ passEl.focus({preventScroll:true}); }catch(_){ passEl.focus(); }
+  setTimeout(()=>{ if(document.activeElement !== passEl) passEl.focus(); }, 350);
 }
 
 window.cerrarModalLoginPass = function(e){
