@@ -490,6 +490,10 @@ html.dark-mode #modal-cambiar-pass .inp{box-shadow:0 2px 6px rgba(0,0,0,0.4), in
 html.dark-mode #pass-cancelar-btn,
 html.dark-mode #pass-guardar-btn{background:#111111!important;border:1px solid rgba(255,255,255,0.09)!important;color:var(--text)!important;box-shadow:0 2px 6px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.06)!important}
 html.dark-mode #modal-confirm-logout .success-box{background:#090909!important;border:1px solid rgba(255,255,255,0.08)!important}
+html.dark-mode #inact-cerrar-btn,
+html.dark-mode #inact-seguir-btn,
+html.dark-mode #modal-inactividad .success-box{background:#111111!important;border:1px solid rgba(255,255,255,0.09)!important;color:var(--text)!important}
+html.dark-mode #modal-inactividad .success-box{background:#090909!important;border:1px solid rgba(255,255,255,0.08)!important}
 html.dark-mode #logout-cancelar-btn,
 html.dark-mode #logout-cerrar-btn{background:#111111!important;border:1px solid rgba(255,255,255,0.09)!important;color:var(--text)!important;box-shadow:0 2px 6px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.06)!important}
 html.dark-mode #modal-login-pass .modal{--card-bg:#090909;--input-bg:#111111;--border:rgba(255,255,255,0.09);border:1px solid rgba(255,255,255,0.08)!important}
@@ -3233,6 +3237,7 @@ function _monitorearSesion(){
 }
 
 function _cerrarSesionForzado(){
+  _inactCancelarTodo();
   if(_unsubSession){ _unsubSession(); _unsubSession = null; }
   if(window._heartbeatInterval){ clearInterval(window._heartbeatInterval); }
   if(_unsubMovimientos){ _unsubMovimientos(); _unsubMovimientos = null; }
@@ -5205,6 +5210,72 @@ async function entrarApp(){
   }
 }
 
+// ── Cierre de sesión por inactividad ──
+// Si la app queda en segundo plano (o se sale de ella) 2 min, se cierra la sesión.
+// Al volver entre el min 1:30 y el 2:00 aparece "¿Sigues ahí?" con cuenta regresiva.
+const INACT_TOTAL_MS = 120000;
+const INACT_AVISO_MS = 90000;   // 30 s antes del cierre
+let _inactDesde = null, _inactTimer = null, _inactTick = null;
+
+function _inactSesionActiva(){
+  const app = document.getElementById('main-app');
+  return !!(app && app.classList.contains('visible') && loginUsuarioActivo && perfil);
+}
+function _inactOcultarAviso(){
+  if(_inactTick){ clearInterval(_inactTick); _inactTick = null; }
+  const m = document.getElementById('modal-inactividad');
+  if(m) m.classList.remove('show');
+}
+function _inactCancelarTodo(){
+  if(_inactTimer){ clearTimeout(_inactTimer); _inactTimer = null; }
+  _inactOcultarAviso();
+  _inactDesde = null;
+}
+function _inactCerrarPorTiempo(){
+  _inactCancelarTodo();
+  if(!_inactSesionActiva()) return;
+  window.ejecutarCerrarSesion();
+  setTimeout(()=>{ try{ showToast('Sesión cerrada por inactividad'); }catch(_){} }, 600);
+}
+window._inactividadCerrar = function(){
+  _inactCancelarTodo();
+  window.ejecutarCerrarSesion();
+};
+window._inactividadSeguir = function(){
+  _inactCancelarTodo();
+};
+function _inactMostrarAviso(restanteMs){
+  const deadline = Date.now() + restanteMs;
+  const segEl = document.getElementById('inact-seg');
+  const pintar = ()=>{
+    const r = Math.ceil((deadline - Date.now())/1000);
+    if(r <= 0){ _inactCerrarPorTiempo(); return; }
+    if(segEl) segEl.textContent = r;
+  };
+  pintar();
+  if(!_inactSesionActiva()) return;
+  document.getElementById('modal-inactividad').classList.add('show');
+  if(_inactTick) clearInterval(_inactTick);
+  _inactTick = setInterval(pintar, 250);
+}
+document.addEventListener('visibilitychange', ()=>{
+  if(document.hidden){
+    if(!_inactSesionActiva()) return;
+    _inactOcultarAviso();
+    _inactDesde = Date.now();
+    if(_inactTimer) clearTimeout(_inactTimer);
+    _inactTimer = setTimeout(_inactCerrarPorTiempo, INACT_TOTAL_MS);
+  } else {
+    if(_inactTimer){ clearTimeout(_inactTimer); _inactTimer = null; }
+    if(_inactDesde == null) return;
+    const fuera = Date.now() - _inactDesde;
+    _inactDesde = null;
+    if(!_inactSesionActiva()) return;
+    if(fuera >= INACT_TOTAL_MS) _inactCerrarPorTiempo();
+    else if(fuera >= INACT_AVISO_MS) _inactMostrarAviso(INACT_TOTAL_MS - fuera);
+  }
+});
+
 window.cerrarSesion = function(){
   document.getElementById('modal-confirm-logout').classList.add('show');
 }
@@ -5215,6 +5286,7 @@ window.ejecutarCerrarSesion = function(){
   if(_unsubSession){ _unsubSession(); _unsubSession = null; }
   if(window._heartbeatInterval){ clearInterval(window._heartbeatInterval); }
   if(_bgTimer){ clearTimeout(_bgTimer); _bgTimer = null; }
+  _inactCancelarTodo();
   if(_sessionToken && loginUsuarioActivo){
     deleteDoc(doc(db,'usuarios', loginUsuarioActivo, 'auth','sesion')).catch(()=>{});
   }
@@ -11010,6 +11082,21 @@ window.confirmarEliminarPerfil = async function(){
 }
 
 </script>
+
+<!-- ══ MODAL INACTIVIDAD (¿Sigues ahí?) ══ -->
+<div class="success-overlay" id="modal-inactividad" style="z-index:2100">
+  <div class="success-box" style="max-width:300px;width:90%" onclick="event.stopPropagation()">
+    <div class="success-icon" style="background:linear-gradient(180deg,#111,#444)">
+      <svg width="28" height="28" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+    </div>
+    <div class="success-title">¿Sigues ahí?</div>
+    <div style="font-size:14px;color:var(--text-dim);line-height:1.5;margin-top:4px">Tu sesión se cerrará en <strong id="inact-seg" style="color:var(--text)">30</strong> s por inactividad.</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:20px">
+      <button id="inact-cerrar-btn" onclick="_inactividadCerrar()" style="padding:12px;border-radius:12px;border:1.5px solid #e0e0e0;background:#fff;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;color:#666">Cerrar sesión</button>
+      <button id="inact-seguir-btn" onclick="_inactividadSeguir()" style="padding:12px;border-radius:12px;background:linear-gradient(180deg,#111,#444);color:#fff;border:none;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit">Sí</button>
+    </div>
+  </div>
+</div>
 
 <!-- ══ MODAL CONFIRMAR CIERRE SESIÓN ══ -->
 <div class="success-overlay" id="modal-confirm-logout" style="z-index:2000" onclick="document.getElementById('modal-confirm-logout').classList.remove('show')">
