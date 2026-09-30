@@ -434,6 +434,7 @@ html.dark-mode #resumen-seleccion,html.dark-mode #deb-resumen{background:#111111
 html.dark-mode #shared-modal-backdrop.show{opacity:1;background:rgba(0,0,0,0.95);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}
 html.dark-mode #modal-perfil-acciones.open{background:rgba(0,0,0,0.75)}
 html.dark-mode #modal-detalle-gasto.open{background:rgba(0,0,0,0.95);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}
+html.dark-mode #modal-login-pass.open{background:rgba(0,0,0,0.95);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}
 html.dark-mode #modal-resumen-promo.open{background:rgba(0,0,0,0.85)}
 html.dark-mode #modal-resumen-promo .modal{--card-bg:#070707;--card-bg-soft:#0e0e0e;--icon-bg:#202020;--border:#1c1c1c}
 html.dark-mode #modal-confirm-hist.open{background:rgba(0,0,0,0.95);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}
@@ -1312,7 +1313,7 @@ try{
   </div>
 </div>
 
-<div class="modal-overlay" id="modal-login-pass" onclick="cerrarModalLoginPass(event)">
+<div class="modal-overlay modal-overlay-blur" id="modal-login-pass" onclick="cerrarModalLoginPass(event)">
   <div class="modal">
     <div class="modal-handle"></div>
     <div class="modal-title" id="modal-login-title">Iniciar sesión</div>
