@@ -377,12 +377,31 @@ html.dark-mode .mov-item{background:#111111;border-color:rgba(255,255,255,0.09);
 }
 #mov-list .mov-item:last-child,
 #deb-mov-list .mov-item:last-child{margin-bottom:4px}
+/* Dark Matte Inset Neumorphism: tarjetas hundidas, sombras interiores suaves y bajo contraste */
 html.dark-mode #mov-list .mov-item:not(.selected),
 html.dark-mode #deb-mov-list .mov-item:not(.selected){
-  background:linear-gradient(145deg,#060607,#0f0f11);
-  border:1px solid rgba(255,255,255,0.04);
-  box-shadow:inset 6px 6px 12px rgba(0,0,0,0.85), inset -4px -4px 10px rgba(255,255,255,0.05), 0 1px 0 rgba(255,255,255,0.05);
+  --text:#dedede;
+  --text-dim:#7a7a7a;
+  background:linear-gradient(180deg,#0c0c0c 0%,#121212 100%);
+  border:1px solid rgba(255,255,255,0.035);
+  border-radius:18px;
+  padding:16px 18px;
+  box-shadow:inset 0 4px 10px rgba(0,0,0,0.55), inset 3px 3px 8px rgba(0,0,0,0.35), inset -2px -2px 6px rgba(255,255,255,0.018), 0 1px 0 rgba(255,255,255,0.045);
 }
+html.dark-mode #mov-list .mov-item:not(.selected) .mov-badge,
+html.dark-mode #deb-mov-list .mov-item:not(.selected) .mov-badge{
+  background:#222222;
+  color:#8a8a8a;
+  font-size:12px;
+  padding:6px 12px;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,0.04);
+}
+html.dark-mode #mov-list .mov-item:not(.selected) .mov-date,
+html.dark-mode #deb-mov-list .mov-item:not(.selected) .mov-date{font-size:14px;color:#747474}
+html.dark-mode #mov-list .mov-item:not(.selected) .mov-name,
+html.dark-mode #deb-mov-list .mov-item:not(.selected) .mov-name{color:#dedede}
+html.dark-mode #mov-list .mov-item:not(.selected) .mov-amount,
+html.dark-mode #deb-mov-list .mov-item:not(.selected) .mov-amount{font-size:17px}
 #mov-list .mov-item:not(.selected):active,
 #deb-mov-list .mov-item:not(.selected):active{transform:scale(0.99)}
 #tarjetas-mov-section{background:none;border:none;box-shadow:none;padding:0}
