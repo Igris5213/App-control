@@ -16594,6 +16594,8 @@ document.addEventListener('DOMContentLoaded', function(){
     const dx = Math.abs(e.touches[0].clientX - _startX);
     const dy = e.touches[0].clientY - _ptrStartY;
 
+    // Permitir scroll horizontal nativo en la gráfica de Estadísticas
+    if(e.target && e.target.closest && e.target.closest('#est-scroll')) return;
     // Bloquear swipe horizontal en toda la app (evita navegación entre pestañas del navegador)
     if(dx > Math.abs(dy) && dx > 10){
       e.preventDefault();
