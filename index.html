@@ -2347,6 +2347,77 @@ html:not(.dark-mode) .cc-mc-circle.cc-mc-orange{background:#111111;opacity:.45}
 html:not(.dark-mode) .cc-chip,
 html:not(.dark-mode) .cc-contactless{color:#111111}
 </style>
+<style id="fix-esquinas-tarjetas">
+/* SOLO MODO CLARO. Las esquinas grises venían de .bank-card.card-color-* (fondo rectangular detrás del recuadro redondeado) */
+html:not(.dark-mode) .cards-outer{border-radius:18px !important;overflow:visible !important;background:transparent !important}
+html:not(.dark-mode) .cards-outer .bank-card,
+html:not(.dark-mode) .cards-outer .bank-card[class*="card-color-"]{background:transparent !important;box-shadow:none !important;border:none !important;border-radius:18px}
+html:not(.dark-mode) .cc-header-box{border-radius:18px;-webkit-mask-image:-webkit-radial-gradient(white,black);isolation:isolate}
+/* Historial: promos y cargos recurrentes sin contorno en modo claro; en oscuro conservan el borde original */
+html.dark-mode #screen-movimientos .mov-item[data-promo-id],
+html.dark-mode #screen-movimientos .mov-item[data-cargo-id]{border:1.5px solid var(--border)}
+/* SOLO MODO CLARO: la barra de progreso de los botones de confirmar (mantener presionado) era blanca sobre un botón claro y no se veía.
+   Ahora toma el color del texto del botón (oscuro) en transparencia. */
+html:not(.dark-mode) .hold-btn.btn-flat-confirm .hold-progress{background:currentColor;opacity:.2}
+/* SOLO MODO CLARO: las tres rayas del botón de menú de promociones/cargos tenían stroke blanco fijo sobre un botón claro */
+html:not(.dark-mode) #screen-promociones .promo-dark-menu svg,
+html:not(.dark-mode) #screen-movimientos .promo-dark-menu svg{stroke:var(--text-dim)}
+
+/* ── NEUMORPHISM · pestaña Configuración (solo modo claro, mismo estilo que Perfiles/Promociones) ── */
+html:not(.dark-mode) #screen-config div[style*="background:var(--card-bg);border:1px solid var(--border);border-radius:18px"]{
+  background:var(--bg) !important;border:none !important;border-radius:20px !important;box-shadow:var(--nm-raised) !important;
+}
+/* separador entre filas: ranura suave en lugar de línea gris */
+html:not(.dark-mode) #screen-config div[style*="border-bottom:1px solid var(--border)"]{
+  border-bottom:1px solid rgba(166,172,188,0.28) !important;box-shadow:0 1px 0 var(--nm-light);
+}
+/* iconos (avatar, candado, salir): de recuadro negro a botón en relieve */
+html:not(.dark-mode) #screen-config div[style*="background:#090909"]{
+  background:var(--bg) !important;border:none !important;box-shadow:var(--nm-raised-sm) !important;
+}
+html:not(.dark-mode) #screen-config div[style*="background:#090909"] svg{stroke:var(--text-dim) !important}
+/* filas tocables: se hunden al presionar */
+html:not(.dark-mode) #screen-config div[onclick]{transition:box-shadow .2s ease,transform .15s ease}
+html:not(.dark-mode) #screen-config div[onclick]:active{box-shadow:var(--nm-inset-sm)}
+/* modal Cambiar contraseña */
+html:not(.dark-mode) #modal-cambiar-pass .modal{
+  background:var(--bg);border:none !important;box-shadow:0 -6px 30px rgba(0,0,0,0.18),inset 0 1px 0 var(--nm-light);
+}
+html:not(.dark-mode) #modal-cambiar-pass .inp{
+  background:var(--bg) !important;border:none !important;box-shadow:var(--nm-inset-sm) !important;transition:box-shadow .2s ease;
+}
+html:not(.dark-mode) #modal-cambiar-pass .inp:focus{box-shadow:var(--nm-inset) !important}
+html:not(.dark-mode) #pass-cancelar-btn,
+html:not(.dark-mode) #pass-guardar-btn{
+  background:var(--bg) !important;border:none !important;color:var(--text) !important;
+  box-shadow:var(--nm-raised-sm) !important;transition:box-shadow .2s ease,transform .15s ease;
+}
+html:not(.dark-mode) #pass-cancelar-btn:active,
+html:not(.dark-mode) #pass-guardar-btn:active{transform:scale(0.98);box-shadow:var(--nm-inset-sm) !important}
+/* Modal ¿Cerrar sesión? */
+html:not(.dark-mode) #modal-confirm-logout .success-box{
+  background:var(--bg) !important;border:none !important;
+  box-shadow:0 12px 40px rgba(0,0,0,0.22),inset 0 1px 0 var(--nm-light) !important;
+}
+html:not(.dark-mode) #modal-confirm-logout .success-icon{
+  background:var(--bg) !important;border:none !important;box-shadow:var(--nm-raised-sm) !important;
+}
+html:not(.dark-mode) #modal-confirm-logout .success-icon svg{stroke:var(--text-dim) !important}
+html:not(.dark-mode) #logout-cancelar-btn,
+html:not(.dark-mode) #logout-cerrar-btn{
+  background:var(--bg) !important;border:none !important;color:var(--text) !important;
+  box-shadow:var(--nm-raised-sm) !important;transition:box-shadow .2s ease,transform .15s ease;
+}
+html:not(.dark-mode) #logout-cancelar-btn:active,
+html:not(.dark-mode) #logout-cerrar-btn:active{transform:scale(0.98);box-shadow:var(--nm-inset-sm) !important}
+/* barra de progreso de "Cerrar" (mantener presionado): oscura para verse sobre el botón claro */
+html:not(.dark-mode) #logout-cerrar-btn .hold-progress{background:currentColor;opacity:.2}
+
+/* ── Blur uniforme (el mismo del detalle de movimiento) en TODOS los modales, avisos de éxito/eliminado/etc. y el asistente ──
+   Antes solo lo tenían los .modal-overlay-blur; los demás (.modal-overlay sin la clase, .success-overlay, asistente) no. */
+.modal-overlay,.success-overlay{transition:opacity 0.3s,backdrop-filter 0.3s,-webkit-backdrop-filter 0.3s}
+.modal-overlay.open,.success-overlay.show{backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
+</style>
 </head>
 <body>
 <script>
@@ -4476,6 +4547,7 @@ async function iniciarApp(){
 }
 
 // ── CARRUSEL ─────────────────────────────────────────────────────────────
+function _escCC(v){return String(v==null?'':v).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));}
 function buildCarrusel(){
   const dotsEl  = document.getElementById('dots');
   const outer   = document.getElementById('cards-outer');
@@ -4514,8 +4586,8 @@ function buildCarrusel(){
   perfil.tarjetas.forEach((t,i)=>{
     const card = document.createElement('div');
     card.className = `bank-card ${t.color || COLORS[i % COLORS.length]}`;
-    const _titulo = t.nombre;
-    const _sub = t.apodo || '';
+    const _titulo = _escCC(t.nombre);
+    const _sub = _escCC(t.apodo || '');
     card.innerHTML = `
       <div class="cc-header-box">
         <div class="cc-header-top">
@@ -4527,15 +4599,15 @@ function buildCarrusel(){
             ${_sub ? `<div class="cc-alias">${_sub}</div>` : ''}
           </div>
         </div>
-        ${t.terminacion ? `<div class="cc-number-row">•••• ${t.terminacion}</div>` : ''}
+        ${t.terminacion ? `<div class="cc-number-row">•••• ${_escCC(t.terminacion)}</div>` : ''}
         <div class="cc-header-bottom">
           <div>
             ${t.marca === 'visa' ? '<div class="cc-brand-visa">VISA</div>' : t.marca === 'mastercard' ? '<div class="cc-brand-mc"><span class="cc-mc-circle cc-mc-red"></span><span class="cc-mc-circle cc-mc-orange"></span></div>' : ''}
           </div>
           <div class="cc-saldo-block">
             <div class="cc-saldo-label" id="header-disp-label-${i}">Saldo disponible</div>
-            <div class="cc-saldo-val" id="header-disp-${i}">$${t.limite.toLocaleString('es-MX',{minimumFractionDigits:2})}</div>
-            <div class="cc-limite-sub">Límite total: <span id="lim-${i}">$${t.limite.toLocaleString('es-MX',{minimumFractionDigits:2})}</span></div>
+            <div class="cc-saldo-val" id="header-disp-${i}">$${Number(t.limite||0).toLocaleString('es-MX',{minimumFractionDigits:2})}</div>
+            <div class="cc-limite-sub">Límite total: <span id="lim-${i}">$${Number(t.limite||0).toLocaleString('es-MX',{minimumFractionDigits:2})}</span></div>
           </div>
         </div>
       </div>`;
@@ -4978,7 +5050,7 @@ function updateCards(){
     const sobregiro = totalGeneral > t.limite;
     const disp = sobregiro ? 0 : t.limite - totalGeneral;
     const exceso = sobregiro ? totalGeneral - t.limite : 0;
-    const pct = sobregiro ? 100 : Math.round(totalGeneral/t.limite*100);
+    const pct = sobregiro ? 100 : (t.limite>0 ? Math.round(totalGeneral/t.limite*100) : 0);
     const diasTxt = dias===0?'Hoy es día de corte':`Faltan ${dias} día${dias!==1?'s':''} para corte`;
     const usadoEl=document.getElementById(`usado-${i}`);
     const dispEl=document.getElementById(`disp-${i}`);
@@ -7044,9 +7116,34 @@ let _perfilTabActivo   = "credito"; // tab activo en perfil: "credito" | "debito
 window._perfilTabActivo = _perfilTabActivo;
 
 window.perfilSwitchTab = function(tab) {
+  const _tabPrev = _perfilTabActivo;
   _perfilTabActivo = tab;
   window._perfilTabActivo = tab;
   renderPerfiles();
+  // Animación del toggle (igual que el de promociones): renderPerfiles recrea el toggle ya en su
+  // posición final, así que lo regresamos a la posición anterior y lo movemos en el siguiente frame.
+  if(_tabPrev !== tab){
+    const _sl = document.getElementById('perfil-tab-slider');
+    const _btns = document.querySelectorAll('#perfil-tab-toggle button');
+    if(_sl){
+      const _tr = 'transform 0.25s cubic-bezier(0.34,1.2,0.64,1)';
+      const _pos = t => t === 'debito' ? 'translateX(100%)' : 'translateX(0)';
+      _sl.style.transition = 'none';
+      _sl.style.transform = _pos(_tabPrev);
+      const _colFin = Array.from(_btns).map(b => b.style.color);
+      if(_btns.length === 2){
+        _btns[0].style.transition = 'none'; _btns[1].style.transition = 'none';
+        _btns[0].style.color = _tabPrev === 'credito' ? 'var(--text)' : 'var(--text-dim)';
+        _btns[1].style.color = _tabPrev === 'debito'  ? 'var(--text)' : 'var(--text-dim)';
+      }
+      void _sl.offsetWidth; // fuerza reflow para que arranque desde la posición anterior
+      _sl.style.transition = _tr;
+      _sl.style.transform = _pos(tab);
+      if(_btns.length === 2){
+        _btns.forEach((b,i)=>{ b.style.transition = 'color 0.2s'; b.style.color = _colFin[i]; });
+      }
+    }
+  }
   // Actualizar texto del botón agregar
   const btn = document.getElementById('btn-agregar-tarjeta-fuera');
   if(btn){
@@ -8887,7 +8984,7 @@ window.debSelMes = async function(mes){
       const _mesD  = fechaInicio.substring(5,7);
       const _anioD = fechaInicio.substring(0,4);
       const fechaCD = `${_diaD}/${_mesD}/${_anioD}`;
-      return `<div class="mov-item" style="border:1.5px solid var(--border)" onclick="resaltarMovDeb(this)" data-cargo-id="${c.id}">
+      return `<div class="mov-item" onclick="resaltarMovDeb(this)" data-cargo-id="${c.id}">
         <div class="mov-icon">
           <svg width="16" height="16" fill="none" stroke="var(--text)" stroke-width="2.5" viewBox="0 0 24 24"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg>
         </div>
@@ -8945,8 +9042,8 @@ window.startLongPressDebHist = function(el, id){
 };
 
 window.debNuevaBusqueda = function(){
+  // Solo regresa a la pestaña de historial (el asistente se abre al tocar "Seleccionar banco")
   debResetPanel();
-  if(typeof window.gwAbrir === 'function' && document.getElementById('modal-gasto-wizard')) window.gwAbrir('busquedadeb');
 }
 window.debResetBusqueda = function(){ debResetPanel(); }
 
@@ -9406,8 +9503,7 @@ window.nuevaBusqueda = function(){
   cargarBancosFiltro();
   // Mantener panel crédito activo
   selHistTipo('credito');
-  // Búsqueda guiada: abrir el asistente
-  if(typeof window.gwAbrir === 'function' && document.getElementById('modal-gasto-wizard')) window.gwAbrir('busqueda');
+  // Nueva búsqueda: solo regresa a la pestaña de historial (el asistente se abre al tocar "Seleccionar banco")
 }
 
 // Long press para ver detalle del gasto
@@ -11318,7 +11414,7 @@ window.confirmarBusquedaHistorial = function(){
     const tP = (perfil?.tarjetas||[]).find(x=>x.id===p.tarjetaId);
     const cP = tP ? tP.corte : 1;
     const mesPago = getMesPagoPromo(cP, p.creadoEn, periodoFin);
-    return `<div class="mov-item" style="border:1.5px solid var(--border)"
+    return `<div class="mov-item"
         onmousedown="startLongPressPromoHist(this,'${p.id}')" onmouseup="cancelLongPress()" onmouseleave="cancelLongPress()"
         ontouchstart="startLongPressPromoHist(this,'${p.id}')" ontouchend="cancelLongPress()" ontouchmove="cancelLongPress()"
         onclick="resaltarMov(this)" data-promo-id="${p.id}">
@@ -11491,7 +11587,7 @@ window.aceptarConfirmHist = function(){
               <div style="font-size:16px;font-weight:800;color:var(--text)">${fmt(_totalGastosCorte)}</div>
             </div>
           </div>
-          <div class="corte-resumen-box" style="background:#111111;border:1px solid var(--border);border-radius:14px;padding:14px 16px;display:flex;justify-content:space-between;align-items:center;box-shadow:0 4px 14px rgba(0,0,0,0.10), inset 0 1px 0 rgba(255,255,255,0.08)">
+          <div class="corte-resumen-box" style="background:var(--card-bg-soft);border:none;border-radius:14px;padding:14px 16px;display:flex;justify-content:space-between;align-items:center;box-shadow:0 4px 14px rgba(0,0,0,0.08), inset 0 1px 0 rgba(255,255,255,0.9)">
             <span style="font-size:13px;font-weight:700;color:var(--text-dim);text-transform:uppercase;letter-spacing:0.06em">Total del corte</span>
             <strong style="font-size:18px;color:var(--text)">${fmt(_totalGeneralCorte)}</strong>
           </div>
@@ -11505,7 +11601,7 @@ window.aceptarConfirmHist = function(){
       const _tP = (perfil?.tarjetas||[]).find(x=>x.id===p.tarjetaId);
       const _cP = _tP ? _tP.corte : 1;
       const _mp = getMesPagoPromo(_cP, p.creadoEn, periodoFin);
-      return `<div class="mov-item" style="border:1.5px solid var(--border)"
+      return `<div class="mov-item"
           onclick="resaltarMov(this)" onmousedown="startLongPressPromoHist(this,'${p.id}')" onmouseup="cancelLongPress()" onmouseleave="cancelLongPress()"
           ontouchstart="startLongPressPromoHist(this,'${p.id}')" ontouchend="cancelLongPress()" ontouchmove="cancelLongPress()"
           data-promo-id="${p.id}">
@@ -11544,7 +11640,7 @@ window.aceptarConfirmHist = function(){
       const _diaC  = String(c.dia).padStart(2,'0');
       const _mesC  = String(_mesRef).padStart(2,'0');
       const _fechaC = `${_diaC}/${_mesC}/${_anioRef}`;
-      return `<div class="mov-item" style="border:1.5px solid var(--border)"
+      return `<div class="mov-item"
           onclick="resaltarMov(this)" onmousedown="startLongPressCargoHist(this,'${c.id}')" onmouseup="cancelLongPress()" onmouseleave="cancelLongPress()"
           ontouchstart="startLongPressCargoHist(this,'${c.id}')" ontouchend="cancelLongPress()" ontouchmove="cancelLongPress()"
           data-cargo-id="${c.id}">
@@ -11874,14 +11970,14 @@ function buildCarruselDebito(){
       <div class="cc-header-box">
         <div class="cc-header-top">
           <div>
-            <div class="cc-bank-name">${c.nombre}</div>
+            <div class="cc-bank-name">${_escCC(c.nombre)}</div>
             <div class="cc-bank-subtitle">Cuenta de Débito</div>
           </div>
           <div style="display:flex;flex-direction:column;align-items:flex-end;gap:3px">
-            ${c.apodo ? `<div class="cc-alias">${c.apodo}</div>` : ''}
+            ${c.apodo ? `<div class="cc-alias">${_escCC(c.apodo)}</div>` : ''}
           </div>
         </div>
-        ${c.terminacion ? `<div class="cc-number-row">•••• ${c.terminacion}</div>` : ''}
+        ${c.terminacion ? `<div class="cc-number-row">•••• ${_escCC(c.terminacion)}</div>` : ''}
         <div class="cc-header-bottom">
           <div>
             ${c.marca === 'visa' ? '<div class="cc-brand-visa">VISA</div>' : c.marca === 'mastercard' ? '<div class="cc-brand-mc"><span class="cc-mc-circle cc-mc-red"></span><span class="cc-mc-circle cc-mc-orange"></span></div>' : ''}
