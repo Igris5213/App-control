@@ -1282,6 +1282,988 @@ html.dark-mode{
 #detalle-gasto-content button[style*="padding:13px"]:active{transform:scale(0.98);box-shadow:var(--nm-inset-sm) !important}
 #modal-detalle-gasto .dg-close{background:var(--bg) !important;border:none !important;box-shadow:var(--nm-raised-sm) !important}
 #modal-detalle-gasto .dg-close:active{box-shadow:var(--nm-inset-sm) !important}
+
+/* ── Reglas de #main-app replicadas para débito e historial ── */
+#screen-cuentas .cards-outer{overflow:visible}
+#screen-movimientos .cards-outer{overflow:visible}
+#screen-cuentas .cc-header-box{box-shadow:8px 8px 18px var(--nm-dark),-8px -8px 18px var(--nm-light),inset 0 1px 0 rgba(255,255,255,0.06) !important;
+  transition:box-shadow .2s ease,transform .2s ease;}
+#screen-movimientos .cc-header-box{box-shadow:8px 8px 18px var(--nm-dark),-8px -8px 18px var(--nm-light),inset 0 1px 0 rgba(255,255,255,0.06) !important;
+  transition:box-shadow .2s ease,transform .2s ease;}
+#screen-cuentas .cc-header-box:active{transform:scale(0.992);
+  box-shadow:4px 4px 10px var(--nm-dark),-4px -4px 10px var(--nm-light),inset 0 1px 0 rgba(255,255,255,0.06) !important;}
+#screen-movimientos .cc-header-box:active{transform:scale(0.992);
+  box-shadow:4px 4px 10px var(--nm-dark),-4px -4px 10px var(--nm-light),inset 0 1px 0 rgba(255,255,255,0.06) !important;}
+#screen-cuentas .dots{gap:9px;margin:20px 0 14px;position:relative;z-index:2}
+#screen-movimientos .dots{gap:9px;margin:20px 0 14px;position:relative;z-index:2}
+#screen-cuentas .dot{width:10px;height:10px;background:var(--bg);box-shadow:inset 2px 2px 3px var(--nm-dark),inset -2px -2px 3px var(--nm-light)}
+#screen-movimientos .dot{width:10px;height:10px;background:var(--bg);box-shadow:inset 2px 2px 3px var(--nm-dark),inset -2px -2px 3px var(--nm-light)}
+#screen-cuentas .dot.active{width:24px;background:var(--text);box-shadow:2px 2px 5px var(--nm-dark),-2px -2px 5px var(--nm-light)}
+#screen-movimientos .dot.active{width:24px;background:var(--text);box-shadow:2px 2px 5px var(--nm-dark),-2px -2px 5px var(--nm-light)}
+#screen-cuentas .card-merged-box{background:var(--bg);border:none;border-radius:22px;box-shadow:var(--nm-raised)}
+#screen-movimientos .card-merged-box{background:var(--bg);border:none;border-radius:22px;box-shadow:var(--nm-raised)}
+#screen-cuentas .card-usage-box{padding:14px 14px 16px}
+#screen-movimientos .card-usage-box{padding:14px 14px 16px}
+#screen-cuentas .card-usage-head{padding:10px 14px;margin-bottom:14px;border-radius:14px;background:var(--bg);
+  box-shadow:var(--nm-raised-sm);transition:box-shadow .2s ease,margin-bottom .25s ease;}
+#screen-movimientos .card-usage-head{padding:10px 14px;margin-bottom:14px;border-radius:14px;background:var(--bg);
+  box-shadow:var(--nm-raised-sm);transition:box-shadow .2s ease,margin-bottom .25s ease;}
+#screen-cuentas .card-usage-head:active,#screen-cuentas .resumen-box.resumen-col .card-usage-head{box-shadow:var(--nm-inset-sm)}
+#screen-movimientos .card-usage-head:active,#screen-movimientos .resumen-box.resumen-col .card-usage-head{box-shadow:var(--nm-inset-sm)}
+#screen-cuentas .resumen-box.resumen-col .card-usage-head{margin-bottom:0}
+#screen-movimientos .resumen-box.resumen-col .card-usage-head{margin-bottom:0}
+#screen-cuentas .card-usage-title{color:var(--text-dim)}
+#screen-movimientos .card-usage-title{color:var(--text-dim)}
+#screen-cuentas .card-usage-chev{color:var(--text-dim)}
+#screen-movimientos .card-usage-chev{color:var(--text-dim)}
+#screen-cuentas .card-usage-stats{padding:14px 6px;margin-bottom:4px;border-radius:16px;background:var(--bg);box-shadow:var(--nm-inset)}
+#screen-movimientos .card-usage-stats{padding:14px 6px;margin-bottom:4px;border-radius:16px;background:var(--bg);box-shadow:var(--nm-inset)}
+#screen-cuentas .card-stat-label{color:var(--text-dim)}
+#screen-movimientos .card-stat-label{color:var(--text-dim)}
+#screen-cuentas .card-stat-value{color:var(--text)}
+#screen-movimientos .card-stat-value{color:var(--text)}
+#screen-cuentas .card-info-divider{width:3px;border-radius:3px;background:var(--bg);
+  box-shadow:inset 1px 1px 2px var(--nm-dark),inset -1px -1px 2px var(--nm-light)}
+#screen-movimientos .card-info-divider{width:3px;border-radius:3px;background:var(--bg);
+  box-shadow:inset 1px 1px 2px var(--nm-dark),inset -1px -1px 2px var(--nm-light)}
+#screen-cuentas .section-card{background:var(--bg);border:none;border-radius:22px;padding:18px 16px;box-shadow:var(--nm-raised)}
+#screen-movimientos .section-card{background:var(--bg);border:none;border-radius:22px;padding:18px 16px;box-shadow:var(--nm-raised)}
+#screen-cuentas .section-card-title{color:var(--text-dim)}
+#screen-movimientos .section-card-title{color:var(--text-dim)}
+#screen-cuentas .mov-item{background:var(--bg);border:none;border-radius:16px;margin-bottom:14px;
+  box-shadow:var(--nm-raised-sm);transition:box-shadow .2s ease,transform .15s ease;}
+#screen-movimientos .mov-item{background:var(--bg);border:none;border-radius:16px;margin-bottom:14px;
+  box-shadow:var(--nm-raised-sm);transition:box-shadow .2s ease,transform .15s ease;}
+#screen-cuentas .mov-item:last-child{margin-bottom:0}
+#screen-movimientos .mov-item:last-child{margin-bottom:0}
+#screen-cuentas .mov-item:active{transform:scale(0.985);box-shadow:var(--nm-inset-sm)}
+#screen-movimientos .mov-item:active{transform:scale(0.985);box-shadow:var(--nm-inset-sm)}
+#screen-cuentas .mov-item.selected{background:var(--bg);transform:none;border-radius:16px;box-shadow:var(--nm-inset);}
+#screen-movimientos .mov-item.selected{background:var(--bg);transform:none;border-radius:16px;box-shadow:var(--nm-inset);}
+#screen-cuentas .mov-item.selected .mov-date{color:var(--text-dim) !important}
+#screen-movimientos .mov-item.selected .mov-date{color:var(--text-dim) !important}
+#screen-cuentas .mov-item.selected .mov-name,#screen-cuentas .mov-item.selected .mov-amount{color:var(--text) !important}
+#screen-movimientos .mov-item.selected .mov-name,#screen-movimientos .mov-item.selected .mov-amount{color:var(--text) !important}
+#screen-cuentas .mov-badge{background:var(--bg);box-shadow:inset 2px 2px 4px var(--nm-dark),inset -2px -2px 4px var(--nm-light)}
+#screen-movimientos .mov-badge{background:var(--bg);box-shadow:inset 2px 2px 4px var(--nm-dark),inset -2px -2px 4px var(--nm-light)}
+#screen-cuentas .mov-item.selected .mov-badge{background:var(--bg);color:var(--text-dim)}
+#screen-movimientos .mov-item.selected .mov-badge{background:var(--bg);color:var(--text-dim)}
+#screen-cuentas .empty-mov{color:var(--text-dim)}
+#screen-movimientos .empty-mov{color:var(--text-dim)}
+
+/* ══ DÉBITO (#screen-cuentas) e HISTORIAL (#screen-movimientos) ══ */
+#screen-cuentas #deb-saludo-header > div:last-child{
+  padding:0 14px !important;border-radius:14px;background:var(--bg);box-shadow:var(--nm-raised-sm);
+}
+#screen-cuentas #deb-mov-list,
+#screen-movimientos #deb-movimientos-lista,
+#screen-movimientos #movimientos-full{
+  padding:6px 12px 14px;margin:-6px -12px -14px;max-height:524px !important;
+}
+#screen-movimientos .section-card{margin-bottom:20px !important}
+#screen-cuentas .section-card{margin-bottom:32px}
+
+/* Interruptor Crédito / Débito del historial */
+#screen-movimientos #hist-tipo-btns{background:var(--bg) !important;border:none !important;box-shadow:var(--nm-inset)}
+#screen-movimientos #hist-toggle-slider{background:var(--bg) !important;box-shadow:var(--nm-raised-sm) !important}
+#screen-movimientos #hist-tipo-btns button{transition:color .2s ease,transform .15s ease}
+#screen-movimientos #hist-tipo-btns button:active{transform:scale(0.97)}
+
+/* Selectores de búsqueda (banco / tarjeta / año / corte / mes) */
+#screen-movimientos .hist-step{
+  background:var(--bg) !important;border:none !important;border-radius:18px !important;
+  margin-bottom:20px !important;box-shadow:var(--nm-raised) !important;
+  transition:box-shadow .2s ease !important;
+}
+#screen-movimientos .hist-step:not(.dd-open):active{box-shadow:var(--nm-inset-sm) !important}
+#screen-movimientos .hist-step.dd-open{box-shadow:var(--nm-inset) !important}
+#screen-movimientos .hist-step.dd-open > .hist-step-head{background:transparent !important}
+#screen-movimientos .hist-dd-panel{
+  background:transparent !important;border-top:none !important;box-shadow:none !important;padding:4px 12px 14px;
+}
+#screen-movimientos .hist-dd-item{
+  background:var(--bg);border:none;border-radius:14px;margin:10px 0 0;padding:13px 16px;
+  box-shadow:var(--nm-raised-sm);transition:box-shadow .2s ease,transform .15s ease;
+}
+#screen-movimientos .hist-dd-item:last-child{box-shadow:var(--nm-raised-sm)}
+#screen-movimientos .hist-dd-item:active{background:var(--bg);filter:none;transform:scale(0.985);box-shadow:var(--nm-inset-sm)}
+@media (hover:hover){#screen-movimientos .hist-dd-item:hover{background:var(--bg)}}
+
+/* Botón "Nueva búsqueda" */
+#btn-nueva-busqueda,#deb-btn-nueva-busqueda{
+  background:var(--bg) !important;color:var(--text) !important;border:none !important;
+  box-shadow:var(--nm-raised-sm) !important;transition:box-shadow .2s ease,transform .15s ease;
+}
+#btn-nueva-busqueda:active,#deb-btn-nueva-busqueda:active{transform:scale(0.98);box-shadow:var(--nm-inset-sm) !important}
+
+/* Resumen de selección: los datos quedan "grabados" */
+#screen-movimientos #resumen-seleccion,#screen-movimientos #deb-resumen{box-shadow:var(--nm-inset)}
+
+/* Promociones vigentes del corte */
+#screen-movimientos .promo-dark-card{
+  background:var(--bg);border:none;color:var(--text);box-shadow:var(--nm-raised-sm);
+  transition:box-shadow .2s ease,transform .15s ease;
+}
+#screen-movimientos .promo-dark-card:active{transform:scale(0.985);box-shadow:var(--nm-inset-sm)}
+#screen-movimientos .promo-dark-title,
+#screen-movimientos .promo-dark-value{color:var(--text)}
+#screen-movimientos .promo-dark-sub,
+#screen-movimientos .promo-dark-label,
+#screen-movimientos .promo-dark-footer-left{color:var(--text-dim)}
+#screen-movimientos .promo-dark-divider{height:3px;border-radius:3px;background:var(--bg);
+  box-shadow:inset 1px 1px 2px var(--nm-dark),inset -1px -1px 2px var(--nm-light)}
+#screen-movimientos .promo-dark-badge{background:var(--bg);color:var(--text-dim);
+  box-shadow:inset 2px 2px 4px var(--nm-dark),inset -2px -2px 4px var(--nm-light)}
+#screen-movimientos .promo-dark-menu{background:var(--bg);border:none;color:var(--text-dim);box-shadow:var(--nm-raised-sm)}
+
+/* ── Modales: editar débito, confirmar búsqueda ── */
+#modal-edit-deb .modal,#modal-confirm-hist .modal{
+  background:var(--bg);border:none !important;
+  box-shadow:0 -6px 30px rgba(0,0,0,0.18),inset 0 1px 0 var(--nm-light);
+}
+#modal-edit-deb .inp{background:var(--bg);border:none;box-shadow:var(--nm-inset-sm);transition:box-shadow .2s ease}
+#modal-edit-deb .inp:focus{border:none;box-shadow:var(--nm-inset)}
+#modal-edit-deb .btn-flat-cancel,#modal-edit-deb .modal-save,#modal-edit-deb .btn-flat-confirm{
+  background:var(--bg) !important;border:none !important;border-radius:14px;color:var(--text) !important;
+  box-shadow:var(--nm-raised-sm) !important;transition:box-shadow .2s ease,transform .15s ease;
+}
+#modal-edit-deb .btn-flat-cancel:active,#modal-edit-deb .modal-save:active,#modal-edit-deb .btn-flat-confirm:active{
+  transform:scale(0.98);box-shadow:var(--nm-inset-sm) !important;
+}
+#confirm-hist-panel{background:var(--bg) !important;border:none !important;box-shadow:var(--nm-inset) !important}
+#confirm-hist-cancel-btn,#confirm-hist-accept-btn{
+  background:var(--bg) !important;border:none !important;color:var(--text) !important;
+  box-shadow:var(--nm-raised-sm) !important;transition:box-shadow .2s ease,transform .15s ease;
+}
+#confirm-hist-cancel-btn:active,#confirm-hist-accept-btn:active{transform:scale(0.98);box-shadow:var(--nm-inset-sm) !important}
+
+/* ── Asistente por pasos (búsqueda del historial, editar/agregar) ── */
+#modal-gasto-wizard .modal{background:var(--bg);border:none;box-shadow:12px 12px 28px rgba(0,0,0,0.28),-6px -6px 20px var(--nm-light)}
+#modal-gasto-wizard .gw-close{border:none;background:var(--bg);box-shadow:var(--nm-raised-sm);transition:box-shadow .2s ease,transform .15s ease}
+#modal-gasto-wizard .gw-close:active{transform:scale(0.94);box-shadow:var(--nm-inset-sm)}
+#modal-gasto-wizard .gw-dot{height:6px;border-radius:3px;background:var(--bg);box-shadow:inset 1px 1px 2px var(--nm-dark),inset -1px -1px 2px var(--nm-light)}
+#modal-gasto-wizard .gw-dot.done{background:var(--text-dim)}
+#modal-gasto-wizard .gw-dot.active{background:var(--text)}
+#modal-gasto-wizard .gw-recap{background:var(--bg);border:none;box-shadow:var(--nm-inset-sm)}
+#modal-gasto-wizard .gw-tipo{border:none;background:var(--bg);box-shadow:var(--nm-raised-sm);transition:box-shadow .2s ease,transform .15s ease}
+#modal-gasto-wizard .gw-tipo:active{transform:scale(0.985);box-shadow:var(--nm-inset-sm)}
+#modal-gasto-wizard .gw-tipo.sel{border:none;background:var(--bg);box-shadow:var(--nm-inset)}
+#gw-body input:not([type="hidden"]),#gw-body textarea{
+  background:var(--bg) !important;border:none !important;box-shadow:var(--nm-inset-sm) !important;
+  transition:box-shadow .2s ease;
+}
+#gw-body input:not([type="hidden"]):focus,#gw-body textarea:focus{box-shadow:var(--nm-inset) !important}
+#gw-body div[style*="background:var(--card-bg-soft)"]{background:var(--bg) !important;box-shadow:var(--nm-inset-sm)}
+#gw-body div[style*="pointer-events:none"]{
+  border:none !important;background:var(--bg) !important;box-shadow:var(--nm-raised-sm) !important;
+}
+#modal-gasto-wizard .btn-flat-cancel,#modal-gasto-wizard .btn-flat-confirm,
+#modal-gasto-wizard .modal .btn-flat-cancel,#modal-gasto-wizard .modal .btn-flat-confirm,
+html.dark-mode #modal-gasto-wizard .modal .btn-flat-cancel,
+html.dark-mode #modal-gasto-wizard .modal .btn-flat-confirm{
+  background:var(--bg) !important;border:none !important;border-radius:14px;color:var(--text) !important;
+  box-shadow:var(--nm-raised-sm) !important;transition:box-shadow .2s ease,transform .15s ease;
+}
+#modal-gasto-wizard .btn-flat-cancel:active,#modal-gasto-wizard .btn-flat-confirm:active,
+html.dark-mode #modal-gasto-wizard .modal .btn-flat-cancel:active,
+html.dark-mode #modal-gasto-wizard .modal .btn-flat-confirm:active{
+  transform:scale(0.98);box-shadow:var(--nm-inset-sm) !important;
+}
+
+/* ══ NUEVO GASTO · PROMOCIONES · PERFILES ══ */
+
+/* Interruptores (Crédito/Débito, MSI/Cargos, Ingreso/Egreso…) */
+#screen-nuevo div[style*="var(--toggle-pill-bg)"],
+#screen-promociones div[style*="var(--toggle-pill-bg)"],
+#perfil-tab-toggle,
+#edit-tarjeta-overlay div[style*="var(--toggle-pill-bg)"],
+#confirm-elim-overlay div[style*="var(--toggle-pill-bg)"],
+#modal-promo-overlay div[style*="var(--toggle-pill-bg)"],
+#banco-promo-popup div[style*="var(--toggle-pill-bg)"],
+#tarjeta-promo-popup div[style*="var(--toggle-pill-bg)"],
+#modal-ext-overlay div[style*="var(--toggle-pill-bg)"],
+#datepicker-overlay div[style*="var(--toggle-pill-bg)"],
+#edit-debito-overlay div[style*="var(--toggle-pill-bg)"],
+#modal-eliminar-banco div[style*="var(--toggle-pill-bg)"],
+#modal-eliminar-debito div[style*="var(--toggle-pill-bg)"],
+#modal-eliminar-perfil div[style*="var(--toggle-pill-bg)"],
+#modal-detalle-promo div[style*="var(--toggle-pill-bg)"],
+#confirm-promo-overlay div[style*="var(--toggle-pill-bg)"],
+#modal-edit-promo div[style*="var(--toggle-pill-bg)"],
+#modal-promos-historial div[style*="var(--toggle-pill-bg)"],
+#modal-debito-overlay div[style*="var(--toggle-pill-bg)"],
+#modal-deb-resumen div[style*="var(--toggle-pill-bg)"],
+#modal-confirm-mov div[style*="var(--toggle-pill-bg)"],
+#modal-confirm-banco-cambio div[style*="var(--toggle-pill-bg)"],
+#modal-perfil-acciones div[style*="var(--toggle-pill-bg)"],
+#modal-resumen-movimiento div[style*="var(--toggle-pill-bg)"],
+#modal-cargo-recurrente div[style*="var(--toggle-pill-bg)"],
+#modal-nueva-tarjeta div[style*="var(--toggle-pill-bg)"],
+#modal-nueva-cuenta div[style*="var(--toggle-pill-bg)"],
+#modal-detalle-cargo div[style*="var(--toggle-pill-bg)"],
+#confirm-cargo-overlay div[style*="var(--toggle-pill-bg)"],
+#modal-cargo-accion div[style*="var(--toggle-pill-bg)"],
+#modal-resumen-promo div[style*="var(--toggle-pill-bg)"],
+#modal-resumen-cambio-debito div[style*="var(--toggle-pill-bg)"],
+#modal-resumen-cambio-tarjeta div[style*="var(--toggle-pill-bg)"],
+#modal-debito-overlay div[style*="background:var(--card-bg-soft)"][style*="padding:4px"]{
+  background:var(--bg) !important;border:none !important;box-shadow:var(--nm-inset) !important;
+}
+#nuevo-toggle-slider,
+#promo-tab-slider,
+#perfil-tab-slider,
+#cargo-toggle-slider,
+#debito-tipo-slider{
+  background:var(--bg) !important;box-shadow:var(--nm-raised-sm) !important;
+}
+#screen-nuevo button[id^="nuevo-btn-"],#screen-promociones button[id^="promo-tab-"],#perfil-tab-toggle button,
+#cargo-btn-credito,#cargo-btn-debito,#debito-toggle-ingreso,#debito-toggle-egreso{transition:color .2s ease,transform .15s ease}
+
+/* Nuevo gasto: botones grandes */
+#screen-nuevo .btn-registro{
+  background:var(--bg) !important;color:var(--text) !important;border:none !important;
+  margin-bottom:22px !important;box-shadow:var(--nm-raised) !important;
+  transition:box-shadow .2s ease,transform .15s ease;
+}
+#screen-nuevo .btn-registro:active{transform:scale(0.985);box-shadow:var(--nm-inset) !important}
+#screen-nuevo .btn-registro div[style*="rgba(255,255,255,0.6)"]{color:var(--text-dim) !important}
+#screen-nuevo .btn-registro svg{stroke:var(--text-dim) !important}
+
+/* Promociones: botones de alta */
+#btn-nueva-promo-msi,#btn-nuevo-cargo-recurrente,#btn-agregar-tarjeta-fuera{
+  background:var(--bg) !important;color:var(--text) !important;border:none !important;
+  box-shadow:var(--nm-raised-sm) !important;transition:box-shadow .2s ease,transform .15s ease;
+}
+#btn-nueva-promo-msi,#btn-nuevo-cargo-recurrente{margin-bottom:22px !important}
+#btn-nueva-promo-msi:active,#btn-nuevo-cargo-recurrente:active,#btn-agregar-tarjeta-fuera:active{
+  transform:scale(0.98);box-shadow:var(--nm-inset-sm) !important;
+}
+
+/* Tarjetas de promoción / perfil (antes negras) */
+#screen-promociones .promo-dark-card,#screen-perfiles .promo-dark-card{
+  background:var(--bg);border:none;color:var(--text);box-shadow:var(--nm-raised-sm);
+  transition:box-shadow .2s ease,transform .15s ease;
+}
+#screen-promociones .promo-dark-card:active,#screen-perfiles .promo-dark-card:active{transform:scale(0.985);box-shadow:var(--nm-inset-sm)}
+#screen-promociones .promo-dark-title,#screen-promociones .promo-dark-value,
+#screen-perfiles .promo-dark-title,#screen-perfiles .promo-dark-value{color:var(--text)}
+#screen-promociones .promo-dark-sub,#screen-promociones .promo-dark-label,#screen-promociones .promo-dark-footer-left,
+#screen-perfiles .promo-dark-sub,#screen-perfiles .promo-dark-label,#screen-perfiles .promo-dark-footer-left{color:var(--text-dim)}
+#screen-promociones .promo-dark-divider,#screen-perfiles .promo-dark-divider{
+  height:3px;border-radius:3px;background:var(--bg);
+  box-shadow:inset 1px 1px 2px var(--nm-dark),inset -1px -1px 2px var(--nm-light);
+}
+#screen-promociones .promo-dark-badge,#screen-perfiles .promo-dark-badge{
+  background:var(--bg);color:var(--text-dim);
+  box-shadow:inset 2px 2px 4px var(--nm-dark),inset -2px -2px 4px var(--nm-light);
+}
+#screen-promociones .promo-dark-menu,#screen-perfiles .promo-dark-menu{
+  background:var(--bg);border:none;color:var(--text-dim);box-shadow:var(--nm-raised-sm);
+}
+#screen-perfiles .promo-dark-menu svg{stroke:var(--text-dim)}
+#screen-promociones .promo-dark-card svg,#screen-perfiles .promo-dark-footer svg{color:var(--text-dim)}
+
+/* Perfiles */
+#perfil-header-card{background:var(--bg) !important;border-radius:20px !important;box-shadow:var(--nm-raised) !important;margin-bottom:20px !important}
+#perfil-activo-badge{background:var(--bg) !important;color:var(--text-dim) !important;
+  box-shadow:inset 2px 2px 4px var(--nm-dark),inset -2px -2px 4px var(--nm-light)}
+#perfil-cards-box{overflow:visible !important}
+#screen-perfiles .perfil-cards-scroll{padding:8px 12px 14px;margin:-8px -12px -14px}
+#screen-perfiles div[style*="border:1.5px dashed var(--border)"],
+#screen-perfiles button[style*="border:1.5px dashed var(--border)"]{
+  border:none !important;background:var(--bg) !important;box-shadow:var(--nm-raised-sm) !important;
+}
+#screen-perfiles #form-edit-tarjeta,#screen-perfiles div[style*="background:var(--card-bg-soft);border-radius:12px"]{
+  background:var(--bg) !important;box-shadow:var(--nm-inset) !important;
+}
+#screen-perfiles .banco-selector-btn{border:none !important;background:var(--bg) !important;box-shadow:var(--nm-inset-sm) !important}
+#screen-perfiles input:not([type="hidden"]){background:var(--bg) !important;border:none !important;box-shadow:var(--nm-inset-sm) !important}
+#screen-perfiles div[style*="pointer-events:none"]{border:none !important;background:var(--bg) !important;box-shadow:var(--nm-raised-sm) !important}
+#screen-perfiles div[style*="background:var(--icon-bg);border-radius:14px"]{background:var(--bg) !important;box-shadow:var(--nm-inset-sm)}
+
+/* ── Modales (nuevo gasto, promociones, perfiles) ── */
+#edit-tarjeta-overlay .modal,
+#confirm-elim-overlay .modal,
+#modal-promo-overlay .modal,
+#banco-promo-popup .modal,
+#tarjeta-promo-popup .modal,
+#modal-ext-overlay .modal,
+#datepicker-overlay .modal,
+#edit-debito-overlay .modal,
+#modal-eliminar-banco .modal,
+#modal-eliminar-debito .modal,
+#modal-eliminar-perfil .modal,
+#modal-detalle-promo .modal,
+#confirm-promo-overlay .modal,
+#modal-edit-promo .modal,
+#modal-promos-historial .modal,
+#modal-debito-overlay .modal,
+#modal-deb-resumen .modal,
+#modal-confirm-mov .modal,
+#modal-confirm-banco-cambio .modal,
+#modal-perfil-acciones .modal,
+#modal-resumen-movimiento .modal,
+#modal-cargo-recurrente .modal,
+#modal-nueva-tarjeta .modal,
+#modal-nueva-cuenta .modal,
+#modal-detalle-cargo .modal,
+#confirm-cargo-overlay .modal,
+#modal-cargo-accion .modal,
+#modal-resumen-promo .modal,
+#modal-resumen-cambio-debito .modal,
+#modal-resumen-cambio-tarjeta .modal{
+  background:var(--bg);border:none !important;
+  box-shadow:0 -6px 30px rgba(0,0,0,0.18),inset 0 1px 0 var(--nm-light);
+}
+#edit-tarjeta-overlay input:not([type="hidden"]):not([type="checkbox"]):not([type="radio"]),
+#confirm-elim-overlay input:not([type="hidden"]):not([type="checkbox"]):not([type="radio"]),
+#modal-promo-overlay input:not([type="hidden"]):not([type="checkbox"]):not([type="radio"]),
+#banco-promo-popup input:not([type="hidden"]):not([type="checkbox"]):not([type="radio"]),
+#tarjeta-promo-popup input:not([type="hidden"]):not([type="checkbox"]):not([type="radio"]),
+#modal-ext-overlay input:not([type="hidden"]):not([type="checkbox"]):not([type="radio"]),
+#datepicker-overlay input:not([type="hidden"]):not([type="checkbox"]):not([type="radio"]),
+#edit-debito-overlay input:not([type="hidden"]):not([type="checkbox"]):not([type="radio"]),
+#modal-eliminar-banco input:not([type="hidden"]):not([type="checkbox"]):not([type="radio"]),
+#modal-eliminar-debito input:not([type="hidden"]):not([type="checkbox"]):not([type="radio"]),
+#modal-eliminar-perfil input:not([type="hidden"]):not([type="checkbox"]):not([type="radio"]),
+#modal-detalle-promo input:not([type="hidden"]):not([type="checkbox"]):not([type="radio"]),
+#confirm-promo-overlay input:not([type="hidden"]):not([type="checkbox"]):not([type="radio"]),
+#modal-edit-promo input:not([type="hidden"]):not([type="checkbox"]):not([type="radio"]),
+#modal-promos-historial input:not([type="hidden"]):not([type="checkbox"]):not([type="radio"]),
+#modal-debito-overlay input:not([type="hidden"]):not([type="checkbox"]):not([type="radio"]),
+#modal-deb-resumen input:not([type="hidden"]):not([type="checkbox"]):not([type="radio"]),
+#modal-confirm-mov input:not([type="hidden"]):not([type="checkbox"]):not([type="radio"]),
+#modal-confirm-banco-cambio input:not([type="hidden"]):not([type="checkbox"]):not([type="radio"]),
+#modal-perfil-acciones input:not([type="hidden"]):not([type="checkbox"]):not([type="radio"]),
+#modal-resumen-movimiento input:not([type="hidden"]):not([type="checkbox"]):not([type="radio"]),
+#modal-cargo-recurrente input:not([type="hidden"]):not([type="checkbox"]):not([type="radio"]),
+#modal-nueva-tarjeta input:not([type="hidden"]):not([type="checkbox"]):not([type="radio"]),
+#modal-nueva-cuenta input:not([type="hidden"]):not([type="checkbox"]):not([type="radio"]),
+#modal-detalle-cargo input:not([type="hidden"]):not([type="checkbox"]):not([type="radio"]),
+#confirm-cargo-overlay input:not([type="hidden"]):not([type="checkbox"]):not([type="radio"]),
+#modal-cargo-accion input:not([type="hidden"]):not([type="checkbox"]):not([type="radio"]),
+#modal-resumen-promo input:not([type="hidden"]):not([type="checkbox"]):not([type="radio"]),
+#modal-resumen-cambio-debito input:not([type="hidden"]):not([type="checkbox"]):not([type="radio"]),
+#modal-resumen-cambio-tarjeta input:not([type="hidden"]):not([type="checkbox"]):not([type="radio"]),
+#edit-tarjeta-overlay textarea,
+#confirm-elim-overlay textarea,
+#modal-promo-overlay textarea,
+#banco-promo-popup textarea,
+#tarjeta-promo-popup textarea,
+#modal-ext-overlay textarea,
+#datepicker-overlay textarea,
+#edit-debito-overlay textarea,
+#modal-eliminar-banco textarea,
+#modal-eliminar-debito textarea,
+#modal-eliminar-perfil textarea,
+#modal-detalle-promo textarea,
+#confirm-promo-overlay textarea,
+#modal-edit-promo textarea,
+#modal-promos-historial textarea,
+#modal-debito-overlay textarea,
+#modal-deb-resumen textarea,
+#modal-confirm-mov textarea,
+#modal-confirm-banco-cambio textarea,
+#modal-perfil-acciones textarea,
+#modal-resumen-movimiento textarea,
+#modal-cargo-recurrente textarea,
+#modal-nueva-tarjeta textarea,
+#modal-nueva-cuenta textarea,
+#modal-detalle-cargo textarea,
+#confirm-cargo-overlay textarea,
+#modal-cargo-accion textarea,
+#modal-resumen-promo textarea,
+#modal-resumen-cambio-debito textarea,
+#modal-resumen-cambio-tarjeta textarea,
+#edit-tarjeta-overlay select,
+#confirm-elim-overlay select,
+#modal-promo-overlay select,
+#banco-promo-popup select,
+#tarjeta-promo-popup select,
+#modal-ext-overlay select,
+#datepicker-overlay select,
+#edit-debito-overlay select,
+#modal-eliminar-banco select,
+#modal-eliminar-debito select,
+#modal-eliminar-perfil select,
+#modal-detalle-promo select,
+#confirm-promo-overlay select,
+#modal-edit-promo select,
+#modal-promos-historial select,
+#modal-debito-overlay select,
+#modal-deb-resumen select,
+#modal-confirm-mov select,
+#modal-confirm-banco-cambio select,
+#modal-perfil-acciones select,
+#modal-resumen-movimiento select,
+#modal-cargo-recurrente select,
+#modal-nueva-tarjeta select,
+#modal-nueva-cuenta select,
+#modal-detalle-cargo select,
+#confirm-cargo-overlay select,
+#modal-cargo-accion select,
+#modal-resumen-promo select,
+#modal-resumen-cambio-debito select,
+#modal-resumen-cambio-tarjeta select,
+#edit-tarjeta-overlay .inp,
+#confirm-elim-overlay .inp,
+#modal-promo-overlay .inp,
+#banco-promo-popup .inp,
+#tarjeta-promo-popup .inp,
+#modal-ext-overlay .inp,
+#datepicker-overlay .inp,
+#edit-debito-overlay .inp,
+#modal-eliminar-banco .inp,
+#modal-eliminar-debito .inp,
+#modal-eliminar-perfil .inp,
+#modal-detalle-promo .inp,
+#confirm-promo-overlay .inp,
+#modal-edit-promo .inp,
+#modal-promos-historial .inp,
+#modal-debito-overlay .inp,
+#modal-deb-resumen .inp,
+#modal-confirm-mov .inp,
+#modal-confirm-banco-cambio .inp,
+#modal-perfil-acciones .inp,
+#modal-resumen-movimiento .inp,
+#modal-cargo-recurrente .inp,
+#modal-nueva-tarjeta .inp,
+#modal-nueva-cuenta .inp,
+#modal-detalle-cargo .inp,
+#confirm-cargo-overlay .inp,
+#modal-cargo-accion .inp,
+#modal-resumen-promo .inp,
+#modal-resumen-cambio-debito .inp,
+#modal-resumen-cambio-tarjeta .inp{
+  background:var(--bg) !important;border:none !important;box-shadow:var(--nm-inset-sm) !important;
+  transition:box-shadow .2s ease;
+}
+#edit-tarjeta-overlay input:not([type="hidden"]):focus,
+#confirm-elim-overlay input:not([type="hidden"]):focus,
+#modal-promo-overlay input:not([type="hidden"]):focus,
+#banco-promo-popup input:not([type="hidden"]):focus,
+#tarjeta-promo-popup input:not([type="hidden"]):focus,
+#modal-ext-overlay input:not([type="hidden"]):focus,
+#datepicker-overlay input:not([type="hidden"]):focus,
+#edit-debito-overlay input:not([type="hidden"]):focus,
+#modal-eliminar-banco input:not([type="hidden"]):focus,
+#modal-eliminar-debito input:not([type="hidden"]):focus,
+#modal-eliminar-perfil input:not([type="hidden"]):focus,
+#modal-detalle-promo input:not([type="hidden"]):focus,
+#confirm-promo-overlay input:not([type="hidden"]):focus,
+#modal-edit-promo input:not([type="hidden"]):focus,
+#modal-promos-historial input:not([type="hidden"]):focus,
+#modal-debito-overlay input:not([type="hidden"]):focus,
+#modal-deb-resumen input:not([type="hidden"]):focus,
+#modal-confirm-mov input:not([type="hidden"]):focus,
+#modal-confirm-banco-cambio input:not([type="hidden"]):focus,
+#modal-perfil-acciones input:not([type="hidden"]):focus,
+#modal-resumen-movimiento input:not([type="hidden"]):focus,
+#modal-cargo-recurrente input:not([type="hidden"]):focus,
+#modal-nueva-tarjeta input:not([type="hidden"]):focus,
+#modal-nueva-cuenta input:not([type="hidden"]):focus,
+#modal-detalle-cargo input:not([type="hidden"]):focus,
+#confirm-cargo-overlay input:not([type="hidden"]):focus,
+#modal-cargo-accion input:not([type="hidden"]):focus,
+#modal-resumen-promo input:not([type="hidden"]):focus,
+#modal-resumen-cambio-debito input:not([type="hidden"]):focus,
+#modal-resumen-cambio-tarjeta input:not([type="hidden"]):focus,
+#edit-tarjeta-overlay textarea:focus,
+#confirm-elim-overlay textarea:focus,
+#modal-promo-overlay textarea:focus,
+#banco-promo-popup textarea:focus,
+#tarjeta-promo-popup textarea:focus,
+#modal-ext-overlay textarea:focus,
+#datepicker-overlay textarea:focus,
+#edit-debito-overlay textarea:focus,
+#modal-eliminar-banco textarea:focus,
+#modal-eliminar-debito textarea:focus,
+#modal-eliminar-perfil textarea:focus,
+#modal-detalle-promo textarea:focus,
+#confirm-promo-overlay textarea:focus,
+#modal-edit-promo textarea:focus,
+#modal-promos-historial textarea:focus,
+#modal-debito-overlay textarea:focus,
+#modal-deb-resumen textarea:focus,
+#modal-confirm-mov textarea:focus,
+#modal-confirm-banco-cambio textarea:focus,
+#modal-perfil-acciones textarea:focus,
+#modal-resumen-movimiento textarea:focus,
+#modal-cargo-recurrente textarea:focus,
+#modal-nueva-tarjeta textarea:focus,
+#modal-nueva-cuenta textarea:focus,
+#modal-detalle-cargo textarea:focus,
+#confirm-cargo-overlay textarea:focus,
+#modal-cargo-accion textarea:focus,
+#modal-resumen-promo textarea:focus,
+#modal-resumen-cambio-debito textarea:focus,
+#modal-resumen-cambio-tarjeta textarea:focus,
+#edit-tarjeta-overlay .inp:focus,
+#confirm-elim-overlay .inp:focus,
+#modal-promo-overlay .inp:focus,
+#banco-promo-popup .inp:focus,
+#tarjeta-promo-popup .inp:focus,
+#modal-ext-overlay .inp:focus,
+#datepicker-overlay .inp:focus,
+#edit-debito-overlay .inp:focus,
+#modal-eliminar-banco .inp:focus,
+#modal-eliminar-debito .inp:focus,
+#modal-eliminar-perfil .inp:focus,
+#modal-detalle-promo .inp:focus,
+#confirm-promo-overlay .inp:focus,
+#modal-edit-promo .inp:focus,
+#modal-promos-historial .inp:focus,
+#modal-debito-overlay .inp:focus,
+#modal-deb-resumen .inp:focus,
+#modal-confirm-mov .inp:focus,
+#modal-confirm-banco-cambio .inp:focus,
+#modal-perfil-acciones .inp:focus,
+#modal-resumen-movimiento .inp:focus,
+#modal-cargo-recurrente .inp:focus,
+#modal-nueva-tarjeta .inp:focus,
+#modal-nueva-cuenta .inp:focus,
+#modal-detalle-cargo .inp:focus,
+#confirm-cargo-overlay .inp:focus,
+#modal-cargo-accion .inp:focus,
+#modal-resumen-promo .inp:focus,
+#modal-resumen-cambio-debito .inp:focus,
+#modal-resumen-cambio-tarjeta .inp:focus{
+  box-shadow:var(--nm-inset) !important;
+}
+#edit-tarjeta-overlay div[style*="var(--input-bg)"],
+#confirm-elim-overlay div[style*="var(--input-bg)"],
+#modal-promo-overlay div[style*="var(--input-bg)"],
+#banco-promo-popup div[style*="var(--input-bg)"],
+#tarjeta-promo-popup div[style*="var(--input-bg)"],
+#modal-ext-overlay div[style*="var(--input-bg)"],
+#datepicker-overlay div[style*="var(--input-bg)"],
+#edit-debito-overlay div[style*="var(--input-bg)"],
+#modal-eliminar-banco div[style*="var(--input-bg)"],
+#modal-eliminar-debito div[style*="var(--input-bg)"],
+#modal-eliminar-perfil div[style*="var(--input-bg)"],
+#modal-detalle-promo div[style*="var(--input-bg)"],
+#confirm-promo-overlay div[style*="var(--input-bg)"],
+#modal-edit-promo div[style*="var(--input-bg)"],
+#modal-promos-historial div[style*="var(--input-bg)"],
+#modal-debito-overlay div[style*="var(--input-bg)"],
+#modal-deb-resumen div[style*="var(--input-bg)"],
+#modal-confirm-mov div[style*="var(--input-bg)"],
+#modal-confirm-banco-cambio div[style*="var(--input-bg)"],
+#modal-perfil-acciones div[style*="var(--input-bg)"],
+#modal-resumen-movimiento div[style*="var(--input-bg)"],
+#modal-cargo-recurrente div[style*="var(--input-bg)"],
+#modal-nueva-tarjeta div[style*="var(--input-bg)"],
+#modal-nueva-cuenta div[style*="var(--input-bg)"],
+#modal-detalle-cargo div[style*="var(--input-bg)"],
+#confirm-cargo-overlay div[style*="var(--input-bg)"],
+#modal-cargo-accion div[style*="var(--input-bg)"],
+#modal-resumen-promo div[style*="var(--input-bg)"],
+#modal-resumen-cambio-debito div[style*="var(--input-bg)"],
+#modal-resumen-cambio-tarjeta div[style*="var(--input-bg)"]{
+  border:none !important;background:var(--bg) !important;box-shadow:var(--nm-inset-sm) !important;
+}
+#edit-tarjeta-overlay div[style*="background:var(--card-bg-soft)"],
+#confirm-elim-overlay div[style*="background:var(--card-bg-soft)"],
+#modal-promo-overlay div[style*="background:var(--card-bg-soft)"],
+#banco-promo-popup div[style*="background:var(--card-bg-soft)"],
+#tarjeta-promo-popup div[style*="background:var(--card-bg-soft)"],
+#modal-ext-overlay div[style*="background:var(--card-bg-soft)"],
+#datepicker-overlay div[style*="background:var(--card-bg-soft)"],
+#edit-debito-overlay div[style*="background:var(--card-bg-soft)"],
+#modal-eliminar-banco div[style*="background:var(--card-bg-soft)"],
+#modal-eliminar-debito div[style*="background:var(--card-bg-soft)"],
+#modal-eliminar-perfil div[style*="background:var(--card-bg-soft)"],
+#modal-detalle-promo div[style*="background:var(--card-bg-soft)"],
+#confirm-promo-overlay div[style*="background:var(--card-bg-soft)"],
+#modal-edit-promo div[style*="background:var(--card-bg-soft)"],
+#modal-promos-historial div[style*="background:var(--card-bg-soft)"],
+#modal-debito-overlay div[style*="background:var(--card-bg-soft)"],
+#modal-deb-resumen div[style*="background:var(--card-bg-soft)"],
+#modal-confirm-mov div[style*="background:var(--card-bg-soft)"],
+#modal-confirm-banco-cambio div[style*="background:var(--card-bg-soft)"],
+#modal-perfil-acciones div[style*="background:var(--card-bg-soft)"],
+#modal-resumen-movimiento div[style*="background:var(--card-bg-soft)"],
+#modal-cargo-recurrente div[style*="background:var(--card-bg-soft)"],
+#modal-nueva-tarjeta div[style*="background:var(--card-bg-soft)"],
+#modal-nueva-cuenta div[style*="background:var(--card-bg-soft)"],
+#modal-detalle-cargo div[style*="background:var(--card-bg-soft)"],
+#confirm-cargo-overlay div[style*="background:var(--card-bg-soft)"],
+#modal-cargo-accion div[style*="background:var(--card-bg-soft)"],
+#modal-resumen-promo div[style*="background:var(--card-bg-soft)"],
+#modal-resumen-cambio-debito div[style*="background:var(--card-bg-soft)"],
+#modal-resumen-cambio-tarjeta div[style*="background:var(--card-bg-soft)"],
+#edit-tarjeta-overlay div[style*="background:var(--icon-bg)"],
+#confirm-elim-overlay div[style*="background:var(--icon-bg)"],
+#modal-promo-overlay div[style*="background:var(--icon-bg)"],
+#banco-promo-popup div[style*="background:var(--icon-bg)"],
+#tarjeta-promo-popup div[style*="background:var(--icon-bg)"],
+#modal-ext-overlay div[style*="background:var(--icon-bg)"],
+#datepicker-overlay div[style*="background:var(--icon-bg)"],
+#edit-debito-overlay div[style*="background:var(--icon-bg)"],
+#modal-eliminar-banco div[style*="background:var(--icon-bg)"],
+#modal-eliminar-debito div[style*="background:var(--icon-bg)"],
+#modal-eliminar-perfil div[style*="background:var(--icon-bg)"],
+#modal-detalle-promo div[style*="background:var(--icon-bg)"],
+#confirm-promo-overlay div[style*="background:var(--icon-bg)"],
+#modal-edit-promo div[style*="background:var(--icon-bg)"],
+#modal-promos-historial div[style*="background:var(--icon-bg)"],
+#modal-debito-overlay div[style*="background:var(--icon-bg)"],
+#modal-deb-resumen div[style*="background:var(--icon-bg)"],
+#modal-confirm-mov div[style*="background:var(--icon-bg)"],
+#modal-confirm-banco-cambio div[style*="background:var(--icon-bg)"],
+#modal-perfil-acciones div[style*="background:var(--icon-bg)"],
+#modal-resumen-movimiento div[style*="background:var(--icon-bg)"],
+#modal-cargo-recurrente div[style*="background:var(--icon-bg)"],
+#modal-nueva-tarjeta div[style*="background:var(--icon-bg)"],
+#modal-nueva-cuenta div[style*="background:var(--icon-bg)"],
+#modal-detalle-cargo div[style*="background:var(--icon-bg)"],
+#confirm-cargo-overlay div[style*="background:var(--icon-bg)"],
+#modal-cargo-accion div[style*="background:var(--icon-bg)"],
+#modal-resumen-promo div[style*="background:var(--icon-bg)"],
+#modal-resumen-cambio-debito div[style*="background:var(--icon-bg)"],
+#modal-resumen-cambio-tarjeta div[style*="background:var(--icon-bg)"]{
+  background:var(--bg) !important;box-shadow:var(--nm-inset-sm);
+}
+#edit-tarjeta-overlay div[style*="pointer-events:none"],
+#confirm-elim-overlay div[style*="pointer-events:none"],
+#modal-promo-overlay div[style*="pointer-events:none"],
+#banco-promo-popup div[style*="pointer-events:none"],
+#tarjeta-promo-popup div[style*="pointer-events:none"],
+#modal-ext-overlay div[style*="pointer-events:none"],
+#datepicker-overlay div[style*="pointer-events:none"],
+#edit-debito-overlay div[style*="pointer-events:none"],
+#modal-eliminar-banco div[style*="pointer-events:none"],
+#modal-eliminar-debito div[style*="pointer-events:none"],
+#modal-eliminar-perfil div[style*="pointer-events:none"],
+#modal-detalle-promo div[style*="pointer-events:none"],
+#confirm-promo-overlay div[style*="pointer-events:none"],
+#modal-edit-promo div[style*="pointer-events:none"],
+#modal-promos-historial div[style*="pointer-events:none"],
+#modal-debito-overlay div[style*="pointer-events:none"],
+#modal-deb-resumen div[style*="pointer-events:none"],
+#modal-confirm-mov div[style*="pointer-events:none"],
+#modal-confirm-banco-cambio div[style*="pointer-events:none"],
+#modal-perfil-acciones div[style*="pointer-events:none"],
+#modal-resumen-movimiento div[style*="pointer-events:none"],
+#modal-cargo-recurrente div[style*="pointer-events:none"],
+#modal-nueva-tarjeta div[style*="pointer-events:none"],
+#modal-nueva-cuenta div[style*="pointer-events:none"],
+#modal-detalle-cargo div[style*="pointer-events:none"],
+#confirm-cargo-overlay div[style*="pointer-events:none"],
+#modal-cargo-accion div[style*="pointer-events:none"],
+#modal-resumen-promo div[style*="pointer-events:none"],
+#modal-resumen-cambio-debito div[style*="pointer-events:none"],
+#modal-resumen-cambio-tarjeta div[style*="pointer-events:none"]{
+  border:none !important;background:var(--bg) !important;box-shadow:var(--nm-raised-sm) !important;
+}
+#edit-tarjeta-overlay div[style*="border-radius:16px"][style*="border:1px solid"],
+#confirm-elim-overlay div[style*="border-radius:16px"][style*="border:1px solid"],
+#modal-promo-overlay div[style*="border-radius:16px"][style*="border:1px solid"],
+#banco-promo-popup div[style*="border-radius:16px"][style*="border:1px solid"],
+#tarjeta-promo-popup div[style*="border-radius:16px"][style*="border:1px solid"],
+#modal-ext-overlay div[style*="border-radius:16px"][style*="border:1px solid"],
+#datepicker-overlay div[style*="border-radius:16px"][style*="border:1px solid"],
+#edit-debito-overlay div[style*="border-radius:16px"][style*="border:1px solid"],
+#modal-eliminar-banco div[style*="border-radius:16px"][style*="border:1px solid"],
+#modal-eliminar-debito div[style*="border-radius:16px"][style*="border:1px solid"],
+#modal-eliminar-perfil div[style*="border-radius:16px"][style*="border:1px solid"],
+#modal-detalle-promo div[style*="border-radius:16px"][style*="border:1px solid"],
+#confirm-promo-overlay div[style*="border-radius:16px"][style*="border:1px solid"],
+#modal-edit-promo div[style*="border-radius:16px"][style*="border:1px solid"],
+#modal-promos-historial div[style*="border-radius:16px"][style*="border:1px solid"],
+#modal-debito-overlay div[style*="border-radius:16px"][style*="border:1px solid"],
+#modal-deb-resumen div[style*="border-radius:16px"][style*="border:1px solid"],
+#modal-confirm-mov div[style*="border-radius:16px"][style*="border:1px solid"],
+#modal-confirm-banco-cambio div[style*="border-radius:16px"][style*="border:1px solid"],
+#modal-perfil-acciones div[style*="border-radius:16px"][style*="border:1px solid"],
+#modal-resumen-movimiento div[style*="border-radius:16px"][style*="border:1px solid"],
+#modal-cargo-recurrente div[style*="border-radius:16px"][style*="border:1px solid"],
+#modal-nueva-tarjeta div[style*="border-radius:16px"][style*="border:1px solid"],
+#modal-nueva-cuenta div[style*="border-radius:16px"][style*="border:1px solid"],
+#modal-detalle-cargo div[style*="border-radius:16px"][style*="border:1px solid"],
+#confirm-cargo-overlay div[style*="border-radius:16px"][style*="border:1px solid"],
+#modal-cargo-accion div[style*="border-radius:16px"][style*="border:1px solid"],
+#modal-resumen-promo div[style*="border-radius:16px"][style*="border:1px solid"],
+#modal-resumen-cambio-debito div[style*="border-radius:16px"][style*="border:1px solid"],
+#modal-resumen-cambio-tarjeta div[style*="border-radius:16px"][style*="border:1px solid"]{
+  background:var(--bg) !important;border:none !important;box-shadow:var(--nm-inset) !important;
+}
+#edit-tarjeta-overlay button:not([style*="background:none"]):not(.dg-close):not(.gw-close),
+#confirm-elim-overlay button:not([style*="background:none"]):not(.dg-close):not(.gw-close),
+#modal-promo-overlay button:not([style*="background:none"]):not(.dg-close):not(.gw-close),
+#banco-promo-popup button:not([style*="background:none"]):not(.dg-close):not(.gw-close),
+#tarjeta-promo-popup button:not([style*="background:none"]):not(.dg-close):not(.gw-close),
+#modal-ext-overlay button:not([style*="background:none"]):not(.dg-close):not(.gw-close),
+#datepicker-overlay button:not([style*="background:none"]):not(.dg-close):not(.gw-close),
+#edit-debito-overlay button:not([style*="background:none"]):not(.dg-close):not(.gw-close),
+#modal-eliminar-banco button:not([style*="background:none"]):not(.dg-close):not(.gw-close),
+#modal-eliminar-debito button:not([style*="background:none"]):not(.dg-close):not(.gw-close),
+#modal-eliminar-perfil button:not([style*="background:none"]):not(.dg-close):not(.gw-close),
+#modal-detalle-promo button:not([style*="background:none"]):not(.dg-close):not(.gw-close),
+#confirm-promo-overlay button:not([style*="background:none"]):not(.dg-close):not(.gw-close),
+#modal-edit-promo button:not([style*="background:none"]):not(.dg-close):not(.gw-close),
+#modal-promos-historial button:not([style*="background:none"]):not(.dg-close):not(.gw-close),
+#modal-debito-overlay button:not([style*="background:none"]):not(.dg-close):not(.gw-close),
+#modal-deb-resumen button:not([style*="background:none"]):not(.dg-close):not(.gw-close),
+#modal-confirm-mov button:not([style*="background:none"]):not(.dg-close):not(.gw-close),
+#modal-confirm-banco-cambio button:not([style*="background:none"]):not(.dg-close):not(.gw-close),
+#modal-perfil-acciones button:not([style*="background:none"]):not(.dg-close):not(.gw-close),
+#modal-resumen-movimiento button:not([style*="background:none"]):not(.dg-close):not(.gw-close),
+#modal-cargo-recurrente button:not([style*="background:none"]):not(.dg-close):not(.gw-close),
+#modal-nueva-tarjeta button:not([style*="background:none"]):not(.dg-close):not(.gw-close),
+#modal-nueva-cuenta button:not([style*="background:none"]):not(.dg-close):not(.gw-close),
+#modal-detalle-cargo button:not([style*="background:none"]):not(.dg-close):not(.gw-close),
+#confirm-cargo-overlay button:not([style*="background:none"]):not(.dg-close):not(.gw-close),
+#modal-cargo-accion button:not([style*="background:none"]):not(.dg-close):not(.gw-close),
+#modal-resumen-promo button:not([style*="background:none"]):not(.dg-close):not(.gw-close),
+#modal-resumen-cambio-debito button:not([style*="background:none"]):not(.dg-close):not(.gw-close),
+#modal-resumen-cambio-tarjeta button:not([style*="background:none"]):not(.dg-close):not(.gw-close){
+  background:var(--bg) !important;color:var(--text) !important;border:none !important;
+  box-shadow:var(--nm-raised-sm) !important;transition:box-shadow .2s ease,transform .15s ease;
+}
+#edit-tarjeta-overlay button:not([style*="background:none"]):not(.dg-close):not(.gw-close):active,
+#confirm-elim-overlay button:not([style*="background:none"]):not(.dg-close):not(.gw-close):active,
+#modal-promo-overlay button:not([style*="background:none"]):not(.dg-close):not(.gw-close):active,
+#banco-promo-popup button:not([style*="background:none"]):not(.dg-close):not(.gw-close):active,
+#tarjeta-promo-popup button:not([style*="background:none"]):not(.dg-close):not(.gw-close):active,
+#modal-ext-overlay button:not([style*="background:none"]):not(.dg-close):not(.gw-close):active,
+#datepicker-overlay button:not([style*="background:none"]):not(.dg-close):not(.gw-close):active,
+#edit-debito-overlay button:not([style*="background:none"]):not(.dg-close):not(.gw-close):active,
+#modal-eliminar-banco button:not([style*="background:none"]):not(.dg-close):not(.gw-close):active,
+#modal-eliminar-debito button:not([style*="background:none"]):not(.dg-close):not(.gw-close):active,
+#modal-eliminar-perfil button:not([style*="background:none"]):not(.dg-close):not(.gw-close):active,
+#modal-detalle-promo button:not([style*="background:none"]):not(.dg-close):not(.gw-close):active,
+#confirm-promo-overlay button:not([style*="background:none"]):not(.dg-close):not(.gw-close):active,
+#modal-edit-promo button:not([style*="background:none"]):not(.dg-close):not(.gw-close):active,
+#modal-promos-historial button:not([style*="background:none"]):not(.dg-close):not(.gw-close):active,
+#modal-debito-overlay button:not([style*="background:none"]):not(.dg-close):not(.gw-close):active,
+#modal-deb-resumen button:not([style*="background:none"]):not(.dg-close):not(.gw-close):active,
+#modal-confirm-mov button:not([style*="background:none"]):not(.dg-close):not(.gw-close):active,
+#modal-confirm-banco-cambio button:not([style*="background:none"]):not(.dg-close):not(.gw-close):active,
+#modal-perfil-acciones button:not([style*="background:none"]):not(.dg-close):not(.gw-close):active,
+#modal-resumen-movimiento button:not([style*="background:none"]):not(.dg-close):not(.gw-close):active,
+#modal-cargo-recurrente button:not([style*="background:none"]):not(.dg-close):not(.gw-close):active,
+#modal-nueva-tarjeta button:not([style*="background:none"]):not(.dg-close):not(.gw-close):active,
+#modal-nueva-cuenta button:not([style*="background:none"]):not(.dg-close):not(.gw-close):active,
+#modal-detalle-cargo button:not([style*="background:none"]):not(.dg-close):not(.gw-close):active,
+#confirm-cargo-overlay button:not([style*="background:none"]):not(.dg-close):not(.gw-close):active,
+#modal-cargo-accion button:not([style*="background:none"]):not(.dg-close):not(.gw-close):active,
+#modal-resumen-promo button:not([style*="background:none"]):not(.dg-close):not(.gw-close):active,
+#modal-resumen-cambio-debito button:not([style*="background:none"]):not(.dg-close):not(.gw-close):active,
+#modal-resumen-cambio-tarjeta button:not([style*="background:none"]):not(.dg-close):not(.gw-close):active{
+  transform:scale(0.98);box-shadow:var(--nm-inset-sm) !important;
+}
+#edit-tarjeta-overlay .dg-close,
+#confirm-elim-overlay .dg-close,
+#modal-promo-overlay .dg-close,
+#banco-promo-popup .dg-close,
+#tarjeta-promo-popup .dg-close,
+#modal-ext-overlay .dg-close,
+#datepicker-overlay .dg-close,
+#edit-debito-overlay .dg-close,
+#modal-eliminar-banco .dg-close,
+#modal-eliminar-debito .dg-close,
+#modal-eliminar-perfil .dg-close,
+#modal-detalle-promo .dg-close,
+#confirm-promo-overlay .dg-close,
+#modal-edit-promo .dg-close,
+#modal-promos-historial .dg-close,
+#modal-debito-overlay .dg-close,
+#modal-deb-resumen .dg-close,
+#modal-confirm-mov .dg-close,
+#modal-confirm-banco-cambio .dg-close,
+#modal-perfil-acciones .dg-close,
+#modal-resumen-movimiento .dg-close,
+#modal-cargo-recurrente .dg-close,
+#modal-nueva-tarjeta .dg-close,
+#modal-nueva-cuenta .dg-close,
+#modal-detalle-cargo .dg-close,
+#confirm-cargo-overlay .dg-close,
+#modal-cargo-accion .dg-close,
+#modal-resumen-promo .dg-close,
+#modal-resumen-cambio-debito .dg-close,
+#modal-resumen-cambio-tarjeta .dg-close{background:var(--bg) !important;border:none !important;box-shadow:var(--nm-raised-sm) !important}
+#edit-tarjeta-overlay .dg-close:active,
+#confirm-elim-overlay .dg-close:active,
+#modal-promo-overlay .dg-close:active,
+#banco-promo-popup .dg-close:active,
+#tarjeta-promo-popup .dg-close:active,
+#modal-ext-overlay .dg-close:active,
+#datepicker-overlay .dg-close:active,
+#edit-debito-overlay .dg-close:active,
+#modal-eliminar-banco .dg-close:active,
+#modal-eliminar-debito .dg-close:active,
+#modal-eliminar-perfil .dg-close:active,
+#modal-detalle-promo .dg-close:active,
+#confirm-promo-overlay .dg-close:active,
+#modal-edit-promo .dg-close:active,
+#modal-promos-historial .dg-close:active,
+#modal-debito-overlay .dg-close:active,
+#modal-deb-resumen .dg-close:active,
+#modal-confirm-mov .dg-close:active,
+#modal-confirm-banco-cambio .dg-close:active,
+#modal-perfil-acciones .dg-close:active,
+#modal-resumen-movimiento .dg-close:active,
+#modal-cargo-recurrente .dg-close:active,
+#modal-nueva-tarjeta .dg-close:active,
+#modal-nueva-cuenta .dg-close:active,
+#modal-detalle-cargo .dg-close:active,
+#confirm-cargo-overlay .dg-close:active,
+#modal-cargo-accion .dg-close:active,
+#modal-resumen-promo .dg-close:active,
+#modal-resumen-cambio-debito .dg-close:active,
+#modal-resumen-cambio-tarjeta .dg-close:active{box-shadow:var(--nm-inset-sm) !important}
+#detalle-promo-content div[style*="border-radius:16px"],#detalle-cargo-content div[style*="border-radius:16px"]{
+  background:var(--bg) !important;border:none !important;box-shadow:var(--nm-inset) !important;
+}
+#detalle-promo-content div[style*="border-bottom"],#detalle-cargo-content div[style*="border-bottom"]{border-bottom-color:rgba(127,127,127,0.18) !important}
+
+/* ══ LOGIN (bienvenida, usuarios, administrador y sus modales) ══ */
+#screen-welcome .welcome-icon,#screen-login .welcome-icon{
+  background:var(--bg);border:none;box-shadow:10px 10px 22px var(--nm-dark),-10px -10px 22px var(--nm-light);
+}
+#screen-welcome .welcome-icon svg,#screen-login .welcome-icon svg{stroke:var(--text) !important}
+#screen-welcome .btn-flat-cancel,#screen-welcome .btn-flat-confirm{
+  background:var(--bg) !important;border:none !important;color:var(--text) !important;
+  box-shadow:var(--nm-raised-sm) !important;transition:box-shadow .2s ease,transform .15s ease;
+}
+#screen-welcome .btn-flat-cancel:active,#screen-welcome .btn-flat-confirm:active{transform:scale(0.98);box-shadow:var(--nm-inset-sm) !important}
+
+#dark-mode-toggle{background:var(--bg) !important;border:none !important;box-shadow:var(--nm-raised-sm) !important;transition:box-shadow .2s ease,transform .15s ease}
+#dark-mode-toggle:active{transform:scale(0.94);box-shadow:var(--nm-inset-sm) !important}
+
+#login-users-list,#admin-users-list{gap:20px !important;margin-bottom:22px !important}
+.login-user-card{
+  background:var(--bg);border:none;box-shadow:var(--nm-raised);
+  transition:transform .15s ease,box-shadow .2s ease;
+}
+.login-user-card:active{transform:scale(0.98);box-shadow:var(--nm-inset)}
+.login-user-avatar{background:var(--bg);box-shadow:var(--nm-inset-sm)}
+.login-user-avatar svg{stroke:var(--text)}
+.login-user-arrow,.login-user-card:active .login-user-arrow{color:var(--text-dim)}
+.login-add-user-btn{
+  background:var(--bg);border:none;color:var(--text-dim);box-shadow:var(--nm-raised-sm);
+  transition:transform .15s ease,box-shadow .2s ease;
+}
+.login-add-user-btn:active{background:var(--bg);border:none;transform:scale(0.98);box-shadow:var(--nm-inset-sm)}
+
+.admin-user-card{background:var(--bg);border:none;box-shadow:var(--nm-raised)}
+.admin-user-card > div:first-child{background:var(--bg) !important;border:none !important;box-shadow:var(--nm-inset-sm)}
+.admin-user-card > div:first-child svg{stroke:var(--text) !important}
+.admin-icon-btn,.admin-back-btn{
+  background:var(--bg);border:none;box-shadow:var(--nm-raised-sm);
+  transition:box-shadow .2s ease,transform .15s ease;
+}
+.admin-icon-btn:active,.admin-back-btn:active{transform:scale(0.94);box-shadow:var(--nm-inset-sm)}
+
+/* ── Modales del login ── */
+#modal-admin-pass .modal,
+#modal-admin-editar .modal,
+#modal-login-pass .modal,
+#modal-nuevo-usuario .modal,
+#modal-sesion-activa .modal{
+  background:var(--bg);border:none !important;
+  box-shadow:0 -6px 30px rgba(0,0,0,0.18),inset 0 1px 0 var(--nm-light);
+}
+#modal-admin-pass input:not([type="hidden"]),
+#modal-admin-editar input:not([type="hidden"]),
+#modal-login-pass input:not([type="hidden"]),
+#modal-nuevo-usuario input:not([type="hidden"]),
+#modal-sesion-activa input:not([type="hidden"]),
+#modal-admin-pass .inp,
+#modal-admin-editar .inp,
+#modal-login-pass .inp,
+#modal-nuevo-usuario .inp,
+#modal-sesion-activa .inp{
+  background:var(--bg) !important;border:none !important;box-shadow:var(--nm-inset-sm) !important;
+  transition:box-shadow .2s ease;
+}
+#modal-admin-pass input:not([type="hidden"]):focus,
+#modal-admin-editar input:not([type="hidden"]):focus,
+#modal-login-pass input:not([type="hidden"]):focus,
+#modal-nuevo-usuario input:not([type="hidden"]):focus,
+#modal-sesion-activa input:not([type="hidden"]):focus,
+#modal-admin-pass .inp:focus,
+#modal-admin-editar .inp:focus,
+#modal-login-pass .inp:focus,
+#modal-nuevo-usuario .inp:focus,
+#modal-sesion-activa .inp:focus{
+  box-shadow:var(--nm-inset) !important;
+}
+#modal-admin-pass button:not([style*="background:none"]):not(.dg-close),
+#modal-admin-editar button:not([style*="background:none"]):not(.dg-close),
+#modal-login-pass button:not([style*="background:none"]):not(.dg-close),
+#modal-nuevo-usuario button:not([style*="background:none"]):not(.dg-close),
+#modal-sesion-activa button:not([style*="background:none"]):not(.dg-close),
+#modal-admin-pass .btn-flat-cancel,
+#modal-admin-editar .btn-flat-cancel,
+#modal-login-pass .btn-flat-cancel,
+#modal-nuevo-usuario .btn-flat-cancel,
+#modal-sesion-activa .btn-flat-cancel,
+#modal-admin-pass .btn-flat-confirm,
+#modal-admin-editar .btn-flat-confirm,
+#modal-login-pass .btn-flat-confirm,
+#modal-nuevo-usuario .btn-flat-confirm,
+#modal-sesion-activa .btn-flat-confirm,
+html.dark-mode #modal-admin-pass .btn-flat-cancel,
+html.dark-mode #modal-admin-editar .btn-flat-cancel,
+html.dark-mode #modal-login-pass .btn-flat-cancel,
+html.dark-mode #modal-nuevo-usuario .btn-flat-cancel,
+html.dark-mode #modal-sesion-activa .btn-flat-cancel,
+html.dark-mode #modal-admin-pass .btn-flat-confirm,
+html.dark-mode #modal-admin-editar .btn-flat-confirm,
+html.dark-mode #modal-login-pass .btn-flat-confirm,
+html.dark-mode #modal-nuevo-usuario .btn-flat-confirm,
+html.dark-mode #modal-sesion-activa .btn-flat-confirm{
+  background:var(--bg) !important;color:var(--text) !important;border:none !important;border-radius:14px;
+  box-shadow:var(--nm-raised-sm) !important;transition:box-shadow .2s ease,transform .15s ease;
+}
+#modal-admin-pass button:not([style*="background:none"]):not(.dg-close):active,
+#modal-admin-editar button:not([style*="background:none"]):not(.dg-close):active,
+#modal-login-pass button:not([style*="background:none"]):not(.dg-close):active,
+#modal-nuevo-usuario button:not([style*="background:none"]):not(.dg-close):active,
+#modal-sesion-activa button:not([style*="background:none"]):not(.dg-close):active,
+#modal-admin-pass .btn-flat-cancel:active,
+#modal-admin-editar .btn-flat-cancel:active,
+#modal-login-pass .btn-flat-cancel:active,
+#modal-nuevo-usuario .btn-flat-cancel:active,
+#modal-sesion-activa .btn-flat-cancel:active,
+#modal-admin-pass .btn-flat-confirm:active,
+#modal-admin-editar .btn-flat-confirm:active,
+#modal-login-pass .btn-flat-confirm:active,
+#modal-nuevo-usuario .btn-flat-confirm:active,
+#modal-sesion-activa .btn-flat-confirm:active,
+html.dark-mode #modal-admin-pass .btn-flat-cancel:active,
+html.dark-mode #modal-admin-editar .btn-flat-cancel:active,
+html.dark-mode #modal-login-pass .btn-flat-cancel:active,
+html.dark-mode #modal-nuevo-usuario .btn-flat-cancel:active,
+html.dark-mode #modal-sesion-activa .btn-flat-cancel:active,
+html.dark-mode #modal-admin-pass .btn-flat-confirm:active,
+html.dark-mode #modal-admin-editar .btn-flat-confirm:active,
+html.dark-mode #modal-login-pass .btn-flat-confirm:active,
+html.dark-mode #modal-nuevo-usuario .btn-flat-confirm:active,
+html.dark-mode #modal-sesion-activa .btn-flat-confirm:active{
+  transform:scale(0.98);box-shadow:var(--nm-inset-sm) !important;
+}
+#modal-sesion-activa div[style*="color:#111"]{color:var(--text) !important}
+#modal-sesion-activa div[style*="color:#888"]{color:var(--text-dim) !important}
+#modal-sesion-activa div[style*="background:#fff3e0"]{background:var(--bg) !important;box-shadow:var(--nm-raised-sm)}
+
+/* Confirmar eliminar usuario (admin) */
+#modal-admin-confirm .success-box{background:var(--bg);box-shadow:0 12px 40px rgba(0,0,0,0.28),inset 0 1px 0 var(--nm-light)}
+#modal-admin-confirm .success-icon{background:var(--bg) !important;border:none !important;box-shadow:var(--nm-raised-sm) !important}
+#modal-admin-confirm .success-icon svg{stroke:var(--text) !important}
+#modal-admin-confirm .btn-flat-cancel,
+#modal-admin-confirm .btn-flat-confirm,
+html.dark-mode #modal-admin-confirm .btn-flat-cancel,
+html.dark-mode #modal-admin-confirm .btn-flat-confirm{
+  background:var(--bg) !important;color:var(--text) !important;border:none !important;
+  box-shadow:var(--nm-raised-sm) !important;transition:box-shadow .2s ease,transform .15s ease;
+}
+#modal-admin-confirm .btn-flat-cancel:active,
+#modal-admin-confirm .btn-flat-confirm:active{
+  transform:scale(0.98);box-shadow:var(--nm-inset-sm) !important;
+}
 </style>
 <script>document.addEventListener('touchstart',function(){},{passive:true});</script>
 </head>
@@ -6595,11 +7577,11 @@ window.renderPerfiles = function(){
       <!-- Toggle Crédito / Débito -->
       <div id="perfil-tab-toggle" style="display:flex;background:var(--toggle-pill-bg);border:1px solid var(--toggle-pill-border);border-radius:16px;padding:4px;margin-bottom:16px;position:relative">
         <div id="perfil-tab-slider" style="position:absolute;top:4px;bottom:4px;left:4px;width:calc(50% - 4px);background:linear-gradient(180deg,var(--mov-selected-grad-start),var(--mov-selected-grad-end));border-radius:12px;box-shadow:0 4px 14px rgba(0,0,0,0.22);transition:transform 0.25s cubic-bezier(0.34,1.2,0.64,1);${_perfilTabActivo==='debito'?'transform:translateX(100%)':'transform:translateX(0)'}"></div>
-        <button onclick="perfilSwitchTab('credito')" style="flex:1;padding:12px 8px;border:none;background:none;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;border-radius:12px;position:relative;z-index:1;transition:color 0.2s;color:${_perfilTabActivo==='credito'?'#fff':'var(--text-dim)'};display:flex;align-items:center;justify-content:center;gap:7px">
+        <button onclick="perfilSwitchTab('credito')" style="flex:1;padding:12px 8px;border:none;background:none;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;border-radius:12px;position:relative;z-index:1;transition:color 0.2s;color:${_perfilTabActivo==='credito'?'var(--text)':'var(--text-dim)'};display:flex;align-items:center;justify-content:center;gap:7px">
           <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/><circle cx="18" cy="15" r="2"/></svg>
           Crédito <span style="font-size:11px;font-weight:500;opacity:0.8">${(perfil.tarjetas||[]).length}</span>
         </button>
-        <button onclick="perfilSwitchTab('debito')" style="flex:1;padding:12px 8px;border:none;background:none;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;border-radius:12px;position:relative;z-index:1;transition:color 0.2s;color:${_perfilTabActivo==='debito'?'#fff':'var(--text-dim)'};display:flex;align-items:center;justify-content:center;gap:7px">
+        <button onclick="perfilSwitchTab('debito')" style="flex:1;padding:12px 8px;border:none;background:none;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;border-radius:12px;position:relative;z-index:1;transition:color 0.2s;color:${_perfilTabActivo==='debito'?'var(--text)':'var(--text-dim)'};display:flex;align-items:center;justify-content:center;gap:7px">
           <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/><line x1="5" y1="15" x2="9" y2="15"/></svg>
           Débito <span style="font-size:11px;font-weight:500;opacity:0.8">${(perfil.cuentasDebito||[]).length}</span>
         </button>
@@ -7484,7 +8466,7 @@ window.selHistTipo = function(tipo){
     if(typeof resetHistorial === 'function') resetHistorial();
     debCargarCuentas().then(()=>debResetPanel());
     slider.style.transform = 'translateX(100%)';
-    btnDeb.style.color  = '#fff';
+    btnDeb.style.color  = 'var(--text)';
     btnCred.style.color = 'var(--text-dim)';
   } else {
     panelDeb.style.display  = 'none';
@@ -7492,7 +8474,7 @@ window.selHistTipo = function(tipo){
     if(typeof debResetPanel === 'function') debResetPanel();
     if(typeof resetHistorial === 'function') resetHistorial();
     slider.style.transform = 'translateX(0)';
-    btnCred.style.color = '#fff';
+    btnCred.style.color = 'var(--text)';
     btnDeb.style.color  = 'var(--text-dim)';
   }
 }
@@ -8720,11 +9702,11 @@ window.selPromoTab = function(tab){
   const panelCargos = document.getElementById('promo-panel-cargos');
   if(tab === 'msi'){
     slider.style.transform = 'translateX(0)';
-    btnMsi.style.color = '#fff'; btnCargos.style.color = '#888';
+    btnMsi.style.color = 'var(--text)'; btnCargos.style.color = '#888';
     panelMsi.style.display = ''; panelCargos.style.display = 'none';
   } else {
     slider.style.transform = 'translateX(100%)';
-    btnCargos.style.color = '#fff'; btnMsi.style.color = '#888';
+    btnCargos.style.color = 'var(--text)'; btnMsi.style.color = '#888';
     panelMsi.style.display = 'none'; panelCargos.style.display = '';
     renderCargosRecurrentes();
   }
@@ -8771,14 +9753,14 @@ window.selCargoTipo = function(tipo){
   const btnC=document.getElementById('cargo-btn-credito');
   const btnD=document.getElementById('cargo-btn-debito');
   if(tipo==='credito'){
-    slider.style.transform='translateX(0)'; btnC.style.color='#fff'; btnD.style.color='var(--text-dim)';
+    slider.style.transform='translateX(0)'; btnC.style.color='var(--text)'; btnD.style.color='var(--text-dim)';
     document.getElementById('cargo-credito-wrap').style.display='';
     document.getElementById('cargo-debito-wrap').style.display='none';
     // Mostrar tarjeta si hay tarjetas
     const _hayTarjetas = (perfil?.tarjetas||[]).length > 0;
     document.getElementById('cargo-tarjeta-wrap').style.display = _hayTarjetas ? '' : 'none';
   } else {
-    slider.style.transform='translateX(100%)'; btnD.style.color='#fff'; btnC.style.color='var(--text-dim)';
+    slider.style.transform='translateX(100%)'; btnD.style.color='var(--text)'; btnC.style.color='var(--text-dim)';
     document.getElementById('cargo-credito-wrap').style.display='none';
     document.getElementById('cargo-debito-wrap').style.display='';
     // Mostrar cuenta si hay cuentas
@@ -10706,14 +11688,14 @@ window.nuevoSwitchTipo = function(tipo){
   const sub      = document.getElementById('nuevo-subtitulo');
   if(tipo === 'debito'){
     slider.style.transform  = 'translateX(100%)';
-    btnDeb.style.color      = '#fff';
+    btnDeb.style.color      = 'var(--text)';
     btnCred.style.color     = '#888';
     panelDeb.style.display  = 'block';
     panelCred.style.display = 'none';
     if(sub) sub.textContent = '¿Qué movimiento deseas registrar?';
   } else {
     slider.style.transform  = 'translateX(0)';
-    btnCred.style.color     = '#fff';
+    btnCred.style.color     = 'var(--text)';
     btnDeb.style.color      = '#888';
     panelCred.style.display = 'block';
     panelDeb.style.display  = 'none';
@@ -11301,7 +12283,7 @@ window.confirmarEliminarPerfil = async function(){
     <div style="display:flex;background:var(--toggle-pill-bg);border:1px solid var(--toggle-pill-border);border-radius:16px;padding:4px;margin-bottom:24px;position:relative">
       <div id="nuevo-toggle-slider" style="position:absolute;top:4px;bottom:4px;left:4px;width:calc(50% - 4px);background:linear-gradient(180deg,var(--mov-selected-grad-start),var(--mov-selected-grad-end));border-radius:12px;box-shadow:0 4px 14px rgba(0,0,0,0.22);transition:transform 0.25s cubic-bezier(0.34,1.2,0.64,1)"></div>
       <button onclick="nuevoSwitchTipo('credito')" id="nuevo-btn-credito"
-        style="flex:1;padding:11px 8px;border:none;background:none;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;border-radius:12px;position:relative;z-index:1;color:#fff;transition:color 0.2s;display:flex;align-items:center;justify-content:center;gap:7px">
+        style="flex:1;padding:11px 8px;border:none;background:none;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;border-radius:12px;position:relative;z-index:1;color:var(--text);transition:color 0.2s;display:flex;align-items:center;justify-content:center;gap:7px">
         <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/><circle cx="18" cy="15" r="2"/></svg>
         Crédito
       </button>
@@ -11409,7 +12391,7 @@ window.confirmarEliminarPerfil = async function(){
     <div style="display:flex;background:var(--toggle-pill-bg);border:1px solid var(--toggle-pill-border);border-radius:16px;padding:4px;margin-bottom:24px;position:relative">
       <div id="promo-tab-slider" style="position:absolute;top:4px;bottom:4px;left:4px;width:calc(50% - 4px);background:linear-gradient(180deg,var(--mov-selected-grad-start),var(--mov-selected-grad-end));border-radius:12px;box-shadow:0 4px 14px rgba(0,0,0,0.22);transition:transform 0.25s cubic-bezier(0.34,1.2,0.64,1)"></div>
       <button onclick="selPromoTab('msi')" id="promo-tab-msi"
-        style="flex:1;padding:11px 8px;border:none;background:none;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;border-radius:12px;position:relative;z-index:1;color:#fff;transition:color 0.2s;display:flex;align-items:center;justify-content:center;gap:7px">
+        style="flex:1;padding:11px 8px;border:none;background:none;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;border-radius:12px;position:relative;z-index:1;color:var(--text);transition:color 0.2s;display:flex;align-items:center;justify-content:center;gap:7px">
         <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
         Meses sin intereses
       </button>
@@ -13271,7 +14253,7 @@ window.confirmarEliminarPerfil = async function(){
   <div id="hist-tipo-btns" style="display:flex;background:var(--toggle-pill-bg);border:1px solid var(--toggle-pill-border);border-radius:16px;padding:4px;position:relative">
     <div id="hist-toggle-slider" style="position:absolute;top:4px;bottom:4px;left:4px;width:calc(50% - 4px);background:linear-gradient(180deg,var(--mov-selected-grad-start),var(--mov-selected-grad-end));border-radius:12px;box-shadow:0 4px 14px rgba(0,0,0,0.22);transition:transform 0.25s cubic-bezier(0.34,1.2,0.64,1)"></div>
     <button id="hist-btn-credito" onclick="selHistTipo('credito')"
-      style="flex:1;padding:11px 8px;border:none;background:none;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;border-radius:12px;position:relative;z-index:1;color:#fff;transition:color 0.2s;display:flex;align-items:center;justify-content:center;gap:7px">
+      style="flex:1;padding:11px 8px;border:none;background:none;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;border-radius:12px;position:relative;z-index:1;color:var(--text);transition:color 0.2s;display:flex;align-items:center;justify-content:center;gap:7px">
       <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/><circle cx="18" cy="15" r="2"/></svg>
       Crédito
     </button>
@@ -13938,7 +14920,7 @@ window.confirmarEliminarPerfil = async function(){
     <div style="display:flex;background:var(--card-bg-soft);border-radius:14px;padding:4px;margin-bottom:16px;position:relative">
       <div id="debito-tipo-slider" style="position:absolute;top:4px;bottom:4px;left:4px;width:calc(50% - 4px);background:linear-gradient(180deg,var(--mov-selected-grad-start),var(--mov-selected-grad-end));border-radius:10px;box-shadow:0 4px 14px rgba(0,0,0,0.22);transition:transform 0.25s cubic-bezier(0.34,1.2,0.64,1)"></div>
       <button id="debito-toggle-ingreso" onclick="_debitoSwitchTipo('ingreso')"
-        style="flex:1;padding:11px 8px;border:none;background:none;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;border-radius:10px;position:relative;z-index:1;transition:color 0.2s;display:flex;align-items:center;justify-content:center;gap:6px;color:#fff">
+        style="flex:1;padding:11px 8px;border:none;background:none;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;border-radius:10px;position:relative;z-index:1;transition:color 0.2s;display:flex;align-items:center;justify-content:center;gap:6px;color:var(--text)">
         <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><line x1="12" y1="19" x2="12" y2="5"/><polyline points="5 12 12 5 19 12"/></svg>
         Ingreso
       </button>
@@ -14169,7 +15151,25 @@ html.dark-mode #upd-progress-fill{background:linear-gradient(90deg,#777,#fff)}
       } catch (e) {}
     }
 
+    // Marca de "acaba de aceptar": evita que el aviso reaparezca tras recargar
+    const GRACIA_MS = 60000;
+    function recienActualizado() {
+      try { return Date.now() - Number(localStorage.getItem('upd_aceptada') || 0) < GRACIA_MS; } catch (e) { return false; }
+    }
+    // Activa la versión en espera (si la hay). Devuelve true si mandó la orden.
+    function activarEnEspera() {
+      const w = (swReg && swReg.waiting) || workerEsperando;
+      if (!w) return false;
+      w.postMessage('skipWaiting');
+      w.postMessage({ type: 'SKIP_WAITING' });
+      return true;
+    }
+
     function mostrarModalUpdate(worker) {
+      if (recienActualizado()) {            // el usuario ya aceptó: no volver a preguntar
+        activarEnEspera();
+        return;
+      }
       workerEsperando = worker || workerEsperando;
       const ov = document.getElementById('upd-overlay');
       if (ov.classList.contains('open')) return;
@@ -14225,10 +15225,9 @@ html.dark-mode #upd-progress-fill{background:linear-gradient(90deg,#777,#fff)}
       if (e.target.id === 'upd-later') cerrarModalUpdate();
       if (e.target.id === 'upd-now') {
         usuarioAcepto = true;
+        try { localStorage.setItem('upd_aceptada', String(Date.now())); } catch (err) {}
         iniciarAnimacionUpdate();
-        if (workerEsperando) {
-          workerEsperando.postMessage('skipWaiting');
-          workerEsperando.postMessage({ type: 'SKIP_WAITING' });
+        if (activarEnEspera()) {
           // Respaldo por si el SW no responde
           setTimeout(recargarConAnimacion, 3000);
         } else {
@@ -14271,6 +15270,7 @@ html.dark-mode #upd-progress-fill{background:linear-gradient(90deg,#777,#fff)}
 
         // Ya había una versión nueva esperando al abrir la PWA
         if (reg.waiting && navigator.serviceWorker.controller) mostrarModalUpdate(reg.waiting);
+        if (recienActualizado()) activarEnEspera();
 
         // Se detecta una versión nueva mientras la app está abierta
         reg.addEventListener('updatefound', () => { if (reg.installing) seguirWorker(reg.installing); });
@@ -14403,7 +15403,7 @@ window._debitoSwitchTipo = function(tipo) {
   const esExt = _debitoEsExtemporaneo;
   if (tipo === 'ingreso') {
     slider.style.transform = 'translateX(0)';
-    btnIng.style.color = '#fff';
+    btnIng.style.color = 'var(--text)';
     btnEgr.style.color = '#888';
     icon.style.background = 'linear-gradient(180deg,#111,#444)';
     icon.innerHTML = '<svg width="18" height="18" fill="none" stroke="#fff" stroke-width="2.2" viewBox="0 0 24 24"><line x1="12" y1="19" x2="12" y2="5"/><polyline points="5 12 12 5 19 12"/></svg>';
@@ -14411,7 +15411,7 @@ window._debitoSwitchTipo = function(tipo) {
   } else {
     slider.style.transform = 'translateX(100%)';
     btnIng.style.color = '#888';
-    btnEgr.style.color = '#fff';
+    btnEgr.style.color = 'var(--text)';
     icon.style.background = 'linear-gradient(180deg,#111,#444)';
     icon.innerHTML = '<svg width="18" height="18" fill="none" stroke="#fff" stroke-width="2.2" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><polyline points="19 12 12 19 5 12"/></svg>';
     title.textContent = esExt ? 'Movimiento extemporáneo' : 'Movimiento nuevo';
@@ -14890,7 +15890,7 @@ document.addEventListener('DOMContentLoaded', function(){
     <!-- Toggle Crédito / Débito -->
     <div style="display:flex;background:var(--card-bg-soft);border-radius:16px;padding:4px;margin-bottom:20px;position:relative">
       <div id="cargo-toggle-slider" style="position:absolute;top:4px;bottom:4px;left:4px;width:calc(50% - 4px);background:linear-gradient(180deg,var(--mov-selected-grad-start),var(--mov-selected-grad-end));border-radius:12px;box-shadow:0 4px 14px rgba(0,0,0,0.22);transition:transform 0.25s cubic-bezier(0.34,1.2,0.64,1)"></div>
-      <button onclick="selCargoTipo('credito')" id="cargo-btn-credito" style="flex:1;padding:11px 8px;border:none;background:none;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;border-radius:12px;position:relative;z-index:1;color:#fff;transition:color 0.2s;display:flex;align-items:center;justify-content:center;gap:7px">
+      <button onclick="selCargoTipo('credito')" id="cargo-btn-credito" style="flex:1;padding:11px 8px;border:none;background:none;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;border-radius:12px;position:relative;z-index:1;color:var(--text);transition:color 0.2s;display:flex;align-items:center;justify-content:center;gap:7px">
         <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/><circle cx="18" cy="15" r="2"/></svg>Crédito
       </button>
       <button onclick="selCargoTipo('debito')" id="cargo-btn-debito" style="flex:1;padding:11px 8px;border:none;background:none;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;border-radius:12px;position:relative;z-index:1;color:var(--text-dim);transition:color 0.2s;display:flex;align-items:center;justify-content:center;gap:7px">
