@@ -757,6 +757,13 @@ html.dark-mode #modal-estadisticas .btn-flat-confirm{background:var(--card-bg-so
 #modal-estadisticas .est-chart{margin-top:12px;padding:12px 8px 6px;background:var(--card-bg-soft);border:1px solid var(--border);border-radius:14px}
 #modal-estadisticas .est-chart{padding:12px 8px 8px}
 #modal-estadisticas #est-scroll::-webkit-scrollbar{display:none}
+#modal-estadisticas #est-scroll{scrollbar-width:none}
+@media (hover:hover) and (pointer:fine){
+  #modal-estadisticas #est-scroll{scrollbar-width:thin;scrollbar-color:var(--text-dim) transparent;cursor:grab;padding-bottom:4px}
+  #modal-estadisticas #est-scroll::-webkit-scrollbar{display:block;height:6px}
+  #modal-estadisticas #est-scroll::-webkit-scrollbar-thumb{background:var(--text-dim);border-radius:3px;opacity:.6}
+  #modal-estadisticas #est-scroll.est-drag{cursor:grabbing}
+}
 #modal-estadisticas .est-hint{text-align:center;font-size:10px;font-weight:600;color:var(--text-dim);margin-top:4px;letter-spacing:0.04em}
 #modal-estadisticas .est-bar{cursor:pointer;transition:opacity 0.15s}
 #modal-estadisticas .est-dia{margin-top:10px}
@@ -16813,8 +16820,11 @@ document.addEventListener('DOMContentLoaded', function(){
     ocultar();   // si venía de "Otro corte", se cierra el resultado antes de abrir el asistente
     if(typeof window.gwAbrir === 'function') window.gwAbrir('estadisticas');
   };
+  // Solo se cierra con un clic que empieza y termina en el fondo (soltar el mouse fuera tras arrastrar no cierra)
+  $('modal-estadisticas').addEventListener('pointerdown', e=>{ est.downFondo = e.target === e.currentTarget; }, true);
   window.cerrarEstadisticas = function(e){
-    if(!e || e.target === $('modal-estadisticas')) ocultar();
+    if(!e){ ocultar(); return; }
+    if(e.target === $('modal-estadisticas') && est.downFondo && !est.arrastro) ocultar();
   };
 
   window.mostrarEstadisticas = function(t, periodoFinKey){
@@ -16837,14 +16847,13 @@ document.addEventListener('DOMContentLoaded', function(){
 
     est.dias = dias; est.tarjeta = t;
     est.periodo = cap(window.nombreCorte(t.corte, periodoFin)) + ' ' + periodoFin.getFullYear();
-    let mx = -1; dias.forEach((d,i)=>{ if(d.total > 0 && (mx < 0 || d.total > dias[mx].total)) mx = i; });
-    est.sel = mx;
+    est.sel = -1;   // sin día seleccionado: se elige tocando una barra
     render(true);
     document.documentElement.classList.add('est-abierto');   // oculta el menú flotante
     $('modal-estadisticas').classList.add('open');
   };
 
-  window.estSel = function(i){ est.sel = i; render(); };
+  window.estSel = function(i){ if(est.arrastro) return; est.sel = i; render(); };
 
   function render(centrar){
     const body = $('est-body'), t = est.tarjeta, dias = est.dias;
@@ -16858,7 +16867,7 @@ document.addEventListener('DOMContentLoaded', function(){
     }
     const prom = total / dias.length;
     const mayor = dias[dias.reduce((b,d,i)=>d.total > dias[b].total ? i : b, 0)];
-    const fCorta = d => d.fecha.toLocaleDateString('es-MX', {day:'numeric', month:'short'});
+    const fCorta = d => cap(d.fecha.toLocaleDateString('es-MX', {weekday:'short', day:'numeric', month:'short'}).replace('.',''));
 
     let h = recap
       + '<div class="est-box"><div class="est-lbl">Total del corte</div><div class="est-val" style="font-size:24px">' + money(total) + '</div>'
@@ -16867,14 +16876,13 @@ document.addEventListener('DOMContentLoaded', function(){
       + '<div class="est-box"><div class="est-lbl">Promedio diario</div><div class="est-val">' + money(prom) + '</div></div>'
       + '<div class="est-box"><div class="est-lbl">Día más alto</div><div class="est-val">' + money(mayor.total) + '</div><div class="est-sub">' + esc(fCorta(mayor)) + '</div></div>'
       + '</div>'
-      + '<div class="est-chart">' + grafica() + '<div class="est-hint">Desliza para ver todos los días</div></div>'
+      + '<div class="est-chart">' + grafica() + '<div class="est-hint">Desliza o arrastra para ver todos los días</div></div>'
       + '<div class="est-dia">' + detalleDia() + '</div>';
     body.innerHTML = h;
     const sc = $('est-scroll');
+    if(sc) habilitarArrastre(sc);
     if(sc){
-      if(centrar && est.sel >= 0) sc.scrollLeft = est.sel * SLOT + SLOT / 2 - sc.clientWidth / 2;
-      else sc.scrollLeft = x0;
-      if(centrar) setTimeout(()=>{ const q = $('est-scroll'); if(q) q.scrollLeft = est.sel * SLOT + SLOT / 2 - q.clientWidth / 2; }, 320);
+      sc.scrollLeft = centrar ? 0 : x0;   // al abrir, la gráfica empieza en el primer día del corte
     }
   }
 
@@ -16882,7 +16890,7 @@ document.addEventListener('DOMContentLoaded', function(){
   const corto = v => v >= 10000 ? '$' + (v / 1000).toFixed(1).replace(/\.0$/, '') + 'k' : '$' + Math.round(v).toLocaleString('es-MX');
   function grafica(){
     const dias = est.dias, n = dias.length;
-    const H = 200, T = 24, B = 38, AX = 34, ph = H - T - B, W = n * SLOT;
+    const H = 208, T = 32, B = 38, AX = 34, ph = H - T - B, W = n * SLOT;
     const max = Math.max.apply(null, dias.map(d=>d.total));
     const top = techo(max), bw = 22;
     const y = v => T + ph - (v / top) * ph;
@@ -16906,13 +16914,46 @@ document.addEventListener('DOMContentLoaded', function(){
       }
       // Número de día (y mes al inicio y cada día 1)
       g += '<text x="' + cx + '" y="' + (T + ph + 15) + '" text-anchor="middle" font-size="11" font-weight="' + (hay ? 800 : 500) + '" fill="' + (hay ? 'var(--text)' : 'var(--text-dim)') + '" opacity="' + (hay || sel ? 1 : 0.7) + '">' + dd + '</text>';
-      if(i === 0 || dd === 1) g += '<text x="' + cx + '" y="' + (T + ph + 28) + '" text-anchor="middle" font-size="9" fill="var(--text-dim)">' + d.fecha.toLocaleDateString('es-MX', {month:'short'}).replace('.','') + '</text>';
+      g += '<text x="' + cx + '" y="' + (T + ph + 30) + '" text-anchor="middle" font-size="9.5" font-weight="' + (hay ? 700 : 500) + '" fill="var(--text-dim)" opacity="' + (hay || sel ? 1 : 0.75) + '">' + cap(d.fecha.toLocaleDateString('es-MX', {weekday:'short'}).replace('.','')) + '</text>';
+      if(i === 0 || dd === 1){
+        // Mes arriba de la columna donde empieza (y una línea tenue que separa un mes del siguiente)
+        if(i > 0) g += '<line x1="' + (SLOT * i) + '" x2="' + (SLOT * i) + '" y1="6" y2="' + (T + ph) + '" stroke="var(--border)" stroke-width="1" stroke-dasharray="2 3"/>';
+        g += '<text x="' + (i === 0 ? cx : SLOT * i + 6) + '" y="12" text-anchor="' + (i === 0 ? 'middle' : 'start') + '" font-size="10" font-weight="800" letter-spacing="0.08em" fill="var(--text-dim)">' + d.fecha.toLocaleDateString('es-MX', {month:'short'}).replace('.','').toUpperCase() + '</text>';
+      }
       if(sel) g += '<rect x="' + (cx - 9) + '" y="' + (T + ph + 19) + '" width="18" height="2.5" rx="1.25" fill="var(--text)" style="transform:translateY(-1px)"/>';
       g += '<rect x="' + (SLOT * i) + '" y="0" width="' + SLOT + '" height="' + H + '" fill="transparent" style="cursor:pointer" onclick="estSel(' + i + ')"/>';
     });
     g += '</svg>';
     return '<div style="display:flex;align-items:flex-start"><div>' + ejeY + '</div>'
-         + '<div id="est-scroll" style="flex:1;min-width:0;overflow-x:auto;overflow-y:hidden;-webkit-overflow-scrolling:touch;scrollbar-width:none;touch-action:pan-x pan-y">' + g + '</div></div>';
+         + '<div id="est-scroll" style="flex:1;min-width:0;overflow-x:auto;overflow-y:hidden;-webkit-overflow-scrolling:touch;touch-action:pan-x pan-y">' + g + '</div></div>';
+  }
+
+  // Escritorio: arrastrar con el mouse y rueda vertical -> desplazamiento horizontal (en táctil ya es nativo)
+  function habilitarArrastre(sc){
+    sc.addEventListener('pointerdown', e=>{
+      if(e.pointerType !== 'mouse' || e.button !== 0) return;
+      const x0 = e.clientX, l0 = sc.scrollLeft; let mov = false;
+      const move = ev=>{
+        const dx = ev.clientX - x0;
+        if(!mov && Math.abs(dx) > 4){ mov = true; sc.classList.add('est-drag'); }
+        if(mov) sc.scrollLeft = l0 - dx;
+      };
+      const up = ()=>{
+        window.removeEventListener('pointermove', move);
+        window.removeEventListener('pointerup', up);
+        sc.classList.remove('est-drag');
+        if(mov){ est.arrastro = true; setTimeout(()=>{ est.arrastro = false; }, 60); }
+      };
+      window.addEventListener('pointermove', move);
+      window.addEventListener('pointerup', up);
+    });
+    sc.addEventListener('wheel', e=>{
+      if(Math.abs(e.deltaY) <= Math.abs(e.deltaX)) return;           // gesto horizontal: ya es nativo
+      const max = sc.scrollWidth - sc.clientWidth;
+      if((e.deltaY < 0 && sc.scrollLeft <= 0) || (e.deltaY > 0 && sc.scrollLeft >= max - 1)) return;  // en los extremos deja avanzar la página
+      e.preventDefault();
+      sc.scrollLeft += e.deltaY;
+    }, {passive:false});
   }
 
   function detalleDia(){
