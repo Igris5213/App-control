@@ -1169,6 +1169,874 @@ html.kb-open .modal{margin-bottom:8px;max-height:calc(100% - 12px);overflow-y:au
 .corte-item.selected{box-shadow:0 3px 10px rgba(0,0,0,0.2)}
 .mov-icon{box-shadow:0 1px 3px rgba(0,0,0,0.06)}
 .card-stats-icon{box-shadow:inset 0 1px 2px rgba(0,0,0,0.1)}
+
+/* ══════════════════════════════════════════════════════════════
+   CLAYMORPHISM — solo pantalla principal de tarjeta de crédito
+   (limitado a #main-app; conserva la paleta original de la app)
+   ══════════════════════════════════════════════════════════════ */
+#main-app{
+  --clay-bg:var(--bg);
+  --clay-surface:#ffffff;
+  --clay-hi:rgba(255,255,255,1);
+  --clay-lo:rgba(0,0,0,0.16);
+  --clay-in-hi:rgba(255,255,255,0.9);
+  --clay-in-lo:rgba(0,0,0,0.09);
+  --clay-well:#ebebeb;
+  --clay-card-glow:rgba(0,0,0,0.35);
+}
+html.dark-mode #main-app{
+  --clay-surface:#141414;
+  --clay-hi:rgba(255,255,255,0.05);
+  --clay-lo:rgba(0,0,0,0.75);
+  --clay-in-hi:rgba(255,255,255,0.07);
+  --clay-in-lo:rgba(0,0,0,0.6);
+  --clay-well:#0c0c0c;
+  --clay-card-glow:rgba(0,0,0,0.75);
+}
+
+/* Cápsula "Día de corte" */
+#main-app #saludo-header > div:last-child{
+  padding:0 16px !important;
+  height:40px !important;
+  border-radius:999px;
+  background:var(--clay-surface);
+  box-shadow:6px 6px 14px var(--clay-lo),-5px -5px 12px var(--clay-hi),
+             inset 2px 2px 4px var(--clay-in-hi),inset -2px -2px 5px var(--clay-in-lo);
+}
+
+/* Tarjeta de crédito (el contenedor ya no recorta la sombra) */
+#main-app .cards-outer{overflow:visible;border-radius:30px !important}
+#main-app .bank-card,
+#main-app .bank-card[class*="card-color-"]{background:transparent !important}
+#main-app .cc-header-box{
+  border:none;
+  border-radius:30px;
+  padding:20px 22px 18px;
+  min-height:156px;
+  background:
+    radial-gradient(90% 70% at 18% 4%, rgba(255,255,255,0.20), transparent 58%),
+    radial-gradient(130% 160% at 100% -10%, rgba(255,255,255,0.08), transparent 55%),
+    linear-gradient(135deg,#2a2a2a 0%,#111111 55%,#050505 100%);
+  box-shadow:
+    14px 18px 34px var(--clay-card-glow),
+    -8px -8px 20px var(--clay-hi),
+    inset 7px 7px 14px rgba(255,255,255,0.14),
+    inset -9px -11px 20px rgba(0,0,0,0.6);
+}
+#main-app .cc-header-box::before{
+  top:-30%;right:-20%;width:60%;height:150%;
+  background:linear-gradient(115deg,transparent 42%,rgba(255,255,255,0.07) 50%,transparent 60%);
+}
+#main-app .cc-bank-name{font-size:16px}
+#main-app .cc-number-row{left:22px;bottom:46px}
+
+/* Puntos del carrusel: esferas de arcilla */
+#main-app .dots{gap:9px;margin:22px 0 18px}
+#main-app .dot{
+  width:11px;height:11px;
+  background:var(--clay-surface);
+  box-shadow:3px 3px 6px var(--clay-lo),-2px -2px 5px var(--clay-hi),
+             inset 1px 1px 2px var(--clay-in-hi),inset -1px -1px 2px var(--clay-in-lo);
+}
+#main-app .dot.active{
+  width:30px;border-radius:999px;
+  background:var(--text);
+  box-shadow:3px 4px 9px var(--clay-lo),
+             inset 2px 2px 3px rgba(255,255,255,0.25),inset -2px -2px 4px rgba(0,0,0,0.35);
+}
+
+/* Resumen general */
+#main-app .card-merged-box{
+  background:#111111;
+  border:none;
+  border-radius:28px;
+  box-shadow:10px 12px 26px var(--clay-lo),-8px -8px 20px var(--clay-hi),
+             inset 4px 4px 9px rgba(255,255,255,0.10),inset -4px -5px 11px rgba(0,0,0,0.6);
+}
+#main-app .card-usage-box{padding:16px}
+#main-app .card-usage-stats{
+  gap:2px;margin-bottom:0;padding:12px 6px;
+  border-radius:20px;
+  background:#0a0a0a;
+  box-shadow:inset 5px 5px 10px rgba(0,0,0,0.75),inset -4px -4px 9px rgba(255,255,255,0.06);
+}
+#main-app .card-info-divider{width:2px;border-radius:2px;background:rgba(255,255,255,0.10)}
+#main-app .resumen-box:not(.resumen-col) .resumen-collapse{padding-top:2px}
+#main-app .resumen-box:not(.resumen-col) .card-usage-head{margin-bottom:12px}
+#main-app .resumen-inner{padding:0 2px}
+
+/* Últimos movimientos */
+#main-app #tarjetas-mov-section .section-card-title{
+  padding-left:6px;letter-spacing:0.08em;margin-bottom:14px;
+}
+#main-app #mov-list{
+  box-sizing:content-box;
+  margin:0 -16px;
+  padding:6px 16px 22px;
+}
+#main-app .mov-item,
+html.dark-mode #main-app .mov-item{
+  background:var(--clay-surface);
+  border:none;
+  border-radius:24px;
+  padding:16px 18px;
+  margin-bottom:16px;
+  box-shadow:8px 9px 18px var(--clay-lo),-6px -6px 14px var(--clay-hi),
+             inset 3px 3px 7px var(--clay-in-hi),inset -3px -4px 8px var(--clay-in-lo);
+  transition:transform .2s ease,box-shadow .2s ease,background .2s ease;
+}
+#main-app .mov-item:last-child{margin-bottom:0}
+#main-app .mov-item:active{
+  transform:scale(0.985);
+  box-shadow:inset 5px 5px 10px var(--clay-in-lo),inset -5px -5px 10px var(--clay-in-hi);
+}
+#main-app .mov-badge{
+  background:var(--clay-well);
+  padding:5px 11px;
+  box-shadow:inset 2px 2px 4px var(--clay-in-lo),inset -2px -2px 4px var(--clay-in-hi);
+}
+
+/* Movimiento seleccionado: mismo degradado oscuro original, ahora en relieve */
+#main-app .mov-item.selected,
+html.dark-mode #main-app .mov-item.selected{
+  background:linear-gradient(180deg,var(--mov-selected-grad-start),var(--mov-selected-grad-end));
+  transform:scale(1.02);
+  border-radius:24px;
+  box-shadow:10px 14px 26px var(--clay-lo),
+             inset 5px 5px 10px rgba(255,255,255,0.16),inset -6px -7px 12px rgba(0,0,0,0.45);
+}
+#main-app .mov-item.selected .mov-badge{
+  background:rgba(255,255,255,0.18);
+  box-shadow:inset 1px 1px 3px rgba(255,255,255,0.25),inset -2px -2px 4px rgba(0,0,0,0.25);
+}
+
+#main-app .empty-mov{
+  margin:4px 0 8px;padding:28px 16px;
+  border-radius:24px;
+  background:var(--clay-well);
+  box-shadow:inset 6px 6px 12px var(--clay-in-lo),inset -6px -6px 12px var(--clay-in-hi);
+}
+
+/* Estado "sin tarjetas" */
+#main-app #tarjetas-empty > div:first-child{
+  border:none !important;
+  border-radius:28px !important;
+  box-shadow:12px 14px 26px var(--clay-lo),-6px -6px 14px var(--clay-hi),
+             inset 5px 5px 10px rgba(255,255,255,0.14),inset -6px -7px 12px rgba(0,0,0,0.6) !important;
+}
+
+/* ══════════════════════════════════════════════════════════════
+   CLAYMORPHISM — pantalla principal de tarjeta de DÉBITO (#screen-cuentas)
+   (limitado a #screen-cuentas; conserva la paleta original de la app)
+   ══════════════════════════════════════════════════════════════ */
+#screen-cuentas{
+  --clay-bg:var(--bg);
+  --clay-surface:#ffffff;
+  --clay-hi:rgba(255,255,255,1);
+  --clay-lo:rgba(0,0,0,0.16);
+  --clay-in-hi:rgba(255,255,255,0.9);
+  --clay-in-lo:rgba(0,0,0,0.09);
+  --clay-well:#ebebeb;
+  --clay-card-glow:rgba(0,0,0,0.35);
+}
+html.dark-mode #screen-cuentas{
+  --clay-surface:#141414;
+  --clay-hi:rgba(255,255,255,0.05);
+  --clay-lo:rgba(0,0,0,0.75);
+  --clay-in-hi:rgba(255,255,255,0.07);
+  --clay-in-lo:rgba(0,0,0,0.6);
+  --clay-well:#0c0c0c;
+  --clay-card-glow:rgba(0,0,0,0.75);
+}
+
+/* Cápsula "Día de corte" */
+#screen-cuentas #deb-saludo-header > div:last-child{
+  padding:0 16px !important;
+  height:40px !important;
+  border-radius:999px;
+  background:var(--clay-surface);
+  box-shadow:6px 6px 14px var(--clay-lo),-5px -5px 12px var(--clay-hi),
+             inset 2px 2px 4px var(--clay-in-hi),inset -2px -2px 5px var(--clay-in-lo);
+}
+
+/* Tarjeta de crédito (el contenedor ya no recorta la sombra) */
+#screen-cuentas .cards-outer{overflow:visible;border-radius:30px !important}
+#screen-cuentas .bank-card,
+#screen-cuentas .bank-card[class*="card-color-"]{background:transparent !important}
+#screen-cuentas .cc-header-box{
+  border:none;
+  border-radius:30px;
+  padding:20px 22px 18px;
+  min-height:156px;
+  background:
+    radial-gradient(90% 70% at 18% 4%, rgba(255,255,255,0.20), transparent 58%),
+    radial-gradient(130% 160% at 100% -10%, rgba(255,255,255,0.08), transparent 55%),
+    linear-gradient(135deg,#2a2a2a 0%,#111111 55%,#050505 100%);
+  box-shadow:
+    14px 18px 34px var(--clay-card-glow),
+    -8px -8px 20px var(--clay-hi),
+    inset 7px 7px 14px rgba(255,255,255,0.14),
+    inset -9px -11px 20px rgba(0,0,0,0.6);
+}
+#screen-cuentas .cc-header-box::before{
+  top:-30%;right:-20%;width:60%;height:150%;
+  background:linear-gradient(115deg,transparent 42%,rgba(255,255,255,0.07) 50%,transparent 60%);
+}
+#screen-cuentas .cc-bank-name{font-size:16px}
+#screen-cuentas .cc-number-row{left:22px;bottom:46px}
+
+/* Puntos del carrusel: esferas de arcilla */
+#screen-cuentas .dots{gap:9px;margin:22px 0 18px}
+#screen-cuentas .dot{
+  width:11px;height:11px;
+  background:var(--clay-surface);
+  box-shadow:3px 3px 6px var(--clay-lo),-2px -2px 5px var(--clay-hi),
+             inset 1px 1px 2px var(--clay-in-hi),inset -1px -1px 2px var(--clay-in-lo);
+}
+#screen-cuentas .dot.active{
+  width:30px;border-radius:999px;
+  background:var(--text);
+  box-shadow:3px 4px 9px var(--clay-lo),
+             inset 2px 2px 3px rgba(255,255,255,0.25),inset -2px -2px 4px rgba(0,0,0,0.35);
+}
+
+/* Resumen general */
+#screen-cuentas .card-merged-box{
+  background:#111111;
+  border:none;
+  border-radius:28px;
+  box-shadow:10px 12px 26px var(--clay-lo),-8px -8px 20px var(--clay-hi),
+             inset 4px 4px 9px rgba(255,255,255,0.10),inset -4px -5px 11px rgba(0,0,0,0.6);
+}
+#screen-cuentas .card-usage-box{padding:16px}
+#screen-cuentas .card-usage-stats{
+  gap:2px;margin-bottom:0;padding:12px 6px;
+  border-radius:20px;
+  background:#0a0a0a;
+  box-shadow:inset 5px 5px 10px rgba(0,0,0,0.75),inset -4px -4px 9px rgba(255,255,255,0.06);
+}
+#screen-cuentas .card-info-divider{width:2px;border-radius:2px;background:rgba(255,255,255,0.10)}
+#screen-cuentas .resumen-box:not(.resumen-col) .resumen-collapse{padding-top:2px}
+#screen-cuentas .resumen-box:not(.resumen-col) .card-usage-head{margin-bottom:12px}
+#screen-cuentas .resumen-inner{padding:0 2px}
+
+/* Últimos movimientos */
+#screen-cuentas #cuentas-mov-section .section-card-title{
+  padding-left:6px;letter-spacing:0.08em;margin-bottom:14px;
+}
+#screen-cuentas #deb-mov-list{
+  box-sizing:content-box;
+  margin:0 -16px;
+  padding:6px 16px 22px;
+}
+#screen-cuentas .mov-item,
+html.dark-mode #screen-cuentas .mov-item{
+  background:var(--clay-surface);
+  border:none;
+  border-radius:24px;
+  padding:16px 18px;
+  margin-bottom:16px;
+  box-shadow:8px 9px 18px var(--clay-lo),-6px -6px 14px var(--clay-hi),
+             inset 3px 3px 7px var(--clay-in-hi),inset -3px -4px 8px var(--clay-in-lo);
+  transition:transform .2s ease,box-shadow .2s ease,background .2s ease;
+}
+#screen-cuentas .mov-item:last-child{margin-bottom:0}
+#screen-cuentas .mov-item:active{
+  transform:scale(0.985);
+  box-shadow:inset 5px 5px 10px var(--clay-in-lo),inset -5px -5px 10px var(--clay-in-hi);
+}
+#screen-cuentas .mov-badge{
+  background:var(--clay-well);
+  padding:5px 11px;
+  box-shadow:inset 2px 2px 4px var(--clay-in-lo),inset -2px -2px 4px var(--clay-in-hi);
+}
+
+/* Movimiento seleccionado: mismo degradado oscuro original, ahora en relieve */
+#screen-cuentas .mov-item.selected,
+html.dark-mode #screen-cuentas .mov-item.selected{
+  background:linear-gradient(180deg,var(--mov-selected-grad-start),var(--mov-selected-grad-end));
+  transform:scale(1.02);
+  border-radius:24px;
+  box-shadow:10px 14px 26px var(--clay-lo),
+             inset 5px 5px 10px rgba(255,255,255,0.16),inset -6px -7px 12px rgba(0,0,0,0.45);
+}
+#screen-cuentas .mov-item.selected .mov-badge{
+  background:rgba(255,255,255,0.18);
+  box-shadow:inset 1px 1px 3px rgba(255,255,255,0.25),inset -2px -2px 4px rgba(0,0,0,0.25);
+}
+
+#screen-cuentas .empty-mov{
+  margin:4px 0 8px;padding:28px 16px;
+  border-radius:24px;
+  background:var(--clay-well);
+  box-shadow:inset 6px 6px 12px var(--clay-in-lo),inset -6px -6px 12px var(--clay-in-hi);
+}
+
+/* Estado "sin tarjetas" */
+#screen-cuentas #cuentas-empty > div:first-child{
+  border:none !important;
+  border-radius:28px !important;
+  box-shadow:12px 14px 26px var(--clay-lo),-6px -6px 14px var(--clay-hi),
+             inset 5px 5px 10px rgba(255,255,255,0.14),inset -6px -7px 12px rgba(0,0,0,0.6) !important;
+}
+
+/* ══════════════════════════════════════════════════════════════
+   CLAYMORPHISM — pestaña HISTORIAL (#screen-movimientos)
+   (crédito y débito; conserva la paleta original de la app)
+   ══════════════════════════════════════════════════════════════ */
+#screen-movimientos{
+  --clay-surface:#ffffff;
+  --clay-hi:rgba(255,255,255,1);
+  --clay-lo:rgba(0,0,0,0.16);
+  --clay-in-hi:rgba(255,255,255,0.9);
+  --clay-in-lo:rgba(0,0,0,0.09);
+  --clay-well:#ebebeb;
+}
+html.dark-mode #screen-movimientos{
+  --clay-surface:#141414;
+  --clay-hi:rgba(255,255,255,0.05);
+  --clay-lo:rgba(0,0,0,0.75);
+  --clay-in-hi:rgba(255,255,255,0.07);
+  --clay-in-lo:rgba(0,0,0,0.6);
+  --clay-well:#0c0c0c;
+}
+
+/* Interruptor Crédito / Débito */
+#screen-movimientos #hist-tipo-btns{
+  background:var(--clay-well) !important;
+  border:none !important;
+  border-radius:22px !important;
+  box-shadow:inset 5px 5px 10px var(--clay-in-lo),inset -5px -5px 10px var(--clay-in-hi) !important;
+}
+#screen-movimientos #hist-toggle-slider{
+  border-radius:18px !important;
+  box-shadow:5px 6px 12px var(--clay-lo),
+             inset 3px 3px 6px rgba(255,255,255,0.16),inset -3px -4px 7px rgba(0,0,0,0.45) !important;
+}
+#screen-movimientos #hist-tipo-btns button{border-radius:18px !important}
+
+/* Selectores (Búsqueda / Tarjeta / Año / Corte / Mes) */
+#screen-movimientos .hist-step{
+  border:none !important;
+  border-radius:26px !important;
+  margin-bottom:20px !important;
+  box-shadow:10px 12px 24px var(--clay-lo),-7px -7px 16px var(--clay-hi),
+             inset 4px 4px 9px rgba(255,255,255,0.10),inset -4px -5px 11px rgba(0,0,0,0.6) !important;
+}
+#screen-movimientos .hist-step.dd-open{
+  box-shadow:12px 14px 28px var(--clay-lo),-7px -7px 16px var(--clay-hi),
+             inset 4px 4px 9px rgba(255,255,255,0.10),inset -4px -5px 11px rgba(0,0,0,0.6) !important;
+}
+#screen-movimientos .hist-step-head{padding:18px 22px !important}
+#screen-movimientos .hist-dd-panel{
+  border-top:none !important;
+  padding:6px 14px 14px;
+  box-shadow:none !important;
+}
+html:not(.dark-mode) #screen-movimientos .hist-dd-panel{background:var(--bg) !important}
+#screen-movimientos .hist-dd-item{
+  background:var(--clay-surface) !important;
+  border:none !important;
+  border-radius:20px;
+  margin-bottom:12px;
+  padding:15px 18px;
+  box-shadow:6px 7px 14px var(--clay-lo),-5px -5px 11px var(--clay-hi),
+             inset 2px 2px 5px var(--clay-in-hi),inset -2px -3px 6px var(--clay-in-lo) !important;
+  transition:transform .15s ease,box-shadow .15s ease;
+}
+#screen-movimientos .hist-dd-item:last-child{margin-bottom:0}
+#screen-movimientos .hist-dd-item:active{
+  transform:scale(0.985);
+  filter:none;
+  box-shadow:inset 5px 5px 10px var(--clay-in-lo),inset -5px -5px 10px var(--clay-in-hi) !important;
+}
+
+/* Botón "Nueva búsqueda" */
+#screen-movimientos #btn-nueva-busqueda,
+#screen-movimientos #deb-btn-nueva-busqueda{
+  border-radius:22px !important;
+  padding:16px !important;
+  margin-bottom:20px !important;
+  box-shadow:8px 10px 20px var(--clay-lo),-6px -6px 14px var(--clay-hi),
+             inset 4px 4px 8px rgba(255,255,255,0.18),inset -4px -5px 10px rgba(0,0,0,0.45) !important;
+  transition:transform .15s ease,box-shadow .15s ease;
+}
+#screen-movimientos #btn-nueva-busqueda:active,
+#screen-movimientos #deb-btn-nueva-busqueda:active{
+  transform:scale(0.985);
+  box-shadow:inset 5px 5px 10px rgba(0,0,0,0.5),inset -3px -3px 8px rgba(255,255,255,0.12) !important;
+}
+
+/* Resumen de la selección */
+#screen-movimientos #resumen-seleccion,
+#screen-movimientos #deb-resumen{
+  background:var(--clay-surface) !important;
+  border:none !important;
+  border-radius:26px !important;
+  padding:20px 22px !important;
+  margin-bottom:20px !important;
+  box-shadow:10px 12px 24px var(--clay-lo),-7px -7px 16px var(--clay-hi),
+             inset 4px 4px 9px var(--clay-in-hi),inset -4px -5px 11px var(--clay-in-lo) !important;
+}
+
+/* Lista de movimientos */
+#screen-movimientos #recuadro-movimientos .section-card-title,
+#screen-movimientos #deb-recuadro-movimientos .section-card-title{
+  padding-left:6px;letter-spacing:0.08em;margin-bottom:14px;
+}
+#screen-movimientos #movimientos-full,
+#screen-movimientos #deb-movimientos-lista{
+  box-sizing:content-box;
+  margin:0 -16px;
+  padding:6px 16px 22px;
+}
+#screen-movimientos .mov-item,
+html.dark-mode #screen-movimientos .mov-item{
+  background:var(--clay-surface);
+  border:none;
+  border-radius:24px;
+  padding:16px 18px;
+  margin-bottom:16px;
+  box-shadow:8px 9px 18px var(--clay-lo),-6px -6px 14px var(--clay-hi),
+             inset 3px 3px 7px var(--clay-in-hi),inset -3px -4px 8px var(--clay-in-lo);
+  transition:transform .2s ease,box-shadow .2s ease,background .2s ease;
+}
+#screen-movimientos .mov-item:last-child{margin-bottom:0}
+#screen-movimientos .mov-item:active{
+  transform:scale(0.985);
+  box-shadow:inset 5px 5px 10px var(--clay-in-lo),inset -5px -5px 10px var(--clay-in-hi);
+}
+#screen-movimientos .mov-badge{
+  background:var(--clay-well);
+  padding:5px 11px;
+  box-shadow:inset 2px 2px 4px var(--clay-in-lo),inset -2px -2px 4px var(--clay-in-hi);
+}
+#screen-movimientos .mov-item.selected,
+html.dark-mode #screen-movimientos .mov-item.selected{
+  background:linear-gradient(180deg,var(--mov-selected-grad-start),var(--mov-selected-grad-end));
+  transform:scale(1.02);
+  border-radius:24px;
+  box-shadow:10px 14px 26px var(--clay-lo),
+             inset 5px 5px 10px rgba(255,255,255,0.16),inset -6px -7px 12px rgba(0,0,0,0.45);
+}
+#screen-movimientos .mov-item.selected .mov-badge{
+  background:rgba(255,255,255,0.18);
+  box-shadow:inset 1px 1px 3px rgba(255,255,255,0.25),inset -2px -2px 4px rgba(0,0,0,0.25);
+}
+#screen-movimientos .empty-mov{
+  margin:4px 0 8px;padding:28px 16px;
+  border-radius:24px;
+  background:var(--clay-well);
+  box-shadow:inset 6px 6px 12px var(--clay-in-lo),inset -6px -6px 12px var(--clay-in-hi);
+}
+
+/* ══════════════════════════════════════════════════════════════
+   CLAYMORPHISM — pestaña NUEVO GASTO (#screen-nuevo)
+   (conserva la paleta original de la app)
+   ══════════════════════════════════════════════════════════════ */
+#screen-nuevo{
+  --clay-hi:rgba(255,255,255,1);
+  --clay-lo:rgba(0,0,0,0.16);
+  --clay-in-hi:rgba(255,255,255,0.9);
+  --clay-in-lo:rgba(0,0,0,0.09);
+  --clay-well:#ebebeb;
+}
+html.dark-mode #screen-nuevo{
+  --clay-hi:rgba(255,255,255,0.05);
+  --clay-lo:rgba(0,0,0,0.75);
+  --clay-in-hi:rgba(255,255,255,0.07);
+  --clay-in-lo:rgba(0,0,0,0.6);
+  --clay-well:#0c0c0c;
+}
+
+/* Interruptor Crédito / Débito */
+#screen-nuevo > div > div:nth-child(3){
+  background:var(--clay-well) !important;
+  border:none !important;
+  border-radius:22px !important;
+  margin-bottom:28px !important;
+  box-shadow:inset 5px 5px 10px var(--clay-in-lo),inset -5px -5px 10px var(--clay-in-hi) !important;
+}
+#screen-nuevo #nuevo-toggle-slider{
+  border-radius:18px !important;
+  box-shadow:5px 6px 12px var(--clay-lo),
+             inset 3px 3px 6px rgba(255,255,255,0.16),inset -3px -4px 7px rgba(0,0,0,0.45) !important;
+}
+#screen-nuevo #nuevo-btn-credito,
+#screen-nuevo #nuevo-btn-debito{border-radius:18px !important}
+
+/* Botones Nuevo / Extemporáneo */
+#screen-nuevo .btn-registro{
+  border-radius:30px !important;
+  padding:24px 26px !important;
+  margin-bottom:24px !important;
+  background:
+    radial-gradient(90% 70% at 15% 0%, rgba(255,255,255,0.16), transparent 60%),
+    linear-gradient(135deg,#3a3a3a 0%,#161616 60%,#0a0a0a 100%) !important;
+  box-shadow:12px 15px 28px var(--clay-lo),-8px -8px 18px var(--clay-hi),
+             inset 6px 6px 12px rgba(255,255,255,0.16),inset -8px -9px 16px rgba(0,0,0,0.55) !important;
+  transition:transform .2s ease,box-shadow .2s ease,opacity .15s ease;
+}
+#screen-nuevo .btn-registro:last-child{margin-bottom:0 !important}
+#screen-nuevo .btn-registro:active{
+  opacity:1;
+  transform:scale(0.985);
+  box-shadow:inset 6px 6px 12px rgba(0,0,0,0.6),inset -4px -4px 10px rgba(255,255,255,0.10) !important;
+}
+
+/* ══════════════════════════════════════════════════════════════
+   CLAYMORPHISM — pestañas PROMOCIONES, PERFILES y CONFIGURACIÓN
+   (#screen-promociones, #screen-perfiles, #screen-config)
+   (conserva la paleta original de la app)
+   ══════════════════════════════════════════════════════════════ */
+#screen-promociones,#screen-perfiles,#screen-config{
+  --clay-surface:#ffffff;
+  --clay-hi:rgba(255,255,255,1);
+  --clay-lo:rgba(0,0,0,0.16);
+  --clay-in-hi:rgba(255,255,255,0.9);
+  --clay-in-lo:rgba(0,0,0,0.09);
+  --clay-well:#ebebeb;
+}
+html.dark-mode #screen-promociones,
+html.dark-mode #screen-perfiles,
+html.dark-mode #screen-config{
+  --clay-surface:#141414;
+  --clay-hi:rgba(255,255,255,0.05);
+  --clay-lo:rgba(0,0,0,0.75);
+  --clay-in-hi:rgba(255,255,255,0.07);
+  --clay-in-lo:rgba(0,0,0,0.6);
+  --clay-well:#0c0c0c;
+}
+
+/* ── Interruptores (MSI/Cargos y Crédito/Débito de perfiles) ── */
+#screen-promociones > div > div:nth-child(3),
+#screen-perfiles #perfil-tab-toggle{
+  background:var(--clay-well) !important;
+  border:none !important;
+  border-radius:22px !important;
+  box-shadow:inset 5px 5px 10px var(--clay-in-lo),inset -5px -5px 10px var(--clay-in-hi) !important;
+}
+#screen-promociones > div > div:nth-child(3){margin-bottom:28px !important}
+#screen-promociones #promo-tab-slider,
+#screen-perfiles #perfil-tab-slider{
+  border-radius:18px !important;
+  box-shadow:5px 6px 12px var(--clay-lo),
+             inset 3px 3px 6px rgba(255,255,255,0.16),inset -3px -4px 7px rgba(0,0,0,0.45) !important;
+}
+#screen-promociones #promo-tab-msi,
+#screen-promociones #promo-tab-cargos,
+#screen-perfiles #perfil-tab-toggle button{border-radius:18px !important}
+
+/* ── Botones de acción (nueva promo, nuevo cargo, agregar tarjeta) ── */
+#screen-promociones #btn-nueva-promo-msi,
+#screen-promociones #btn-nuevo-cargo-recurrente,
+#screen-perfiles #btn-agregar-tarjeta-fuera{
+  border-radius:22px !important;
+  padding:16px !important;
+  margin-bottom:22px !important;
+  box-shadow:8px 10px 20px var(--clay-lo),-6px -6px 14px var(--clay-hi),
+             inset 4px 4px 8px rgba(255,255,255,0.18),inset -4px -5px 10px rgba(0,0,0,0.45) !important;
+  transition:transform .15s ease,box-shadow .15s ease;
+}
+#screen-promociones #btn-nueva-promo-msi:active,
+#screen-promociones #btn-nuevo-cargo-recurrente:active,
+#screen-perfiles #btn-agregar-tarjeta-fuera:active{
+  transform:scale(0.985);
+  box-shadow:inset 5px 5px 10px rgba(0,0,0,0.5),inset -3px -3px 8px rgba(255,255,255,0.12) !important;
+}
+
+/* ── Tarjetas oscuras (promociones, cargos, tarjetas y cuentas de perfiles) ── */
+#screen-promociones .promo-dark-card,
+#screen-perfiles .promo-dark-card{
+  border:none;
+  border-radius:28px;
+  background-color:#111111;
+  background-image:radial-gradient(90% 70% at 15% 0%, rgba(255,255,255,0.09), transparent 60%);
+  box-shadow:10px 13px 26px var(--clay-lo),-7px -7px 16px var(--clay-hi),
+             inset 5px 5px 11px rgba(255,255,255,0.12),inset -6px -8px 15px rgba(0,0,0,0.6);
+  transition:transform .2s ease,box-shadow .2s ease;
+}
+#screen-promociones .promo-dark-card{padding:18px 20px;margin-bottom:22px}
+#screen-promociones #promociones-lista .promo-dark-card,
+#screen-promociones #cargos-lista .promo-dark-card{padding:16px 20px;margin-bottom:22px}
+#screen-promociones .promo-dark-card:active,
+#screen-perfiles .promo-dark-card:active{
+  box-shadow:inset 5px 5px 12px rgba(0,0,0,0.65),inset -3px -3px 9px rgba(255,255,255,0.08);
+}
+#screen-promociones .promo-dark-menu,
+#screen-perfiles .promo-dark-menu{
+  border:none;
+  border-radius:12px;
+  box-shadow:3px 4px 8px rgba(0,0,0,0.55),inset 2px 2px 4px rgba(255,255,255,0.12),inset -2px -2px 4px rgba(0,0,0,0.5);
+}
+#screen-promociones .promo-dark-badge,
+#screen-perfiles .promo-dark-badge{
+  box-shadow:inset 1px 1px 3px rgba(255,255,255,0.2),inset -2px -2px 4px rgba(0,0,0,0.3);
+}
+#screen-promociones .promo-dark-divider,
+#screen-perfiles .promo-dark-divider{
+  height:2px;border-radius:2px;background:rgba(255,255,255,0.08);
+  box-shadow:0 1px 0 rgba(0,0,0,0.5);
+}
+
+/* ── Perfiles: cabecera, caja de tarjetas y lista con scroll ── */
+#screen-perfiles #perfil-header-card{
+  background:var(--clay-surface) !important;
+  border-radius:28px !important;
+  padding:18px 20px !important;
+  margin-bottom:22px !important;
+  box-shadow:10px 12px 24px var(--clay-lo),-7px -7px 16px var(--clay-hi),
+             inset 4px 4px 9px var(--clay-in-hi),inset -4px -5px 11px var(--clay-in-lo) !important;
+}
+#screen-perfiles #perfil-header-card > div:first-child{
+  border:none !important;
+  border-radius:18px !important;
+  box-shadow:4px 5px 10px var(--clay-lo),
+             inset 3px 3px 6px rgba(255,255,255,0.16),inset -3px -4px 7px rgba(0,0,0,0.5);
+}
+#screen-perfiles #perfil-activo-badge{
+  padding:6px 13px !important;
+  box-shadow:3px 4px 8px var(--clay-lo),
+             inset 2px 2px 4px rgba(255,255,255,0.18),inset -2px -2px 4px rgba(0,0,0,0.4);
+}
+#screen-perfiles #perfil-cards-box{
+  padding:0 14px !important;
+  margin:0 -14px 12px !important;
+}
+#screen-perfiles #perfil-scroll-credito,
+#screen-perfiles #perfil-scroll-debito{
+  box-sizing:content-box;
+  margin:0 -14px;
+  padding:6px 14px 24px;
+}
+
+/* ── Configuración ── */
+#screen-config > div > div:nth-child(4),
+#screen-config > div > div:nth-child(5){
+  background:var(--clay-surface) !important;
+  border:none !important;
+  border-radius:28px !important;
+  margin-bottom:28px !important;
+  box-shadow:10px 12px 24px var(--clay-lo),-7px -7px 16px var(--clay-hi),
+             inset 4px 4px 9px var(--clay-in-hi),inset -4px -5px 11px var(--clay-in-lo) !important;
+}
+#screen-config > div > div:nth-child(4) > div:first-child{
+  border-bottom:none !important;
+  box-shadow:0 2px 0 var(--clay-in-lo),0 3px 0 var(--clay-in-hi);
+}
+#screen-config > div > div:nth-child(4) > div,
+#screen-config > div > div:nth-child(5) > div{padding:18px 22px !important}
+#screen-config div[style*="background:#090909"]{
+  border:none !important;
+  box-shadow:4px 5px 10px var(--clay-lo),
+             inset 3px 3px 6px rgba(255,255,255,0.14),inset -3px -4px 7px rgba(0,0,0,0.55);
+}
+#screen-config div[style*="width:44px"]{border-radius:50% !important}
+#screen-config div[style*="width:34px"]{border-radius:13px !important}
+#screen-config > div > div:nth-child(4) > div:not(:first-child):active,
+#screen-config > div > div:nth-child(5) > div:active{
+  box-shadow:inset 4px 4px 9px var(--clay-in-lo),inset -4px -4px 9px var(--clay-in-hi);
+  border-radius:28px;
+}
+
+/* ══════════════════════════════════════════════════════════════
+   CLAYMORPHISM — INTERACCIONES de la pestaña TARJETA DE CRÉDITO
+   Modales: detalle, editar, asistente, eliminar, confirmar, resumen
+   y avisos de éxito. Solo aplica cuando la pestaña de crédito está
+   activa (ninguna otra pantalla visible).
+   ══════════════════════════════════════════════════════════════ */
+body:not(:has(.screen:not(.hidden))){
+  --clay-surface:#ffffff;
+  --clay-hi:rgba(255,255,255,1);
+  --clay-lo:rgba(0,0,0,0.16);
+  --clay-in-hi:rgba(255,255,255,0.9);
+  --clay-in-lo:rgba(0,0,0,0.09);
+  --clay-well:#ebebeb;
+}
+html.dark-mode body:not(:has(.screen:not(.hidden))){
+  --clay-surface:#141414;
+  --clay-hi:rgba(255,255,255,0.05);
+  --clay-lo:rgba(0,0,0,0.75);
+  --clay-in-hi:rgba(255,255,255,0.07);
+  --clay-in-lo:rgba(0,0,0,0.6);
+  --clay-well:#0c0c0c;
+}
+
+/* ── Contenedor de cada modal ── */
+body:not(:has(.screen:not(.hidden))) #modal-detalle-gasto .modal,
+body:not(:has(.screen:not(.hidden))) #modal-edit-cred .modal,
+body:not(:has(.screen:not(.hidden))) #modal-gasto-wizard .modal,
+body:not(:has(.screen:not(.hidden))) #confirm-elim-overlay .modal,
+body:not(:has(.screen:not(.hidden))) #modal-confirm-mov .modal,
+body:not(:has(.screen:not(.hidden))) #modal-resumen-movimiento .modal{
+  border:none !important;
+  border-radius:34px !important;
+  box-shadow:0 18px 44px rgba(0,0,0,0.38),
+             inset 6px 6px 14px var(--clay-in-hi),inset -6px -8px 16px var(--clay-in-lo) !important;
+}
+body:not(:has(.screen:not(.hidden))) #modal-detalle-gasto .modal,
+body:not(:has(.screen:not(.hidden))) #confirm-elim-overlay .modal,
+body:not(:has(.screen:not(.hidden))) #modal-gasto-wizard .modal,
+body:not(:has(.screen:not(.hidden))) #modal-confirm-mov .modal,
+body:not(:has(.screen:not(.hidden))) #modal-edit-cred .modal,
+body:not(:has(.screen:not(.hidden))) #modal-resumen-movimiento .modal{padding-left:24px;padding-right:24px}
+
+/* ── Paneles de datos (detalle / eliminar / confirmar / resumen): hundidos ── */
+body:not(:has(.screen:not(.hidden))) #detalle-gasto-content > div[style*="padding:2px 16px"],
+body:not(:has(.screen:not(.hidden))) #confirm-elim-rows > div[style*="padding:2px 16px"],
+body:not(:has(.screen:not(.hidden))) #confirm-mov-body > div[style*="padding:2px 16px"],
+body:not(:has(.screen:not(.hidden))) #resumen-mov-body > div[style*="padding:2px 16px"]{
+  background:var(--clay-well) !important;
+  border:none !important;
+  border-radius:24px !important;
+  padding:6px 20px !important;
+  box-shadow:inset 5px 5px 11px var(--clay-in-lo),inset -5px -5px 11px var(--clay-in-hi) !important;
+}
+/* Etiquetas en píldora (apodo de tarjeta, tipo) */
+body:not(:has(.screen:not(.hidden))) #detalle-gasto-content div[style*="display:inline-block;padding:3px 10px"],
+body:not(:has(.screen:not(.hidden))) #confirm-mov-apodo,
+body:not(:has(.screen:not(.hidden))) #confirm-elim-rows div[style*="border-radius:20px;border:1px solid"],
+body:not(:has(.screen:not(.hidden))) #confirm-mov-body div[style*="border-radius:20px;border:1px solid"],
+body:not(:has(.screen:not(.hidden))) #resumen-mov-body div[style*="border-radius:20px;border:1px solid"]{
+  border:none !important;
+  border-radius:999px !important;
+  padding:5px 13px !important;
+  background:var(--clay-surface);
+  box-shadow:3px 4px 8px var(--clay-lo),-2px -2px 6px var(--clay-hi),
+             inset 1px 1px 3px var(--clay-in-hi),inset -1px -2px 3px var(--clay-in-lo);
+}
+
+/* ── Botones de los modales ── */
+body:not(:has(.screen:not(.hidden))) #modal-detalle-gasto .modal button:not(.dg-close),
+body:not(:has(.screen:not(.hidden))) #modal-edit-cred .modal button,
+body:not(:has(.screen:not(.hidden))) #modal-gasto-wizard .gw-actions button,
+body:not(:has(.screen:not(.hidden))) #confirm-elim-overlay .modal button,
+body:not(:has(.screen:not(.hidden))) #modal-confirm-mov .modal button:not(.dg-close),
+body:not(:has(.screen:not(.hidden))) #modal-resumen-movimiento .modal button{
+  border:none !important;
+  border-radius:22px !important;
+  padding:15px !important;
+  box-shadow:6px 8px 16px var(--clay-lo),-5px -5px 12px var(--clay-hi),
+             inset 3px 3px 7px var(--clay-in-hi),inset -3px -4px 8px var(--clay-in-lo) !important;
+  transition:transform .15s ease,box-shadow .15s ease;
+}
+body:not(:has(.screen:not(.hidden))) #confirm-elim-btn,
+body:not(:has(.screen:not(.hidden))) #modal-confirm-mov .modal #confirm-mov-ok-btn{
+  box-shadow:6px 8px 16px var(--clay-lo),
+             inset 4px 4px 8px rgba(255,255,255,0.16),inset -4px -5px 10px rgba(0,0,0,0.45) !important;
+}
+body:not(:has(.screen:not(.hidden))) #modal-detalle-gasto .modal button:not(.dg-close):active,
+body:not(:has(.screen:not(.hidden))) #modal-edit-cred .modal button:active,
+body:not(:has(.screen:not(.hidden))) #modal-gasto-wizard .gw-actions button:active,
+body:not(:has(.screen:not(.hidden))) #confirm-elim-overlay .modal button:active,
+body:not(:has(.screen:not(.hidden))) #modal-confirm-mov .modal button:not(.dg-close):active,
+body:not(:has(.screen:not(.hidden))) #modal-resumen-movimiento .modal button:active{
+  transform:scale(0.975);
+  box-shadow:inset 5px 5px 10px var(--clay-in-lo),inset -4px -4px 9px var(--clay-in-hi) !important;
+}
+/* Botones de cerrar (círculos) */
+body:not(:has(.screen:not(.hidden))) #modal-gasto-wizard .gw-close,
+body:not(:has(.screen:not(.hidden))) #modal-detalle-gasto .dg-close,
+body:not(:has(.screen:not(.hidden))) #modal-confirm-mov .dg-close{
+  border:none !important;
+  background:var(--clay-surface) !important;
+  box-shadow:4px 5px 10px var(--clay-lo),-3px -3px 8px var(--clay-hi),
+             inset 2px 2px 4px var(--clay-in-hi),inset -2px -2px 4px var(--clay-in-lo) !important;
+}
+body:not(:has(.screen:not(.hidden))) #modal-gasto-wizard .gw-close:active,
+body:not(:has(.screen:not(.hidden))) #modal-detalle-gasto .dg-close:active,
+body:not(:has(.screen:not(.hidden))) #modal-confirm-mov .dg-close:active{
+  box-shadow:inset 3px 3px 6px var(--clay-in-lo),inset -3px -3px 6px var(--clay-in-hi) !important;
+}
+
+/* ── Campos de texto y selectores (hundidos) ── */
+body:not(:has(.screen:not(.hidden))) #modal-edit-cred .inp,
+body:not(:has(.screen:not(.hidden))) #modal-edit-cred .amount-inp,
+body:not(:has(.screen:not(.hidden))) #modal-gasto-wizard .inp,
+body:not(:has(.screen:not(.hidden))) #modal-gasto-wizard .amount-inp,
+body:not(:has(.screen:not(.hidden))) #modal-edit-cred .modal [style*="border:1.5px solid var(--border)"],
+body:not(:has(.screen:not(.hidden))) #modal-gasto-wizard .modal [style*="border:1.5px solid var(--border)"]{
+  border:none !important;
+  border-radius:20px !important;
+  background:var(--clay-well) !important;
+  box-shadow:inset 5px 5px 10px var(--clay-in-lo),inset -5px -5px 10px var(--clay-in-hi) !important;
+}
+body:not(:has(.screen:not(.hidden))) #modal-edit-cred .inp:focus,
+body:not(:has(.screen:not(.hidden))) #modal-edit-cred .amount-inp:focus,
+body:not(:has(.screen:not(.hidden))) #modal-gasto-wizard .inp:focus,
+body:not(:has(.screen:not(.hidden))) #modal-gasto-wizard .amount-inp:focus{
+  box-shadow:inset 6px 6px 12px var(--clay-in-lo),inset -5px -5px 10px var(--clay-in-hi),0 0 0 2px rgba(127,127,127,0.35) !important;
+}
+/* ── Ruedas de selección (banco, tarjeta, fecha, etc.) ── */
+body:not(:has(.screen:not(.hidden))) #modal-edit-cred .modal [style*="border-radius:14px;overflow:hidden"],
+body:not(:has(.screen:not(.hidden))) #modal-gasto-wizard .modal [style*="border-radius:14px;overflow:hidden"]{
+  background:var(--clay-well) !important;
+  border-radius:24px !important;
+  box-shadow:inset 5px 5px 11px var(--clay-in-lo),inset -5px -5px 11px var(--clay-in-hi) !important;
+}
+/* Barra de selección de la rueda: pieza en relieve */
+body:not(:has(.screen:not(.hidden))) #modal-edit-cred .modal [style*="height:41px"],
+body:not(:has(.screen:not(.hidden))) #modal-gasto-wizard .modal [style*="height:41px"]{
+  background:var(--clay-surface) !important;
+  border:none !important;
+  border-radius:16px !important;
+  box-shadow:4px 5px 10px var(--clay-lo),-3px -3px 8px var(--clay-hi),
+             inset 2px 2px 4px var(--clay-in-hi),inset -2px -2px 5px var(--clay-in-lo) !important;
+}
+
+/* ── Asistente: opciones, progreso y recap ── */
+body:not(:has(.screen:not(.hidden))) #modal-gasto-wizard .gw-tipo{
+  border:none !important;
+  border-radius:22px !important;
+  background:var(--clay-surface) !important;
+  box-shadow:6px 7px 14px var(--clay-lo),-5px -5px 11px var(--clay-hi),
+             inset 2px 2px 5px var(--clay-in-hi),inset -2px -3px 6px var(--clay-in-lo) !important;
+}
+body:not(:has(.screen:not(.hidden))) #modal-gasto-wizard .gw-tipo.sel{
+  box-shadow:inset 5px 5px 10px var(--clay-in-lo),inset -4px -4px 9px var(--clay-in-hi) !important;
+  background:var(--clay-well) !important;
+}
+body:not(:has(.screen:not(.hidden))) #modal-gasto-wizard .gw-tipo-ic{
+  border:none;border-radius:14px;
+  box-shadow:3px 4px 8px var(--clay-lo),inset 2px 2px 4px rgba(255,255,255,0.14),inset -2px -3px 5px rgba(0,0,0,0.5);
+}
+body:not(:has(.screen:not(.hidden))) #modal-gasto-wizard .gw-recap{
+  border:none;border-radius:999px;padding:7px 14px;
+  background:var(--clay-surface);
+  box-shadow:3px 4px 8px var(--clay-lo),-2px -2px 6px var(--clay-hi),
+             inset 1px 1px 3px var(--clay-in-hi),inset -1px -2px 3px var(--clay-in-lo);
+}
+body:not(:has(.screen:not(.hidden))) #modal-gasto-wizard .gw-dot{
+  height:8px;border-radius:999px;background:var(--clay-well);
+  box-shadow:inset 2px 2px 3px var(--clay-in-lo),inset -1px -1px 2px var(--clay-in-hi);
+}
+body:not(:has(.screen:not(.hidden))) #modal-gasto-wizard .gw-dot.done{background:var(--text-dim)}
+body:not(:has(.screen:not(.hidden))) #modal-gasto-wizard .gw-dot.active{
+  background:var(--text);
+  box-shadow:2px 3px 6px var(--clay-lo),inset 1px 1px 2px rgba(255,255,255,0.25),inset -1px -2px 3px rgba(0,0,0,0.35);
+}
+body:not(:has(.screen:not(.hidden))) #modal-gasto-wizard .gw-head .modal-title > div:first-child,
+body:not(:has(.screen:not(.hidden))) #modal-edit-cred .modal-title > div:first-child{
+  border:none !important;border-radius:13px !important;
+  box-shadow:3px 4px 8px var(--clay-lo),inset 2px 2px 4px rgba(255,255,255,0.14),inset -2px -3px 5px rgba(0,0,0,0.5);
+}
+
+/* ── Avisos de éxito / modificado / eliminado ── */
+body:not(:has(.screen:not(.hidden))) .success-overlay .success-box{
+  border-radius:36px;
+  box-shadow:0 18px 44px rgba(0,0,0,0.38),
+             inset 6px 6px 14px var(--clay-in-hi),inset -6px -8px 16px var(--clay-in-lo);
+}
+body:not(:has(.screen:not(.hidden))) .success-overlay .success-icon{
+  border:none;
+  box-shadow:6px 8px 16px var(--clay-lo),
+             inset 4px 4px 8px rgba(255,255,255,0.14),inset -4px -5px 9px rgba(0,0,0,0.55);
+}
+body:not(:has(.screen:not(.hidden))) .success-overlay #success-cancel-btn{
+  border:none !important;border-radius:20px !important;
+  box-shadow:6px 8px 16px var(--clay-lo),-4px -4px 10px var(--clay-hi),
+             inset 3px 3px 6px var(--clay-in-hi),inset -3px -4px 7px var(--clay-in-lo) !important;
+}
 </style>
 </head>
 <body>
