@@ -488,8 +488,7 @@ html.dark-mode #perfil-header-card{background:#111111!important;border:1px solid
 html.dark-mode #modal-cambiar-pass .modal{--card-bg:#090909;--input-bg:#111111;--border:rgba(255,255,255,0.09);border:1px solid rgba(255,255,255,0.08)!important}
 html.dark-mode #modal-cambiar-pass .inp{box-shadow:0 2px 6px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.06)!important}
 html.dark-mode #modal-notif-pago.open,html.dark-mode #modal-notif-hist.open{background:rgba(0,0,0,0.95);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}
-html.dark-mode #modal-notif-pago .modal,html.dark-mode #modal-notif-hist .modal{--card-bg:#090909;--card-bg-soft:#111111;--border:rgba(255,255,255,0.09);border:1px solid rgba(255,255,255,0.08)}
-html.dark-mode #notif-btn-later,html.dark-mode #notif-btn-ok{box-shadow:0 2px 6px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.06)}
+html.dark-mode #modal-notif-pago .modal,html.dark-mode #modal-notif-hist .modal{--card-bg:#090909;--card-bg-soft:#090909;--border:rgba(255,255,255,0.09)}
 html.dark-mode #pass-cancelar-btn,
 html.dark-mode #pass-guardar-btn{background:#111111!important;border:1px solid rgba(255,255,255,0.09)!important;color:var(--text)!important;box-shadow:0 2px 6px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.06)!important}
 html.dark-mode #modal-confirm-logout .success-box{background:#090909!important;border:1px solid rgba(255,255,255,0.08)!important}
@@ -2450,6 +2449,30 @@ html:not(.dark-mode) #pass-guardar-btn{
 }
 html:not(.dark-mode) #pass-cancelar-btn:active,
 html:not(.dark-mode) #pass-guardar-btn:active{transform:scale(0.98);box-shadow:var(--nm-inset-sm) !important}
+/* ── Neumorphism: recordatorios de pago + historial de notificaciones ── */
+#modal-notif-pago .modal,#modal-notif-hist .modal{
+  background:var(--bg) !important;border:none !important;
+  box-shadow:0 -6px 30px rgba(0,0,0,0.18),inset 0 1px 0 var(--nm-light) !important;
+}
+#modal-notif-pago div[style*="border-radius:16px"],
+#notif-hist-list > div[style*="border-radius:16px"]{
+  background:var(--bg) !important;border:none !important;box-shadow:var(--nm-inset) !important;
+}
+#modal-notif-pago div[style*="border-bottom"]{border-bottom-color:rgba(127,127,127,0.18) !important}
+#modal-notif-pago span[style*="border-radius:20px"],
+#notif-hist-list span[style*="border-radius:20px"]{
+  border:none !important;background:var(--bg) !important;box-shadow:var(--nm-inset-sm) !important;
+}
+#notif-btn-later,#notif-btn-ok,#modal-notif-hist .dg-close{
+  background:var(--bg) !important;border:none !important;color:var(--text) !important;
+  box-shadow:var(--nm-raised-sm) !important;transition:box-shadow .2s ease,transform .15s ease;
+}
+#notif-btn-later:active,#notif-btn-ok:active,#modal-notif-hist .dg-close:active{
+  transform:scale(0.98);box-shadow:var(--nm-inset-sm) !important;
+}
+#notif-hist-list .notif-del{background:var(--bg) !important;border:none !important;box-shadow:var(--nm-raised-sm) !important;transition:box-shadow .2s ease,transform .15s ease}
+#notif-hist-list .notif-del:active{transform:scale(0.96);box-shadow:var(--nm-inset-sm) !important}
+#notif-hist-list{padding:4px 6px 10px}
 /* Modal ¿Cerrar sesión? */
 html:not(.dark-mode) #modal-confirm-logout .success-box{
   background:var(--bg) !important;border:none !important;
@@ -5181,6 +5204,29 @@ function nombreCorte(corte, ref){
   return ini + ' – ' + fin;
 }
 
+// Periodos (desde que existe cada cargo recurrente hasta hoy) en los que la tarjeta recibe
+// cargos recurrentes. Así un corte sin gastos sigue existiendo en el historial.
+function _periodosConCargosRecurrentes(tarjetaId, corte){
+  const hoy = new Date(), out = {};
+  (cargosRecurrentesCache||[])
+    .filter(c=>c.tipo==='credito' && c.tarjetaId===tarjetaId && c.activo!==false)
+    .forEach(c=>{
+      const creado = c.creadoEn ? new Date(c.creadoEn) : hoy;
+      const refs = [creado];
+      for(let k=1; k<=240; k++){
+        const r = new Date(creado.getFullYear(), creado.getMonth()+k, corte);
+        if(r > hoy) break;
+        refs.push(r);
+      }
+      refs.forEach(r=>{
+        const per = getPeriodo(corte, r);
+        if(per.inicio > hoy) return;
+        out[per.fin.toISOString().split('T')[0]] = per;
+      });
+    });
+  return Object.values(out);
+}
+
 // Obtener años disponibles para una tarjeta
 function getAniosDisponibles(tarjetaId, corte){
   const seen2 = new Map();
@@ -5205,6 +5251,8 @@ function getAniosDisponibles(tarjetaId, corte){
       if(periodo.inicio <= hoy) aniosSet.add(periodo.fin.getFullYear());
     }
   });
+  // Años desde cargos recurrentes (corte sin gastos también cuenta)
+  _periodosConCargosRecurrentes(tarjetaId, corte).forEach(per=>aniosSet.add(per.fin.getFullYear()));
   return [...aniosSet].sort((a,b)=>a-b);
 }
 
@@ -5238,6 +5286,12 @@ function getCortesDisponibles(tarjetaId, corte, anio){
       const key = periodo.fin.toISOString().split('T')[0];
       if(!cortesMap[key]) cortesMap[key] = { inicio:periodo.inicio, fin:periodo.fin, nombre: nombreCorte(corte, periodo.fin), key };
     }
+  });
+  // Cortes con cargos recurrentes aunque no haya gastos ni promociones
+  _periodosConCargosRecurrentes(tarjetaId, corte).forEach(periodo=>{
+    if(periodo.fin.getFullYear() !== anio) return;
+    const key = periodo.fin.toISOString().split('T')[0];
+    if(!cortesMap[key]) cortesMap[key] = { inicio:periodo.inicio, fin:periodo.fin, nombre: nombreCorte(corte, periodo.fin), key };
   });
   return Object.values(cortesMap).sort((a,b)=>a.fin-b.fin);
 }
@@ -5293,7 +5347,7 @@ function renderMovimientos(){
         <div class="mov-date">${fmtDateShort(m.fecha,m.creadoEn)}</div>
         <div class="mov-name" style="font-weight:700">${_c3}</div>
       </div>
-      <div class="mov-right"><span class="mov-badge">Gasto</span><div class="mov-amount" style="color:var(--text-dim)">-${fmt(m.monto)}</div></div>
+      <div class="mov-right"><span class="mov-badge">Gasto</span><div class="mov-amount" style="color:var(--text)">-${fmt(m.monto)}</div></div>
     </div>`;
   }).join('');
 
@@ -9068,7 +9122,7 @@ window.debSelMes = async function(mes){
           <div class="mov-date">${fechaCD}</div>
           <div class="mov-name" style="font-weight:700">${c.nombre}</div>
         </div>
-        <div class="mov-right"><span class="mov-badge">Cargo recurrente</span><div class="mov-amount" style="color:var(--text-dim)">-$${Number(c.monto).toLocaleString('es-MX',{minimumFractionDigits:2})}</div></div>
+        <div class="mov-right"><span class="mov-badge">Cargo recurrente</span><div class="mov-amount" style="color:var(--text)">-$${Number(c.monto).toLocaleString('es-MX',{minimumFractionDigits:2})}</div></div>
       </div>`;
     }).join('');
 
@@ -9085,7 +9139,7 @@ window.debSelMes = async function(mes){
       const fmt2l = n => n.toLocaleString('es-MX',{minimumFractionDigits:2,maximumFractionDigits:2});
       const monto     = fmt2l(m.monto||0);
       const signo     = esIngreso ? '+' : '-';
-      const color     = esIngreso ? 'var(--text)' : 'var(--text-dim)';
+      const color     = 'var(--text)';
       const fechaStr  = m.fecha ? m.fecha.split('-').reverse().join('/') : '—';
       return `
         <div class="mov-item" onclick="resaltarMovDeb(this)" onmousedown="startLongPressDebHist(this,'${m.id}')" onmouseup="cancelLongPress()" onmouseleave="cancelLongPress()" ontouchstart="startLongPressDebHist(this,'${m.id}')" ontouchend="cancelLongPress()" ontouchmove="cancelLongPress()" data-id="${m.id}">
@@ -9258,7 +9312,7 @@ function renderMovimientosFull(tarjetaId){
         <div class="mov-date">${fmtDateShort(m.fecha,m.creadoEn)}</div>
         <div class="mov-name" style="font-weight:700">${_c2}</div>
       </div>
-      <div class="mov-right"><span class="mov-badge">Gasto</span><div class="mov-amount" style="color:var(--text-dim)">-${fmt(m.monto)}</div></div>
+      <div class="mov-right"><span class="mov-badge">Gasto</span><div class="mov-amount" style="color:var(--text)">-${fmt(m.monto)}</div></div>
     </div>`;
   }).join('');
 }
@@ -11518,7 +11572,7 @@ window.confirmarBusquedaHistorial = function(){
         <div class="mov-date">${fmtDateShort(m.fecha, m.creadoEn)}</div>
         <div class="mov-name" style="font-weight:700">${_cx}</div>
       </div>
-      <div class="mov-right"><span class="mov-badge">Gasto</span><div class="mov-amount" style="color:var(--text-dim)">-${fmt(m.monto)}</div></div>
+      <div class="mov-right"><span class="mov-badge">Gasto</span><div class="mov-amount" style="color:var(--text)">-${fmt(m.monto)}</div></div>
     </div>`;
   }).join('');
 }
@@ -11743,7 +11797,7 @@ window.aceptarConfirmHist = function(){
           <div class="mov-date">${fmtDateShort(m.fecha,m.creadoEn)}</div>
           <div class="mov-name" style="font-weight:700">${_cy}</div>
         </div>
-        <div class="mov-right"><span class="mov-badge">Gasto</span><div class="mov-amount" style="color:var(--text-dim)">-${fmt(m.monto)}</div></div>
+        <div class="mov-right"><span class="mov-badge">Gasto</span><div class="mov-amount" style="color:var(--text)">-${fmt(m.monto)}</div></div>
       </div>`;
     }).join('');
 
@@ -12284,7 +12338,7 @@ function _renderDebMovimientos(){
           <div class="mov-date">${fechaStr}</div>
           <div class="mov-name" style="font-weight:700">${concepto}</div>
         </div>
-        <div class="mov-right"><span class="mov-badge">${esIngreso?'Ingreso':'Egreso'}</span><div class="mov-amount" style="color:${esIngreso?'var(--text)':'var(--text-dim)'}">${signo}$${monto}</div></div>
+        <div class="mov-right"><span class="mov-badge">${esIngreso?'Ingreso':'Egreso'}</span><div class="mov-amount" style="color:var(--text)">${signo}$${monto}</div></div>
 
       </div>`;
   }).join('');
@@ -12446,7 +12500,7 @@ window.confirmarEliminarPerfil = async function(){
 // ── RECORDATORIOS DE PAGO (corte de tarjeta y cargos recurrentes)
 // ══════════════════════════════════════════════════════════════
 // - Se avisa NOTIF_DIAS_ANTES días antes de la fecha (y el mismo día).
-// - "Recordar más tarde" => vuelve a aparecer al próximo inicio de sesión.
+// - "Recordar más tarde" => vuelve a aparecer al próximo inicio de sesión (máximo una vez por día).
 // - "Aceptar" => ya no vuelve a aparecer.
 // - Si la fecha ya pasó y no se aceptó => "Pago vencido" (solo Aceptar), hasta NOTIF_DIAS_VENCIDO_MAX días después.
 // - Cada aparición se guarda en usuarios/{uid}/notificaciones (historial visible en Configuración).
@@ -12552,6 +12606,7 @@ window.revisarNotificaciones = async function(){
     _notifCandidatos(now, movs, promos, cargos).forEach(c=>{
       const previo = _notifDocs[c.id];
       if(previo && previo.estado === 'aceptado') return;      // ya aceptado: no vuelve a aparecer
+      if(previo && (previo.entradas || []).some(en=>en.dia === _nIso(now))) return;   // solo una vez al día
       const diff = _nDiff(now, c.fecha);
       if(diff > NOTIF_DIAS_ANTES) return;                      // aún falta mucho
       if(diff < -NOTIF_DIAS_VENCIDO_MAX) return;               // demasiado viejo
@@ -12614,7 +12669,7 @@ function _notifMostrar(){
 async function _notifResponder(accion){
   const ev = _notifActual; if(!ev) return;
   const ultima = ev.entradas[ev.entradas.length - 1];
-  if(ultima) ultima.accion = accion;
+  if(ultima){ ultima.accion = accion; ultima.tsAccion = Date.now(); }
   ev.estado = accion === 'aceptada' ? 'aceptado' : 'aplazado';
   _notifActual = null;
   _notifGuardar(ev);
@@ -12637,11 +12692,18 @@ window.abrirNotificaciones = async function(){
   const list = document.getElementById('notif-hist-list');
   list.innerHTML = '<div style="padding:28px 0;text-align:center;font-size:14px;color:var(--text-dim)">Cargando…</div>';
   ov.classList.add('open');
-  const docs = await _notifCargarDocs();
+  _notifHistDocs = await _notifCargarDocs();
+  _notifRenderHist();
+};
+let _notifHistDocs = {};
+const _nHora = ts => new Date(ts).toLocaleTimeString('es-MX', { hour:'numeric', minute:'2-digit', hour12:true });
+function _notifRenderHist(){
+  const list = document.getElementById('notif-hist-list');
+  const docs = _notifHistDocs;
   const filas = [];
   Object.keys(docs).forEach(k=>{
     const ev = docs[k];
-    (ev.entradas || []).forEach(en=>filas.push({ ev, en }));
+    (ev.entradas || []).forEach(en=>{ if(!en.oculta) filas.push({ ev, en }); });
   });
   if(!filas.length){
     list.innerHTML = '<div style="padding:28px 8px;text-align:center;font-size:14px;color:var(--text-dim);line-height:1.5">Aún no hay notificaciones.<br>Aquí aparecerán los recordatorios de corte y cargos recurrentes.</div>';
@@ -12665,12 +12727,30 @@ window.abrirNotificaciones = async function(){
       +   '<div style="font-size:12px;color:var(--text-dim);margin-top:2px">' + (venc ? 'Pago vencido' : 'Recordatorio') + ' · ' + _nEsc(fechaTxt) + '</div></div>'
       +   '<div style="font-size:14px;font-weight:700;color:var(--text);white-space:nowrap">' + _nEsc(fmt(ev.monto || 0)) + '</div>'
       + '</div>'
-      + '<div style="margin-top:8px;display:flex;gap:6px;flex-wrap:wrap">'
-      +   '<span style="font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px;border:1px solid var(--border);color:' + (venc ? '#e53935' : 'var(--text-dim)') + '">' + (venc ? 'Vencido' : 'Aviso') + '</span>'
-      +   '<span style="font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px;border:1px solid var(--border);color:var(--text)">' + _nEsc(accionTxt[en.accion] || en.accion) + '</span>'
+      + '<div style="margin-top:8px;display:flex;align-items:center;justify-content:space-between;gap:8px">'
+      +   '<div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center">'
+      +     '<span style="font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px;border:1px solid var(--border);color:' + (venc ? '#e53935' : 'var(--text-dim)') + '">' + (venc ? 'Vencido' : 'Aviso') + '</span>'
+      +     '<span style="font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px;border:1px solid var(--border);color:var(--text)">' + _nEsc(accionTxt[en.accion] || en.accion) + '</span>'
+      +     '<span style="font-size:11px;font-weight:600;color:var(--text-dim)">' + _nEsc(_nHora(en.tsAccion || en.ts)) + '</span>'
+      +   '</div>'
+      +   '<button class="notif-del" onclick="notifBorrar(\'' + _nEsc(ev.id) + '\',' + en.ts + ')" aria-label="Borrar notificación" style="width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;padding:0;flex-shrink:0;color:var(--text-dim);border:1.5px solid var(--border);background:var(--card-bg-soft)">'
+      +     '<svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/></svg>'
+      +   '</button>'
       + '</div></div>';
   });
   list.innerHTML = html;
+}
+// Borrar una notificación del historial. Se oculta (no se elimina el registro) para que
+// el estado de la notificación y la regla de "una vez al día" sigan funcionando.
+window.notifBorrar = async function(evId, ts){
+  const ev = _notifHistDocs[evId]; if(!ev) return;
+  (ev.entradas || []).forEach(en=>{ if(en.ts === ts) en.oculta = true; });
+  _notifDocs[evId] = ev;
+  _notifRenderHist();
+  if(window.showDeleted) window.showDeleted('Notificación eliminada');
+  try{ localStorage.setItem(_nCacheKey(), JSON.stringify(_notifHistDocs)); }catch(_){}
+  try{ await setDoc(doc(db,'usuarios', currentUser.uid, 'notificaciones', evId), ev); }
+  catch(e){ console.warn('notificaciones: no se pudo borrar en Firestore', e); }
 };
 window.cerrarNotificaciones = function(e){
   if(!e || e.target === document.getElementById('modal-notif-hist'))
