@@ -735,6 +735,53 @@ input[type=number]{-moz-appearance:textfield}
 .btn-flat-confirm{background:linear-gradient(180deg,var(--card-bg-soft),var(--bg))}
 .btn-flat-cancel:active,.btn-flat-confirm:active{transform:scale(0.98)}
 
+/* ── Estadísticas: gasto por día de un corte ── */
+html.dark-mode #modal-estadisticas.open{background:rgba(0,0,0,0.95);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}
+html.dark-mode #modal-estadisticas .modal{--card-bg:#090909;--card-bg-soft:#111111;--icon-bg:#1c1c1c;--border:#212121;--input-bg:#090909;--bg:#090909}
+html.dark-mode #modal-estadisticas .btn-flat-cancel,
+html.dark-mode #modal-estadisticas .btn-flat-confirm{background:var(--card-bg-soft)!important;box-shadow:0 2px 6px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.06)}
+#modal-estadisticas{align-items:center;z-index:310}
+#modal-estadisticas .modal{transform:scale(0.92);transition:transform 0.3s cubic-bezier(0.34,1.3,0.64,1),background 0.25s ease;width:calc(100% - 40px);max-width:390px;padding:22px 18px 20px;border-radius:24px;max-height:90vh;overflow-x:hidden;overflow-y:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+#modal-estadisticas .modal::-webkit-scrollbar{display:none}
+#modal-estadisticas.open .modal{transform:scale(1)}
+#modal-estadisticas .est-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+#modal-estadisticas .est-head .modal-title{margin-bottom:0;font-size:17px;flex:1;min-width:0}
+#modal-estadisticas .est-close{width:32px;height:32px;border-radius:50%;border:1.5px solid var(--border);background:var(--card-bg-soft);color:var(--text-dim);display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;padding:0;margin-left:10px}
+#modal-estadisticas .est-close:active{transform:scale(0.92)}
+#modal-estadisticas .est-recap{font-size:12px;font-weight:600;color:var(--text-dim);background:var(--card-bg-soft);border:1px solid var(--border);border-radius:8px;padding:6px 10px;margin-bottom:12px;line-height:1.4}
+#modal-estadisticas .est-box{background:var(--card-bg-soft);border:1px solid var(--border);border-radius:14px;padding:12px 14px}
+#modal-estadisticas .est-lbl{font-size:10px;font-weight:700;color:var(--text-dim);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:4px}
+#modal-estadisticas .est-val{font-size:15px;font-weight:800;color:var(--text);line-height:1.2}
+#modal-estadisticas .est-sub{font-size:11px;color:var(--text-dim);margin-top:2px}
+#modal-estadisticas .est-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}
+#modal-estadisticas .est-chart{margin-top:12px;padding:12px 8px 6px;background:var(--card-bg-soft);border:1px solid var(--border);border-radius:14px}
+#modal-estadisticas .est-chart svg{display:block;width:100%;height:auto;overflow:visible}
+#modal-estadisticas .est-chart{padding:12px 8px 8px}
+#modal-estadisticas #est-scroll::-webkit-scrollbar{display:none}
+#modal-estadisticas .est-hint{text-align:center;font-size:10px;font-weight:600;color:var(--text-dim);margin-top:4px;letter-spacing:0.04em}
+#modal-estadisticas .est-bar{cursor:pointer;transition:opacity 0.15s}
+#modal-estadisticas .est-dia{margin-top:10px}
+#modal-estadisticas .est-mov{display:flex;justify-content:space-between;gap:10px;font-size:13px;padding:7px 0;border-top:1px solid var(--border);color:var(--text)}
+#modal-estadisticas .est-mov span:first-child{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#modal-estadisticas .est-mov span:last-child{font-weight:700;flex-shrink:0}
+#modal-estadisticas .est-actions{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px}
+#modal-estadisticas .est-vacio{padding:26px 8px;text-align:center;color:var(--text-dim);font-size:14px}
+
+/* Estadísticas abiertas: se oculta el menú flotante inferior */
+html.est-abierto .bottom-nav{display:none !important}
+/* ── NEUMORPHISM · Estadísticas (solo modo claro) ── */
+html:not(.dark-mode) #modal-estadisticas .modal{background:var(--bg);border:none !important;box-shadow:0 -6px 30px rgba(0,0,0,0.18),inset 0 1px 0 var(--nm-light)}
+html:not(.dark-mode) #modal-estadisticas .est-close{background:var(--bg) !important;border:none !important;box-shadow:var(--nm-raised-sm) !important}
+html:not(.dark-mode) #modal-estadisticas .est-close:active{box-shadow:var(--nm-inset-sm) !important}
+html:not(.dark-mode) #modal-estadisticas .est-recap{background:var(--bg);border:none;box-shadow:var(--nm-inset-sm)}
+html:not(.dark-mode) #modal-estadisticas .est-box{background:var(--bg);border:none;border-radius:16px;box-shadow:var(--nm-raised-sm)}
+html:not(.dark-mode) #modal-estadisticas .est-chart{background:var(--bg);border:none;border-radius:18px;box-shadow:var(--nm-inset)}
+html:not(.dark-mode) #modal-estadisticas .est-chart svg line{stroke:rgba(166,172,188,0.45)}
+html:not(.dark-mode) #modal-estadisticas .est-mov{border-top:1px solid rgba(166,172,188,0.28);box-shadow:0 -1px 0 var(--nm-light)}
+html:not(.dark-mode) #modal-estadisticas .btn-flat-cancel,
+html:not(.dark-mode) #modal-estadisticas .btn-flat-confirm{background:var(--bg) !important;border:none !important;color:var(--text) !important;box-shadow:var(--nm-raised-sm) !important;transition:box-shadow .2s ease,transform .15s ease}
+html:not(.dark-mode) #modal-estadisticas .btn-flat-cancel:active,
+html:not(.dark-mode) #modal-estadisticas .btn-flat-confirm:active{transform:scale(0.98);box-shadow:var(--nm-inset-sm) !important}
 /* ── Asistente "Nuevo gasto" (crédito): un modal por cada campo ── */
 html.dark-mode #modal-gasto-wizard.open{background:rgba(0,0,0,0.95);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}
 html.dark-mode #modal-gasto-wizard .modal{--card-bg:#090909;--card-bg-soft:#111111;--icon-bg:#1c1c1c;--border:#212121;--input-bg:#090909;--bg:#090909}
@@ -3676,6 +3723,23 @@ try{
     <div class="gw-actions" id="gw-actions">
       <button type="button" class="btn-flat-cancel" id="gw-back" onclick="gwAtras()">Cancelar</button>
       <button type="button" class="btn-flat-confirm" id="gw-next" onclick="gwSiguiente()">Siguiente</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ MODAL ESTADÍSTICAS (gasto por día de un corte) ══ -->
+<div class="modal-overlay modal-overlay-blur" id="modal-estadisticas" onclick="cerrarEstadisticas(event)">
+  <div class="modal" onclick="event.stopPropagation()">
+    <div class="est-head">
+      <div class="modal-title">Estadísticas</div>
+      <button type="button" class="est-close" onclick="cerrarEstadisticas()" aria-label="Cerrar">
+        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div id="est-body"></div>
+    <div class="est-actions">
+      <button type="button" class="btn-flat-cancel" onclick="cerrarEstadisticas()">Cerrar</button>
+      <button type="button" class="btn-flat-confirm" onclick="abrirEstadisticas()">Otro corte</button>
     </div>
   </div>
 </div>
@@ -13655,6 +13719,22 @@ window.openModalClasico = function(){
         window.seleccionarCorteMov(t.id, t.corte, key);
       }
     },
+    estadisticas: {
+      titulo:'Estadísticas', icono:()=>'',
+      pasos:[P.bancoBus, P.tarjetaBus, P.anioBus, P.corteBus],
+      ids:{banco:'bus-banco', tarjeta:'bus-tarjeta', busAnio:'bus-anio', busCorte:'bus-corte'},
+      lista:credLista,
+      getSel:()=>window._busSel, setSel:t=>{ window._busSel = t; },
+      sinLista:'Agrega una tarjeta de crédito primero',
+      etiquetaFinal:'Ver estadísticas',
+      recap:i=>busRecap(i),
+      finalizar:()=>{
+        cerrarOverlay();
+        const t = window._busSel, key = $('bus-corte').value, anio = parseInt($('bus-anio').value, 10);
+        if(!t || !key || !anio) return;
+        if(typeof window.mostrarEstadisticas === 'function') window.mostrarEstadisticas(t, key);
+      }
+    },
     busquedadeb: {
       titulo:'Buscar movimientos', icono:()=>'',
       pasos:[P.bancoBusDeb, P.cuentaBus, P.anioBusDeb, P.mesBusDeb],
@@ -14791,6 +14871,17 @@ window.confirmarEliminarPerfil = async function(){
           <div style="font-size:15px;font-weight:700;color:var(--text)" id="config-username-display">—</div>
           <div style="font-size:12px;color:var(--text-dim);margin-top:2px">Usuario activo</div>
         </div>
+      </div>
+
+      <!-- Estadísticas -->
+      <div onclick="abrirEstadisticas()" style="padding:16px 18px;display:flex;align-items:center;justify-content:space-between;cursor:pointer;border-bottom:1px solid var(--border)">
+        <div style="display:flex;align-items:center;gap:12px">
+          <div style="width:34px;height:34px;border-radius:10px;background:#090909;border:1px solid rgba(255,255,255,0.08);display:flex;align-items:center;justify-content:center">
+            <svg width="16" height="16" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><line x1="6" y1="20" x2="6" y2="12"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="18" y1="20" x2="18" y2="9"/></svg>
+          </div>
+          <span style="font-size:15px;font-weight:500;color:var(--text)">Estadísticas</span>
+        </div>
+        <svg width="16" height="16" fill="none" stroke="var(--text-dim)" stroke-width="2" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
       </div>
 
       <!-- Cambiar contraseña -->
@@ -16694,6 +16785,152 @@ document.addEventListener('DOMContentLoaded', function(){
   vv.addEventListener('scroll', pedir);
   document.addEventListener('focusin', function(){ setTimeout(pedir, 50); setTimeout(pedir, 350); });
   document.addEventListener('focusout', function(){ setTimeout(pedir, 50); });
+})();
+</script>
+<script>
+/* ── Estadísticas: gasto por día dentro de un corte ── */
+(function(){
+  const $ = id => document.getElementById(id);
+  const esc = v => String(v == null ? '' : v).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+  const money = n => (typeof window.fmt === 'function') ? window.fmt(n) : '$' + Number(n).toFixed(2);
+  const pad = n => String(n).padStart(2,'0');
+  const keyDe = d => d.getFullYear() + '-' + pad(d.getMonth()+1) + '-' + pad(d.getDate());
+  const fechaDe = k => new Date(k + 'T12:00:00');
+  const cap = t => t.charAt(0).toUpperCase() + t.slice(1);
+  const est = window._est = { dias:[], sel:-1, tarjeta:null, periodo:'' };
+
+  function abreviar(v){
+    if(v >= 1000){ const k = v / 1000; return (Number.isInteger(k) ? k : k.toFixed(1)) + 'k'; }
+    return String(Math.round(v));
+  }
+  function techo(v){
+    if(v <= 0) return 1;
+    const pot = Math.pow(10, Math.floor(Math.log10(v))), n = v / pot;
+    return (n <= 1 ? 1 : n <= 2 ? 2 : n <= 2.5 ? 2.5 : n <= 5 ? 5 : 10) * pot;
+  }
+
+  const ocultar = () => { $('modal-estadisticas').classList.remove('open'); document.documentElement.classList.remove('est-abierto'); };
+  window.abrirEstadisticas = function(){
+    ocultar();   // si venía de "Otro corte", se cierra el resultado antes de abrir el asistente
+    if(typeof window.gwAbrir === 'function') window.gwAbrir('estadisticas');
+  };
+  window.cerrarEstadisticas = function(e){
+    if(!e || e.target === $('modal-estadisticas')) ocultar();
+  };
+
+  window.mostrarEstadisticas = function(t, periodoFinKey){
+    const periodoFin = fechaDe(periodoFinKey);
+    const per = window.getPeriodo(t.corte, periodoFin);
+    // Mismos movimientos que muestra el historial para ese corte (sin duplicados)
+    const mapa = new Map();
+    window.movsPorCorte(t.id, t.corte, periodoFin).forEach(m=>mapa.set(m.id, m));
+    const movs = [...mapa.values()].filter(m=>m.fecha);
+
+    // Eje de días: todo el periodo del corte (y cualquier movimiento que quede fuera)
+    let ini = keyDe(per.inicio), fin = keyDe(per.finMostrar || per.fin);
+    movs.forEach(m=>{ if(m.fecha < ini) ini = m.fecha; if(m.fecha > fin) fin = m.fecha; });
+    const dias = [];
+    for(let d = fechaDe(ini), tope = fechaDe(fin); d <= tope; d.setDate(d.getDate() + 1)){
+      dias.push({ key:keyDe(d), fecha:new Date(d), total:0, movs:[] });
+    }
+    const idx = {}; dias.forEach((d,i)=>idx[d.key] = i);
+    movs.forEach(m=>{ const d = dias[idx[m.fecha]]; if(d){ d.total += Number(m.monto) || 0; d.movs.push(m); } });
+
+    est.dias = dias; est.tarjeta = t;
+    est.periodo = cap(window.nombreCorte(t.corte, periodoFin)) + ' ' + periodoFin.getFullYear();
+    let mx = -1; dias.forEach((d,i)=>{ if(d.total > 0 && (mx < 0 || d.total > dias[mx].total)) mx = i; });
+    est.sel = mx;
+    render(true);
+    document.documentElement.classList.add('est-abierto');   // oculta el menú flotante
+    $('modal-estadisticas').classList.add('open');
+  };
+
+  window.estSel = function(i){ est.sel = i; render(); };
+
+  function render(centrar){
+    const body = $('est-body'), t = est.tarjeta, dias = est.dias;
+    const prev = $('est-scroll'), x0 = prev ? prev.scrollLeft : 0;
+    const total = dias.reduce((a,d)=>a + d.total, 0);
+    const conGasto = dias.filter(d=>d.total > 0).length;
+    const recap = '<div class="est-recap">' + esc(t.nombre + (t.apodo ? ' · ' + t.apodo : '')) + '<br>' + esc(est.periodo) + '</div>';
+    if(!conGasto){
+      body.innerHTML = recap + '<div class="est-vacio">Sin gastos en este corte</div>';
+      return;
+    }
+    const prom = total / dias.length;
+    const mayor = dias[dias.reduce((b,d,i)=>d.total > dias[b].total ? i : b, 0)];
+    const fCorta = d => d.fecha.toLocaleDateString('es-MX', {day:'numeric', month:'short'});
+
+    let h = recap
+      + '<div class="est-box"><div class="est-lbl">Total del corte</div><div class="est-val" style="font-size:24px">' + money(total) + '</div>'
+      + '<div class="est-sub">' + conGasto + ' ' + (conGasto === 1 ? 'día' : 'días') + ' con gasto de ' + dias.length + '</div></div>'
+      + '<div class="est-grid">'
+      + '<div class="est-box"><div class="est-lbl">Promedio diario</div><div class="est-val">' + money(prom) + '</div></div>'
+      + '<div class="est-box"><div class="est-lbl">Día más alto</div><div class="est-val">' + money(mayor.total) + '</div><div class="est-sub">' + esc(fCorta(mayor)) + '</div></div>'
+      + '</div>'
+      + '<div class="est-chart">' + grafica() + '<div class="est-hint">Desliza para ver todos los días</div></div>'
+      + '<div class="est-dia">' + detalleDia() + '</div>';
+    body.innerHTML = h;
+    const sc = $('est-scroll');
+    if(sc){
+      if(centrar && est.sel >= 0) sc.scrollLeft = est.sel * SLOT + SLOT / 2 - sc.clientWidth / 2;
+      else sc.scrollLeft = x0;
+      if(centrar) setTimeout(()=>{ const q = $('est-scroll'); if(q) q.scrollLeft = est.sel * SLOT + SLOT / 2 - q.clientWidth / 2; }, 320);
+    }
+  }
+
+  const SLOT = 44;   // ancho de cada día (px): la gráfica se desliza si no cabe
+  const corto = v => v >= 10000 ? '$' + (v / 1000).toFixed(1).replace(/\.0$/, '') + 'k' : '$' + Math.round(v).toLocaleString('es-MX');
+  function grafica(){
+    const dias = est.dias, n = dias.length;
+    const H = 200, T = 24, B = 38, AX = 34, ph = H - T - B, W = n * SLOT;
+    const max = Math.max.apply(null, dias.map(d=>d.total));
+    const top = techo(max), bw = 22;
+    const y = v => T + ph - (v / top) * ph;
+    const marcas = [0, 0.5, 1];
+    // Eje Y fijo (no se desliza)
+    let ejeY = '<svg width="' + AX + '" height="' + H + '" style="flex-shrink:0;display:block">';
+    marcas.forEach(f=>{ ejeY += '<text x="' + (AX - 5) + '" y="' + (y(top * f) + 3.5) + '" text-anchor="end" font-size="9.5" fill="var(--text-dim)">' + (f ? '$' : '') + abreviar(top * f) + '</text>'; });
+    ejeY += '</svg>';
+    // Zona deslizable
+    let g = '<svg width="' + W + '" height="' + H + '" style="display:block" role="img" aria-label="Gasto por día">';
+    marcas.forEach(f=>{
+      const yy = y(top * f);
+      g += '<line x1="0" x2="' + W + '" y1="' + yy + '" y2="' + yy + '" stroke="var(--border)" stroke-width="1"' + (f ? ' stroke-dasharray="3 3"' : '') + '/>';
+    });
+    dias.forEach((d,i)=>{
+      const cx = SLOT * i + SLOT / 2, sel = i === est.sel, dd = d.fecha.getDate(), hay = d.total > 0;
+      if(hay){
+        const hh = Math.max(3, (d.total / top) * ph), yb = T + ph - hh;
+        g += '<rect class="est-bar" x="' + (cx - bw/2) + '" y="' + yb + '" width="' + bw + '" height="' + hh + '" rx="5" fill="var(--text)" opacity="' + (sel ? 1 : 0.5) + '"/>'
+           + '<text x="' + cx + '" y="' + (yb - 5) + '" text-anchor="middle" font-size="10" font-weight="' + (sel ? 800 : 700) + '" fill="var(--text)" opacity="' + (sel ? 1 : 0.85) + '">' + corto(d.total) + '</text>';
+      }
+      // Número de día (y mes al inicio y cada día 1)
+      g += '<text x="' + cx + '" y="' + (T + ph + 15) + '" text-anchor="middle" font-size="11" font-weight="' + (hay ? 800 : 500) + '" fill="' + (hay ? 'var(--text)' : 'var(--text-dim)') + '" opacity="' + (hay || sel ? 1 : 0.7) + '">' + dd + '</text>';
+      if(i === 0 || dd === 1) g += '<text x="' + cx + '" y="' + (T + ph + 28) + '" text-anchor="middle" font-size="9" fill="var(--text-dim)">' + d.fecha.toLocaleDateString('es-MX', {month:'short'}).replace('.','') + '</text>';
+      if(sel) g += '<rect x="' + (cx - 9) + '" y="' + (T + ph + 19) + '" width="18" height="2.5" rx="1.25" fill="var(--text)" style="transform:translateY(-1px)"/>';
+      g += '<rect x="' + (SLOT * i) + '" y="0" width="' + SLOT + '" height="' + H + '" fill="transparent" style="cursor:pointer" onclick="estSel(' + i + ')"/>';
+    });
+    g += '</svg>';
+    return '<div style="display:flex;align-items:flex-start"><div>' + ejeY + '</div>'
+         + '<div id="est-scroll" style="flex:1;min-width:0;overflow-x:auto;overflow-y:hidden;-webkit-overflow-scrolling:touch;scrollbar-width:none;touch-action:pan-x pan-y">' + g + '</div></div>';
+  }
+
+  function detalleDia(){
+    const d = est.dias[est.sel];
+    if(!d) return '<div class="est-sub" style="text-align:center">Toca una barra para ver el detalle del día</div>';
+    const nombre = cap(d.fecha.toLocaleDateString('es-MX', {weekday:'long', day:'numeric', month:'long'}));
+    let h = '<div class="est-box"><div style="display:flex;justify-content:space-between;align-items:baseline;gap:10px">'
+          + '<div class="est-val" style="font-size:14px">' + esc(nombre) + '</div>'
+          + '<div class="est-val">' + money(d.total) + '</div></div>';
+    if(!d.movs.length){
+      h += '<div class="est-sub" style="margin-top:6px">Sin gastos este día</div>';
+    } else {
+      h += '<div class="est-sub" style="margin:2px 0 6px">' + d.movs.length + ' ' + (d.movs.length === 1 ? 'movimiento' : 'movimientos') + '</div>';
+      h += d.movs.map(m=>'<div class="est-mov"><span>' + esc(m.comercio || m.concepto || m.detalle || 'Gasto') + '</span><span>' + money(m.monto) + '</span></div>').join('');
+    }
+    return h + '</div>';
+  }
 })();
 </script>
 </body>
