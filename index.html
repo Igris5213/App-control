@@ -338,13 +338,13 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
 .promo-dark-badge{display:inline-flex;align-items:center;gap:4px;background:rgba(255,255,255,0.16);color:#fff;font-size:10.5px;font-weight:700;padding:4px 10px;border-radius:20px;flex-shrink:0}
 
 /* Promociones: recuadros más compactos en altura (solo dentro de #promociones-lista) */
-#promociones-lista .promo-dark-card,#cargos-lista .promo-dark-card,#screen-perfiles .promo-dark-card{padding:14px 18px;margin-bottom:8px}
-#promociones-lista .promo-dark-top,#cargos-lista .promo-dark-top,#screen-perfiles .promo-dark-top{margin-bottom:0}
-#promociones-lista .promo-dark-title,#cargos-lista .promo-dark-title,#screen-perfiles .promo-dark-title{font-size:15px}
-#promociones-lista .promo-dark-sub,#cargos-lista .promo-dark-sub,#screen-perfiles .promo-dark-sub{margin-top:-4px;margin-bottom:13px}
-#promociones-lista .promo-dark-label,#cargos-lista .promo-dark-label,#screen-perfiles .promo-dark-label{margin-bottom:2px}
-#promociones-lista .promo-dark-value,#cargos-lista .promo-dark-value,#screen-perfiles .promo-dark-value{font-size:21px;margin-bottom:8px}
-#promociones-lista .promo-dark-divider,#cargos-lista .promo-dark-divider,#screen-perfiles .promo-dark-divider{margin-bottom:8px}
+#promociones-lista .promo-dark-card,#cargos-lista .promo-dark-card,#creditos-lista .promo-dark-card,#screen-perfiles .promo-dark-card{padding:14px 18px;margin-bottom:8px}
+#promociones-lista .promo-dark-top,#cargos-lista .promo-dark-top,#creditos-lista .promo-dark-top,#screen-perfiles .promo-dark-top{margin-bottom:0}
+#promociones-lista .promo-dark-title,#cargos-lista .promo-dark-title,#creditos-lista .promo-dark-title,#screen-perfiles .promo-dark-title{font-size:15px}
+#promociones-lista .promo-dark-sub,#cargos-lista .promo-dark-sub,#creditos-lista .promo-dark-sub,#screen-perfiles .promo-dark-sub{margin-top:-4px;margin-bottom:13px}
+#promociones-lista .promo-dark-label,#cargos-lista .promo-dark-label,#creditos-lista .promo-dark-label,#screen-perfiles .promo-dark-label{margin-bottom:2px}
+#promociones-lista .promo-dark-value,#cargos-lista .promo-dark-value,#creditos-lista .promo-dark-value,#screen-perfiles .promo-dark-value{font-size:21px;margin-bottom:8px}
+#promociones-lista .promo-dark-divider,#cargos-lista .promo-dark-divider,#creditos-lista .promo-dark-divider,#screen-perfiles .promo-dark-divider{margin-bottom:8px}
 
 /* DOTS */
 .dots{display:flex;justify-content:center;gap:7px;margin:14px 0 6px}
@@ -514,7 +514,9 @@ html.dark-mode #modal-admin-confirm .success-box{background:#090909!important;bo
 html.dark-mode #modal-admin-confirm .btn-flat-cancel,
 html.dark-mode #modal-admin-confirm .btn-flat-confirm{background:#111111!important;border:1px solid rgba(255,255,255,0.09)!important;box-shadow:0 2px 6px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.06)!important}
 html.dark-mode #btn-agregar-tarjeta-fuera{background:#111111!important;border:1px solid rgba(255,255,255,0.09)!important}
-html.dark-mode #btn-nuevo-cargo-recurrente{background:#111111!important;border:1px solid rgba(255,255,255,0.09)!important}
+html.dark-mode #btn-nuevo-cargo-recurrente,html.dark-mode #btn-nuevo-credito{background:#111111!important;border:1px solid rgba(255,255,255,0.09)!important}
+html.dark-mode #modal-credito.open,html.dark-mode #modal-detalle-credito.open{background:rgba(0,0,0,0.95);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}
+html.dark-mode #modal-credito .modal,html.dark-mode #modal-detalle-credito .modal{--card-bg:#090909;--card-bg-soft:#111111;--input-bg:#111111;--border:rgba(255,255,255,0.09);border:1px solid rgba(255,255,255,0.08)}
 html.dark-mode #modal-cargo-recurrente.open{background:rgba(0,0,0,0.95);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}
 html.dark-mode #modal-cargo-recurrente .modal{--card-bg:#090909;--card-bg-soft:#111111;--input-bg:#111111;--border:rgba(255,255,255,0.09);border:1px solid rgba(255,255,255,0.08)}
 html.dark-mode #modal-cargo-recurrente .inp,
@@ -1585,12 +1587,12 @@ html.dark-mode #modal-gasto-wizard .modal .btn-flat-confirm:active{
 #screen-nuevo .btn-registro svg{stroke:var(--text-dim) !important}
 
 /* Promociones: botones de alta */
-#btn-nueva-promo-msi,#btn-nuevo-cargo-recurrente,#btn-agregar-tarjeta-fuera{
+#btn-nueva-promo-msi,#btn-nuevo-cargo-recurrente,#btn-nuevo-credito,#btn-agregar-tarjeta-fuera{
   background:var(--bg) !important;color:var(--text) !important;border:none !important;
   box-shadow:var(--nm-raised-sm) !important;transition:box-shadow .2s ease,transform .15s ease;
 }
-#btn-nueva-promo-msi,#btn-nuevo-cargo-recurrente{margin-bottom:22px !important}
-#btn-nueva-promo-msi:active,#btn-nuevo-cargo-recurrente:active,#btn-agregar-tarjeta-fuera:active{
+#btn-nueva-promo-msi,#btn-nuevo-cargo-recurrente,#btn-nuevo-credito{margin-bottom:22px !important}
+#btn-nueva-promo-msi:active,#btn-nuevo-cargo-recurrente:active,#btn-nuevo-credito:active,#btn-agregar-tarjeta-fuera:active{
   transform:scale(0.98);box-shadow:var(--nm-inset-sm) !important;
 }
 
@@ -1600,6 +1602,15 @@ html.dark-mode #modal-gasto-wizard .modal .btn-flat-confirm:active{
   transition:box-shadow .2s ease,transform .15s ease;
 }
 #screen-promociones .promo-dark-card:active,#screen-perfiles .promo-dark-card:active{transform:scale(0.985);box-shadow:var(--nm-inset-sm)}
+/* Crédito: modales neumórficos + tabla de amortización */
+#modal-credito .modal,#modal-detalle-credito .modal{background:var(--bg) !important;border:none !important;box-shadow:0 -6px 30px rgba(0,0,0,0.18),inset 0 1px 0 var(--nm-light) !important}
+#modal-credito .inp{background:var(--bg) !important;border:none !important;box-shadow:var(--nm-inset-sm) !important;transition:box-shadow .2s ease}
+#modal-credito .inp:focus{box-shadow:var(--nm-inset) !important}
+#cr-preview,#detalle-credito-content div[style*="border-radius:16px"]{background:var(--bg) !important;border:none !important;box-shadow:var(--nm-inset) !important}
+#cr-btn-cancel,#cr-btn-save,#credito-btn-eliminar,#credito-btn-editar,#modal-detalle-credito .dg-close{background:var(--bg) !important;border:none !important;color:var(--text) !important;box-shadow:var(--nm-raised-sm) !important;transition:box-shadow .2s ease,transform .15s ease}
+#cr-btn-cancel:active,#cr-btn-save:active,#credito-btn-eliminar:active,#credito-btn-editar:active,#modal-detalle-credito .dg-close:active{transform:scale(0.98);box-shadow:var(--nm-inset-sm) !important}
+.cr-tabla-scroll{max-height:36vh;overflow-y:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+.cr-tabla-scroll .cr-prox{position:relative}
 /* Vista por banco: botón de volver + título */
 .bank-back-row{display:flex;align-items:center;gap:12px;margin:4px 0 14px}
 .bank-back-btn{width:36px;height:36px;border-radius:50%;border:none;background:var(--bg);color:var(--text);display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;padding:0;box-shadow:var(--nm-raised-sm);transition:box-shadow .2s ease,transform .15s ease}
@@ -4646,6 +4657,8 @@ async function iniciarApp(){
       window.onAfterEdit();
     }
   });
+  // Créditos (afectan cuentas de débito)
+  if(window.cargarCreditos) window.cargarCreditos();
   // Recordatorios de pago al iniciar sesión
   setTimeout(()=>{ if(window.revisarNotificaciones) window.revisarNotificaciones(); }, 600);
 }
@@ -5697,6 +5710,12 @@ window._cancelarConfirmMov = function(e){
     if(document.getElementById('modal-gasto-wizard') && typeof window.gwReabrir === 'function') window.gwReabrir('promo');
     else document.getElementById('modal-promo-overlay').classList.add('open');
   }
+  else if(ctx === 'credito-nuevo'){
+    if(document.getElementById('modal-gasto-wizard') && typeof window.gwReabrir === 'function') window.gwReabrir('credito');
+  }
+  else if(ctx === 'credito-edit'){
+    if(document.getElementById('modal-gasto-wizard') && typeof window.gwReabrir === 'function') window.gwReabrir('editcredito');
+  }
   else if(ctx === 'cargo'){
     if(document.getElementById('modal-gasto-wizard') && typeof window.gwReabrir === 'function') window.gwReabrir(_cargoTipo === 'debito' ? 'cargodeb' : 'cargo');
     else document.getElementById('modal-cargo-recurrente').classList.add('open');
@@ -5755,6 +5774,10 @@ window._ejecutarGuardarMov = async function(){
   } else if(window._confirmMovCtx === 'promo'){
     await window._confirmarNuevaPromo();
     window.showSuccess('Promoción guardada', '');
+  } else if(window._confirmMovCtx === 'credito-nuevo'){
+    await window._confirmarNuevoCredito();
+  } else if(window._confirmMovCtx === 'credito-edit'){
+    await window._confirmarEdicionCredito();
   } else if(window._confirmMovCtx === 'cargo'){
     await window._confirmarNuevoCargo();
     window.showSuccess('Cargo recurrente guardado', '');
@@ -6018,6 +6041,15 @@ window.confirmarEliminarUnificado = async function(){
     window._confirmEliminarCtx = null;
     btn.disabled = false;
     await window.confirmarEliminarCargo();   // elimina el cargo y refresca la lista
+    return;
+  }
+
+  if(ctx === 'credito'){
+    if(!_creditoIdToDelete){ btn.disabled = false; return; }
+    document.getElementById('confirm-elim-overlay').classList.remove('open');
+    window._confirmEliminarCtx = null;
+    btn.disabled = false;
+    await window.confirmarEliminarCredito();
     return;
   }
 
@@ -9186,11 +9218,27 @@ window.debSelMes = async function(mes){
       </div>`;
     }).join('');
 
-    if(!movs.length && !_cargosDeb.length){
+    const _pagosCrMes = (window._pagosCreditoCuenta ? window._pagosCreditoCuenta(_debTarjetaId) : [])
+      .filter(f=>f.fecha.getFullYear()===anio && f.fecha.getMonth()===mes && f.fecha<=_hoyD);
+    const _pagosCrHTML = _pagosCrMes.map(f=>{
+      const dd = String(f.fecha.getDate()).padStart(2,'0'), mm = String(f.fecha.getMonth()+1).padStart(2,'0');
+      return `<div class="mov-item" onclick="resaltarMovDeb(this)">
+        <div class="mov-icon">
+          <svg width="16" height="16" fill="none" stroke="var(--text)" stroke-width="2.5" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><polyline points="19 12 12 19 5 12"/></svg>
+        </div>
+        <div class="mov-info">
+          <div class="mov-date">${dd}/${mm}/${f.fecha.getFullYear()}</div>
+          <div class="mov-name" style="font-weight:700">${(f.credito.nombre||'Crédito')} · pago ${f.n} de ${f.credito.plazo}</div>
+        </div>
+        <div class="mov-right"><span class="mov-badge">Crédito</span><div class="mov-amount" style="color:var(--text)">-$${Number(f.pago).toLocaleString('es-MX',{minimumFractionDigits:2})}</div></div>
+      </div>`;
+    }).join('');
+
+    if(!movs.length && !_cargosDeb.length && !_pagosCrMes.length){
       document.getElementById('deb-movimientos-lista').innerHTML = '<div class="empty-mov">Sin movimientos para este mes</div>';
       return;
     }
-    document.getElementById('deb-movimientos-lista').innerHTML = _cargosDebHTML + movs.map(m=>{
+    document.getElementById('deb-movimientos-lista').innerHTML = _pagosCrHTML + _cargosDebHTML + movs.map(m=>{
       const esIngreso = m.tipo === 'ingreso';
       const iconPath = esIngreso
         ? '<line x1="12" y1="19" x2="12" y2="5"/><polyline points="5 12 12 5 19 12"/>'
@@ -10063,20 +10111,15 @@ window._promoState = {
 
 window.selPromoTab = function(tab){
   const slider = document.getElementById('promo-tab-slider');
-  const btnMsi = document.getElementById('promo-tab-msi');
-  const btnCargos = document.getElementById('promo-tab-cargos');
-  const panelMsi = document.getElementById('promo-panel-msi');
-  const panelCargos = document.getElementById('promo-panel-cargos');
-  if(tab === 'msi'){
-    slider.style.transform = 'translateX(0)';
-    btnMsi.style.color = 'var(--text)'; btnCargos.style.color = '#888';
-    panelMsi.style.display = ''; panelCargos.style.display = 'none';
-  } else {
-    slider.style.transform = 'translateX(100%)';
-    btnCargos.style.color = 'var(--text)'; btnMsi.style.color = '#888';
-    panelMsi.style.display = 'none'; panelCargos.style.display = '';
-    renderCargosRecurrentes();
-  }
+  const tabs = ['msi','cargos','credito'];
+  const idx = Math.max(0, tabs.indexOf(tab));
+  slider.style.transform = 'translateX(' + (idx * 100) + '%)';
+  tabs.forEach(function(t){
+    document.getElementById('promo-tab-' + t).style.color = t === tab ? 'var(--text)' : '#888';
+    document.getElementById('promo-panel-' + t).style.display = t === tab ? '' : 'none';
+  });
+  if(tab === 'cargos') renderCargosRecurrentes();
+  if(tab === 'credito') renderCreditos();
 };
 
 window.irPromociones = function(){
@@ -10089,7 +10132,7 @@ window.irPromociones = function(){
   scr.classList.remove('hidden');
   scr.style.display = 'flex';
   const _usarCache = window._promoUltimaElim && (Date.now() - window._promoUltimaElim < 30000);
-  window._promoBancoSel = null; window._cargoBancoSel = null;   // siempre abre en el resumen por banco
+  window._promoBancoSel = null; window._cargoBancoSel = null; window._creditoBancoSel = null;   // siempre abre en el resumen por banco
   renderPromociones(_usarCache);
 }
 
@@ -10702,6 +10745,420 @@ async function renderCargosRecurrentes(){
     listaC.innerHTML = html;
   }catch(e){ console.error('cargos error:',e); listaC.innerHTML='<div style="text-align:center;color:#bbb;padding:24px">Error al cargar</div>'; }
 }
+
+
+// ══════════════════════════════════════════════════════════════
+// ── CRÉDITOS (afectan solo cuentas de débito) · tabla de amortización
+// ══════════════════════════════════════════════════════════════
+// Pago fijo mensual (sistema francés). El CAT se toma como tasa efectiva anual:
+// i_mensual = (1 + CAT)^(1/12) - 1. Cada pago cae en su fecha y se descuenta de la cuenta de débito.
+let creditosCache = [];
+let _creditoIdToDelete = null;
+window._creditoBancoSel = null;
+
+const _crR2 = v => Math.round(v * 100) / 100;
+const _crIso = d => d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
+const _crFromIso = s => { const p = String(s).split('-'); return new Date(+p[0], +p[1]-1, +p[2]); };
+const _crDMY = d => String(d.getDate()).padStart(2,'0') + '/' + String(d.getMonth()+1).padStart(2,'0') + '/' + String(d.getFullYear()).slice(2);
+const _crMeses = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
+const _crLarga = d => d.getDate() + ' de ' + _crMeses[d.getMonth()] + ' de ' + d.getFullYear();
+const _crMoney = n => Number(n).toLocaleString('es-MX',{minimumFractionDigits:2,maximumFractionDigits:2});
+function _crSumaMes(base, k){
+  const m = base.getMonth() + k, ultimo = new Date(base.getFullYear(), m + 1, 0).getDate();
+  return new Date(base.getFullYear(), m, Math.min(base.getDate(), ultimo));
+}
+
+// Calcula la tabla de amortización de un crédito
+window._crAmort = function(c){
+  const P = Number(c.importe) || 0, n = parseInt(c.plazo) || 0, cat = Number(c.cat) || 0;
+  const filas = [];
+  if(!(P > 0) || !(n > 0)) return { mensualidad:0, filas, totalPagar:0, totalInteres:0 };
+  const i = Math.pow(1 + cat/100, 1/12) - 1;
+  const pago = _crR2(i > 0 ? P * i / (1 - Math.pow(1 + i, -n)) : P / n);
+  const base = _crFromIso(c.primerPago);
+  let saldo = P, totalPagar = 0;
+  for(let k = 1; k <= n; k++){
+    const interes = _crR2(saldo * i);
+    const capital = k === n ? _crR2(saldo) : _crR2(pago - interes);
+    const pagoK = k === n ? _crR2(capital + interes) : pago;
+    saldo = k === n ? 0 : _crR2(saldo - capital);
+    totalPagar += pagoK;
+    filas.push({ n:k, fecha:_crSumaMes(base, k-1), pago:pagoK, interes, capital, saldo });
+  }
+  return { mensualidad:pago, filas, totalPagar:_crR2(totalPagar), totalInteres:_crR2(totalPagar - P) };
+};
+// Estado "a hoy": un pago se considera realizado cuando llega su fecha
+window._crEstado = function(c){
+  const a = window._crAmort(c), hoy = new Date(); hoy.setHours(0,0,0,0);
+  const pagadas = a.filas.filter(f=>f.fecha <= hoy).length;
+  const saldo = pagadas ? a.filas[pagadas-1].saldo : (Number(c.importe) || 0);
+  return { a, pagadas, saldo, total:a.filas.length, liquidado: a.filas.length > 0 && pagadas === a.filas.length, siguiente: a.filas[pagadas] || null };
+};
+// Pagos de crédito que afectan una cuenta de débito
+window._pagosCreditoCuenta = function(cuentaId){
+  const out = [];
+  (creditosCache || []).filter(c=>c.cuentaId === cuentaId && c.activo !== false).forEach(c=>{
+    window._crAmort(c).filas.forEach(f=>out.push({ ...f, credito:c }));
+  });
+  return out;
+};
+
+async function cargarCreditos(){
+  try{
+    const snap = await getDocs(query(collection(db,'usuarios', currentUser.uid, 'creditos'), orderBy('creadoEn','desc')));
+    creditosCache = snap.docs.map(d=>({id:d.id, ...d.data()}));
+  }catch(e){ console.warn('creditos: no se pudieron cargar', e); creditosCache = []; }
+  window.creditosCache = creditosCache;
+  try{ if(typeof _updateDebCards === 'function') _updateDebCards(); }catch(_){}
+}
+window.cargarCreditos = cargarCreditos;
+
+function _crNombreCuenta(c){
+  const cu = (perfil?.cuentasDebito || []).find(x=>x.id === c.cuentaId);
+  return cu ? (cu.apodo || cu.nombre) : '—';
+}
+
+// ── Lista (resumen por banco → tarjetas del banco) ──
+window.abrirBancoCredito  = function(b){ window._creditoBancoSel = b; renderCreditos(); };
+window.cerrarBancoCredito = function(){ window._creditoBancoSel = null; renderCreditos(); };
+
+async function renderCreditos(){
+  const lista = document.getElementById('creditos-lista');
+  if(!lista) return;
+  if(!creditosCache.length || window._creditosForzarCarga){ await cargarCreditos(); window._creditosForzarCarga = false; }
+  const creditos = creditosCache.filter(c=>c.activo !== false);
+  if(!creditos.length){
+    lista.innerHTML = '<div style="text-align:center;color:var(--text-dim);padding:40px 0;font-size:15px">Sin créditos registrados</div>';
+    return;
+  }
+  const bancos = [...new Set(creditos.map(c=>c.banco || 'Sin banco'))].sort();
+  let sel = window._creditoBancoSel;
+  if(sel && !bancos.includes(sel)) sel = window._creditoBancoSel = null;
+  if(!sel){
+    lista.innerHTML = bancos.map(function(banco){
+      const grupo = creditos.filter(c=>(c.banco || 'Sin banco') === banco);
+      let saldo = 0, mensual = 0, vigentes = 0;
+      grupo.forEach(c=>{ const e = window._crEstado(c); if(e.liquidado) return; vigentes++; saldo += e.saldo; mensual += e.a.mensualidad; });
+      const liq = grupo.length - vigentes;
+      return _htmlResumenBanco({
+        key: banco, fn:'abrirBancoCredito', titulo: banco,
+        sub: grupo.length + (grupo.length===1 ? ' crédito' : ' créditos') + (liq ? ' · ' + liq + (liq===1 ? ' liquidado' : ' liquidados') : ''),
+        label: 'Saldo del crédito', valor: fmt(saldo),
+        pie: vigentes + (vigentes===1 ? ' vigente' : ' vigentes'),
+        badge: vigentes ? fmt(mensual) + ' / mes' : ''
+      });
+    }).join('');
+    return;
+  }
+  const grupo = creditos.filter(c=>(c.banco || 'Sin banco') === sel);
+  let html = _htmlVolverBanco(sel, grupo.length + (grupo.length===1 ? ' crédito' : ' créditos'), 'cerrarBancoCredito');
+  grupo.forEach(function(c){
+    const e = window._crEstado(c);
+    html += '<div class="promo-dark-card" onclick="verCredito(\'' + c.id + '\')">'
+      + '<div class="promo-dark-top"><div class="promo-dark-title">' + _bkEsc(c.nombre || 'Crédito') + '</div>'
+      + '<div class="promo-dark-menu"><svg width="14" height="14" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" viewBox="0 0 24 24"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></div></div>'
+      + '<div class="promo-dark-sub">' + _bkEsc((c.banco || '') + ' · ' + _crNombreCuenta(c)) + '</div>'
+      + '<div class="promo-dark-label">Mensualidad</div>'
+      + '<div class="promo-dark-value">' + fmt(e.a.mensualidad) + '</div>'
+      + '<div class="promo-dark-divider"></div>'
+      + '<div class="promo-dark-footer"><div class="promo-dark-footer-left"><svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>' + e.pagadas + ' de ' + e.total + ' pagos</div>'
+      + (e.liquidado ? '<div class="promo-dark-badge">✓ Liquidado</div>' : '<div class="promo-dark-badge">CAT ' + _crMoney(c.cat) + '%</div>')
+      + '</div></div>';
+  });
+  lista.innerHTML = html;
+}
+window.renderCreditos = renderCreditos;
+
+// ── Detalle con tabla de amortización ──
+window.verCredito = function(id){
+  const c = creditosCache.find(x=>x.id === id); if(!c) return;
+  const e = window._crEstado(c), a = e.a;
+  const panel = 'background:var(--card-bg-soft);border:1px solid var(--border);border-radius:16px;padding:2px 16px;box-shadow:0 2px 6px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.06)';
+  const fila = (label, valor, borde) =>
+      '<div style="display:flex;align-items:center;justify-content:space-between;gap:12px;padding:8px 0' + (borde ? ';border-bottom:1px solid var(--border)' : '') + '">'
+    + '<span style="font-size:14px;font-weight:500;color:var(--text-dim)">' + label + '</span>'
+    + '<span style="font-size:14px;font-weight:700;color:var(--text);text-align:right">' + _bkEsc(valor) + '</span></div>';
+  const faltaPagar = _crR2(a.filas.slice(e.pagadas).reduce((t, f)=>t + f.pago, 0));
+  const pct = Math.round(e.pagadas / (e.total || 1) * 100);
+  const restantes = e.total - e.pagadas;
+  const btnBase = 'padding:13px;border-radius:12px;border:1.5px solid var(--border);background:var(--card-bg);font-size:15px;font-weight:600;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:8px;color:var(--text)';
+  const filas = [
+    ['Importe', fmt(c.importe)], ['Plazo', c.plazo + ' meses'], ['CAT', _crMoney(c.cat) + '% anual'],
+    ['Mensualidad', fmt(a.mensualidad)], ['Intereses totales', fmt(a.totalInteres)], ['Total a pagar', fmt(a.totalPagar)],
+    ['Pagos realizados', e.pagadas + ' de ' + e.total], ['Pagos restantes', String(restantes)],
+    ['Saldo actual', fmt(e.saldo)], ['Falta pagar', fmt(faltaPagar)]
+  ];
+  const cols = 'display:grid;grid-template-columns:22px 52px repeat(4,1fr);gap:4px;align-items:center;font-size:10.5px;padding:7px 0;';
+  let tabla = '<div style="' + cols + 'font-weight:700;color:var(--text-dim);text-transform:uppercase;letter-spacing:0.04em;font-size:9.5px">'
+    + '<span>#</span><span>Fecha</span><span style="text-align:right">Pago</span><span style="text-align:right">Interés</span><span style="text-align:right">Capital</span><span style="text-align:right">Saldo</span></div>';
+  tabla += '<div class="cr-tabla-scroll">';
+  a.filas.forEach(function(f){
+    const pagado = f.n <= e.pagadas, prox = e.siguiente && f.n === e.siguiente.n;
+    tabla += '<div class="cr-fila' + (prox ? ' cr-prox' : '') + '" style="' + cols + 'border-top:1px solid var(--border);color:' + (pagado ? 'var(--text-dim)' : 'var(--text)') + ';font-weight:' + (prox ? '800' : '600') + '">'
+      + '<span>' + (pagado ? '✓' : f.n) + '</span><span>' + _crDMY(f.fecha) + '</span>'
+      + '<span style="text-align:right">' + _crMoney(f.pago) + '</span><span style="text-align:right">' + _crMoney(f.interes) + '</span>'
+      + '<span style="text-align:right">' + _crMoney(f.capital) + '</span><span style="text-align:right">' + _crMoney(f.saldo) + '</span></div>';
+  });
+  tabla += '</div>';
+  document.getElementById('detalle-credito-content').innerHTML =
+      '<div style="display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:16px">'
+    + '<div style="min-width:0"><div style="font-size:17px;font-weight:800;color:var(--text)">' + _bkEsc(c.nombre || 'Crédito') + '</div>'
+    + '<div style="font-size:13px;color:var(--text-dim);margin-top:4px">' + _bkEsc((c.banco || '') + ' · ' + _crNombreCuenta(c)) + '</div></div>'
+    + '<button type="button" class="dg-close" onclick="document.getElementById(\'modal-detalle-credito\').classList.remove(\'open\')" aria-label="Cerrar"><svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>'
+    + '<div style="' + panel + ';margin-bottom:14px">' + filas.map((r,i)=>fila(r[0], r[1], i < filas.length-1)).join('') + '</div>'
+    + '<div style="margin-bottom:16px">'
+    + '<div style="display:flex;justify-content:space-between;font-size:12px;color:var(--text-dim);margin-bottom:6px"><span>' + e.pagadas + (e.pagadas === 1 ? ' pago realizado' : ' pagos realizados') + '</span><span>' + restantes + (restantes === 1 ? ' pago restante' : ' pagos restantes') + '</span></div>'
+    + '<div style="background:var(--border);border-radius:6px;height:8px;overflow:hidden"><div style="width:' + pct + '%;height:100%;background:linear-gradient(90deg,#111,#444);border-radius:6px"></div></div>'
+    + '<div style="font-size:11px;color:var(--text-dim);text-align:center;margin-top:4px">' + pct + '% completado' + (e.liquidado ? ' · ✓ Liquidado' : '') + '</div></div>'
+    + '<div style="font-size:11px;font-weight:700;color:var(--text-dim);text-transform:uppercase;letter-spacing:0.1em;margin:0 4px 8px">Tabla de amortización</div>'
+    + '<div style="' + panel + ';padding:6px 12px;margin-bottom:16px">' + tabla + '</div>'
+    + '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">'
+    + '<button type="button" id="credito-btn-editar" ' + (e.liquidado ? 'disabled' : 'onclick="abrirEditarCredito(\'' + c.id + '\')"') + ' style="' + btnBase + (e.liquidado ? ';color:var(--text-dim);cursor:not-allowed' : ';cursor:pointer') + '"><svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.12 2.12 0 0 1 3 3L12 15l-4 1 1-4z"/></svg>Editar</button>'
+    + '<button type="button" id="credito-btn-eliminar" onclick="eliminarCredito(\'' + c.id + '\')" style="' + btnBase + ';cursor:pointer"><svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/></svg>Eliminar</button>'
+    + '</div>';
+  document.getElementById('modal-detalle-credito').classList.add('open');
+  // dejar a la vista el siguiente pago
+  setTimeout(()=>{
+    const sc = document.querySelector('#detalle-credito-content .cr-tabla-scroll'), px = sc && sc.querySelector('.cr-prox');
+    if(sc && px) sc.scrollTop = Math.max(0, px.offsetTop - 60);
+  }, 60);
+};
+
+// ── Eliminar ──
+window.eliminarCredito = function(id){
+  const c = creditosCache.find(x=>x.id === id); if(!c) return;
+  _creditoIdToDelete = id;
+  const rows = document.getElementById('confirm-elim-rows');
+  if(rows) rows.innerHTML = window._htmlResumenMov({
+    tipoTxt:'Crédito', fecha:_crLarga(_crFromIso(c.primerPago)), concepto:c.nombre || 'Crédito',
+    detalle:(c.banco || '') + ' · ' + _crNombreCuenta(c), importe:fmt(c.importe)
+  });
+  window._confirmEliminarCtx = 'credito';
+  window._confirmElimTitulo('¿Deseas eliminar el crédito?');
+  document.getElementById('modal-detalle-credito').classList.remove('open');
+  document.getElementById('confirm-elim-overlay').classList.add('open');
+};
+window.confirmarEliminarCredito = async function(){
+  const id = _creditoIdToDelete; if(!id) return;
+  try{
+    await deleteDoc(doc(db,'usuarios', currentUser.uid, 'creditos', id));
+    creditosCache = creditosCache.filter(c=>c.id !== id); window.creditosCache = creditosCache;
+    renderCreditos();
+    try{ _updateDebCards(); }catch(_){}
+    window.showDeleted('Crédito eliminado','');
+  }catch(e){ showToast('❌ Error al eliminar'); }
+  _creditoIdToDelete = null;
+};
+
+// ── Nuevo crédito ──
+window.abrirModalCredito = function(){
+  const cuentas = perfil?.cuentasDebito || [];
+  if(!cuentas.length){
+    window.showSuccess('Sin cuentas de débito', 'Agrega una cuenta de débito desde Perfiles');
+    return;
+  }
+  // Asistente de un modal por campo; si no está disponible, formulario clásico
+  if(typeof window.gwAbrir === 'function' && document.getElementById('modal-gasto-wizard')){
+    window.gwAbrir('credito');
+    return;
+  }
+  window._crEditId = null;
+  const bancos = [...new Set(cuentas.map(c=>c.nombre))];
+  document.getElementById('cr-banco').innerHTML = '<option value="">Selecciona el banco</option>' + bancos.map(b=>'<option value="' + _bkEsc(b) + '">' + _bkEsc(b) + '</option>').join('');
+  document.getElementById('cr-cuenta').innerHTML = '<option value="">Selecciona la cuenta</option>';
+  ['cr-nombre','cr-importe','cr-plazo','cr-cat'].forEach(id=>{ document.getElementById(id).value = ''; });
+  document.getElementById('cr-fecha').value = _crIso(_crSumaMes(new Date(), 1));
+  document.getElementById('cr-preview').style.display = 'none';
+  document.getElementById('modal-credito').classList.add('open');
+};
+window.cerrarModalCredito = function(e){
+  if(!e || e.target === document.getElementById('modal-credito'))
+    document.getElementById('modal-credito').classList.remove('open');
+};
+window.crCambioBanco = function(){
+  const b = document.getElementById('cr-banco').value;
+  const cuentas = (perfil?.cuentasDebito || []).filter(c=>c.nombre === b);
+  document.getElementById('cr-cuenta').innerHTML = '<option value="">Selecciona la cuenta</option>'
+    + cuentas.map(c=>'<option value="' + _bkEsc(c.id) + '">' + _bkEsc((c.apodo || c.nombre) + (c.terminacion ? ' ••••' + c.terminacion : '')) + '</option>').join('');
+  if(cuentas.length === 1) document.getElementById('cr-cuenta').value = cuentas[0].id;
+};
+window.crPreview = function(){
+  const c = { importe:parseFloat(document.getElementById('cr-importe').value), plazo:parseInt(document.getElementById('cr-plazo').value),
+              cat:parseFloat(document.getElementById('cr-cat').value) || 0, primerPago:document.getElementById('cr-fecha').value || _crIso(new Date()) };
+  const el = document.getElementById('cr-preview');
+  if(!(c.importe > 0) || !(c.plazo > 0)){ el.style.display = 'none'; return; }
+  const a = window._crAmort(c);
+  el.innerHTML = '<div style="display:flex;justify-content:space-between;font-size:13px;color:var(--text-dim)"><span>Mensualidad</span><b style="color:var(--text)">' + fmt(a.mensualidad) + '</b></div>'
+    + '<div style="display:flex;justify-content:space-between;font-size:13px;color:var(--text-dim);margin-top:6px"><span>Intereses totales</span><b style="color:var(--text)">' + fmt(a.totalInteres) + '</b></div>'
+    + '<div style="display:flex;justify-content:space-between;font-size:13px;color:var(--text-dim);margin-top:6px"><span>Total a pagar</span><b style="color:var(--text)">' + fmt(a.totalPagar) + '</b></div>';
+  el.style.display = 'block';
+};
+// ── Asistente: valores iniciales de un crédito nuevo ──
+window._crEditId = null;
+window._crSel = null;
+window._crPrepararNuevo = function(){
+  window._crEditId = null;
+  document.getElementById('cr-plazo').value = '12';
+  document.getElementById('cr-cat').value = '';
+  document.getElementById('cr-fecha').value = _crIso(_crSumaMes(new Date(), 1));
+};
+
+// Resumen (mismo diseño que el de promociones / movimientos) de un crédito nuevo
+window._htmlResumenCredito = function(d){
+  const esc = v => String(v == null ? '' : v).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  const ico = p => '<svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">' + p + '</svg>';
+  const icoCard = ico('<rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/>');
+  const icoTag  = ico('<path d="M20.59 13.41 11 3.83A2 2 0 0 0 9.5 3H4a1 1 0 0 0-1 1v5.5a2 2 0 0 0 .83 1.5l9.58 9.59a2 2 0 0 0 2.83 0l5.35-5.35a2 2 0 0 0 0-2.83z"/><circle cx="7.5" cy="7.5" r="1.5"/>');
+  const icoCal  = ico('<rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>');
+  const icoPct  = ico('<line x1="19" y1="5" x2="5" y2="19"/><circle cx="6.5" cy="6.5" r="2.5"/><circle cx="17.5" cy="17.5" r="2.5"/>');
+  const icoMon  = ico('<line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>');
+  const panel = 'background:var(--card-bg-soft);border:1px solid var(--border);border-radius:16px;padding:2px 16px;box-shadow:0 2px 6px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.06)';
+  const fila = (icono, label, valor, conBorde) =>
+      '<div style="display:flex;align-items:center;justify-content:space-between;gap:12px;padding:8px 0' + (conBorde ? ';border-bottom:1px solid var(--border)' : '') + '">'
+    + '<div style="display:flex;align-items:center;gap:12px;color:var(--text-dim)"><div style="width:20px;height:20px;display:flex;align-items:center;justify-content:center;flex-shrink:0;color:var(--text-dim)">' + icono + '</div>'
+    + '<span style="font-size:14px;font-weight:500;color:var(--text-dim)">' + label + '</span></div>'
+    + '<span style="font-size:14px;font-weight:700;color:var(--text);text-align:right;max-width:55%">' + esc(valor) + '</span></div>';
+  const a = window._crAmort(d);
+  const cu = (perfil?.cuentasDebito || []).find(x=>x.id === d.cuentaId);
+  const cuentaTxt = cu ? (cu.apodo || cu.nombre) + (cu.terminacion ? ' ••••' + cu.terminacion : '') : '—';
+  return '<div style="' + panel + ';margin-bottom:12px">'
+    + fila(icoCard, 'Cuenta', (d.banco || '—') + ' · ' + cuentaTxt, true)
+    + fila(icoTag, 'Nombre', d.nombre || '—', true)
+    + fila(icoCal, 'Plazo', d.plazo + (Number(d.plazo) === 1 ? ' mes' : ' meses'), true)
+    + fila(icoPct, 'CAT', _crMoney(d.cat) + '% anual', true)
+    + fila(icoCal, 'Primer pago', _crLarga(_crFromIso(d.primerPago)), true)
+    + fila(icoMon, 'Mensualidad', fmt(a.mensualidad), false)
+    + '</div>'
+    + '<div style="' + panel + '">' + fila(icoMon, 'Importe', fmt(d.importe), true) + fila(icoMon, 'Total a pagar', fmt(a.totalPagar), false) + '</div>';
+};
+
+// Alta y edición de crédito
+window.guardarCredito = async function(){
+  const gv = id => { const e = document.getElementById(id); return e ? e.value : ''; };
+  const wiz = typeof window.gwAbrir === 'function' && !!document.getElementById('modal-gasto-wizard');
+  const banco = wiz ? gv('cr-h-banco') : gv('cr-banco');
+  const cuentaId = wiz ? gv('cr-h-cuenta') : gv('cr-cuenta');
+  const importe = parseFloat(gv('cr-importe'));
+  const plazo = parseInt(gv('cr-plazo'));
+  const cat = parseFloat(gv('cr-cat'));
+  const primerPago = gv('cr-fecha');
+  const nombre = gv('cr-nombre').trim();
+  if(!banco){ showToast('Selecciona el banco'); return; }
+  if(!cuentaId){ showToast('Selecciona la tarjeta de débito'); return; }
+  if(!(importe > 0)){ showToast('Ingresa el importe'); return; }
+  if(!(plazo > 0) || plazo > 480){ showToast('Ingresa el plazo en meses'); return; }
+  if(isNaN(cat) || cat < 0){ showToast('Ingresa el CAT'); return; }
+  if(!primerPago){ showToast('Selecciona la fecha del primer pago'); return; }
+  const datos = { nombre, banco, cuentaId, importe, plazo, cat, primerPago };
+
+  // Formulario clásico (si el asistente no existe): guarda directo
+  if(!wiz){
+    window._creditoDatosPendiente = { ...datos, creadoEn: Date.now(), activo: true };
+    document.getElementById('modal-credito').classList.remove('open');
+    await window._confirmarNuevoCredito();
+    return;
+  }
+
+  // Cerrar el asistente y mostrar el resumen de confirmación
+  const ov = document.getElementById('modal-gasto-wizard');
+  if(ov) ov.classList.remove('open');
+  document.getElementById('modal-credito').classList.remove('open');
+  const cu = (perfil?.cuentasDebito || []).find(x=>x.id === cuentaId);
+  document.getElementById('confirm-mov-banco').textContent = banco || 'Crédito';
+  const apodoEl = document.getElementById('confirm-mov-apodo');
+  const cuentaTxt = cu ? (cu.apodo || cu.nombre) : '';
+  apodoEl.textContent = cuentaTxt;
+  apodoEl.style.display = cuentaTxt ? 'inline-block' : 'none';
+
+  const editId = window._crEditId;
+  if(editId){
+    const c = creditosCache.find(x=>x.id === editId);
+    if(!c){ showToast('No se encontró el crédito'); return; }
+    const cuAntes = (perfil?.cuentasDebito || []).find(x=>x.id === c.cuentaId);
+    const nomCuenta = x => x ? (x.apodo || x.nombre) : '—';
+    const cambios = [];
+    if((c.nombre || '') !== nombre) cambios.push({campo:'Nombre', antes:c.nombre || '—', despues:nombre || '—'});
+    if(c.cuentaId !== cuentaId) cambios.push({campo:'Cuenta', antes:(c.banco || '') + ' · ' + nomCuenta(cuAntes), despues:banco + ' · ' + nomCuenta(cu)});
+    if(Number(c.importe) !== importe) cambios.push({campo:'Importe', antes:fmt(c.importe), despues:fmt(importe)});
+    if(Number(c.plazo) !== plazo) cambios.push({campo:'Plazo', antes:c.plazo + ' meses', despues:plazo + ' meses'});
+    if(Number(c.cat) !== cat) cambios.push({campo:'CAT', antes:_crMoney(c.cat) + '%', despues:_crMoney(cat) + '%'});
+    if(c.primerPago !== primerPago) cambios.push({campo:'Primer pago', antes:_crLarga(_crFromIso(c.primerPago)), despues:_crLarga(_crFromIso(primerPago))});
+    if(!cambios.length){ window._crEditId = null; window.showSuccess('Sin cambios', ''); return; }
+    const esc = v => String(v == null ? '' : v).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+    document.getElementById('confirm-mov-body').innerHTML = '<div style="font-size:12px;color:var(--text-dim);margin-bottom:12px">Revisa los cambios antes de guardar</div>'
+      + cambios.map(x=>'<div style="margin-bottom:12px">'
+        + '<div style="font-size:11px;font-weight:700;color:var(--text-dim);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:6px">' + x.campo + '</div>'
+        + '<div style="display:flex;align-items:center;gap:8px">'
+        + '<div style="flex:1;background:var(--card-bg-soft);border-radius:8px;padding:8px 10px;font-size:13px;color:var(--text-dim)">' + esc(x.antes) + '</div>'
+        + '<svg width="14" height="14" fill="none" stroke="currentColor" style="color:var(--text-dim);flex-shrink:0" stroke-width="2" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>'
+        + '<div style="flex:1;background:linear-gradient(180deg,#111,#444);border-radius:8px;padding:8px 10px;font-size:13px;color:#fff;font-weight:600">' + esc(x.despues) + '</div>'
+        + '</div></div>').join('');
+    window._creditoEdicionPendiente = { id: editId, datos };
+    window._confirmMovCtx = 'credito-edit';
+  } else {
+    window._creditoDatosPendiente = { ...datos, creadoEn: Date.now(), activo: true };
+    document.getElementById('confirm-mov-body').innerHTML = window._htmlResumenCredito(datos);
+    window._confirmMovCtx = 'credito-nuevo';
+  }
+  _aplicarColorConfirmMov();
+  document.getElementById('modal-confirm-mov').classList.add('open');
+};
+
+window._confirmarNuevoCredito = async function(){
+  const datos = window._creditoDatosPendiente;
+  if(!datos) return;
+  try{
+    const ref = await addDoc(collection(db,'usuarios', currentUser.uid, 'creditos'), datos);
+    creditosCache = [{ ...datos, id: ref.id }, ...creditosCache]; window.creditosCache = creditosCache;
+    window._creditoBancoSel = null;
+    renderCreditos();
+    try{ _updateDebCards(); }catch(_){}
+    window.showSuccess('Crédito guardado', '');
+  }catch(e){ showToast('❌ Error al guardar'); }
+  window._creditoDatosPendiente = null;
+};
+
+// ── Editar ──
+window.abrirEditarCredito = function(id){
+  const c = creditosCache.find(x=>x.id === id); if(!c) return;
+  if(window._crEstado(c).liquidado){ showToast('El crédito ya está liquidado'); return; }
+  const cuentas = perfil?.cuentasDebito || [];
+  const cu = cuentas.find(x=>x.id === c.cuentaId) || cuentas[0];
+  if(!cu){ showToast('Agrega una cuenta de débito primero'); return; }
+  window._crEditId = id;
+  window._crSel = cu;
+  document.getElementById('cr-h-banco').value = cu.nombre;
+  document.getElementById('cr-h-cuenta').value = cu.id;
+  document.getElementById('cr-nombre').value = c.nombre || '';
+  document.getElementById('cr-importe').value = c.importe;
+  document.getElementById('cr-plazo').value = c.plazo;
+  document.getElementById('cr-cat').value = c.cat;
+  document.getElementById('cr-fecha').value = c.primerPago;
+  document.getElementById('modal-detalle-credito').classList.remove('open');
+  if(!(typeof window.gwEditar === 'function' && window.gwEditar('editcredito', ''))){
+    window._crEditId = null;
+    showToast('No se pudo abrir el editor');
+  }
+};
+// Cancelar la edición regresa al detalle del crédito
+window.cerrarEditCredito = function(){
+  const id = window._crEditId;
+  window._crEditId = null;
+  if(id) window.verCredito(id);
+};
+window._confirmarEdicionCredito = async function(){
+  const p = window._creditoEdicionPendiente;
+  if(!p) return;
+  try{
+    await updateDoc(doc(db,'usuarios', currentUser.uid, 'creditos', p.id), p.datos);
+    creditosCache = creditosCache.map(c=>c.id === p.id ? { ...c, ...p.datos } : c); window.creditosCache = creditosCache;
+    renderCreditos();
+    try{ _updateDebCards(); }catch(_){}
+    window.showModified('Crédito actualizado', '');
+  }catch(e){ showToast('❌ Error al guardar'); }
+  window._creditoEdicionPendiente = null;
+  window._crEditId = null;
+};
 
 window.abrirModalPromo = function(){
   if(!perfil || !perfil.tarjetas || !perfil.tarjetas.length){
@@ -12406,7 +12863,11 @@ function _updateDebCards(){
     // Saldo: acumulado total (todos los movimientos históricos)
     const ingTotal = movC.filter(m=>m.tipo==='ingreso').reduce((s,m)=>s+(m.monto||0), 0);
     const egrTotal = movC.filter(m=>m.tipo==='egreso').reduce((s,m)=>s+(m.monto||0), 0);
-    const saldo    = ingTotal - egrTotal;
+    const _pagosCr = window._pagosCreditoCuenta ? window._pagosCreditoCuenta(c.id) : [];
+    const _hoyCr = new Date(); _hoyCr.setHours(0,0,0,0);
+    const _crPagados = _pagosCr.filter(f=>f.fecha <= _hoyCr).reduce((s,f)=>s+f.pago, 0);       // cuotas de crédito ya vencidas
+    const _crMesAct  = _pagosCr.filter(f=>f.fecha.getFullYear()===_hoy.getFullYear() && f.fecha.getMonth()===_hoy.getMonth()).reduce((s,f)=>s+f.pago, 0);
+    const saldo    = ingTotal - egrTotal - _crPagados;
     // Ingresos/egresos: solo del mes actual
     const movMes   = movC.filter(m => m.fecha && m.fecha.startsWith(_preP));
     const ingMes   = movMes.filter(m=>m.tipo==='ingreso').reduce((s,m)=>s+(m.monto||0), 0);
@@ -12415,7 +12876,7 @@ function _updateDebCards(){
     const _totalCargosDeb = cargosRecurrentesCache
       .filter(cr => cr.cuentaId === c.id && cr.tipo === 'debito')
       .reduce((s,cr)=>s+(cr.monto||0), 0);
-    const egrMes = egrMovMes + _totalCargosDeb;
+    const egrMes = egrMovMes + _totalCargosDeb + _crMesAct;
     const fmt2 = n => n.toLocaleString('es-MX',{minimumFractionDigits:2,maximumFractionDigits:2});
     const ingEl  = document.getElementById('deb-ing-'  + i);
     const egrEl  = document.getElementById('deb-egr-'  + i);
@@ -13100,18 +13561,23 @@ window.cerrarNotificaciones = function(e){
     <div style="font-size:22px;font-weight:800;color:var(--text);margin-bottom:6px">Promociones</div>
     <div style="font-size:14px;color:var(--text-dim);margin-bottom:20px">Tus MSI y beneficios activos</div>
 
-    <!-- Toggle MSI / Cargos -->
+    <!-- Toggle MSI / Cargos / Crédito -->
     <div style="display:flex;background:var(--toggle-pill-bg);border:1px solid var(--toggle-pill-border);border-radius:16px;padding:4px;margin-bottom:24px;position:relative">
-      <div id="promo-tab-slider" style="position:absolute;top:4px;bottom:4px;left:4px;width:calc(50% - 4px);background:linear-gradient(180deg,var(--mov-selected-grad-start),var(--mov-selected-grad-end));border-radius:12px;box-shadow:0 4px 14px rgba(0,0,0,0.22);transition:transform 0.25s cubic-bezier(0.34,1.2,0.64,1)"></div>
+      <div id="promo-tab-slider" style="position:absolute;top:4px;bottom:4px;left:4px;width:calc((100% - 8px) / 3);background:linear-gradient(180deg,var(--mov-selected-grad-start),var(--mov-selected-grad-end));border-radius:12px;box-shadow:0 4px 14px rgba(0,0,0,0.22);transition:transform 0.25s cubic-bezier(0.34,1.2,0.64,1)"></div>
       <button onclick="selPromoTab('msi')" id="promo-tab-msi"
-        style="flex:1;padding:11px 8px;border:none;background:none;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;border-radius:12px;position:relative;z-index:1;color:var(--text);transition:color 0.2s;display:flex;align-items:center;justify-content:center;gap:7px">
-        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
-        Meses sin intereses
+        style="flex:1;padding:11px 4px;border:none;background:none;font-size:13.5px;font-weight:700;cursor:pointer;font-family:inherit;border-radius:12px;position:relative;z-index:1;color:var(--text);transition:color 0.2s;display:flex;align-items:center;justify-content:center;gap:6px">
+        <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
+        MSI
       </button>
       <button onclick="selPromoTab('cargos')" id="promo-tab-cargos"
-        style="flex:1;padding:11px 8px;border:none;background:none;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;border-radius:12px;position:relative;z-index:1;color:#888;transition:color 0.2s;display:flex;align-items:center;justify-content:center;gap:7px">
-        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg>
-        Cargo recurrente
+        style="flex:1;padding:11px 4px;border:none;background:none;font-size:13.5px;font-weight:700;cursor:pointer;font-family:inherit;border-radius:12px;position:relative;z-index:1;color:#888;transition:color 0.2s;display:flex;align-items:center;justify-content:center;gap:6px">
+        <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg>
+        Cargos
+      </button>
+      <button onclick="selPromoTab('credito')" id="promo-tab-credito"
+        style="flex:1;padding:11px 4px;border:none;background:none;font-size:13.5px;font-weight:700;cursor:pointer;font-family:inherit;border-radius:12px;position:relative;z-index:1;color:#888;transition:color 0.2s;display:flex;align-items:center;justify-content:center;gap:6px">
+        <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+        Crédito
       </button>
     </div>
 
@@ -13131,6 +13597,15 @@ window.cerrarNotificaciones = function(e){
         Nuevo cargo recurrente
       </button>
       <div id="cargos-lista"></div>
+    </div>
+
+    <!-- Panel Crédito (débito) -->
+    <div id="promo-panel-credito" style="display:none">
+      <button id="btn-nuevo-credito" onclick="abrirModalCredito()" style="width:100%;padding:14px;border-radius:14px;background:linear-gradient(180deg,#111,#444);color:#fff;border:none;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:16px">
+        <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        Nuevo crédito
+      </button>
+      <div id="creditos-lista"></div>
     </div>
 
   </div>
@@ -13943,7 +14418,15 @@ window.openModalClasico = function(){
     anioBusDeb:  {k:'lista', campo:'busAnio', titulo:'Año', hint:'¿De qué año?', vacio:'Esta cuenta aún no tiene movimientos', opciones:()=>busOpciones('anioDeb')},
     mesBusDeb:   {k:'lista', campo:'busMes',  titulo:'Mes', hint:'¿De qué mes?', vacio:'No hay movimientos en este año', opciones:()=>busOpciones('mesDeb')},
     clave2:      {k:'clave', campo:'pass2', titulo:'Confirmar contraseña', hint:'Repite la contraseña', ph:'Repite la contraseña', req:true, msgReq:'Repite la contraseña',
-                  valida:v=>v !== $(ids().pass).value ? 'Las contraseñas no coinciden' : ''}
+                  valida:v=>v !== $(ids().pass).value ? 'Las contraseñas no coinciden' : ''},
+    // ── Crédito (afecta cuentas de débito) ──
+    bancoCred:   {k:'banco',    titulo:'Banco',    hint:'¿De qué banco es la cuenta que paga el crédito?'},
+    cuentaCred:  {k:'tarjeta',  titulo:'Cuenta',   hint:'¿De cuál cuenta de débito se descuentan los pagos?'},
+    nombreCred:  {k:'texto', campo:'nombre', titulo:'Nombre del crédito', hint:'¿Cómo se llama el crédito? (opcional)', ph:'Ej. Crédito personal, Auto...', max:60},
+    importeCred: {k:'monto',    titulo:'Importe',  hint:'¿Cuál es el importe del crédito?'},
+    plazoCred:   {k:'plazo',    titulo:'Plazo',    hint:'¿A cuántos meses es el crédito?'},
+    catCred:     {k:'cat', campo:'cat', titulo:'CAT', hint:'¿Cuál es el CAT anual? Si no tiene intereses, captura 0.'},
+    fechaCred:   {k:'fecha', futura:true, titulo:'Primer pago', hint:'¿Cuándo es el primer pago?'}
   };
   const credLista = () => (window.perfil && window.perfil.tarjetas) ? window.perfil.tarjetas : [];
   const debLista  = () => (window.perfil && window.perfil.cuentasDebito) ? window.perfil.cuentasDebito : [];
@@ -14163,6 +14646,26 @@ window.openModalClasico = function(){
       nueva:true, edicion:true, lista:()=>[], getSel:()=>null, setSel:()=>{},
       recap:()=>gw.editInfo || null,
       finalizar:()=>{ cerrarOverlay(); window.guardarEditDeb(); }
+    },
+    credito: {
+      titulo:'Nuevo crédito', icono:()=>'',
+      pasos:[P.bancoCred, P.cuentaCred, P.nombreCred, P.importeCred, P.plazoCred, P.catCred, P.fechaCred],
+      ids:{banco:'cr-h-banco', tarjeta:'cr-h-cuenta', nombre:'cr-nombre', monto:'cr-importe', plazo:'cr-plazo', cat:'cr-cat', fecha:'cr-fecha'},
+      lista:debLista,
+      getSel:()=>window._crSel || null, setSel:c=>{ window._crSel = c; },
+      sinLista:'Agrega una cuenta de débito primero',
+      etiquetaFinal:'Revisar',
+      finalizar:()=>window.guardarCredito()   // valida y abre el resumen de confirmación
+    },
+    editcredito: {
+      titulo:'Editar crédito', icono:()=>'',
+      pasos:[P.bancoCred, P.cuentaCred, P.nombreCred, P.importeCred, P.plazoCred, P.catCred, P.fechaCred],
+      ids:{banco:'cr-h-banco', tarjeta:'cr-h-cuenta', nombre:'cr-nombre', monto:'cr-importe', plazo:'cr-plazo', cat:'cr-cat', fecha:'cr-fecha'},
+      lista:debLista, edicion:true,
+      getSel:()=>window._crSel || null, setSel:c=>{ window._crSel = c; },
+      sinLista:'Agrega una cuenta de débito primero',
+      etiquetaFinal:'Revisar cambios',
+      finalizar:()=>window.guardarCredito()   // con _crEditId, abre el resumen de cambios
     },
     editpromo: {
       titulo:'Editar promoción', icono:()=>'',
@@ -14429,15 +14932,17 @@ window.openModalClasico = function(){
   function iniciarFecha(){
     const hoy = new Date(), hA = hoy.getFullYear(), hM = hoy.getMonth() + 1, hD = hoy.getDate();
     const g = $(ids().fecha).value;
+    const fut = !!(pasosAct()[gw.paso] && pasosAct()[gw.paso].futura);   // primer pago de crédito: sin límite a hoy
     const f = gw.f = {a:hA, m:hM, d:hD};
     if(g){ const p = g.split('-').map(Number); if(p.length === 3 && p[0] && p[1] && p[2]){ f.a = p[0]; f.m = p[1]; f.d = p[2]; } }
-    let anioMin = hA - 1;
+    let anioMin = fut ? hA - 5 : hA - 1;
     if(g){ const ga = parseInt(g.split('-')[0], 10); if(ga && ga < anioMin) anioMin = ga; }
+    const anioMax = fut ? hA + 3 : hA;
     const anios = [];
-    for(let y = anioMin; y <= hA; y++) anios.push(y);
+    for(let y = anioMin; y <= anioMax; y++) anios.push(y);
     if(anios.indexOf(f.a) === -1) f.a = hA;
-    if(f.a === hA && f.m > hM) f.m = hM;
-    const diasN = () => (f.a === hA && f.m === hM) ? hD : new Date(f.a, f.m, 0).getDate();
+    if(!fut && f.a === hA && f.m > hM) f.m = hM;
+    const diasN = () => (!fut && f.a === hA && f.m === hM) ? hD : new Date(f.a, f.m, 0).getDate();
     if(f.d > diasN()) f.d = diasN();
 
     function guardarFecha(){
@@ -14465,7 +14970,7 @@ window.openModalClasico = function(){
       col('gw-f-dia', Array.from({length:n},(_,i)=>pad(i+1)), f.d - 1, idx=>{ if(idx + 1 === f.d) return; f.d = idx + 1; guardarFecha(); });
     }
     function colMes(){
-      const meses = MESES.slice(0, f.a === hA ? hM : 12).map(m=>m.substring(0,3));
+      const meses = MESES.slice(0, (!fut && f.a === hA) ? hM : 12).map(m=>m.substring(0,3));
       col('gw-f-mes', meses, f.m - 1, idx=>{ if(idx + 1 === f.m) return; f.m = idx + 1; colDia(); guardarFecha(); });
     }
     function colAnio(){
@@ -14473,7 +14978,7 @@ window.openModalClasico = function(){
         const a = anios[Math.min(idx, anios.length - 1)];
         if(a === f.a) return;
         f.a = a;
-        if(f.a === hA && f.m > hM) f.m = hM;
+        if(!fut && f.a === hA && f.m > hM) f.m = hM;
         colMes(); colDia(); guardarFecha();
       });
     }
@@ -14488,6 +14993,7 @@ window.openModalClasico = function(){
     if(paso.k === 'clave') $(ids()[paso.campo]).value = inp.value;
     if(paso.k === 'monto') $(ids().monto).value = inp.value;
     if(paso.k === 'terminacion') $(ids().terminacion).value = inp.value.trim();
+    if(paso.k === 'cat') $(ids().cat).value = inp.value;
   }
 
   function textoRecap(t){
@@ -14589,6 +15095,17 @@ window.openModalClasico = function(){
       $(ids().mesesPag).value = String(cur);
       html += ruedaHTML(Array.from({length:tot},(_,n)=>(n+1) + ' ' + (n === 0 ? 'mes' : 'meses')), cur - 1);
       init = ()=>activarRueda(cur - 1, idx=>{ $(ids().mesesPag).value = String(idx + 1); });
+    } else if(paso.k === 'plazo'){
+      if(!$(ids().plazo).value) $(ids().plazo).value = '12';
+      const selP = Math.min(120, Math.max(1, parseInt($(ids().plazo).value, 10) || 12)) - 1;
+      $(ids().plazo).value = String(selP + 1);
+      html += ruedaHTML(Array.from({length:120},(_,n)=>(n+1) + ' ' + (n === 0 ? 'mes' : 'meses')), selP);
+      init = ()=>activarRueda(selP, idx=>{ $(ids().plazo).value = String(idx + 1); });
+    } else if(paso.k === 'cat'){
+      html += '<div style="display:flex;align-items:center;gap:10px;padding:14px 16px;border-radius:12px;border:1.5px solid var(--border);background:var(--input-bg)">'
+            + '<input id="gw-inp" type="number" inputmode="decimal" min="0" step="0.01" placeholder="0.00" autocomplete="off" value="'+esc($(ids().cat).value)+'" style="border:none;background:transparent;outline:none;font-size:22px;font-weight:700;color:var(--text);width:100%;font-family:inherit" onkeydown="if(event.key===\'Enter\'){event.preventDefault();gwSiguiente()}"/>'
+            + '<span style="color:var(--text-dim);font-size:15px;font-weight:600;white-space:nowrap">% anual</span></div>';
+      init = ()=>setTimeout(()=>{ const e = $('gw-inp'); if(e) e.focus(); }, 320);
     } else if(paso.k === 'dia'){
       const sel = Math.min(31, Math.max(1, parseInt($(ids().dia).value) || 1)) - 1;
       $(ids().dia).value = String(sel + 1);
@@ -14668,6 +15185,7 @@ window.openModalClasico = function(){
     if(esCargo() && window._cargoState){ window._cargoState.editId = null; window._cargoState.tipo = modo === 'cargodeb' ? 'debito' : 'credito'; }
     if(cfg().nueva){ if(I.banco && $(I.banco)) $(I.banco).value = ''; }
     else preseleccionar();
+    if(modo === 'credito' && typeof window._crPrepararNuevo === 'function') window._crPrepararNuevo();
     gw.paso = 0;
     render('next');
     abrirOverlay();
@@ -14690,6 +15208,7 @@ window.openModalClasico = function(){
     else if(gw.modo === 'edittarjeta' && typeof window.closeEditTarjeta === 'function') window.closeEditTarjeta();
     else if(gw.modo === 'editcuenta' && typeof window.cerrarEditDebito === 'function') window.cerrarEditDebito();
     else if((gw.modo === 'editcargo' || gw.modo === 'editcargodeb') && typeof window.cerrarCargoRecurrente === 'function') window.cerrarCargoRecurrente();
+    else if(gw.modo === 'editcredito' && typeof window.cerrarEditCredito === 'function') window.cerrarEditCredito();
     else if(gw.modo === 'busquedadeb' && typeof window.debResetBusqueda === 'function') window.debResetBusqueda();
   };
 
@@ -14723,6 +15242,11 @@ window.openModalClasico = function(){
         if(!m || m <= 0){ toast('Ingresa el importe'); if(inp) inp.focus(); return; }
         $(ids().monto).value = String(m);
       }
+    } else if(k === 'cat'){
+      const inp = $('gw-inp');
+      const v = parseFloat(inp ? inp.value : '');
+      if(isNaN(v) || v < 0){ toast('Ingresa el CAT (puede ser 0)'); if(inp) inp.focus(); return; }
+      $(ids().cat).value = String(v);
     } else if(k === 'fecha'){
       if(!$(ids().fecha).value){ toast('Selecciona la fecha'); return; }
     } else if(k === 'lista'){
@@ -16964,6 +17488,44 @@ document.addEventListener('DOMContentLoaded', function(){
   <div class="modal" onclick="event.stopPropagation()" style="border:1.5px solid var(--border)">
     <div class="modal-handle"></div>
     <div id="detalle-cargo-content"></div>
+  </div>
+</div>
+
+<!-- ══ MODAL NUEVO CRÉDITO (débito) ══ -->
+<div class="modal-overlay modal-overlay-blur" id="modal-credito" onclick="cerrarModalCredito(event)">
+  <div class="modal" onclick="event.stopPropagation()" style="max-height:92vh;overflow-y:auto;-webkit-overflow-scrolling:touch">
+    <div class="modal-handle"></div>
+    <div class="modal-title">Nuevo crédito</div>
+    <input type="hidden" id="cr-h-banco"/><input type="hidden" id="cr-h-cuenta"/>
+    <div class="field-wrap"><div class="field-label">Nombre <span style="font-weight:400;color:var(--text-dim)">(opcional)</span></div>
+      <input id="cr-nombre" class="inp" type="text" placeholder="Ej. Crédito personal" style="width:100%;padding:12px 14px;border-radius:10px;border:1.5px solid var(--border);font-size:15px;font-family:inherit;outline:none;background:var(--input-bg);color:var(--text)"/></div>
+    <div class="field-wrap"><div class="field-label">Banco</div>
+      <select id="cr-banco" class="inp" onchange="crCambioBanco()" style="width:100%;padding:12px 14px;border-radius:10px;border:1.5px solid var(--border);font-size:15px;font-family:inherit;outline:none;background:var(--input-bg);color:var(--text)"></select></div>
+    <div class="field-wrap"><div class="field-label">Tarjeta de débito</div>
+      <select id="cr-cuenta" class="inp" style="width:100%;padding:12px 14px;border-radius:10px;border:1.5px solid var(--border);font-size:15px;font-family:inherit;outline:none;background:var(--input-bg);color:var(--text)"></select></div>
+    <div class="field-wrap"><div class="field-label">Importe</div>
+      <input id="cr-importe" class="inp" type="number" inputmode="decimal" min="0" step="0.01" placeholder="0.00" oninput="crPreview()" style="width:100%;padding:12px 14px;border-radius:10px;border:1.5px solid var(--border);font-size:15px;font-family:inherit;outline:none;background:var(--input-bg);color:var(--text)"/></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+      <div class="field-wrap"><div class="field-label">Plazo (meses)</div>
+        <input id="cr-plazo" class="inp" type="number" inputmode="numeric" min="1" max="480" step="1" placeholder="12" oninput="crPreview()" style="width:100%;padding:12px 14px;border-radius:10px;border:1.5px solid var(--border);font-size:15px;font-family:inherit;outline:none;background:var(--input-bg);color:var(--text)"/></div>
+      <div class="field-wrap"><div class="field-label">CAT (% anual)</div>
+        <input id="cr-cat" class="inp" type="number" inputmode="decimal" min="0" step="0.01" placeholder="0.00" oninput="crPreview()" style="width:100%;padding:12px 14px;border-radius:10px;border:1.5px solid var(--border);font-size:15px;font-family:inherit;outline:none;background:var(--input-bg);color:var(--text)"/></div>
+    </div>
+    <div class="field-wrap"><div class="field-label">Fecha del primer pago</div>
+      <input id="cr-fecha" class="inp" type="date" onchange="crPreview()" style="width:100%;padding:12px 14px;border-radius:10px;border:1.5px solid var(--border);font-size:15px;font-family:inherit;outline:none;background:var(--input-bg);color:var(--text)"/></div>
+    <div id="cr-preview" style="display:none;background:var(--card-bg-soft);border:1px solid var(--border);border-radius:16px;padding:12px 16px;margin:4px 0 14px"></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:6px">
+      <button id="cr-btn-cancel" onclick="cerrarModalCredito()" style="padding:13px;border-radius:12px;border:1.5px solid var(--border);background:var(--card-bg);font-size:15px;font-weight:600;cursor:pointer;font-family:inherit;color:var(--text)">Cancelar</button>
+      <button id="cr-btn-save" onclick="guardarCredito()" style="padding:13px;border-radius:12px;background:linear-gradient(180deg,#111,#444);color:#fff;border:none;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit">Guardar</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ MODAL DETALLE DE CRÉDITO (tabla de amortización) ══ -->
+<div class="modal-overlay modal-overlay-blur" id="modal-detalle-credito" onclick="if(event.target===this)this.classList.remove('open')" style="align-items:center">
+  <div class="modal" onclick="event.stopPropagation()" style="border:1.5px solid var(--border);max-height:92vh;overflow-y:auto;-webkit-overflow-scrolling:touch">
+    <div class="modal-handle"></div>
+    <div id="detalle-credito-content"></div>
   </div>
 </div>
 
