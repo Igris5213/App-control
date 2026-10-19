@@ -5052,9 +5052,17 @@ function getCorteVigenteHoy(corte){
 // Determina si una promoción ya está liquidada: solo cuando ya se alcanzó el total de
 // mensualidades Y además ya pasó (no solo llegó) la fecha del corte del último pago.
 // El día del corte del último pago aún cuenta como "activo"; se liquida hasta el día siguiente.
+// Mensualidades pagadas "a hoy". `mesesPagados` guardado es solo el punto de partida (al crear o
+// editar la promo); el número real avanza con cada corte, así que se toma el mayor entre ambos.
+function pagosPromoEfectivos(p, corte){
+  const base = p.mesesPagados !== undefined ? p.mesesPagados : 0;
+  const calc = getMesPagoPromo(corte, p.creadoEn, getCorteVigenteHoy(corte));
+  return Math.min(p.meses, Math.max(base, calc, 0));
+}
+
 function estaPromoLiquidada(p, corte){
   const mesesTotal = p.meses;
-  const pagadosActual = p.mesesPagados !== undefined ? p.mesesPagados : 0;
+  const pagadosActual = pagosPromoEfectivos(p, corte);
   if(pagadosActual < mesesTotal) return false;
   const creado = new Date(p.creadoEn);
   let primerCorte = new Date(creado.getFullYear(), creado.getMonth(), corte);
@@ -10927,7 +10935,7 @@ async function renderPromociones(useCache=false){
         var tarjetaPromo = (perfil?.tarjetas||[]).find(function(t){ return t.id===p.tarjetaId; });
         var cortePromo = tarjetaPromo ? tarjetaPromo.corte : 1;
         var mesesCalculados = getMesPagoPromo(cortePromo, p.creadoEn, getCorteVigenteHoy(cortePromo));
-        var mesesTranscurridos = p.mesesPagados !== undefined ? p.mesesPagados : Math.min(p.meses, Math.max(0, mesesCalculados));
+        var mesesTranscurridos = pagosPromoEfectivos(p, cortePromo);
         var liquidado = estaPromoLiquidada(p, cortePromo);
         var subtitulo = banco + (p.tarjeta ? ' \u00b7 ' + p.tarjeta : '');
         var titulo = p.comercio ? p.comercio + (p.nombre ? ' \u00b7 ' + p.nombre : '') : (p.nombre || '\u2014');
@@ -10982,7 +10990,8 @@ window.abrirEditarPromo = async function(id){
     document.getElementById('edit-promo-meses').value = p.meses;
     // Meses pagados
     const mesesPagActual = Math.min(p.meses, 1 + Math.floor((Date.now() - p.creadoEn) / (1000*60*60*24*30)));
-    const mesesPagGuardado = p.mesesPagados !== undefined ? p.mesesPagados : mesesPagActual;
+    const _tEdP = (perfil?.tarjetas||[]).find(t=>t.id===p.tarjetaId);
+    const mesesPagGuardado = _tEdP ? pagosPromoEfectivos(p, parseInt(_tEdP.corte)) : (p.mesesPagados !== undefined ? p.mesesPagados : mesesPagActual);
     document.getElementById('edit-promo-mesespag-txt').textContent = mesesPagGuardado + (mesesPagGuardado===1?' mes':' meses');
     document.getElementById('edit-promo-mesespag-txt').style.color = 'var(--text)';
     document.getElementById('edit-promo-mesespag').value = mesesPagGuardado;
@@ -11253,9 +11262,7 @@ window.verPromo = async function(id){
     const tarjetaP = (perfil?.tarjetas||[]).find(t=>t.id===p.tarjetaId);
     const corteP = tarjetaP ? tarjetaP.corte : 1;
     const mesesCalculadosV = getMesPagoPromo(corteP, p.creadoEn, getCorteVigenteHoy(corteP));
-    const mesesTranscurridos = p.mesesPagados !== undefined
-      ? p.mesesPagados
-      : Math.min(p.meses, Math.max(0, mesesCalculadosV));
+    const mesesTranscurridos = pagosPromoEfectivos(p, corteP);
     const mesesFaltantes = p.meses - mesesTranscurridos;
     const importePagado = p.mensualidad * mesesTranscurridos;
     const importeFaltante = p.importe - importePagado;
@@ -11350,7 +11357,7 @@ window.abrirModalPromosHistorial = function(){
     const tPV = (perfil?.tarjetas||[]).find(x=>x.id===p.tarjetaId);
     const cPV = tPV ? tPV.corte : 1;
     const pagoActual = getMesPagoPromo(cPV, p.creadoEn, periodoFin);
-    const pagosMostrar = p.mesesPagados !== undefined ? p.mesesPagados : pagoActual;
+    const pagosMostrar = Math.min(p.meses, Math.max(pagoActual, 0));
     const faltan = p.meses - pagosMostrar;
     const esUltimo = faltan === 0;
     return '<div style="background:#f5f5f5;border-radius:12px;padding:14px;margin-bottom:8px">'
