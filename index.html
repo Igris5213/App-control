@@ -3382,8 +3382,8 @@ try{
             oninput="this.value=this.value.replace(/\D/g,'').slice(0,4)"/>
         </div>
       </div>
-      <!-- 3. Disponible -->
-      <div class="ob-field">
+      <!-- 3. Disponible (ya no se captura: el saldo sale de ingresos - egresos) -->
+      <div class="ob-field" style="display:none">
         <div class="ob-label">Saldo disponible</div>
         <div class="ob-prefix-wrap">
           <span class="ob-prefix">$</span>
@@ -4133,7 +4133,7 @@ function renderTarjetasOb(){
       </div>
       <div class="added-card-body">
         <div class="added-card-name">${t.nombre}${t.apodo ? ' · '+t.apodo : ''}</div>
-        <div class="added-card-info">Disponible $${t.disponible.toLocaleString('es-MX')}</div>
+        <div class="added-card-info">Cuenta de débito</div>
       </div>
       <button class="added-card-del" onclick="quitarDebitoOb('${t.id}')">×</button>
     </div>`).join('');
@@ -5317,6 +5317,24 @@ function movsPorCorte(tarjetaId, corte, periodoFin){
     });
 }
 
+// Fecha en que cae un cargo recurrente dentro de [inicio, fin] (null si no cae, si es anterior a
+// la creación del cargo o si todavía no llega). Los cargos aparecen en su fecha, no antes.
+function _fechaCargoEnPeriodo(c, inicio, fin){
+  const dia = parseInt(c.dia); if(!dia) return null;
+  const d0 = x=>new Date(x.getFullYear(), x.getMonth(), x.getDate());
+  const ini = d0(inicio), fi = d0(fin), hoy = d0(new Date());
+  let found = null;
+  for(let off=0; off<=1 && !found; off++){
+    const ultimo = new Date(ini.getFullYear(), ini.getMonth()+off+1, 0).getDate();
+    const d = new Date(ini.getFullYear(), ini.getMonth()+off, Math.min(dia, ultimo));
+    if(d >= ini && d <= fi) found = d;
+  }
+  if(!found || found > hoy) return null;
+  if(c.creadoEn && found < d0(new Date(c.creadoEn))) return null;
+  return found;
+}
+function _isoLocal(d){ return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); }
+
 function fmtDateShort(fecha,creadoEn){
   const d = fecha ? new Date(fecha+'T12:00:00') : creadoEn ? new Date(creadoEn) : null;
   if(!d) return '—';
@@ -5346,8 +5364,29 @@ function renderMovimientos(){
       return (b.creadoEn||0) - (a.creadoEn||0);
     });
 
-  if(!filtrados.length){ el.innerHTML=`<div class="empty-mov">Sin movimientos en el corte actual</div>`; el.style.maxHeight='none'; return; }
-  el.innerHTML = filtrados.map((m,idx)=>{
+  // Cargos recurrentes de la tarjeta que ya cayeron en este corte (aparecen en su fecha)
+  const _cargosCorte = (cargosRecurrentesCache||[])
+    .filter(c=>c.tipo==='credito' && c.tarjetaId===t.id && c.activo!==false)
+    .map(c=>({ c, d:_fechaCargoEnPeriodo(c, inicio, fin) }))
+    .filter(x=>x.d);
+  if(!filtrados.length && !_cargosCorte.length){ el.innerHTML=`<div class="empty-mov">Sin movimientos en el corte actual</div>`; el.style.maxHeight='none'; return; }
+  const _mezcla = [
+    ...filtrados.map(m=>({ k:m.fecha||'', m })),
+    ..._cargosCorte.map(x=>({ k:_isoLocal(x.d), cargo:x.c, d:x.d }))
+  ].sort((a,b)=>b.k.localeCompare(a.k));   // orden estable: a igual fecha, gastos antes que cargos
+  el.innerHTML = _mezcla.map((it,idx)=>{
+    if(it.cargo){
+      const c = it.cargo;
+      return `<div class="mov-item" onclick="resaltarMov(this)" data-cargo-id="${c.id}">
+      <div class="mov-icon"><svg width="16" height="16" fill="none" stroke="var(--text)" stroke-width="2.5" viewBox="0 0 24 24"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg></div>
+      <div class="mov-info">
+        <div class="mov-date">${fmtDateShort(it.k,null)}</div>
+        <div class="mov-name" style="font-weight:700">${c.nombre}</div>
+      </div>
+      <div class="mov-right"><span class="mov-badge">Cargo recurrente</span><div class="mov-amount" style="color:var(--text)">-${fmt(c.monto)}</div></div>
+    </div>`;
+    }
+    const m = it.m;
     const _c3 = m.comercio || m.concepto || m.detalle || 'Gasto';
     return `<div class="mov-item" onclick="resaltarMov(this)" onmousedown="startLongPress(this)" onmouseup="cancelLongPress()" onmouseleave="cancelLongPress()" ontouchstart="startLongPress(this)" ontouchend="cancelLongPress()" ontouchmove="cancelLongPress()" data-id="${m.id}">
       <div class="mov-icon"><svg width="16" height="16" fill="none" stroke="var(--text)" stroke-width="2.5" viewBox="0 0 24 24"><line x1="12" y1="19" x2="12" y2="5"/><polyline points="5 12 12 19 19 12"/></svg></div>
@@ -5896,7 +5935,7 @@ window._htmlResumenNuevaCuenta = function(c){
   const datos = items.length
     ? '<div style="' + panel + ';margin-bottom:12px">' + items.map((it,i)=>fila(it[0], it[1], it[2], i < items.length-1)).join('') + '</div>'
     : '';
-  return datos + '<div style="' + panel + '">' + fila(icoWal, 'Saldo disponible', fmt(c.disponible || 0), false) + '</div>';
+  return datos;
 };
 
 // Resumen de eliminar cuenta de débito: mismo diseño que el de movimiento, promoción, cargo y tarjeta
@@ -5918,8 +5957,7 @@ window._htmlResumenCuenta = function(c){
   const saldo = (typeof c.disponible === 'number' && c.disponible > 0) ? fmt(c.disponible) : '—';
   const filas = fila(icoCard, 'Banco', c.nombre || '—', true)
               + fila(icoTag, 'Cuenta', c.apodo || '—', false);
-  return '<div style="' + panel + ';margin-bottom:12px">' + filas + '</div>'
-       + '<div style="' + panel + '">' + fila(icoWal, 'Saldo disponible', saldo, false) + '</div>';
+  return '<div style="' + panel + '">' + filas + '</div>';
 };
 
 window.eliminar = function(id){
@@ -7571,9 +7609,11 @@ window.abrirAccionesPerfil = function(tipo, id){
     + '<div style="background:' + dkPanel + ';border:1px solid ' + dkBorder + ';border-radius:16px;padding:2px 16px;margin-bottom:12px;box-shadow:' + dkPanelShadow + '">'
     + filas
     + '</div>'
-    + '<div style="background:' + dkPanel + ';border:1px solid ' + dkBorder + ';border-radius:16px;padding:2px 16px;box-shadow:' + dkPanelShadow + '">'
-    + fila(icoWallet, montoLabel, montoValor, false)
-    + '</div>'
+    + (tipo === 'credito'
+        ? '<div style="background:' + dkPanel + ';border:1px solid ' + dkBorder + ';border-radius:16px;padding:2px 16px;box-shadow:' + dkPanelShadow + '">'
+          + fila(icoWallet, montoLabel, montoValor, false)
+          + '</div>'
+        : '')   // débito: el saldo sale de ingresos - egresos, no se muestra aquí
     + '</div>';
   resumen.style.display = 'grid';
 
@@ -8014,8 +8054,6 @@ window.renderPerfiles = function(){
                   <svg width="14" height="14" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" viewBox="0 0 24 24"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
                 </div>
               </div>
-              <div class="promo-dark-label">Saldo disponible</div>
-              <div class="promo-dark-value">${typeof c.disponible==='number'&&c.disponible>0?'$'+c.disponible.toLocaleString('es-MX',{minimumFractionDigits:2}):'\u2014'}</div>
               <div class="promo-dark-divider"></div>
               <div class="promo-dark-footer">
                 <div style="display:flex;align-items:center;gap:7px">
@@ -8070,11 +8108,13 @@ window.renderPerfiles = function(){
               style="border:none;background:transparent;outline:none;font-size:15px;font-weight:600;color:var(--text);letter-spacing:2px;width:70px;font-family:inherit"
               oninput="this.value=this.value.split('').filter(function(ch){return ch>='0'&&ch<='9'}).join('').slice(0,4)"/>
           </div>
+          <div style="display:none">
           <div style="font-size:11px;font-weight:700;color:var(--text-dim);text-transform:uppercase;margin-bottom:6px">Saldo disponible <span style="font-weight:400;color:var(--text-dim)">(opcional)</span></div>
           <div style="position:relative;margin-bottom:14px">
             <span style="position:absolute;left:14px;top:50%;transform:translateY(-50%);color:var(--text-dim);font-size:15px">$</span>
             <input id="inp-disponible-debito-nuevo" type="number" placeholder="0.00" min="0" step="100" onfocus="cerrarScrollsPerfiles()"
               style="width:100%;padding:12px 14px 12px 28px;border-radius:10px;border:1.5px solid var(--border);font-size:15px;font-family:inherit;outline:none;background:var(--input-bg);color:var(--text)"/>
+          </div>
           </div>
           <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
             <button onclick="ocultarFormAgregarDebito()" style="padding:11px;border-radius:10px;border:1.5px solid var(--border);background:var(--card-bg);font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;color:var(--text-dim)">Cancelar</button>
@@ -8705,8 +8745,6 @@ window.guardarEdicionDebito = async function(){
   if(antes){
     const fmt$ = v => '$' + Number(v).toLocaleString('es-MX',{minimumFractionDigits:2});
     const cambios = [];
-    if(!isNaN(antes.disponible) && !isNaN(disp) && antes.disponible !== disp)
-      cambios.push({campo:'Saldo disponible', antes:fmt$(antes.disponible), despues:fmt$(disp)});
     const _lblMarca = m => m === 'visa' ? 'VISA' : (m === 'mastercard' ? 'Mastercard' : '—');
     if(antes.marca !== marca)
       cambios.push({campo:'Marca', antes:_lblMarca(antes.marca), despues:_lblMarca(marca)});
@@ -9115,10 +9153,18 @@ window.debSelMes = async function(mes){
         cargosRecurrentesCache = _snapD.docs.map(d=>({id:d.id,...d.data()}));
       }catch(_e){}
     }
-    const _cargosDeb = cargosRecurrentesCache.filter(c=>c.cuentaId===_debTarjetaId && c.tipo==='debito');
+    const _hoyD = new Date(); _hoyD.setHours(0,0,0,0);
+    const _cargosDeb = cargosRecurrentesCache.filter(c=>{
+      if(c.cuentaId!==_debTarjetaId || c.tipo!=='debito' || c.activo===false) return false;
+      const dia = parseInt(c.dia); if(!dia) return false;
+      const f = new Date(anio, mes, Math.min(dia, ultimoDia));
+      if(f > _hoyD) return false;                                   // aún no llega su fecha
+      if(c.creadoEn){ const cr = new Date(c.creadoEn); if(f < new Date(cr.getFullYear(), cr.getMonth(), cr.getDate())) return false; }
+      return true;
+    });
     const _cargosDebHTML = _cargosDeb.map(c=>{
       // Fecha real: día del cargo en el mes del período seleccionado
-      const _diaD  = String(c.dia).padStart(2,'0');
+      const _diaD  = String(Math.min(parseInt(c.dia), ultimoDia)).padStart(2,'0');
       const _mesD  = fechaInicio.substring(5,7);
       const _anioD = fechaInicio.substring(0,4);
       const fechaCD = `${_diaD}/${_mesD}/${_anioD}`;
@@ -10895,9 +10941,18 @@ window._confirmarNuevaPromo = async function(){
 
 window.eliminarPromo = async function(id){
   try{
-    await deleteDoc(doc(db,'usuarios', currentUser.uid, 'promociones', id));
-    // Quitar del cache local y marcar timestamp de eliminación
-    promocionesCache = promocionesCache.filter(p=>p.id!==id);
+    const promo = promocionesCache.find(p=>p.id===id);
+    const tarjetaPromo = promo ? (perfil?.tarjetas||[]).find(t=>t.id===promo.tarjetaId) : null;
+    if(promo && tarjetaPromo && estaPromoLiquidada(promo, tarjetaPromo.corte)){
+      // Promoción liquidada: solo se oculta de la lista de Promociones; sus mensualidades
+      // permanecen en el historial de cada corte.
+      await updateDoc(doc(db,'usuarios', currentUser.uid, 'promociones', id), { archivada: true });
+      promocionesCache = promocionesCache.map(p=>p.id===id ? {...p, archivada:true} : p);
+    } else {
+      await deleteDoc(doc(db,'usuarios', currentUser.uid, 'promociones', id));
+      // Quitar del cache local
+      promocionesCache = promocionesCache.filter(p=>p.id!==id);
+    }
     window.promocionesCache = promocionesCache;
     window._promoUltimaElim = Date.now();
     renderPromociones(true);
@@ -10921,6 +10976,7 @@ async function renderPromociones(useCache=false){
       promocionesCache = promos;
     }
     updateCards();
+    promos = promos.filter(p=>!p.archivada);   // las archivadas siguen en el historial, no en esta lista
     if(!promos.length){
       lista.innerHTML = '<div style="text-align:center;padding:48px 20px;color:var(--text-dim);font-size:14px">Sin promociones registradas</div>';
       return;
@@ -11761,22 +11817,14 @@ window.aceptarConfirmHist = function(){
         cargosRecurrentesCache = _snapC.docs.map(d=>({id:d.id,...d.data()}));
       }catch(_e){}
     }
-    const _cargosHist = cargosRecurrentesCache.filter(c=>c.tarjetaId===tarjetaId && c.tipo!=='debito');
-    // Calcular el inicio del período para usar su mes/año como referencia de la fecha del cargo
-    const _periodoInicio = getPeriodo(corte, periodoFin).inicio;
+    const _perHist = getPeriodo(corte, periodoFin);
+    // Solo los cargos que ya cayeron en este corte (aparecen en su fecha)
+    const _cargosHist = cargosRecurrentesCache.filter(c=>c.tarjetaId===tarjetaId && c.tipo!=='debito'
+      && _fechaCargoEnPeriodo(c, _perHist.inicio, _perHist.fin));
+    const _periodoInicio = _perHist.inicio;
     const _cargosHTML = _cargosHist.map(c=>{
-      // La fecha del cargo es c.dia dentro del mes de inicio del corte
-      // Ej: corte 1 mayo→junio, inicio=2 mayo → cargo día 5 = 05/05/año
-      let _mesRef  = _periodoInicio.getMonth()+1;
-      let _anioRef = _periodoInicio.getFullYear();
-      // Si el día del cargo es menor que el día de inicio del período, cae en el mes siguiente
-      if(c.dia < _periodoInicio.getDate()){
-        _mesRef  = _mesRef===12 ? 1 : _mesRef+1;
-        _anioRef = _mesRef===1  ? _anioRef+1 : _anioRef;
-      }
-      const _diaC  = String(c.dia).padStart(2,'0');
-      const _mesC  = String(_mesRef).padStart(2,'0');
-      const _fechaC = `${_diaC}/${_mesC}/${_anioRef}`;
+      const _dC = _fechaCargoEnPeriodo(c, _perHist.inicio, _perHist.fin);
+      const _fechaC = String(_dC.getDate()).padStart(2,'0')+'/'+String(_dC.getMonth()+1).padStart(2,'0')+'/'+_dC.getFullYear();
       return `<div class="mov-item"
           onclick="resaltarMov(this)" onmousedown="startLongPressCargoHist(this,'${c.id}')" onmouseup="cancelLongPress()" onmouseleave="cancelLongPress()"
           ontouchstart="startLongPressCargoHist(this,'${c.id}')" ontouchend="cancelLongPress()" ontouchmove="cancelLongPress()"
@@ -12102,7 +12150,9 @@ function buildCarruselDebito(){
   cuentas.forEach((c, i) => {
     const card = document.createElement('div');
     card.className = `bank-card ${c.color || 'card-color-0'}`;
-    const disp = typeof c.disponible === 'number' ? c.disponible : 0;
+    const disp = _debMovimientos
+      .filter(m => m.cuentaId === c.id || (!m.cuentaId && i === 0))
+      .reduce((s,m)=> s + (m.tipo==='ingreso' ? (m.monto||0) : m.tipo==='egreso' ? -(m.monto||0) : 0), 0);
     card.innerHTML = `
       <div class="cc-header-box">
         <div class="cc-header-top">
@@ -13911,7 +13961,7 @@ window.openModalClasico = function(){
     },
     onbdeb: {
       titulo:()=> (gw.onbPerfil && gw.paso === 0) ? 'Crea tu perfil' : 'Agrega tu cuenta', icono:()=>ICONO_CUENTA,
-      pasos:[P.perfilOb, P.tipoOb, P.bancoCuenta, P.bancoOtro, P.apodoCuenta, P.marcaCuenta, P.terminacion, P.saldo],
+      pasos:[P.perfilOb, P.tipoOb, P.bancoCuenta, P.bancoOtro, P.apodoCuenta, P.marcaCuenta, P.terminacion],
       ids:{perfil:'inp-nombre', banco:'inp-banco-deb-ob', bancoOtro:'inp-banco-deb-ob-otro', apodo:'inp-apodo-deb-ob', marca:'inp-marca-deb-ob', terminacion:'inp-terminacion-deb-ob', monto:'inp-disponible-deb-ob'},
       bancos:()=>window._BANCOS_LIST || BANCOS_CUENTA,
       otroBanco:true,
@@ -13941,7 +13991,7 @@ window.openModalClasico = function(){
     },
     cuenta: {
       titulo:'Nueva cuenta de débito', icono:()=>'',
-      pasos:[P.bancoCuenta, P.bancoOtro, P.apodoCuenta, P.marcaCuenta, P.terminacion, P.saldo],
+      pasos:[P.bancoCuenta, P.bancoOtro, P.apodoCuenta, P.marcaCuenta, P.terminacion],
       ids:{banco:'inp-banco-nc', bancoOtro:'inp-banco-nc-otro', apodo:'inp-apodo-nc', marca:'inp-marca-nc', terminacion:'inp-terminacion-nc', monto:'inp-disponible-nc'},
       bancos:()=>window._BANCOS_LIST || BANCOS_CUENTA,
       otroBanco:true,
@@ -13976,7 +14026,7 @@ window.openModalClasico = function(){
     },
     editcuenta: {
       titulo:'Editar cuenta', icono:()=>'',
-      pasos:[P.marcaCuenta, P.terminacion, P.saldo],
+      pasos:[P.marcaCuenta, P.terminacion],
       ids:{marca:'inp-marca-debito-edit', terminacion:'inp-terminacion-debito-edit', monto:'edit-debito-disponible'},
       nueva:true, edicion:true, lista:()=>[], getSel:()=>null, setSel:()=>{},
       recap:()=>gw.editInfo || null,
@@ -15105,7 +15155,7 @@ window.confirmarEliminarPerfil = async function(){
           oninput="this.value=this.value.replace(/\D/g,'').slice(0,4)"/>
       </div>
     </div>
-    <div class="field-wrap">
+    <div class="field-wrap" style="display:none">
       <div class="field-label">Saldo disponible <span style="font-weight:400;color:#aaa">(opcional)</span></div>
       <div class="amount-wrap">
         <span class="amount-prefix">$</span>
@@ -16800,7 +16850,7 @@ document.addEventListener('DOMContentLoaded', function(){
           oninput="this.value=this.value.replace(/\D/g,'').slice(0,4)"/>
       </div>
     </div>
-    <div class="ob-field">
+    <div class="ob-field" style="display:none">
       <div class="ob-label">Saldo disponible</div>
       <div class="ob-prefix-wrap">
         <span class="ob-prefix">$</span>
