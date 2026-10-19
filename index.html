@@ -1600,6 +1600,12 @@ html.dark-mode #modal-gasto-wizard .modal .btn-flat-confirm:active{
   transition:box-shadow .2s ease,transform .15s ease;
 }
 #screen-promociones .promo-dark-card:active,#screen-perfiles .promo-dark-card:active{transform:scale(0.985);box-shadow:var(--nm-inset-sm)}
+/* Vista por banco: botón de volver + título */
+.bank-back-row{display:flex;align-items:center;gap:12px;margin:4px 0 14px}
+.bank-back-btn{width:36px;height:36px;border-radius:50%;border:none;background:var(--bg);color:var(--text);display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;padding:0;box-shadow:var(--nm-raised-sm);transition:box-shadow .2s ease,transform .15s ease}
+.bank-back-btn:active{transform:scale(0.96);box-shadow:var(--nm-inset-sm)}
+.bank-back-title{font-size:17px;font-weight:800;color:var(--text);line-height:1.2;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.bank-back-sub{font-size:12.5px;color:var(--text-dim);margin-top:2px}
 #screen-promociones .promo-dark-title,#screen-promociones .promo-dark-value,
 #screen-perfiles .promo-dark-title,#screen-perfiles .promo-dark-value{color:var(--text)}
 #screen-promociones .promo-dark-sub,#screen-promociones .promo-dark-label,#screen-promociones .promo-dark-footer-left,
@@ -10083,6 +10089,7 @@ window.irPromociones = function(){
   scr.classList.remove('hidden');
   scr.style.display = 'flex';
   const _usarCache = window._promoUltimaElim && (Date.now() - window._promoUltimaElim < 30000);
+  window._promoBancoSel = null; window._cargoBancoSel = null;   // siempre abre en el resumen por banco
   renderPromociones(_usarCache);
 }
 
@@ -10591,6 +10598,35 @@ window._confirmarNuevoCargo = async function(){
   window._cargoDatosPendiente = null;
 };
 
+// ── Vista por banco (Promociones y Cargos recurrentes) ─────────────────────
+// Nivel 1: una tarjeta-resumen por banco. Nivel 2: las tarjetas de ese banco (vista de siempre).
+window._promoBancoSel = null;   // banco abierto en "Meses sin intereses" (null = resumen)
+window._cargoBancoSel = null;   // 'tipo||banco' abierto en "Cargo recurrente" (null = resumen)
+const _bkEsc = v => String(v == null ? '' : v).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+function _htmlResumenBanco(o){
+  return '<div class="promo-dark-card promo-bank-card" data-k="' + _bkEsc(o.key) + '" onclick="' + o.fn + '(this.dataset.k)">'
+    + '<div class="promo-dark-top"><div class="promo-dark-title">' + _bkEsc(o.titulo) + '</div>'
+    + '<div class="promo-dark-menu"><svg width="14" height="14" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg></div></div>'
+    + '<div class="promo-dark-sub">' + _bkEsc(o.sub) + '</div>'
+    + '<div class="promo-dark-label">' + _bkEsc(o.label) + '</div>'
+    + '<div class="promo-dark-value">' + _bkEsc(o.valor) + '</div>'
+    + '<div class="promo-dark-divider"></div>'
+    + '<div class="promo-dark-footer"><div class="promo-dark-footer-left">' + _bkEsc(o.pie) + '</div>'
+    + (o.badge ? '<div class="promo-dark-badge">' + _bkEsc(o.badge) + '</div>' : '') + '</div>'
+    + '</div>';
+}
+function _htmlVolverBanco(titulo, sub, fnCerrar){
+  return '<div class="bank-back-row">'
+    + '<button type="button" class="bank-back-btn" onclick="' + fnCerrar + '()" aria-label="Volver">'
+    + '<svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg></button>'
+    + '<div style="min-width:0"><div class="bank-back-title">' + _bkEsc(titulo) + '</div>'
+    + (sub ? '<div class="bank-back-sub">' + _bkEsc(sub) + '</div>' : '') + '</div></div>';
+}
+window.abrirBancoPromo  = function(b){ window._promoBancoSel = b; renderPromociones(true); };
+window.cerrarBancoPromo = function(){ window._promoBancoSel = null; renderPromociones(true); };
+window.abrirBancoCargo  = function(k){ window._cargoBancoSel = k; renderCargosRecurrentes(); };
+window.cerrarBancoCargo = function(){ window._cargoBancoSel = null; renderCargosRecurrentes(); };
+
 async function renderCargosRecurrentes(){
   const listaC = document.getElementById('cargos-lista');
   if(!listaC) return;
@@ -10606,13 +10642,39 @@ async function renderCargosRecurrentes(){
       {key:'debito',  label:'Tarjetas de débito'}
     ];
     let html = '';
+    // ¿Hay un banco abierto que ya no existe (se borraron sus cargos)? Volver al resumen.
+    let selC = window._cargoBancoSel;
+    if(selC && !cargosRecurrentesCache.some(function(c){ return (c.tipo + '||' + (c.banco||'Sin banco')) === selC; })) selC = window._cargoBancoSel = null;
+    if(selC){
+      const _tipoSel = tipos.find(function(t){ return t.key === selC.split('||')[0]; });
+      const _bancoSelC = selC.substring(selC.indexOf('||') + 2);
+      const _nSel = cargosRecurrentesCache.filter(function(c){ return (c.tipo + '||' + (c.banco||'Sin banco')) === selC; }).length;
+      html += _htmlVolverBanco(_bancoSelC, (_tipoSel ? _tipoSel.label + ' · ' : '') + _nSel + (_nSel===1 ? ' cargo' : ' cargos'), 'cerrarBancoCargo');
+    }
     tipos.forEach(function(tipoInfo){
       const cargosTipo = cargosRecurrentesCache.filter(function(c){ return c.tipo === tipoInfo.key; });
       if(!cargosTipo.length) return;
       const bancos = [...new Set(cargosTipo.map(c=>c.banco||'Sin banco'))].sort();
-      html += '<div style="font-size:12px;font-weight:700;color:var(--text-dim);text-transform:uppercase;letter-spacing:0.06em;margin:12px 0 8px 4px">' + tipoInfo.label + '</div>';
+      if(!selC) html += '<div style="font-size:12px;font-weight:700;color:var(--text-dim);text-transform:uppercase;letter-spacing:0.06em;margin:12px 0 8px 4px">' + tipoInfo.label + '</div>';
       bancos.forEach(function(banco){
         const grupo = cargosTipo.filter(function(c){ return (c.banco||'Sin banco')===banco; });
+        if(!selC){
+          // Resumen del banco
+          const total = grupo.reduce(function(s,c){ return s + parseFloat(c.monto||0); }, 0);
+          const cuentas = [...new Set(grupo.map(function(c){
+            const t  = (perfil?.tarjetas||[]).find(x=>x.id===c.tarjetaId);
+            const cu = (perfil?.cuentasDebito||[]).find(x=>x.id===c.cuentaId);
+            return t ? (t.apodo||t.nombre) : cu ? (cu.apodo||cu.nombre) : '';
+          }).filter(Boolean))];
+          html += _htmlResumenBanco({
+            key: tipoInfo.key + '||' + banco, fn:'abrirBancoCargo', titulo: banco,
+            sub: cuentas.join(' · ') || tipoInfo.label,
+            label: 'Total mensual', valor: fmt(total),
+            pie: grupo.length + (grupo.length===1 ? ' cargo recurrente' : ' cargos recurrentes')
+          });
+          return;
+        }
+        if(selC !== tipoInfo.key + '||' + banco) return;
         grupo.forEach(function(c){
           const t  = (perfil?.tarjetas||[]).find(x=>x.id===c.tarjetaId);
           const cu = (perfil?.cuentasDebito||[]).find(x=>x.id===c.cuentaId);
@@ -10982,11 +11044,37 @@ async function renderPromociones(useCache=false){
       return;
     }
     const bancos = [...new Set(promos.map(p=>p.banco))].sort();
+    let selP = window._promoBancoSel;
+    if(selP && !bancos.includes(selP)) selP = window._promoBancoSel = null;
+    if(!selP){
+      // Nivel 1: resumen por banco
+      lista.innerHTML = bancos.map(function(banco){
+        const grupo = promos.filter(function(p){ return p.banco===banco; });
+        let vigentes = 0, pendiente = 0, mensual = 0;
+        grupo.forEach(function(p){
+          const tj = (perfil?.tarjetas||[]).find(function(t){ return t.id===p.tarjetaId; });
+          const corteP = tj ? parseInt(tj.corte) : 1;
+          if(estaPromoLiquidada(p, corteP)) return;
+          const mens = p.mensualidad || (p.importe / p.meses);
+          vigentes++; mensual += mens;
+          pendiente += mens * Math.max(0, p.meses - pagosPromoEfectivos(p, corteP));
+        });
+        const liq = grupo.length - vigentes;
+        return _htmlResumenBanco({
+          key: banco, fn:'abrirBancoPromo', titulo: banco,
+          sub: grupo.length + (grupo.length===1 ? ' promoción' : ' promociones') + (liq ? ' · ' + liq + (liq===1 ? ' liquidada' : ' liquidadas') : ''),
+          label: 'Saldo pendiente', valor: fmt(pendiente),
+          pie: vigentes + (vigentes===1 ? ' vigente' : ' vigentes'),
+          badge: vigentes ? fmt(mensual) + ' / mes' : ''
+        });
+      }).join('');
+      return;
+    }
     let html = '';
-    bancos.forEach(function(banco){
+    [selP].forEach(function(banco){
       const grupoPromos = promos.filter(function(p){ return p.banco===banco; });
       const bancoId = 'banco-' + banco.replace(/\s+/g,'_');
-      html += '<div style="font-size:12px;font-weight:700;color:var(--text-dim);text-transform:uppercase;letter-spacing:0.06em;margin:12px 0 8px 4px">' + banco + '</div>';
+      html += _htmlVolverBanco(banco, grupoPromos.length + (grupoPromos.length===1 ? ' promoción' : ' promociones'), 'cerrarBancoPromo');
       grupoPromos.forEach(function(p){
         var tarjetaPromo = (perfil?.tarjetas||[]).find(function(t){ return t.id===p.tarjetaId; });
         var cortePromo = tarjetaPromo ? tarjetaPromo.corte : 1;
