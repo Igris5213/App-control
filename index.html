@@ -5714,7 +5714,7 @@ window._cancelarConfirmMov = function(e){
     if(document.getElementById('modal-gasto-wizard') && typeof window.gwReabrir === 'function') window.gwReabrir('credito');
   }
   else if(ctx === 'credito-edit'){
-    if(document.getElementById('modal-gasto-wizard') && typeof window.gwReabrir === 'function') window.gwReabrir('editcredito');
+    if(document.getElementById('modal-gasto-wizard') && typeof window.gwReabrir === 'function') window.gwReabrir(window._crEditTabla ? 'editcreditotabla' : 'editcredito');
   }
   else if(ctx === 'cargo'){
     if(document.getElementById('modal-gasto-wizard') && typeof window.gwReabrir === 'function') window.gwReabrir(_cargoTipo === 'debito' ? 'cargodeb' : 'cargo');
@@ -9228,7 +9228,7 @@ window.debSelMes = async function(mes){
         </div>
         <div class="mov-info">
           <div class="mov-date">${dd}/${mm}/${f.fecha.getFullYear()}</div>
-          <div class="mov-name" style="font-weight:700">${(f.credito.nombre||'Crédito')} · pago ${f.n} de ${f.credito.plazo}</div>
+          <div class="mov-name" style="font-weight:700">${(f.credito.nombre||'Crédito')} · pago ${f.n} de ${f.total || f.credito.plazo}</div>
         </div>
         <div class="mov-right"><span class="mov-badge">Crédito</span><div class="mov-amount" style="color:var(--text)">-$${Number(f.pago).toLocaleString('es-MX',{minimumFractionDigits:2})}</div></div>
       </div>`;
@@ -10769,11 +10769,38 @@ function _crSumaMes(base, k){
 }
 
 // Calcula la tabla de amortización de un crédito
+// Periodicidades: pagos por año, etiquetas y fechas de pago
+window._CR_FREC = {
+  semanal:    { ppy:52, etq:'Semanal',    pago:'Pago semanal' },
+  catorcenal: { ppy:26, etq:'Catorcenal', pago:'Pago catorcenal' },
+  quincenal:  { ppy:24, etq:'Quincenal',  pago:'Pago quincenal' },
+  mensual:    { ppy:12, etq:'Mensual',    pago:'Mensualidad' }
+};
+window._crFrec = function(k){ return window._CR_FREC[k || 'mensual'] || window._CR_FREC.mensual; };
+// k = número de pago (0 = el primero)
+window._crFechaPago = function(base, k, frec){
+  if(frec === 'semanal')    return new Date(base.getFullYear(), base.getMonth(), base.getDate() + 7 * k);
+  if(frec === 'catorcenal') return new Date(base.getFullYear(), base.getMonth(), base.getDate() + 14 * k);
+  if(frec === 'quincenal'){                       // dos pagos al mes: día X y X+15 (ej. 1 y 16)
+    const d = base.getDate(), d1 = d > 15 ? d - 15 : d, dias = [d1, d1 + 15];
+    const t = (d > 15 ? 1 : 0) + k, primero = new Date(base.getFullYear(), base.getMonth() + Math.floor(t / 2), 1);
+    const ult = new Date(primero.getFullYear(), primero.getMonth() + 1, 0).getDate();
+    return new Date(primero.getFullYear(), primero.getMonth(), Math.min(dias[t % 2], ult));
+  }
+  return _crSumaMes(base, k);
+};
 window._crAmort = function(c){
-  const P = Number(c.importe) || 0, n = parseInt(c.plazo) || 0, cat = Number(c.cat) || 0;
+  // Crédito con tabla de amortización del banco: se usan sus importes exactos (pago total con IVA)
+  if(Array.isArray(c.tabla) && c.tabla.length){
+    const filas = c.tabla.map(r=>({ n:r.n, fecha:_crFromIso(r.f), pago:r.t, pagoFijo:r.p, interes:r.i, iva:r.v, capital:r.c, saldo:r.s }));
+    const sum = k => _crR2(filas.reduce((t,f)=>t + f[k], 0));
+    return { mensualidad:filas[0].pago, filas, totalPagar:sum('pago'), totalInteres:sum('interes'), totalIva:sum('iva') };
+  }
+  const FR = window._crFrec(c.frecuencia);
+  const P = Number(c.importe) || 0, n = Math.round((parseInt(c.plazo) || 0) * FR.ppy / 12), cat = Number(c.cat) || 0;   // plazo en meses → número de pagos
   const filas = [];
   if(!(P > 0) || !(n > 0)) return { mensualidad:0, filas, totalPagar:0, totalInteres:0 };
-  const i = Math.pow(1 + cat/100, 1/12) - 1;
+  const i = Math.pow(1 + cat/100, 1 / FR.ppy) - 1;
   const pago = _crR2(i > 0 ? P * i / (1 - Math.pow(1 + i, -n)) : P / n);
   const base = _crFromIso(c.primerPago);
   let saldo = P, totalPagar = 0;
@@ -10783,7 +10810,7 @@ window._crAmort = function(c){
     const pagoK = k === n ? _crR2(capital + interes) : pago;
     saldo = k === n ? 0 : _crR2(saldo - capital);
     totalPagar += pagoK;
-    filas.push({ n:k, fecha:_crSumaMes(base, k-1), pago:pagoK, interes, capital, saldo });
+    filas.push({ n:k, fecha:window._crFechaPago(base, k-1, c.frecuencia || 'mensual'), pago:pagoK, interes, capital, saldo });
   }
   return { mensualidad:pago, filas, totalPagar:_crR2(totalPagar), totalInteres:_crR2(totalPagar - P) };
 };
@@ -10791,14 +10818,15 @@ window._crAmort = function(c){
 window._crEstado = function(c){
   const a = window._crAmort(c), hoy = new Date(); hoy.setHours(0,0,0,0);
   const pagadas = a.filas.filter(f=>f.fecha <= hoy).length;
-  const saldo = pagadas ? a.filas[pagadas-1].saldo : (Number(c.importe) || 0);
+  const saldo = pagadas ? a.filas[pagadas-1].saldo : (Number(c.saldoInicial) || Number(c.importe) || 0);
+  if(c.tabla && a.filas[pagadas]) a.mensualidad = a.filas[pagadas].pago;   // importe del siguiente pago según la tabla
   return { a, pagadas, saldo, total:a.filas.length, liquidado: a.filas.length > 0 && pagadas === a.filas.length, siguiente: a.filas[pagadas] || null };
 };
 // Pagos de crédito que afectan una cuenta de débito
 window._pagosCreditoCuenta = function(cuentaId){
   const out = [];
   (creditosCache || []).filter(c=>c.cuentaId === cuentaId && c.activo !== false).forEach(c=>{
-    window._crAmort(c).filas.forEach(f=>out.push({ ...f, credito:c }));
+    { const fl = window._crAmort(c).filas; fl.forEach(f=>out.push({ ...f, credito:c, total:fl.length })); }
   });
   return out;
 };
@@ -10822,23 +10850,65 @@ function _crNombreCuenta(c){
 window.abrirBancoCredito  = function(b){ window._creditoBancoSel = b; renderCreditos(); };
 window.cerrarBancoCredito = function(){ window._creditoBancoSel = null; renderCreditos(); };
 
+
+// ══ Crédito BBVA con tabla de amortización real (Préstamo personal inmediato) ══
+window._CR_SEED = {"numero":"00743607619632623761","nombre":"Préstamo personal inmediato","banco":"BBVA","importe":70000,"saldoInicial":49171.25,"tasa":39.45,"cat":39.45,"frecuencia":"quincenal","primerPago":"2026-11-01","plazo":118,"tabla":[{"n":1,"f":"2026-11-01","c":96.13,"i":862.13,"p":958.26,"v":137.94,"t":1096.2,"s":49075.12},{"n":2,"f":"2026-11-16","c":151.59,"i":806.67,"p":958.26,"v":129.07,"t":1087.33,"s":48923.53},{"n":3,"f":"2026-12-01","c":154.08,"i":804.18,"p":958.26,"v":128.67,"t":1086.93,"s":48769.45},{"n":4,"f":"2026-12-16","c":156.61,"i":801.65,"p":958.26,"v":128.26,"t":1086.52,"s":48612.84},{"n":5,"f":"2027-01-01","c":105.92,"i":852.34,"p":958.26,"v":136.37,"t":1094.63,"s":48506.92},{"n":6,"f":"2027-01-16","c":160.93,"i":797.33,"p":958.26,"v":127.57,"t":1085.83,"s":48345.99},{"n":7,"f":"2027-02-01","c":110.59,"i":847.67,"p":958.26,"v":135.63,"t":1093.89,"s":48235.4},{"n":8,"f":"2027-02-16","c":165.39,"i":792.87,"p":958.26,"v":126.86,"t":1085.12,"s":48070.01},{"n":9,"f":"2027-03-01","c":273.46,"i":684.8,"p":958.26,"v":109.57,"t":1067.83,"s":47796.55},{"n":10,"f":"2027-03-16","c":172.6,"i":785.66,"p":958.26,"v":125.71,"t":1083.97,"s":47623.95},{"n":11,"f":"2027-04-01","c":123.25,"i":835.01,"p":958.26,"v":133.6,"t":1091.86,"s":47500.7},{"n":12,"f":"2027-04-16","c":177.47,"i":780.79,"p":958.26,"v":124.93,"t":1083.19,"s":47323.23},{"n":13,"f":"2027-05-01","c":180.38,"i":777.88,"p":958.26,"v":124.46,"t":1082.72,"s":47142.85},{"n":14,"f":"2027-05-16","c":183.35,"i":774.91,"p":958.26,"v":123.99,"t":1082.25,"s":46959.5},{"n":15,"f":"2027-06-01","c":134.9,"i":823.36,"p":958.26,"v":131.74,"t":1090.0,"s":46824.6},{"n":16,"f":"2027-06-16","c":188.58,"i":769.68,"p":958.26,"v":123.15,"t":1081.41,"s":46636.02},{"n":17,"f":"2027-07-01","c":191.68,"i":766.58,"p":958.26,"v":122.65,"t":1080.91,"s":46444.34},{"n":18,"f":"2027-07-16","c":194.83,"i":763.43,"p":958.26,"v":122.15,"t":1080.41,"s":46249.51},{"n":19,"f":"2027-08-01","c":147.35,"i":810.91,"p":958.26,"v":129.75,"t":1088.01,"s":46102.16},{"n":20,"f":"2027-08-16","c":200.46,"i":757.8,"p":958.26,"v":121.25,"t":1079.51,"s":45901.7},{"n":21,"f":"2027-09-01","c":153.45,"i":804.81,"p":958.26,"v":128.77,"t":1087.03,"s":45748.25},{"n":22,"f":"2027-09-16","c":206.27,"i":751.99,"p":958.26,"v":120.32,"t":1078.58,"s":45541.98},{"n":23,"f":"2027-10-01","c":209.66,"i":748.6,"p":958.26,"v":119.78,"t":1078.04,"s":45332.32},{"n":24,"f":"2027-10-16","c":213.11,"i":745.15,"p":958.26,"v":119.22,"t":1077.48,"s":45119.21},{"n":25,"f":"2027-11-01","c":167.17,"i":791.09,"p":958.26,"v":126.57,"t":1084.83,"s":44952.04},{"n":26,"f":"2027-11-16","c":219.36,"i":738.9,"p":958.26,"v":118.22,"t":1076.48,"s":44732.68},{"n":27,"f":"2027-12-01","c":222.97,"i":735.29,"p":958.26,"v":117.65,"t":1075.91,"s":44509.71},{"n":28,"f":"2027-12-16","c":226.63,"i":731.63,"p":958.26,"v":117.06,"t":1075.32,"s":44283.08},{"n":29,"f":"2028-01-01","c":181.83,"i":776.43,"p":958.26,"v":124.23,"t":1082.49,"s":44101.25},{"n":30,"f":"2028-01-16","c":233.35,"i":724.91,"p":958.26,"v":115.99,"t":1074.25,"s":43867.9},{"n":31,"f":"2028-02-01","c":189.11,"i":769.15,"p":958.26,"v":123.06,"t":1081.32,"s":43678.79},{"n":32,"f":"2028-02-16","c":240.29,"i":717.97,"p":958.26,"v":114.88,"t":1073.14,"s":43438.5},{"n":33,"f":"2028-03-01","c":291.84,"i":666.42,"p":958.26,"v":106.63,"t":1064.89,"s":43146.66},{"n":34,"f":"2028-03-16","c":249.04,"i":709.22,"p":958.26,"v":113.48,"t":1071.74,"s":42897.62},{"n":35,"f":"2028-04-01","c":206.12,"i":752.14,"p":958.26,"v":120.34,"t":1078.6,"s":42691.5},{"n":36,"f":"2028-04-16","c":256.52,"i":701.74,"p":958.26,"v":112.28,"t":1070.54,"s":42434.98},{"n":37,"f":"2028-05-01","c":260.74,"i":697.52,"p":958.26,"v":111.6,"t":1069.86,"s":42174.24},{"n":38,"f":"2028-05-16","c":265.02,"i":693.24,"p":958.26,"v":110.92,"t":1069.18,"s":41909.22},{"n":39,"f":"2028-06-01","c":223.45,"i":734.81,"p":958.26,"v":117.57,"t":1075.83,"s":41685.77},{"n":40,"f":"2028-06-16","c":273.05,"i":685.21,"p":958.26,"v":109.63,"t":1067.89,"s":41412.72},{"n":41,"f":"2028-07-01","c":277.54,"i":680.72,"p":958.26,"v":108.92,"t":1067.18,"s":41135.18},{"n":42,"f":"2028-07-16","c":282.1,"i":676.16,"p":958.26,"v":108.19,"t":1066.45,"s":40853.08},{"n":43,"f":"2028-08-01","c":241.97,"i":716.29,"p":958.26,"v":114.61,"t":1072.87,"s":40611.11},{"n":44,"f":"2028-08-16","c":290.71,"i":667.55,"p":958.26,"v":106.81,"t":1065.07,"s":40320.4},{"n":45,"f":"2028-09-01","c":251.31,"i":706.95,"p":958.26,"v":113.11,"t":1071.37,"s":40069.09},{"n":46,"f":"2028-09-16","c":299.62,"i":658.64,"p":958.26,"v":105.38,"t":1063.64,"s":39769.47},{"n":47,"f":"2028-10-01","c":304.55,"i":653.71,"p":958.26,"v":104.59,"t":1062.85,"s":39464.92},{"n":48,"f":"2028-10-16","c":309.56,"i":648.7,"p":958.26,"v":103.79,"t":1062.05,"s":39155.36},{"n":49,"f":"2028-11-01","c":271.73,"i":686.53,"p":958.26,"v":109.84,"t":1068.1,"s":38883.63},{"n":50,"f":"2028-11-16","c":319.11,"i":639.15,"p":958.26,"v":102.26,"t":1060.52,"s":38564.52},{"n":51,"f":"2028-12-01","c":324.36,"i":633.9,"p":958.26,"v":101.42,"t":1059.68,"s":38240.16},{"n":52,"f":"2028-12-16","c":329.69,"i":628.57,"p":958.26,"v":100.57,"t":1058.83,"s":37910.47},{"n":53,"f":"2029-01-01","c":293.57,"i":664.69,"p":958.26,"v":106.35,"t":1064.61,"s":37616.9},{"n":54,"f":"2029-01-16","c":339.93,"i":618.33,"p":958.26,"v":98.93,"t":1057.19,"s":37276.97},{"n":55,"f":"2029-02-01","c":304.67,"i":653.59,"p":958.26,"v":104.57,"t":1062.83,"s":36972.3},{"n":56,"f":"2029-02-16","c":350.53,"i":607.73,"p":958.26,"v":97.24,"t":1055.5,"s":36621.77},{"n":57,"f":"2029-03-01","c":436.55,"i":521.71,"p":958.26,"v":83.47,"t":1041.73,"s":36185.22},{"n":58,"f":"2029-03-16","c":363.47,"i":594.79,"p":958.26,"v":95.17,"t":1053.43,"s":35821.75},{"n":59,"f":"2029-04-01","c":330.19,"i":628.07,"p":958.26,"v":100.49,"t":1058.75,"s":35491.56},{"n":60,"f":"2029-04-16","c":374.87,"i":583.39,"p":958.26,"v":93.34,"t":1051.6,"s":35116.69},{"n":61,"f":"2029-05-01","c":381.03,"i":577.23,"p":958.26,"v":92.36,"t":1050.62,"s":34735.66},{"n":62,"f":"2029-05-16","c":387.29,"i":570.97,"p":958.26,"v":91.36,"t":1049.62,"s":34348.37},{"n":63,"f":"2029-06-01","c":356.02,"i":602.24,"p":958.26,"v":96.36,"t":1054.62,"s":33992.35},{"n":64,"f":"2029-06-16","c":399.51,"i":558.75,"p":958.26,"v":89.4,"t":1047.66,"s":33592.84},{"n":65,"f":"2029-07-01","c":406.08,"i":552.18,"p":958.26,"v":88.35,"t":1046.61,"s":33186.76},{"n":66,"f":"2029-07-16","c":412.75,"i":545.51,"p":958.26,"v":87.28,"t":1045.54,"s":32774.01},{"n":67,"f":"2029-08-01","c":383.63,"i":574.63,"p":958.26,"v":91.94,"t":1050.2,"s":32390.38},{"n":68,"f":"2029-08-16","c":425.84,"i":532.42,"p":958.26,"v":85.19,"t":1043.45,"s":31964.54},{"n":69,"f":"2029-09-01","c":397.81,"i":560.45,"p":958.26,"v":89.67,"t":1047.93,"s":31566.73},{"n":70,"f":"2029-09-16","c":439.38,"i":518.88,"p":958.26,"v":83.02,"t":1041.28,"s":31127.35},{"n":71,"f":"2029-10-01","c":446.6,"i":511.66,"p":958.26,"v":81.87,"t":1040.13,"s":30680.75},{"n":72,"f":"2029-10-16","c":453.95,"i":504.31,"p":958.26,"v":80.69,"t":1038.95,"s":30226.8},{"n":73,"f":"2029-11-01","c":428.29,"i":529.97,"p":958.26,"v":84.8,"t":1043.06,"s":29798.51},{"n":74,"f":"2029-11-16","c":468.45,"i":489.81,"p":958.26,"v":78.37,"t":1036.63,"s":29330.06},{"n":75,"f":"2029-12-01","c":476.15,"i":482.11,"p":958.26,"v":77.14,"t":1035.4,"s":28853.91},{"n":76,"f":"2029-12-16","c":483.97,"i":474.29,"p":958.26,"v":75.89,"t":1034.15,"s":28369.94},{"n":77,"f":"2030-01-01","c":460.84,"i":497.42,"p":958.26,"v":79.59,"t":1037.85,"s":27909.1},{"n":78,"f":"2030-01-16","c":499.5,"i":458.76,"p":958.26,"v":73.4,"t":1031.66,"s":27409.6},{"n":79,"f":"2030-02-01","c":477.67,"i":480.59,"p":958.26,"v":76.89,"t":1035.15,"s":26931.93},{"n":80,"f":"2030-02-16","c":515.57,"i":442.69,"p":958.26,"v":70.83,"t":1029.09,"s":26416.36},{"n":81,"f":"2030-03-01","c":581.93,"i":376.33,"p":958.26,"v":60.21,"t":1018.47,"s":25834.43},{"n":82,"f":"2030-03-16","c":533.61,"i":424.65,"p":958.26,"v":67.94,"t":1026.2,"s":25300.82},{"n":83,"f":"2030-04-01","c":514.65,"i":443.61,"p":958.26,"v":70.98,"t":1029.24,"s":24786.17},{"n":84,"f":"2030-04-16","c":550.84,"i":407.42,"p":958.26,"v":65.19,"t":1023.45,"s":24235.33},{"n":85,"f":"2030-05-01","c":559.89,"i":398.37,"p":958.26,"v":63.74,"t":1022.0,"s":23675.44},{"n":86,"f":"2030-05-16","c":569.09,"i":389.17,"p":958.26,"v":62.27,"t":1020.53,"s":23106.35},{"n":87,"f":"2030-06-01","c":553.13,"i":405.13,"p":958.26,"v":64.82,"t":1023.08,"s":22553.22},{"n":88,"f":"2030-06-16","c":587.54,"i":370.72,"p":958.26,"v":59.32,"t":1017.58,"s":21965.68},{"n":89,"f":"2030-07-01","c":597.2,"i":361.06,"p":958.26,"v":57.77,"t":1016.03,"s":21368.48},{"n":90,"f":"2030-07-16","c":607.02,"i":351.24,"p":958.26,"v":56.2,"t":1014.46,"s":20761.46},{"n":91,"f":"2030-08-01","c":594.24,"i":364.02,"p":958.26,"v":58.24,"t":1016.5,"s":20167.22},{"n":92,"f":"2030-08-16","c":626.76,"i":331.5,"p":958.26,"v":53.04,"t":1011.3,"s":19540.46},{"n":93,"f":"2030-09-01","c":615.65,"i":342.61,"p":958.26,"v":54.82,"t":1013.08,"s":18924.81},{"n":94,"f":"2030-09-16","c":647.18,"i":311.08,"p":958.26,"v":49.77,"t":1008.03,"s":18277.63},{"n":95,"f":"2030-10-01","c":657.82,"i":300.44,"p":958.26,"v":48.07,"t":1006.33,"s":17619.81},{"n":96,"f":"2030-10-16","c":668.63,"i":289.63,"p":958.26,"v":46.34,"t":1004.6,"s":16951.18},{"n":97,"f":"2030-11-01","c":661.04,"i":297.22,"p":958.26,"v":47.55,"t":1005.81,"s":16290.14},{"n":98,"f":"2030-11-16","c":690.49,"i":267.77,"p":958.26,"v":42.84,"t":1001.1,"s":15599.65},{"n":99,"f":"2030-12-01","c":701.85,"i":256.41,"p":958.26,"v":41.03,"t":999.29,"s":14897.8},{"n":100,"f":"2030-12-16","c":713.38,"i":244.88,"p":958.26,"v":39.18,"t":997.44,"s":14184.42},{"n":101,"f":"2031-01-01","c":709.56,"i":248.7,"p":958.26,"v":39.79,"t":998.05,"s":13474.86},{"n":102,"f":"2031-01-16","c":736.77,"i":221.49,"p":958.26,"v":35.44,"t":993.7,"s":12738.09},{"n":103,"f":"2031-02-01","c":734.92,"i":223.34,"p":958.26,"v":35.73,"t":993.99,"s":12003.17},{"n":104,"f":"2031-02-16","c":760.96,"i":197.3,"p":958.26,"v":31.57,"t":989.83,"s":11242.21},{"n":105,"f":"2031-03-01","c":798.1,"i":160.16,"p":958.26,"v":25.62,"t":983.88,"s":10444.11},{"n":106,"f":"2031-03-16","c":786.58,"i":171.68,"p":958.26,"v":27.47,"t":985.73,"s":9657.53},{"n":107,"f":"2031-04-01","c":788.93,"i":169.33,"p":958.26,"v":27.09,"t":985.35,"s":8868.6},{"n":108,"f":"2031-04-16","c":812.48,"i":145.78,"p":958.26,"v":23.32,"t":981.58,"s":8056.12},{"n":109,"f":"2031-05-01","c":825.84,"i":132.42,"p":958.26,"v":21.19,"t":979.45,"s":7230.28},{"n":110,"f":"2031-05-16","c":839.41,"i":118.85,"p":958.26,"v":19.02,"t":977.28,"s":6390.87},{"n":111,"f":"2031-06-01","c":846.21,"i":112.05,"p":958.26,"v":17.93,"t":976.19,"s":5544.66},{"n":112,"f":"2031-06-16","c":867.12,"i":91.14,"p":958.26,"v":14.58,"t":972.84,"s":4677.54},{"n":113,"f":"2031-07-01","c":881.37,"i":76.89,"p":958.26,"v":12.3,"t":970.56,"s":3796.17},{"n":114,"f":"2031-07-16","c":895.86,"i":62.4,"p":958.26,"v":9.98,"t":968.24,"s":2900.31},{"n":115,"f":"2031-08-01","c":907.41,"i":50.85,"p":958.26,"v":8.14,"t":966.4,"s":1992.9},{"n":116,"f":"2031-08-16","c":925.5,"i":32.76,"p":958.26,"v":5.24,"t":963.5,"s":1067.4},{"n":117,"f":"2031-09-01","c":939.54,"i":18.72,"p":958.26,"v":3.0,"t":961.26,"s":127.86},{"n":118,"f":"2031-09-16","c":127.86,"i":2.1,"p":129.96,"v":0.34,"t":130.3,"s":0.0}]};
+function _crSeedHtml(){
+  const S = window._CR_SEED;
+  if(creditosCache.some(c=>c.numero === S.numero)) return '';
+  try{ if(localStorage.getItem('cr_seed_' + S.numero)) return ''; }catch(_){}
+  const cuentas = (perfil?.cuentasDebito || []).filter(x=>/bbva/i.test(x.nombre || ''));
+  const total = S.tabla.reduce((t, r)=>t + r.t, 0);
+  const btn = 'padding:12px;border-radius:12px;border:1.5px solid var(--border);background:var(--card-bg);font-size:14px;font-weight:600;font-family:inherit;color:var(--text);cursor:pointer;width:100%;margin-top:8px';
+  return '<div style="background:var(--card-bg-soft);border:1px solid var(--border);border-radius:16px;padding:16px;margin-bottom:14px">'
+    + '<div style="font-size:15px;font-weight:800;color:var(--text)">Tu crédito BBVA está listo para agregar</div>'
+    + '<div style="font-size:13px;color:var(--text-dim);margin:4px 0 6px">' + _bkEsc(S.nombre) + ' · ' + S.tabla.length + ' pagos quincenales · ' + _crDMY(_crFromIso(S.tabla[0].f)) + ' a ' + _crDMY(_crFromIso(S.tabla[S.tabla.length-1].f)) + '</div>'
+    + '<div style="font-size:13px;color:var(--text-dim)">Se cargan los importes exactos de tu tabla (con IVA). Total a pagar: <b style="color:var(--text)">' + fmt(total) + '</b></div>'
+    + (cuentas.length
+        ? '<div style="font-size:12px;font-weight:700;color:var(--text-dim);text-transform:uppercase;letter-spacing:0.08em;margin-top:12px">Cuenta de la que se descuenta</div>'
+          + cuentas.map(x=>'<button type="button" style="' + btn + '" onclick="importarCreditoBBVA(\'' + x.id + '\')">' + _bkEsc((x.apodo || x.nombre) + (x.terminacion ? ' ••••' + x.terminacion : '')) + '</button>').join('')
+        : '<div style="font-size:13px;color:var(--text);margin-top:10px">Agrega una cuenta de débito BBVA en Perfiles para vincularlo.</div>')
+    + '<button type="button" style="background:none;border:none;color:var(--text-dim);font-size:12px;font-family:inherit;cursor:pointer;margin-top:10px;padding:4px 0" onclick="ocultarCreditoBBVA()">Ocultar</button>'
+    + '</div>';
+}
+window.ocultarCreditoBBVA = function(){
+  try{ localStorage.setItem('cr_seed_' + window._CR_SEED.numero, '1'); }catch(_){}
+  renderCreditos();
+};
+window.importarCreditoBBVA = async function(cuentaId){
+  const S = window._CR_SEED;
+  const cu = (perfil?.cuentasDebito || []).find(x=>x.id === cuentaId);
+  if(!cu){ showToast('Selecciona una cuenta de débito'); return; }
+  const datos = { ...S, cuentaId, creadoEn: Date.now(), activo: true };
+  try{
+    const ref = await addDoc(collection(db,'usuarios', currentUser.uid, 'creditos'), datos);
+    creditosCache = [{ ...datos, id: ref.id }, ...creditosCache]; window.creditosCache = creditosCache;
+    try{ localStorage.setItem('cr_seed_' + S.numero, '1'); }catch(_){}
+    window._creditoBancoSel = null;
+    renderCreditos();
+    try{ _updateDebCards(); }catch(_){}
+    window.showSuccess('Crédito agregado', 'Pagos quincenales según tu tabla');
+  }catch(e){ showToast('❌ Error al guardar'); }
+};
+
 async function renderCreditos(){
   const lista = document.getElementById('creditos-lista');
   if(!lista) return;
   if(!creditosCache.length || window._creditosForzarCarga){ await cargarCreditos(); window._creditosForzarCarga = false; }
   const creditos = creditosCache.filter(c=>c.activo !== false);
   if(!creditos.length){
-    lista.innerHTML = '<div style="text-align:center;color:var(--text-dim);padding:40px 0;font-size:15px">Sin créditos registrados</div>';
+    const _sd = _crSeedHtml();
+    lista.innerHTML = _sd || '<div style="text-align:center;color:var(--text-dim);padding:40px 0;font-size:15px">Sin créditos registrados</div>';
     return;
   }
   const bancos = [...new Set(creditos.map(c=>c.banco || 'Sin banco'))].sort();
   let sel = window._creditoBancoSel;
   if(sel && !bancos.includes(sel)) sel = window._creditoBancoSel = null;
   if(!sel){
-    lista.innerHTML = bancos.map(function(banco){
+    lista.innerHTML = _crSeedHtml() + bancos.map(function(banco){
       const grupo = creditos.filter(c=>(c.banco || 'Sin banco') === banco);
       let saldo = 0, mensual = 0, vigentes = 0;
-      grupo.forEach(c=>{ const e = window._crEstado(c); if(e.liquidado) return; vigentes++; saldo += e.saldo; mensual += e.a.mensualidad; });
+      grupo.forEach(c=>{ const e = window._crEstado(c); if(e.liquidado) return; vigentes++; saldo += e.saldo; mensual += e.a.mensualidad * window._crFrec(c.frecuencia).ppy / 12; });
       const liq = grupo.length - vigentes;
       return _htmlResumenBanco({
         key: banco, fn:'abrirBancoCredito', titulo: banco,
@@ -10858,11 +10928,11 @@ async function renderCreditos(){
       + '<div class="promo-dark-top"><div class="promo-dark-title">' + _bkEsc(c.nombre || 'Crédito') + '</div>'
       + '<div class="promo-dark-menu"><svg width="14" height="14" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" viewBox="0 0 24 24"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></div></div>'
       + '<div class="promo-dark-sub">' + _bkEsc((c.banco || '') + ' · ' + _crNombreCuenta(c)) + '</div>'
-      + '<div class="promo-dark-label">Mensualidad</div>'
+      + '<div class="promo-dark-label">' + (c.tabla ? 'Próximo pago' : window._crFrec(c.frecuencia).pago) + '</div>'
       + '<div class="promo-dark-value">' + fmt(e.a.mensualidad) + '</div>'
       + '<div class="promo-dark-divider"></div>'
       + '<div class="promo-dark-footer"><div class="promo-dark-footer-left"><svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>' + e.pagadas + ' de ' + e.total + ' pagos</div>'
-      + (e.liquidado ? '<div class="promo-dark-badge">✓ Liquidado</div>' : '<div class="promo-dark-badge">CAT ' + _crMoney(c.cat) + '%</div>')
+      + (e.liquidado ? '<div class="promo-dark-badge">✓ Liquidado</div>' : '<div class="promo-dark-badge">' + (c.tabla ? 'Tasa ' + _crMoney(c.tasa) : 'CAT ' + _crMoney(c.cat)) + '%</div>')
       + '</div></div>';
   });
   lista.innerHTML = html;
@@ -10882,24 +10952,37 @@ window.verCredito = function(id){
   const pct = Math.round(e.pagadas / (e.total || 1) * 100);
   const restantes = e.total - e.pagadas;
   const btnBase = 'padding:13px;border-radius:12px;border:1.5px solid var(--border);background:var(--card-bg);font-size:15px;font-weight:600;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:8px;color:var(--text)';
-  const filas = [
-    ['Importe', fmt(c.importe)], ['Plazo', c.plazo + ' meses'], ['CAT', _crMoney(c.cat) + '% anual'],
-    ['Mensualidad', fmt(a.mensualidad)], ['Intereses totales', fmt(a.totalInteres)], ['Total a pagar', fmt(a.totalPagar)],
+  const FR = window._crFrec(c.frecuencia);
+  const filasBase = [
+    ['Importe', fmt(c.importe)], ['Periodicidad', FR.etq], ['Plazo', c.plazo + ' meses · ' + e.total + ' pagos'], ['CAT', _crMoney(c.cat) + '% anual'],
+    [FR.pago, fmt(a.mensualidad)], ['Intereses totales', fmt(a.totalInteres)], ['Total a pagar', fmt(a.totalPagar)],
     ['Pagos realizados', e.pagadas + ' de ' + e.total], ['Pagos restantes', String(restantes)],
     ['Saldo actual', fmt(e.saldo)], ['Falta pagar', fmt(faltaPagar)]
   ];
-  const cols = 'display:grid;grid-template-columns:22px 52px repeat(4,1fr);gap:4px;align-items:center;font-size:10.5px;padding:7px 0;';
+  const T = !!c.tabla;
+  const filas = T ? [
+    ['Importe original', fmt(c.importe)], ['Saldo al inicio de la tabla', fmt(c.saldoInicial)],
+    ['Tasa anual (sin IVA)', _crMoney(c.tasa) + '%'], ['Frecuencia de pago', c.frecuencia === 'quincenal' ? 'Quincenal (días 1 y 16)' : FR.etq],
+    ['Próximo pago', e.siguiente ? fmt(e.siguiente.pago) + ' · ' + _crDMY(e.siguiente.fecha) : '—'],
+    ['Intereses (sin IVA)', fmt(a.totalInteres)], ['IVA de intereses', fmt(a.totalIva)], ['Total a pagar', fmt(a.totalPagar)],
+    ['Pagos realizados', e.pagadas + ' de ' + e.total], ['Pagos restantes', String(restantes)],
+    ['Saldo actual', fmt(e.saldo)], ['Falta pagar', fmt(faltaPagar)]
+  ] : filasBase;
+  const cols = T ? 'display:grid;grid-template-columns:20px 48px repeat(5,minmax(52px,1fr));gap:3px;align-items:center;font-size:10px;padding:7px 0;'
+                 : 'display:grid;grid-template-columns:22px 52px repeat(4,1fr);gap:4px;align-items:center;font-size:10.5px;padding:7px 0;';
+  const th = t => '<span style="text-align:right">' + t + '</span>';
+  const td = v => '<span style="text-align:right">' + _crMoney(v) + '</span>';
   let tabla = '<div style="' + cols + 'font-weight:700;color:var(--text-dim);text-transform:uppercase;letter-spacing:0.04em;font-size:9.5px">'
-    + '<span>#</span><span>Fecha</span><span style="text-align:right">Pago</span><span style="text-align:right">Interés</span><span style="text-align:right">Capital</span><span style="text-align:right">Saldo</span></div>';
+    + '<span>#</span><span>Fecha</span>' + th('Pago') + (T ? th('Capital') + th('Interés') + th('IVA') : th('Interés') + th('Capital')) + th('Saldo') + '</div>';
   tabla += '<div class="cr-tabla-scroll">';
   a.filas.forEach(function(f){
     const pagado = f.n <= e.pagadas, prox = e.siguiente && f.n === e.siguiente.n;
     tabla += '<div class="cr-fila' + (prox ? ' cr-prox' : '') + '" style="' + cols + 'border-top:1px solid var(--border);color:' + (pagado ? 'var(--text-dim)' : 'var(--text)') + ';font-weight:' + (prox ? '800' : '600') + '">'
       + '<span>' + (pagado ? '✓' : f.n) + '</span><span>' + _crDMY(f.fecha) + '</span>'
-      + '<span style="text-align:right">' + _crMoney(f.pago) + '</span><span style="text-align:right">' + _crMoney(f.interes) + '</span>'
-      + '<span style="text-align:right">' + _crMoney(f.capital) + '</span><span style="text-align:right">' + _crMoney(f.saldo) + '</span></div>';
+      + td(f.pago) + (T ? td(f.capital) + td(f.interes) + td(f.iva) : td(f.interes) + td(f.capital)) + td(f.saldo) + '</div>';
   });
   tabla += '</div>';
+  if(T) tabla = '<div style="overflow-x:auto;-webkit-overflow-scrolling:touch"><div style="min-width:370px">' + tabla + '</div></div>';
   document.getElementById('detalle-credito-content').innerHTML =
       '<div style="display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:16px">'
     + '<div style="min-width:0"><div style="font-size:17px;font-weight:800;color:var(--text)">' + _bkEsc(c.nombre || 'Crédito') + '</div>'
@@ -10999,6 +11082,7 @@ window._crSel = null;
 window._crPrepararNuevo = function(){
   window._crEditId = null;
   document.getElementById('cr-plazo').value = '12';
+  document.getElementById('cr-h-frec').value = 'mensual';
   document.getElementById('cr-cat').value = '';
   document.getElementById('cr-fecha').value = _crIso(_crSumaMes(new Date(), 1));
 };
@@ -11018,16 +11102,17 @@ window._htmlResumenCredito = function(d){
     + '<div style="display:flex;align-items:center;gap:12px;color:var(--text-dim)"><div style="width:20px;height:20px;display:flex;align-items:center;justify-content:center;flex-shrink:0;color:var(--text-dim)">' + icono + '</div>'
     + '<span style="font-size:14px;font-weight:500;color:var(--text-dim)">' + label + '</span></div>'
     + '<span style="font-size:14px;font-weight:700;color:var(--text);text-align:right;max-width:55%">' + esc(valor) + '</span></div>';
-  const a = window._crAmort(d);
+  const a = window._crAmort(d), FR = window._crFrec(d.frecuencia);
   const cu = (perfil?.cuentasDebito || []).find(x=>x.id === d.cuentaId);
   const cuentaTxt = cu ? (cu.apodo || cu.nombre) + (cu.terminacion ? ' ••••' + cu.terminacion : '') : '—';
   return '<div style="' + panel + ';margin-bottom:12px">'
     + fila(icoCard, 'Cuenta', (d.banco || '—') + ' · ' + cuentaTxt, true)
     + fila(icoTag, 'Nombre', d.nombre || '—', true)
-    + fila(icoCal, 'Plazo', d.plazo + (Number(d.plazo) === 1 ? ' mes' : ' meses'), true)
+    + fila(icoCal, 'Periodicidad', FR.etq, true)
+    + fila(icoCal, 'Plazo', d.plazo + (Number(d.plazo) === 1 ? ' mes' : ' meses') + ' · ' + a.filas.length + (a.filas.length === 1 ? ' pago' : ' pagos'), true)
     + fila(icoPct, 'CAT', _crMoney(d.cat) + '% anual', true)
     + fila(icoCal, 'Primer pago', _crLarga(_crFromIso(d.primerPago)), true)
-    + fila(icoMon, 'Mensualidad', fmt(a.mensualidad), false)
+    + fila(icoMon, FR.pago, fmt(a.mensualidad), false)
     + '</div>'
     + '<div style="' + panel + '">' + fila(icoMon, 'Importe', fmt(d.importe), true) + fila(icoMon, 'Total a pagar', fmt(a.totalPagar), false) + '</div>';
 };
@@ -11043,13 +11128,14 @@ window.guardarCredito = async function(){
   const cat = parseFloat(gv('cr-cat'));
   const primerPago = gv('cr-fecha');
   const nombre = gv('cr-nombre').trim();
+  const frecuencia = gv('cr-h-frec') || 'mensual';
   if(!banco){ showToast('Selecciona el banco'); return; }
   if(!cuentaId){ showToast('Selecciona la tarjeta de débito'); return; }
   if(!(importe > 0)){ showToast('Ingresa el importe'); return; }
   if(!(plazo > 0) || plazo > 480){ showToast('Ingresa el plazo en meses'); return; }
   if(isNaN(cat) || cat < 0){ showToast('Ingresa el CAT'); return; }
   if(!primerPago){ showToast('Selecciona la fecha del primer pago'); return; }
-  const datos = { nombre, banco, cuentaId, importe, plazo, cat, primerPago };
+  const datos = { nombre, banco, cuentaId, importe, plazo, cat, primerPago, frecuencia };
 
   // Formulario clásico (si el asistente no existe): guarda directo
   if(!wiz){
@@ -11080,6 +11166,7 @@ window.guardarCredito = async function(){
     if((c.nombre || '') !== nombre) cambios.push({campo:'Nombre', antes:c.nombre || '—', despues:nombre || '—'});
     if(c.cuentaId !== cuentaId) cambios.push({campo:'Cuenta', antes:(c.banco || '') + ' · ' + nomCuenta(cuAntes), despues:banco + ' · ' + nomCuenta(cu)});
     if(Number(c.importe) !== importe) cambios.push({campo:'Importe', antes:fmt(c.importe), despues:fmt(importe)});
+    if((c.frecuencia || 'mensual') !== frecuencia) cambios.push({campo:'Periodicidad', antes:window._crFrec(c.frecuencia).etq, despues:window._crFrec(frecuencia).etq});
     if(Number(c.plazo) !== plazo) cambios.push({campo:'Plazo', antes:c.plazo + ' meses', despues:plazo + ' meses'});
     if(Number(c.cat) !== cat) cambios.push({campo:'CAT', antes:_crMoney(c.cat) + '%', despues:_crMoney(cat) + '%'});
     if(c.primerPago !== primerPago) cambios.push({campo:'Primer pago', antes:_crLarga(_crFromIso(c.primerPago)), despues:_crLarga(_crFromIso(primerPago))});
@@ -11126,16 +11213,18 @@ window.abrirEditarCredito = function(id){
   const cu = cuentas.find(x=>x.id === c.cuentaId) || cuentas[0];
   if(!cu){ showToast('Agrega una cuenta de débito primero'); return; }
   window._crEditId = id;
+  window._crEditTabla = !!c.tabla;
   window._crSel = cu;
   document.getElementById('cr-h-banco').value = cu.nombre;
   document.getElementById('cr-h-cuenta').value = cu.id;
   document.getElementById('cr-nombre').value = c.nombre || '';
   document.getElementById('cr-importe').value = c.importe;
   document.getElementById('cr-plazo').value = c.plazo;
+  document.getElementById('cr-h-frec').value = c.frecuencia || 'mensual';
   document.getElementById('cr-cat').value = c.cat;
   document.getElementById('cr-fecha').value = c.primerPago;
   document.getElementById('modal-detalle-credito').classList.remove('open');
-  if(!(typeof window.gwEditar === 'function' && window.gwEditar('editcredito', ''))){
+  if(!(typeof window.gwEditar === 'function' && window.gwEditar(c.tabla ? 'editcreditotabla' : 'editcredito', ''))){
     window._crEditId = null;
     showToast('No se pudo abrir el editor');
   }
@@ -11143,7 +11232,7 @@ window.abrirEditarCredito = function(id){
 // Cancelar la edición regresa al detalle del crédito
 window.cerrarEditCredito = function(){
   const id = window._crEditId;
-  window._crEditId = null;
+  window._crEditId = null; window._crEditTabla = false;
   if(id) window.verCredito(id);
 };
 window._confirmarEdicionCredito = async function(){
@@ -14424,6 +14513,7 @@ window.openModalClasico = function(){
     cuentaCred:  {k:'tarjeta',  titulo:'Cuenta',   hint:'¿De cuál cuenta de débito se descuentan los pagos?'},
     nombreCred:  {k:'texto', campo:'nombre', titulo:'Nombre del crédito', hint:'¿Cómo se llama el crédito? (opcional)', ph:'Ej. Crédito personal, Auto...', max:60},
     importeCred: {k:'monto',    titulo:'Importe',  hint:'¿Cuál es el importe del crédito?'},
+    frecCred:    {k:'frec',     titulo:'Periodicidad', hint:'¿Cada cuánto se hacen los pagos?'},
     plazoCred:   {k:'plazo',    titulo:'Plazo',    hint:'¿A cuántos meses es el crédito?'},
     catCred:     {k:'cat', campo:'cat', titulo:'CAT', hint:'¿Cuál es el CAT anual? Si no tiene intereses, captura 0.'},
     fechaCred:   {k:'fecha', futura:true, titulo:'Primer pago', hint:'¿Cuándo es el primer pago?'}
@@ -14649,8 +14739,8 @@ window.openModalClasico = function(){
     },
     credito: {
       titulo:'Nuevo crédito', icono:()=>'',
-      pasos:[P.bancoCred, P.cuentaCred, P.nombreCred, P.importeCred, P.plazoCred, P.catCred, P.fechaCred],
-      ids:{banco:'cr-h-banco', tarjeta:'cr-h-cuenta', nombre:'cr-nombre', monto:'cr-importe', plazo:'cr-plazo', cat:'cr-cat', fecha:'cr-fecha'},
+      pasos:[P.bancoCred, P.cuentaCred, P.nombreCred, P.importeCred, P.frecCred, P.plazoCred, P.catCred, P.fechaCred],
+      ids:{banco:'cr-h-banco', tarjeta:'cr-h-cuenta', nombre:'cr-nombre', monto:'cr-importe', plazo:'cr-plazo', cat:'cr-cat', fecha:'cr-fecha', frec:'cr-h-frec'},
       lista:debLista,
       getSel:()=>window._crSel || null, setSel:c=>{ window._crSel = c; },
       sinLista:'Agrega una cuenta de débito primero',
@@ -14659,13 +14749,23 @@ window.openModalClasico = function(){
     },
     editcredito: {
       titulo:'Editar crédito', icono:()=>'',
-      pasos:[P.bancoCred, P.cuentaCred, P.nombreCred, P.importeCred, P.plazoCred, P.catCred, P.fechaCred],
-      ids:{banco:'cr-h-banco', tarjeta:'cr-h-cuenta', nombre:'cr-nombre', monto:'cr-importe', plazo:'cr-plazo', cat:'cr-cat', fecha:'cr-fecha'},
+      pasos:[P.bancoCred, P.cuentaCred, P.nombreCred, P.importeCred, P.frecCred, P.plazoCred, P.catCred, P.fechaCred],
+      ids:{banco:'cr-h-banco', tarjeta:'cr-h-cuenta', nombre:'cr-nombre', monto:'cr-importe', plazo:'cr-plazo', cat:'cr-cat', fecha:'cr-fecha', frec:'cr-h-frec'},
       lista:debLista, edicion:true,
       getSel:()=>window._crSel || null, setSel:c=>{ window._crSel = c; },
       sinLista:'Agrega una cuenta de débito primero',
       etiquetaFinal:'Revisar cambios',
       finalizar:()=>window.guardarCredito()   // con _crEditId, abre el resumen de cambios
+    },
+    editcreditotabla: {
+      titulo:'Editar crédito', icono:()=>'',
+      pasos:[P.bancoCred, P.cuentaCred, P.nombreCred],
+      ids:{banco:'cr-h-banco', tarjeta:'cr-h-cuenta', nombre:'cr-nombre', monto:'cr-importe', plazo:'cr-plazo', cat:'cr-cat', fecha:'cr-fecha', frec:'cr-h-frec'},
+      lista:debLista, edicion:true,
+      getSel:()=>window._crSel || null, setSel:c=>{ window._crSel = c; },
+      sinLista:'Agrega una cuenta de débito primero',
+      etiquetaFinal:'Revisar cambios',
+      finalizar:()=>window.guardarCredito()
     },
     editpromo: {
       titulo:'Editar promoción', icono:()=>'',
@@ -15095,6 +15195,12 @@ window.openModalClasico = function(){
       $(ids().mesesPag).value = String(cur);
       html += ruedaHTML(Array.from({length:tot},(_,n)=>(n+1) + ' ' + (n === 0 ? 'mes' : 'meses')), cur - 1);
       init = ()=>activarRueda(cur - 1, idx=>{ $(ids().mesesPag).value = String(idx + 1); });
+    } else if(paso.k === 'frec'){
+      const opF = [['semanal','Semanal'],['catorcenal','Catorcenal'],['quincenal','Quincenal'],['mensual','Mensual']];
+      if(!$(ids().frec).value) $(ids().frec).value = 'mensual';
+      const selF = Math.max(0, opF.findIndex(o=>o[0] === $(ids().frec).value));
+      html += ruedaHTML(opF.map(o=>o[1]), selF);
+      init = ()=>activarRueda(selF, idx=>{ $(ids().frec).value = opF[idx][0]; });
     } else if(paso.k === 'plazo'){
       if(!$(ids().plazo).value) $(ids().plazo).value = '12';
       const selP = Math.min(120, Math.max(1, parseInt($(ids().plazo).value, 10) || 12)) - 1;
@@ -15208,7 +15314,7 @@ window.openModalClasico = function(){
     else if(gw.modo === 'edittarjeta' && typeof window.closeEditTarjeta === 'function') window.closeEditTarjeta();
     else if(gw.modo === 'editcuenta' && typeof window.cerrarEditDebito === 'function') window.cerrarEditDebito();
     else if((gw.modo === 'editcargo' || gw.modo === 'editcargodeb') && typeof window.cerrarCargoRecurrente === 'function') window.cerrarCargoRecurrente();
-    else if(gw.modo === 'editcredito' && typeof window.cerrarEditCredito === 'function') window.cerrarEditCredito();
+    else if((gw.modo === 'editcredito' || gw.modo === 'editcreditotabla') && typeof window.cerrarEditCredito === 'function') window.cerrarEditCredito();
     else if(gw.modo === 'busquedadeb' && typeof window.debResetBusqueda === 'function') window.debResetBusqueda();
   };
 
@@ -17496,7 +17602,7 @@ document.addEventListener('DOMContentLoaded', function(){
   <div class="modal" onclick="event.stopPropagation()" style="max-height:92vh;overflow-y:auto;-webkit-overflow-scrolling:touch">
     <div class="modal-handle"></div>
     <div class="modal-title">Nuevo crédito</div>
-    <input type="hidden" id="cr-h-banco"/><input type="hidden" id="cr-h-cuenta"/>
+    <input type="hidden" id="cr-h-frec" value="mensual"/><input type="hidden" id="cr-h-banco"/><input type="hidden" id="cr-h-cuenta"/>
     <div class="field-wrap"><div class="field-label">Nombre <span style="font-weight:400;color:var(--text-dim)">(opcional)</span></div>
       <input id="cr-nombre" class="inp" type="text" placeholder="Ej. Crédito personal" style="width:100%;padding:12px 14px;border-radius:10px;border:1.5px solid var(--border);font-size:15px;font-family:inherit;outline:none;background:var(--input-bg);color:var(--text)"/></div>
     <div class="field-wrap"><div class="field-label">Banco</div>
