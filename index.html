@@ -10790,6 +10790,12 @@ window._crFechaPago = function(base, k, frec){
   }
   return _crSumaMes(base, k);
 };
+// Reubica las fechas de una tabla de amortización según el primer pago y la periodicidad (los importes se conservan)
+window._crTablaConFechas = function(tabla, primerPago, frecuencia){
+  if(!Array.isArray(tabla) || !tabla.length || !primerPago) return tabla;
+  const base = _crFromIso(primerPago);
+  return tabla.map((r, k)=>({ ...r, f: _crIso(window._crFechaPago(base, k, frecuencia || 'mensual')) }));
+};
 window._crAmort = function(c){
   // Crédito con tabla de amortización del banco: se usan sus importes exactos (pago total con IVA)
   if(Array.isArray(c.tabla) && c.tabla.length){
@@ -11117,7 +11123,7 @@ window._crSel = null;
 window._crPagosInfo = function(){
   const gv = id => { const e = document.getElementById(id); return e ? e.value : ''; };
   const base = (creditosCache || []).find(x=>x.id === window._crEditId);
-  const obj = (base && base.tabla) ? base : { importe: parseFloat(gv('cr-importe')) || 0, plazo: parseInt(gv('cr-plazo')) || 0, cat: parseFloat(gv('cr-cat')) || 0, primerPago: gv('cr-fecha'), frecuencia: gv('cr-h-frec') || 'mensual' };
+  const obj = (base && base.tabla) ? { ...base, tabla: window._crTablaConFechas(base.tabla, gv('cr-fecha') || base.primerPago, gv('cr-h-frec') || base.frecuencia) } : { importe: parseFloat(gv('cr-importe')) || 0, plazo: parseInt(gv('cr-plazo')) || 0, cat: parseFloat(gv('cr-cat')) || 0, primerPago: gv('cr-fecha'), frecuencia: gv('cr-h-frec') || 'mensual' };
   const fl = window._crAmort(obj).filas, hoy = new Date(); hoy.setHours(0,0,0,0);
   return { total: fl.length, auto: fl.filter(f=>f.fecha <= hoy).length };
 };
@@ -11220,6 +11226,11 @@ window.guardarCredito = async function(){
     if(Number(c.plazo) !== plazo) cambios.push({campo:'Plazo', antes:c.plazo + ' meses', despues:plazo + ' meses'});
     if(Number(c.cat) !== cat) cambios.push({campo:'CAT', antes:_crMoney(c.cat) + '%', despues:_crMoney(cat) + '%'});
     if(c.primerPago !== primerPago) cambios.push({campo:'Primer pago', antes:_crLarga(_crFromIso(c.primerPago)), despues:_crLarga(_crFromIso(primerPago))});
+    if(c.tabla && (c.primerPago !== primerPago || (c.frecuencia || 'mensual') !== frecuencia)){
+      datos.tabla = window._crTablaConFechas(c.tabla, primerPago, frecuencia);
+      const uf = datos.tabla[datos.tabla.length - 1].f, ufAntes = c.tabla[c.tabla.length - 1].f;
+      if(uf !== ufAntes) cambios.push({campo:'Último pago', antes:_crLarga(_crFromIso(ufAntes)), despues:_crLarga(_crFromIso(uf))});
+    }
     if(!cambios.length){ window._crEditId = null; window.showSuccess('Sin cambios', ''); return; }
     const esc = v => String(v == null ? '' : v).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
     document.getElementById('confirm-mov-body').innerHTML = '<div style="font-size:12px;color:var(--text-dim);margin-bottom:12px">Revisa los cambios antes de guardar</div>'
@@ -14814,7 +14825,7 @@ window.openModalClasico = function(){
     },
     editcreditotabla: {
       titulo:'Editar crédito', icono:()=>'',
-      pasos:[P.bancoCred, P.cuentaCred, P.nombreCred, P.pagosCred],
+      pasos:[P.bancoCred, P.cuentaCred, P.nombreCred, P.frecCred, P.fechaCred, P.pagosCred],
       ids:{banco:'cr-h-banco', tarjeta:'cr-h-cuenta', nombre:'cr-nombre', monto:'cr-importe', plazo:'cr-plazo', cat:'cr-cat', fecha:'cr-fecha', frec:'cr-h-frec', pagos:'cr-h-pagos'},
       lista:debLista, edicion:true,
       getSel:()=>window._crSel || null, setSel:c=>{ window._crSel = c; },
