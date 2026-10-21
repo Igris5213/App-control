@@ -1612,6 +1612,17 @@ html.dark-mode #modal-gasto-wizard .modal .btn-flat-confirm:active{
 #cr-btn-cancel:active,#cr-btn-save:active,#credito-btn-eliminar:active,#credito-btn-editar:active,#modal-detalle-credito .dg-close:active{transform:scale(0.98);box-shadow:var(--nm-inset-sm) !important}
 .cr-tabla-scroll{max-height:36vh;overflow-y:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none}
 .cr-tabla-scroll .cr-prox{position:relative}
+/* Detalle de crédito: página 1 = detalle, página 2 (por detrás) = tabla; se desliza a la izquierda */
+#modal-detalle-credito .modal{overflow:hidden !important}
+.crd-dots{display:flex;justify-content:center;gap:6px;margin:-4px 0 12px}
+.crd-dot{width:6px;height:6px;border-radius:3px;border:none;padding:0;background:var(--border);transition:width .25s ease,background .25s ease;cursor:pointer}
+.crd-dot.on{width:18px;background:var(--text)}
+.crd-pager{display:flex;overflow-x:auto;overflow-y:hidden;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;scrollbar-width:none;overscroll-behavior-x:contain}
+.crd-pager::-webkit-scrollbar{display:none}
+.crd-page{flex:0 0 100%;min-width:0;box-sizing:border-box;scroll-snap-align:start;scroll-snap-stop:always;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;scrollbar-width:none;max-height:calc(92vh - 190px);padding:2px}
+.crd-page::-webkit-scrollbar{display:none}
+.crd-tabla .cr-tabla-scroll{max-height:calc(92vh - 330px)}
+.crd-hint{display:flex;align-items:center;justify-content:center;gap:6px;font-size:12px;font-weight:600;color:var(--text-dim);margin:0 0 16px;padding:8px 0;cursor:pointer}
 /* Vista por banco: botón de volver + título */
 .bank-back-row{display:flex;align-items:center;gap:12px;margin:4px 0 14px}
 .bank-back-btn{width:36px;height:36px;border-radius:50%;border:none;background:var(--bg);color:var(--text);display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;padding:0;box-shadow:var(--nm-raised-sm);transition:box-shadow .2s ease,transform .15s ease}
@@ -10989,6 +11000,10 @@ async function renderCreditos(){
 window.renderCreditos = renderCreditos;
 
 // ── Detalle con tabla de amortización ──
+window.crdIr = function(i){
+  const p = document.getElementById('crd-pager'); if(!p) return;
+  p.scrollTo({ left: i * p.clientWidth, behavior: 'smooth' });
+};
 window.verCredito = function(id){
   const c = creditosCache.find(x=>x.id === id); if(!c) return;
   const e = window._crEstado(c), a = e.a;
@@ -11017,7 +11032,7 @@ window.verCredito = function(id){
     ['Pagos realizados', (e.pagadas + e.off) + ' de ' + e.totalVis + (e.manual ? ' · manual' : '')], ['Pagos restantes', String(restantes)],
     ['Saldo actual', fmt(e.saldo)], ['Falta pagar', fmt(faltaPagar)]
   ] : filasBase;
-  const cols = T ? 'display:grid;grid-template-columns:20px 48px repeat(5,minmax(52px,1fr));gap:3px;align-items:center;font-size:10px;padding:7px 0;'
+  const cols = T ? 'display:grid;grid-template-columns:18px 42px repeat(5,minmax(0,1fr));gap:2px;align-items:center;font-size:9.5px;padding:7px 0;white-space:nowrap;'
                  : 'display:grid;grid-template-columns:22px 52px repeat(4,1fr);gap:4px;align-items:center;font-size:10.5px;padding:7px 0;';
   const th = t => '<span style="text-align:right">' + t + '</span>';
   const td = v => '<span style="text-align:right">' + _crMoney(v) + '</span>';
@@ -11031,29 +11046,46 @@ window.verCredito = function(id){
       + td(f.pago) + (T ? td(f.capital) + td(f.interes) + td(f.iva) : td(f.interes) + td(f.capital)) + td(f.saldo) + '</div>';
   });
   tabla += '</div>';
-  if(T) tabla = '<div style="overflow-x:auto;-webkit-overflow-scrolling:touch"><div style="min-width:370px">' + tabla + '</div></div>';
   document.getElementById('detalle-credito-content').innerHTML =
       '<div style="display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:16px">'
     + '<div style="min-width:0"><div style="font-size:17px;font-weight:800;color:var(--text)">' + _bkEsc(c.nombre || 'Crédito') + '</div>'
     + '<div style="font-size:13px;color:var(--text-dim);margin-top:4px">' + _bkEsc((c.banco || '') + ' · ' + _crNombreCuenta(c)) + '</div></div>'
     + '<button type="button" class="dg-close" onclick="document.getElementById(\'modal-detalle-credito\').classList.remove(\'open\')" aria-label="Cerrar"><svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>'
+    + '<div class="crd-dots"><button type="button" class="crd-dot on" onclick="crdIr(0)" aria-label="Detalle"></button><button type="button" class="crd-dot" onclick="crdIr(1)" aria-label="Tabla de amortización"></button></div>'
+    + '<div class="crd-pager" id="crd-pager"><section class="crd-page">'
     + '<div style="' + panel + ';margin-bottom:14px">' + filas.map((r,i)=>fila(r[0], r[1], i < filas.length-1)).join('') + '</div>'
     + '<div style="margin-bottom:16px">'
     + '<div style="display:flex;justify-content:space-between;font-size:12px;color:var(--text-dim);margin-bottom:6px"><span>' + (e.pagadas + e.off) + ((e.pagadas + e.off) === 1 ? ' pago realizado' : ' pagos realizados') + '</span><span>' + restantes + (restantes === 1 ? ' pago restante' : ' pagos restantes') + '</span></div>'
     + '<div style="background:var(--border);border-radius:6px;height:8px;overflow:hidden"><div style="width:' + pct + '%;height:100%;background:linear-gradient(90deg,#111,#444);border-radius:6px"></div></div>'
     + '<div style="font-size:11px;color:var(--text-dim);text-align:center;margin-top:4px">' + pct + '% completado' + (e.liquidado ? ' · ✓ Liquidado' : '') + '</div></div>'
-    + '<div style="font-size:11px;font-weight:700;color:var(--text-dim);text-transform:uppercase;letter-spacing:0.1em;margin:0 4px 8px">Tabla de amortización</div>'
-    + '<div style="' + panel + ';padding:6px 12px;margin-bottom:16px">' + tabla + '</div>'
+    + '<div class="crd-hint" onclick="crdIr(1)"><svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>Desliza para ver la tabla de amortización</div>'
     + '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">'
     + '<button type="button" id="credito-btn-editar" ' + 'onclick="abrirEditarCredito(\'' + c.id + '\')"' + ' style="' + btnBase + ';cursor:pointer' + '"><svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.12 2.12 0 0 1 3 3L12 15l-4 1 1-4z"/></svg>Editar</button>'
     + '<button type="button" id="credito-btn-eliminar" onclick="eliminarCredito(\'' + c.id + '\')" style="' + btnBase + ';cursor:pointer"><svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/></svg>Eliminar</button>'
-    + '</div>';
+    + '</div>'
+    + '</section><section class="crd-page crd-tabla">'
+    + '<div style="display:flex;align-items:center;justify-content:space-between;margin:0 4px 8px"><div style="font-size:11px;font-weight:700;color:var(--text-dim);text-transform:uppercase;letter-spacing:0.1em">Tabla de amortización · ' + a.filas.length + (a.filas.length === 1 ? ' pago' : ' pagos') + '</div>'
+    + '<div onclick="crdIr(0)" style="font-size:12px;font-weight:600;color:var(--text-dim);cursor:pointer;display:flex;align-items:center;gap:2px">Detalle<svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg></div></div>'
+    + '<div style="' + panel + ';padding:6px 8px;margin-bottom:8px">' + tabla + '</div>'
+    + '</section></div>';
+  const pg = document.getElementById('crd-pager');
+  const puntos = document.querySelectorAll('#detalle-credito-content .crd-dot');
+  // deja a la vista el siguiente pago dentro de la tabla
+  const irProx = ()=>{
+    const sc = pg.querySelector('.cr-tabla-scroll'), px = sc && sc.querySelector('.cr-prox');
+    if(sc && px) sc.scrollTop = Math.max(0, px.getBoundingClientRect().top - sc.getBoundingClientRect().top + sc.scrollTop - 40);
+  };
+  let pagAct = 0, vioTabla = false;
+  pg.addEventListener('scroll', ()=>{
+    const i = Math.round(pg.scrollLeft / (pg.clientWidth || 1));
+    if(i === pagAct) return;
+    pagAct = i;
+    puntos.forEach((d, k)=>d.classList.toggle('on', k === i));
+    if(i === 1 && !vioTabla){ vioTabla = true; irProx(); }
+  }, { passive: true });
   document.getElementById('modal-detalle-credito').classList.add('open');
-  // dejar a la vista el siguiente pago
-  setTimeout(()=>{
-    const sc = document.querySelector('#detalle-credito-content .cr-tabla-scroll'), px = sc && sc.querySelector('.cr-prox');
-    if(sc && px) sc.scrollTop = Math.max(0, px.offsetTop - 60);
-  }, 60);
+  pg.scrollLeft = 0;
+  setTimeout(irProx, 80);
 };
 
 // ── Eliminar ──
