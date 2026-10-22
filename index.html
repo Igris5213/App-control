@@ -669,7 +669,12 @@ input[type=number]{-moz-appearance:textfield}
 .shake{animation:shake 0.5s ease}
 /* ── Hold-to-confirm buttons ── */
 .hold-btn{position:relative;overflow:hidden;user-select:none;-webkit-user-select:none;cursor:pointer}
-.hold-btn .hold-progress{position:absolute;left:0;top:0;height:100%;width:0%;background:rgba(255,255,255,0.28);transition:none;pointer-events:none;border-radius:inherit;z-index:0}
+.hold-btn .hold-progress{position:absolute;left:0;top:0;height:100%;width:0%;background:rgba(128,128,128,0.5);transition:none;pointer-events:none;border-radius:inherit;z-index:0}
+/* Barra de progreso GRIS para todos los botones de mantener presionado: un gris que se adapta al color del texto del botón
+   (más claro sobre botones oscuros, más oscuro sobre botones claros) para que siempre se vea, en modo claro y oscuro */
+@supports (background:color-mix(in srgb,red 50%,blue)){
+  .hold-btn .hold-progress{background:color-mix(in srgb,currentColor 55%,#808080);opacity:.5}
+}
 .hold-btn span.hold-label{position:relative;z-index:1}
 
 .toast{position:fixed;top:20px;left:50%;transform:translateX(-50%);background:#111;color:#fff;padding:10px 22px;border-radius:20px;font-size:13px;opacity:0;transition:opacity 0.3s;pointer-events:none;z-index:9999;white-space:nowrap}
@@ -2442,9 +2447,6 @@ html:not(.dark-mode) .cc-header-box{border-radius:18px;-webkit-mask-image:-webki
 /* Historial: promos y cargos recurrentes sin contorno en modo claro; en oscuro conservan el borde original */
 html.dark-mode #screen-movimientos .mov-item[data-promo-id],
 html.dark-mode #screen-movimientos .mov-item[data-cargo-id]{border:1.5px solid var(--border)}
-/* SOLO MODO CLARO: la barra de progreso de los botones de confirmar (mantener presionado) era blanca sobre un botón claro y no se veía.
-   Ahora toma el color del texto del botón (oscuro) en transparencia. */
-html:not(.dark-mode) .hold-btn.btn-flat-confirm .hold-progress{background:currentColor;opacity:.2}
 /* SOLO MODO CLARO: las tres rayas del botón de menú de promociones/cargos tenían stroke blanco fijo sobre un botón claro */
 html:not(.dark-mode) #screen-promociones .promo-dark-menu svg,
 html:not(.dark-mode) #screen-movimientos .promo-dark-menu svg{stroke:var(--text-dim)}
@@ -2520,8 +2522,6 @@ html:not(.dark-mode) #logout-cerrar-btn{
 }
 html:not(.dark-mode) #logout-cancelar-btn:active,
 html:not(.dark-mode) #logout-cerrar-btn:active{transform:scale(0.98);box-shadow:var(--nm-inset-sm) !important}
-/* barra de progreso de "Cerrar" (mantener presionado): oscura para verse sobre el botón claro */
-html:not(.dark-mode) #logout-cerrar-btn .hold-progress{background:currentColor;opacity:.2}
 
 /* ── Blur uniforme (el mismo del detalle de movimiento) en TODOS los modales, avisos de éxito/eliminado/etc. y el asistente ──
    Antes solo lo tenían los .modal-overlay-blur; los demás (.modal-overlay sin la clase, .success-overlay, asistente) no. */
@@ -4551,6 +4551,8 @@ function _syncWindowVars(){
   window.movimientos        = movimientos;
   window.getPeriodo         = getPeriodo;
   window.movsPorCorte       = movsPorCorte;
+  window._fechaCargoEnPeriodo = _fechaCargoEnPeriodo;          // para Estadísticas: fecha en que cae un cargo recurrente en el corte
+  window._cargosRecurrentes   = () => cargosRecurrentesCache;
   window.getAniosDisponibles= getAniosDisponibles;
   window.getCortesDisponibles=getCortesDisponibles;
   window.fmtDateShort       = fmtDateShort;
@@ -18022,6 +18024,14 @@ document.addEventListener('DOMContentLoaded', function(){
     const mapa = new Map();
     window.movsPorCorte(t.id, t.corte, periodoFin).forEach(m=>mapa.set(m.id, m));
     const movs = [...mapa.values()].filter(m=>m.fecha);
+    // + Cargos recurrentes de la tarjeta que ya cayeron en este corte (los mismos que muestra el historial)
+    const _ahora = new Date();
+    const _esActual = per.inicio <= _ahora && _ahora <= new Date(per.fin.getFullYear(), per.fin.getMonth(), per.fin.getDate(), 23, 59, 59);
+    const _cargos = (typeof window._cargosRecurrentes === 'function' && typeof window._fechaCargoEnPeriodo === 'function') ? window._cargosRecurrentes() : [];
+    _cargos.filter(c=>c.tarjetaId === t.id && c.tipo !== 'debito' && (!_esActual || c.activo !== false)).forEach(c=>{
+      const dC = window._fechaCargoEnPeriodo(c, per.inicio, per.fin);
+      if(dC) movs.push({ id:'cargo-' + c.id, fecha:keyDe(dC), monto:parseFloat(c.monto) || 0, comercio:c.nombre || 'Cargo recurrente', esCargo:true });
+    });
 
     // Eje de días: todo el periodo del corte (y cualquier movimiento que quede fuera)
     let ini = keyDe(per.inicio), fin = keyDe(per.finMostrar || per.fin);
@@ -18155,7 +18165,8 @@ document.addEventListener('DOMContentLoaded', function(){
       h += '<div class="est-sub" style="margin-top:6px">Sin gastos este día</div>';
     } else {
       h += '<div class="est-sub" style="margin:2px 0 6px">' + d.movs.length + ' ' + (d.movs.length === 1 ? 'movimiento' : 'movimientos') + '</div>';
-      h += d.movs.map(m=>'<div class="est-mov"><span>' + esc(m.comercio || m.concepto || m.detalle || 'Gasto') + '</span><span>' + money(m.monto) + '</span></div>').join('');
+      const etiqueta = '<em style="font-style:normal;font-size:10px;font-weight:700;color:var(--text-dim);border:1px solid var(--border);border-radius:6px;padding:1px 5px;margin-left:6px">Recurrente</em>';
+      h += d.movs.map(m=>'<div class="est-mov"><span>' + esc(m.comercio || m.concepto || m.detalle || 'Gasto') + (m.esCargo ? etiqueta : '') + '</span><span>' + money(m.monto) + '</span></div>').join('');
     }
     return h + '</div>';
   }
